@@ -124,6 +124,8 @@ $TicketsRepo with ``{"status":"owner","note":"<one line on what he must decide>"
       if ($LASTEXITCODE -ne 0) { git -C $TicketsPath pull --rebase -q 2>$null | Out-Null; git -C $TicketsPath push -q 2>$null | Out-Null }
     }
   }
+  # Ticket IDs come from form-written files and go onto a cmd line: only plain IDs may wake the seat.
+  $woke = @($woke | Where-Object { $_ -match '^T-[A-Za-z0-9-]{1,40}$' })
   if ($woke.Count -and (Test-Path $WakeCmd)) {
     Log "waking the seat for $($woke -join ', ')"
     Start-Process -FilePath $WakeCmd -ArgumentList ($woke -join ' ') -WindowStyle Hidden

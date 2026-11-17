@@ -23,6 +23,7 @@ function Log($m) { $l = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') + '  status: 
 function Norm($s) { ([string]$s).ToLowerInvariant() -replace '[^a-z0-9]', '' }
 function Plain($md) { (($md -replace '\*\*|`|__', '') -replace '\[([^\]]+)\]\([^)]+\)', '$1').Trim() }
 function Gh-Text($path) {   # file text from GitHub, or $null
+  $ErrorActionPreference = 'Continue'   # Windows PowerShell 5.1: a 404 on stderr must not throw; the exit code decides
   $b = gh api $path --jq .content 2>$null
   if ($LASTEXITCODE -ne 0 -or -not $b) { return $null }
   return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String((($b -join '') -replace '\s', '')))
@@ -57,9 +58,10 @@ try {
     $row = $rows | Where-Object { ($_.keys -contains $k1) -or ($_.keys -contains $k2) -or ($k1 -and ($_.keys | Where-Object { $_ -and $_.Length -gt 4 -and ($k1.StartsWith($_) -or $_.StartsWith($k1)) })) } | Select-Object -First 1
     if (-not $row) { continue }
     $branch = $row.branch
-    if (-not $branch) { $branch = (gh api "repos/$($row.repo)" --jq .default_branch 2>$null); if (-not $branch) { $branch = 'main' } }
-    $c = gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" --jq '.[0] | [.sha, .commit.committer.date, (.commit.message | split("\n") | .[0])] | @tsv' 2>$null
+    if (-not $branch) { $branch = & { $ErrorActionPreference = 'Continue'; gh api "repos/$($row.repo)" --jq .default_branch 2>$null }; if (-not $branch) { $branch = 'main' } }
+    $c = & { $ErrorActionPreference = 'Continue'; gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" --jq '.[0] | [.sha, .commit.committer.date, .commit.message] | @tsv' 2>$null }   # no inner double quotes: Windows PowerShell 5.1 strips them from native args
     $sha, $when, $msg = $(if ($c) { ($c -split "`t") } else { @('', '', '') })
+    $msg = ([string]$msg -split '\\n')[0]   # @tsv writes newlines as a literal \n; keep the first line
     $st = $null
     foreach ($path in @("projects/$($row.folder)/STATUS.md", 'docs/STATUS.md', 'STATUS.md', 'docs/CHANGELOG.md')) {
       if ($path -like 'projects//*') { continue }
