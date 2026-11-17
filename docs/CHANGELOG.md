@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2 — 2026-11-16
+- Downloads are now PRIVATE and ENCRYPTED. Sign-in box (name + password, green check) is the first
+  thing anyone sees; nothing is listed until it unlocks. Sign-out button (⏻) in the header.
+- Landing screen = three jump cards: Pulse Labs PC (monitor art), Pulse Labs Droid (Fold-style phone
+  opened at an angle with our own robot in the glass), Chrome Extensions (puzzle piece). Each shows
+  its app count; tap → that shelf's app cards → app page with downloads. Red undo arrow goes back.
+- Downloads are decrypted and fingerprint-checked in the browser before saving with the real file name.
+- New farm tools: PlsVault.ps1 (crypto), Vault-User.ps1 (set up vault, add/remove people),
+  Publish-ToSite.ps1 rewritten to encrypt and upload to the `vault` release, auto-pick the shelf,
+  keep only the newest build per shelf.
+- New deploy workflow (.github/workflows/pages.yml) that serves the encrypted files from the site.
+- Removed public products.json and the big home-page Downloads button (footer "Sign in" link instead).
+- Tested end-to-end on Linux with PowerShell 7 + headless Chrome (phone size): wrong password refused,
+  right one unlocks, downloaded APK byte-identical to the original. Not yet run on Windows PowerShell 5.1.
+
 ## v0.1 — 2026-11-16
 - Added `downloads.html`: jump-card grid (screenshot, icon, name, Android/PC badges, short description,
   version, build date, release date, size). Tap a card → it jumps open to the full page: hero

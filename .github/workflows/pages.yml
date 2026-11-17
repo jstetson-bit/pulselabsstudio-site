@@ -1,0 +1,39 @@
+# Builds the live site: the pages from this repo + the encrypted files from the "vault" release,
+# served from the same address so the browser can unlock them. Runs on every push.
+name: Deploy site
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p _site/v
+          cp *.html CNAME _site/
+          [ -d pulse-meter ] && cp -r pulse-meter _site/
+          [ -d vault ] && cp -r vault _site/
+          if gh release view vault --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release download vault --repo "$GITHUB_REPOSITORY" --pattern '*.bin' --dir _site/v
+          fi
+          du -sh _site
+      - uses: actions/upload-pages-artifact@v3
+      - id: deploy
+        uses: actions/deploy-pages@v4

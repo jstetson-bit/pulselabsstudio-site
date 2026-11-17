@@ -3,174 +3,284 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Downloads — Pulse Labs Studio</title>
-<meta name="description" content="Download Pulse Labs Studio apps for Android and Windows.">
+<meta name="robots" content="noindex, nofollow">
+<title>Pulse Labs — Private Downloads</title>
 <style>
-  :root { --bg:#0a0a0b; --panel:#141416; --panel2:#1b1b1e; --text:#f2f2f0; --dim:#a7a7a2; --red:#e63329; --line:#26262a; --green:#2fbf4f; }
+  :root { --bg:#0a0a0b; --panel:#141416; --panel2:#1b1b1e; --text:#fff; --dim:#c9c9c4; --red:#e63329; --line:#2a2a2f; --green:#2fbf4f; --cyan:#35c6e8; }
   * { box-sizing:border-box; }
   html.inv { filter:invert(1) hue-rotate(180deg); }
-  html.inv img { filter:invert(1) hue-rotate(180deg); }
+  html.inv img, html.inv .art { filter:invert(1) hue-rotate(180deg); }
   body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
-  a { color:var(--red); }
-  header { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:5; }
-  header a.home { display:flex; align-items:center; gap:10px; color:var(--text); text-decoration:none; font-weight:700; font-size:18px; }
-  header nav { margin-left:auto; display:flex; gap:10px; align-items:center; white-space:nowrap; }
-  header nav a { text-decoration:none; font-weight:600; }
-  @media (max-width:480px) { header a.home span { display:none; } }
-  .iconbtn { width:36px; height:36px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:16px; cursor:pointer; display:grid; place-items:center; }
-  .wrap { max-width:1100px; margin:0 auto; padding:22px 18px 60px; }
-  h1 { margin:6px 0 4px; font-size:28px; }
+  header { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:5; }
+  header .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; color:var(--text); text-decoration:none; }
+  header nav { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .iconbtn { width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:17px; cursor:pointer; display:grid; place-items:center; }
+  .wrap { max-width:1100px; margin:0 auto; padding:22px 16px 60px; }
+  h1 { margin:4px 0 4px; font-size:28px; }
   .sub { color:var(--dim); margin:0 0 18px; }
-  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
-  .chip { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:7px 14px; font-size:14px; cursor:pointer; }
-  .chip.on { background:var(--red); border-color:var(--red); }
+  .hidden { display:none !important; }
+  .lock { max-width:380px; margin:40px auto; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px; }
+  .lock label { display:block; font-size:14px; margin:14px 0 6px; }
+  .lock input { width:100%; padding:12px 14px; font-size:17px; border-radius:10px; border:1px solid var(--line); background:var(--panel2); color:var(--text); }
+  .go { width:64px; height:64px; border-radius:50%; border:none; background:var(--green); color:#fff; font-size:32px; cursor:pointer; display:block; margin:20px auto 0; }
+  .go:disabled { opacity:.5; }
+  .err { color:#ff6b61; min-height:1.5em; text-align:center; margin-top:10px; }
+  .lockicon { width:56px; height:56px; display:block; margin:0 auto 6px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
-  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; cursor:pointer; text-align:left; color:inherit; font:inherit; padding:0; transition:transform .15s, border-color .15s; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden; cursor:pointer; text-align:left; color:inherit; font:inherit; padding:0; transition:transform .15s, border-color .15s; }
   .card:hover, .card:focus-visible { transform:translateY(-3px); border-color:var(--red); outline:none; }
+  .shelf .art { aspect-ratio:16/11; display:grid; place-items:center; background:radial-gradient(circle at 50% 40%, #222228, #111114 70%); }
+  .shelf .art svg { width:72%; height:auto; }
+  .shelf .body { padding:14px 16px 16px; }
+  .shelf .name { font-size:20px; font-weight:800; }
+  .count { color:var(--dim); font-size:14px; }
   .shot { aspect-ratio:16/10; background:var(--panel2) center/cover no-repeat; display:grid; place-items:center; color:var(--dim); font-size:13px; }
   .body { padding:12px 14px 14px; }
   .row { display:flex; align-items:center; gap:10px; }
   .icon { width:40px; height:40px; border-radius:10px; background:var(--panel2) center/cover; flex:0 0 40px; }
   .name { font-weight:700; font-size:17px; }
-  .badges { display:flex; gap:6px; margin-top:2px; }
-  .badge { font-size:11px; padding:2px 7px; border-radius:6px; background:var(--panel2); color:var(--dim); border:1px solid var(--line); }
-  .desc { color:var(--text); font-size:14px; margin:10px 0 8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .meta { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-size:12.5px; color:var(--dim); }
+  .desc { font-size:14px; margin:10px 0 8px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .meta { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-size:13px; color:var(--dim); }
   .meta b { color:var(--text); font-weight:600; }
   .empty { color:var(--dim); padding:40px 0; text-align:center; }
-  /* Jump view: the card opens into its full page */
-  #jump { position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:20; display:none; overflow:auto; }
-  #jump.open { display:block; }
-  .jpanel { max-width:880px; margin:30px auto; background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden; transform-origin:var(--ox,50%) var(--oy,50%); animation:jumpIn .22s ease-out; }
-  @keyframes jumpIn { from { transform:scale(.6); opacity:0; } to { transform:scale(1); opacity:1; } }
-  .jhero { aspect-ratio:16/8; background:var(--panel2) center/cover no-repeat; position:relative; }
-  .jback { position:absolute; top:12px; left:12px; width:44px; height:44px; border-radius:50%; border:none; background:rgba(0,0,0,.6); color:#fff; font-size:22px; cursor:pointer; }
-  .jbody { padding:18px 22px 24px; }
-  .jbody h2 { margin:0; font-size:26px; }
-  .jbody .tag { color:var(--dim); margin:2px 0 14px; }
+  .back { width:48px; height:48px; border-radius:50%; border:none; background:var(--red); color:#fff; font-size:24px; cursor:pointer; flex:0 0 48px; }
+  .titlerow { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+  .jumpin { animation:jumpIn .22s ease-out; }
+  @keyframes jumpIn { from { transform:scale(.85); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .hero { aspect-ratio:16/8; background:var(--panel2) center/cover no-repeat; border-radius:14px; border:1px solid var(--line); }
   .dl { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0; }
-  .dlbtn { display:flex; flex-direction:column; text-decoration:none; background:var(--red); color:#fff; padding:10px 16px; border-radius:10px; font-weight:700; }
-  .dlbtn small { font-weight:400; opacity:.85; font-size:12px; }
-  .dlbtn.locked { background:var(--panel2); color:var(--dim); border:1px solid var(--line); }
+  .dlbtn { display:flex; flex-direction:column; border:none; text-align:left; background:var(--red); color:#fff; padding:12px 18px; border-radius:12px; font:inherit; font-weight:700; cursor:pointer; }
+  .dlbtn small { font-weight:400; opacity:.9; font-size:12px; }
+  .dlbtn:disabled { opacity:.6; cursor:wait; }
   .shots { display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; }
   .shots img { height:220px; border-radius:10px; border:1px solid var(--line); }
-  .jmeta { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin:14px 0; }
+  .jmeta { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin:14px 0; }
   .jmeta div { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 12px; font-size:13px; color:var(--dim); }
   .jmeta b { display:block; color:var(--text); font-size:15px; }
   .hash { font-family:ui-monospace,Consolas,monospace; font-size:11px; color:var(--dim); word-break:break-all; }
   .notes { white-space:pre-wrap; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:14px; }
-  #manual { position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:30; display:none; }
+  #manual { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:30; display:none; overflow:auto; }
   #manual.open { display:grid; place-items:center; }
-  #manual .box { max-width:520px; margin:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
-  .ok { width:48px; height:48px; border-radius:50%; border:none; background:var(--green); color:#fff; font-size:24px; cursor:pointer; float:right; }
+  #manual .box { max-width:540px; margin:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+  .ok { width:52px; height:52px; border-radius:50%; border:none; background:var(--green); color:#fff; font-size:26px; cursor:pointer; float:right; margin-left:10px; }
 </style>
 </head>
 <body>
 <header>
-  <a class="home" href="index.html">
-    <svg width="32" height="32" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
-    <span>Pulse Labs Studio</span>
-  </a>
+  <span class="brand">
+    <svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <span>Pulse Labs</span>
+  </span>
   <nav>
-    <a href="downloads.html">Downloads</a>
-    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻<sup style="font-size:9px">i</sup></button>
+    <button class="iconbtn hidden" id="outBtn" title="Sign out" aria-label="Sign out">⏻</button>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
     <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
   </nav>
 </header>
 
 <div class="wrap">
-  <h1>Downloads</h1>
-  <p class="sub">Every Pulse Labs app, newest first. Tap a card to jump in.</p>
-  <div class="filters" id="filters"></div>
-  <div class="grid" id="grid"></div>
+  <form class="lock" id="lockView" autocomplete="on">
+    <svg class="lockicon" viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="21" width="30" height="22" rx="4" fill="#e63329"/><path d="M15 21v-6a9 9 0 0 1 18 0v6" fill="none" stroke="#fff" stroke-width="3.5"/><circle cx="24" cy="31" r="3" fill="#fff"/></svg>
+    <h1 style="text-align:center">Private downloads</h1>
+    <p class="sub" style="text-align:center">Sign in to see the builds.</p>
+    <label for="nm">Name</label>
+    <input id="nm" name="username" autocomplete="username" autocapitalize="none" required>
+    <label for="pw">Password</label>
+    <input id="pw" name="password" type="password" autocomplete="current-password" required>
+    <button class="go" id="goBtn" type="submit" aria-label="Sign in">✔</button>
+    <div class="err" id="err"></div>
+  </form>
+  <div id="app" class="hidden"></div>
 </div>
-
-<div id="jump" role="dialog" aria-modal="true"></div>
 
 <div id="manual" role="dialog" aria-modal="true">
   <div class="box">
     <button class="ok" id="manualOk" aria-label="Close">✔</button>
     <h2 style="margin-top:0">How Downloads works</h2>
-    <p>Each card is one app. Tap it and it jumps open to the full page: screenshots, what it does, what changed, and the download buttons.</p>
-    <p>Phone apps come as an <b>APK</b>. PC apps come as an <b>exe</b> or <b>zip</b>. Each file shows its size and a fingerprint (SHA-256) so you can check it arrived untouched.</p>
-    <p>Use the chips at the top to show only Android or only PC. The ◐ button flips the colors.</p>
+    <p><b>Sign in</b> with the name and password you were given. Everything here is locked: the list of apps, the pictures and the files stay scrambled until you sign in, and they unlock only inside your own browser.</p>
+    <p><b>Pick a shelf:</b> Pulse Labs PC (Windows programs), Pulse Labs Droid (phone and tablet apps) or Chrome Extensions. Tap it and it jumps open to every app on that shelf.</p>
+    <p><b>Tap an app</b> to see its pictures, what changed, version, build date, release date, size and the download button. The red undo arrow takes you back one step.</p>
+    <p><b>Phone apps</b> download as an APK. Open it and allow the install. It installs over the old version, so settings stay. <b>PC apps</b> download as an exe or zip.</p>
+    <p>Every file has a fingerprint (SHA-256), and the page checks each download is untouched before handing it over.</p>
+    <p>◐ flips the colors. ⏻ signs you out.</p>
   </div>
 </div>
 
 <script>
 (function () {
-  var data = [], filter = 'all';
-  var grid = document.getElementById('grid'), jump = document.getElementById('jump');
-  var q = new URLSearchParams(location.search);
-  var src = q.get('demo') ? 'products.demo.json' : 'products.json';
+  'use strict';
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var vault = null, MK = null, manifest = null, blobCache = {}, imgUrls = {};
+  var app = document.getElementById('app'), lockView = document.getElementById('lockView');
+  var SHELVES = [
+    { id:'windows', title:'Pulse Labs PC', blurb:'Windows programs', art:artPC() },
+    { id:'android', title:'Pulse Labs Droid', blurb:'Phone and tablet apps', art:artDroid() },
+    { id:'chrome',  title:'Chrome Extensions', blurb:'Browser add-ons', art:artPuzzle() }
+  ];
 
+  // ---------- crypto (matches tools/PlsVault.ps1) ----------
+  function b64(s) { var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  function toB64(a) { var s = ''; for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
+  function hex(a) { return Array.prototype.map.call(a, function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
+  function open(key, blob) {
+    blob = new Uint8Array(blob);
+    if (blob.length < 68 || blob[0] !== 0x50 || blob[1] !== 0x4C || blob[2] !== 0x53 || blob[3] !== 0x31) return Promise.reject(new Error('bad blob'));
+    var n = blob.length - 32;
+    return crypto.subtle.importKey('raw', key.slice(32, 64), { name:'HMAC', hash:'SHA-256' }, false, ['verify'])
+      .then(function (hk) { return crypto.subtle.verify('HMAC', hk, blob.subarray(n), blob.subarray(0, n)); })
+      .then(function (ok) {
+        if (!ok) throw new Error('check failed');
+        return crypto.subtle.importKey('raw', key.slice(0, 32), { name:'AES-CBC' }, false, ['decrypt']);
+      })
+      .then(function (ak) { return crypto.subtle.decrypt({ name:'AES-CBC', iv:blob.slice(4, 20) }, ak, blob.subarray(20, n)); });
+  }
+  function userId(name) {
+    return crypto.subtle.digest('SHA-256', enc.encode('pls-vault-user:' + name.trim().toLowerCase()))
+      .then(function (d) { return hex(new Uint8Array(d).slice(0, 12)); });
+  }
+  function passwordKey(pw, salt, iter) {
+    return crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits'])
+      .then(function (k) { return crypto.subtle.deriveBits({ name:'PBKDF2', salt:salt, iterations:iter, hash:'SHA-256' }, k, 512); })
+      .then(function (b) { return new Uint8Array(b); });
+  }
+  function loadVault() { return fetch('vault/vault.json', { cache:'no-cache' }).then(function (r) { if (!r.ok) throw new Error('novault'); return r.json(); }); }
+  function unlockWith(mk) { return open(mk, b64(vault.manifest)).then(function (pt) { MK = mk; manifest = JSON.parse(dec.decode(pt)); }); }
+  function getBlob(name) {
+    if (!blobCache[name]) blobCache[name] = fetch('v/' + name).then(function (r) { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+      .then(function (buf) { return open(MK, buf); });
+    return blobCache[name];
+  }
+  function imgUrl(name) {
+    if (!imgUrls[name]) imgUrls[name] = getBlob(name).then(function (b) { return URL.createObjectURL(new Blob([b])); });
+    return imgUrls[name];
+  }
+  function fillImages(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-img]'), function (el) {
+      imgUrl(el.getAttribute('data-img')).then(function (u) {
+        if (el.tagName === 'IMG') el.src = u; else { el.style.backgroundImage = "url('" + u + "')"; el.textContent = ''; }
+      }).catch(function () {});
+    });
+  }
+
+  // ---------- sign in ----------
+  var err = document.getElementById('err'), goBtn = document.getElementById('goBtn');
+  lockView.addEventListener('submit', function (e) {
+    e.preventDefault(); err.textContent = ''; goBtn.disabled = true; goBtn.textContent = '…';
+    var name = document.getElementById('nm').value, pw = document.getElementById('pw').value;
+    (vault ? Promise.resolve(vault) : loadVault()).then(function (v) {
+      vault = v; return userId(name);
+    }).then(function (id) {
+      var u = vault.users && vault.users[id];
+      if (!u) throw new Error('nouser');
+      return passwordKey(pw, b64(u.salt), vault.iter).then(function (kek) { return open(kek, b64(u.wrap)); });
+    }).then(function (mk) {
+      mk = new Uint8Array(mk);
+      return unlockWith(mk).then(function () { try { sessionStorage.setItem('pls.vk', toB64(mk)); } catch (e2) {} });
+    }).then(function () {
+      document.getElementById('pw').value = ''; showApp();
+    }).catch(function (x) {
+      err.textContent = x && x.message === 'novault' ? 'The vault isn\'t set up yet.' : 'That name or password didn\'t work.';
+    }).then(function () { goBtn.disabled = false; goBtn.textContent = '✔'; });
+  });
+  document.getElementById('outBtn').onclick = function () {
+    try { sessionStorage.removeItem('pls.vk'); } catch (e) {}
+    MK = null; manifest = null; blobCache = {}; imgUrls = {}; app.innerHTML = '';
+    app.classList.add('hidden'); lockView.classList.remove('hidden'); this.classList.add('hidden');
+    history.replaceState(null, '', location.pathname);
+  };
+
+  // ---------- views ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function size(b) { if (!b) return '—'; var u = ['B','KB','MB','GB'], i = 0; while (b >= 1024 && i < 3) { b /= 1024; i++; } return b.toFixed(i ? 1 : 0) + ' ' + u[i]; }
-  function day(d) { if (!d) return '—'; var t = new Date(d + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'}); }
-  function plats(p) { var s = {}; (p.downloads || []).forEach(function (d) { s[d.platform] = 1; }); return Object.keys(s); }
-  function newest(p) { return (p.downloads || []).reduce(function (a, d) { return (d.releaseDate || '') > (a.releaseDate || '') ? d : a; }, {}); }
-  var PL = { android: 'Android', windows: 'PC', web: 'Web' };
-
-  // Remember filter + open card so coming back lands where you were.
-  function save() { try { sessionStorage.setItem('dl.state', JSON.stringify({ f: filter, y: scrollY })); } catch (e) {} }
-  function load() { try { return JSON.parse(sessionStorage.getItem('dl.state')) || {}; } catch (e) { return {}; } }
-
-  function chips() {
-    var f = document.getElementById('filters'), opts = [['all','All'],['android','Android'],['windows','PC']];
-    f.innerHTML = opts.map(function (o) { return '<button class="chip' + (filter === o[0] ? ' on' : '') + '" data-f="' + o[0] + '">' + o[1] + '</button>'; }).join('');
+  function day(d) { if (!d) return '—'; var t = new Date(d + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+  function onShelf(p, s) { return (p.downloads || []).some(function (d) { return d.platform === s; }); }
+  function dlFor(p, s) { return (p.downloads || []).filter(function (d) { return d.platform === s; })[0] || {}; }
+  function products(s) {
+    return (manifest.products || []).filter(function (p) { return onShelf(p, s); })
+      .sort(function (a, b) { return (dlFor(b, s).releaseDate || '').localeCompare(dlFor(a, s).releaseDate || '') || a.name.localeCompare(b.name); });
   }
+  function shelfOf(id) { return SHELVES.filter(function (s) { return s.id === id; })[0]; }
 
-  function render() {
-    chips();
-    var list = data.filter(function (p) { return filter === 'all' || plats(p).indexOf(filter) >= 0; });
-    if (!list.length) { grid.innerHTML = '<div class="empty">' + (data.length ? 'Nothing here for this filter yet.' : 'First releases are landing soon.') + '</div>'; return; }
-    grid.innerHTML = list.map(function (p) {
-      var n = newest(p), shot = (p.screenshots || [])[0];
-      return '<button class="card" data-id="' + esc(p.id) + '">' +
-        '<div class="shot" style="' + (shot ? "background-image:url('" + esc(shot) + "')" : '') + '">' + (shot ? '' : 'No screenshot yet') + '</div>' +
-        '<div class="body"><div class="row"><div class="icon" style="' + (p.icon ? "background-image:url('" + esc(p.icon) + "')" : '') + '"></div>' +
-        '<div><div class="name">' + esc(p.name) + '</div><div class="badges">' + plats(p).map(function (k) { return '<span class="badge">' + (PL[k] || k) + '</span>'; }).join('') + '</div></div></div>' +
-        '<div class="desc">' + esc(p.tagline || p.description) + '</div>' +
-        '<div class="meta"><span>Version</span><b>' + esc(n.version || '—') + '</b>' +
-        '<span>Built</span><b>' + day(n.buildDate) + '</b><span>Released</span><b>' + day(n.releaseDate) + '</b>' +
-        '<span>Size</span><b>' + size(n.size) + '</b></div></div></button>';
-    }).join('');
+  function showApp() {
+    lockView.classList.add('hidden'); app.classList.remove('hidden');
+    document.getElementById('outBtn').classList.remove('hidden');
+    route();
   }
+  function route() {
+    if (!manifest) return;
+    var parts = location.hash.slice(1).split('/'), s = shelfOf(parts[0]);
+    if (!s) return viewShelves();
+    if (parts[1]) return viewProduct(s, parts[1]);
+    viewShelf(s);
+  }
+  addEventListener('hashchange', route);
 
-  function open(id, fromEl) {
-    var p = data.find(function (x) { return x.id === id; }); if (!p) return;
-    if (fromEl) { var r = fromEl.getBoundingClientRect(); jump.style.setProperty('--ox', (r.left + r.width / 2) + 'px'); }
-    var hero = (p.screenshots || [])[0];
-    var dls = (p.downloads || []).slice().sort(function (a, b) { return (b.releaseDate || '').localeCompare(a.releaseDate || ''); });
-    var latest = {}; dls.forEach(function (d) { if (!latest[d.platform]) latest[d.platform] = d; });
-    var n = newest(p);
-    jump.innerHTML = '<div class="jpanel"><div class="jhero" style="' + (hero ? "background-image:url('" + esc(hero) + "')" : '') + '">' +
-      '<button class="jback" id="jback" aria-label="Back">↶</button></div><div class="jbody">' +
-      '<h2>' + esc(p.name) + '</h2><div class="tag">' + esc(p.tagline || '') + '</div>' +
-      '<div class="dl">' + Object.keys(latest).map(function (k) { var d = latest[k];
-        return d.url ? '<a class="dlbtn" href="' + esc(d.url) + '" download>Download for ' + (PL[k] || k) + '<small>' + esc(d.file) + ' · ' + size(d.size) + '</small></a>'
-                     : '<span class="dlbtn locked">' + (PL[k] || k) + ' coming soon</span>'; }).join('') + '</div>' +
+  function viewShelves() {
+    app.innerHTML = '<h1>Downloads</h1><p class="sub">Pick a shelf. Updated ' + day(manifest.updated) + '.</p><div class="grid jumpin">' +
+      SHELVES.map(function (s) {
+        var n = products(s.id).length;
+        return '<button class="card shelf" data-go="' + s.id + '"><div class="art">' + s.art + '</div><div class="body"><div class="name">' + s.title +
+          '</div><div class="count">' + s.blurb + ' · ' + (n ? n + ' app' + (n > 1 ? 's' : '') : 'nothing yet') + '</div></div></button>';
+      }).join('') + '</div>';
+    restoreScroll('top');
+  }
+  function viewShelf(s) {
+    var list = products(s.id);
+    app.innerHTML = '<div class="titlerow"><button class="back" data-go="" aria-label="Back">↶</button><h1>' + s.title + '</h1></div>' +
+      '<div class="grid jumpin">' + (list.length ? list.map(function (p) {
+        var d = dlFor(p, s.id), shot = (p.screenshots || [])[0];
+        return '<button class="card" data-go="' + s.id + '/' + esc(p.id) + '">' +
+          '<div class="shot"' + (shot ? ' data-img="' + esc(shot) + '"' : '') + '>' + (shot ? 'Unlocking…' : 'No picture yet') + '</div>' +
+          '<div class="body"><div class="row"><div class="icon"' + (p.icon ? ' data-img="' + esc(p.icon) + '"' : '') + '></div><div class="name">' + esc(p.name) + '</div></div>' +
+          '<div class="desc">' + esc(p.tagline || p.description) + '</div>' +
+          '<div class="meta"><span>Version</span><b>' + esc(d.version || '—') + '</b><span>Built</span><b>' + day(d.buildDate) +
+          '</b><span>Released</span><b>' + day(d.releaseDate) + '</b><span>Size</span><b>' + size(d.size) + '</b></div></div></button>';
+      }).join('') : '<div class="empty">Nothing on this shelf yet.</div>') + '</div>';
+    fillImages(app); restoreScroll(s.id);
+  }
+  function viewProduct(s, pid) {
+    var p = (manifest.products || []).filter(function (x) { return x.id === pid; })[0];
+    if (!p) return viewShelf(s);
+    var d = dlFor(p, s.id), shots = p.screenshots || [];
+    var dls = (p.downloads || []).slice().sort(function (a, b) { return (b.platform === s.id) - (a.platform === s.id); });
+    app.innerHTML = '<div class="jumpin"><div class="titlerow"><button class="back" data-go="' + s.id + '" aria-label="Back">↶</button>' +
+      '<div class="icon"' + (p.icon ? ' data-img="' + esc(p.icon) + '"' : '') + ' style="width:52px;height:52px;flex-basis:52px"></div><div><h1 style="margin:0">' + esc(p.name) + '</h1>' +
+      '<div class="sub" style="margin:0">' + esc(p.tagline || '') + '</div></div></div>' +
+      (shots[0] ? '<div class="hero" data-img="' + esc(shots[0]) + '"></div>' : '') +
+      '<div class="dl">' + dls.map(function (x) {
+        var label = (shelfOf(x.platform) || {}).title || x.platform;
+        return '<button class="dlbtn" data-blob="' + esc(x.blob) + '" data-file="' + esc(x.file) + '">Download · ' + esc(label) + '<small>' + esc(x.file) + ' · ' + size(x.size) + '</small></button>';
+      }).join('') + '</div>' +
       '<p>' + esc(p.description || '') + '</p>' +
-      ((p.screenshots || []).length > 1 ? '<div class="shots">' + p.screenshots.map(function (s) { return '<img loading="lazy" src="' + esc(s) + '" alt="">'; }).join('') + '</div>' : '') +
-      '<div class="jmeta"><div>Version<b>' + esc(n.version || '—') + '</b></div><div>Built<b>' + day(n.buildDate) + '</b></div>' +
-      '<div>Released<b>' + day(n.releaseDate) + '</b></div><div>Size<b>' + size(n.size) + '</b></div></div>' +
-      (n.notes ? '<h3>What changed</h3><div class="notes">' + esc(n.notes) + '</div>' : '') +
-      Object.keys(latest).map(function (k) { var d = latest[k]; return d.sha256 ? '<p class="hash">' + esc(d.file) + ' SHA-256: ' + esc(d.sha256) + '</p>' : ''; }).join('') +
-      '</div></div>';
-    jump.classList.add('open'); document.body.style.overflow = 'hidden';
-    if (location.hash !== '#' + id) history.pushState(null, '', '#' + id);
-    document.getElementById('jback').onclick = function () { history.back(); };
+      (shots.length > 1 ? '<div class="shots">' + shots.map(function (n) { return '<img alt="" data-img="' + esc(n) + '">'; }).join('') + '</div>' : '') +
+      '<div class="jmeta"><div>Version<b>' + esc(d.version || '—') + '</b></div><div>Built<b>' + day(d.buildDate) + '</b></div>' +
+      '<div>Released<b>' + day(d.releaseDate) + '</b></div><div>Size<b>' + size(d.size) + '</b></div></div>' +
+      (d.notes ? '<h3>What changed</h3><div class="notes">' + esc(d.notes) + '</div>' : '') +
+      dls.map(function (x) { return '<p class="hash">' + esc(x.file) + ' SHA-256: ' + esc(x.sha256) + '</p>'; }).join('') + '</div>';
+    fillImages(app); scrollTo(0, 0);
   }
-  function close() { jump.classList.remove('open'); jump.innerHTML = ''; document.body.style.overflow = ''; }
 
-  grid.addEventListener('click', function (e) { var c = e.target.closest('.card'); if (c) open(c.dataset.id, c); });
-  document.getElementById('filters').addEventListener('click', function (e) { var c = e.target.closest('.chip'); if (c) { filter = c.dataset.f; save(); render(); } });
-  jump.addEventListener('click', function (e) { if (e.target === jump) history.back(); });
-  addEventListener('popstate', function () { var id = location.hash.slice(1); id ? open(id) : close(); });
-  addEventListener('keydown', function (e) { if (e.key === 'Escape' && jump.classList.contains('open')) history.back(); });
-  addEventListener('scroll', save, { passive: true });
+  function download(btn) {
+    var name = btn.getAttribute('data-blob'), file = btn.getAttribute('data-file'), small = btn.querySelector('small'), was = small.textContent;
+    btn.disabled = true; small.textContent = 'Downloading and checking…';
+    getBlob(name).then(function (buf) {
+      delete blobCache[name];
+      var a = document.createElement('a'), u = URL.createObjectURL(new Blob([buf], { type:'application/octet-stream' }));
+      a.href = u; a.download = file; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+      small.textContent = was;
+    }).catch(function () { delete blobCache[name]; small.textContent = 'That download failed its check. Try again.'; })
+      .then(function () { btn.disabled = false; });
+  }
 
-  // House staples: ghost "i" manual + invert, reachable from anywhere.
+  app.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-blob]'); if (b) return download(b);
+    var g = e.target.closest('[data-go]'); if (g) { saveScroll(); location.hash = g.getAttribute('data-go'); }
+  });
+
+  function saveScroll() { try { sessionStorage.setItem('pls.y.' + (location.hash.slice(1) || 'top'), String(scrollY)); } catch (e) {} }
+  function restoreScroll(k) { var y = 0; try { y = +sessionStorage.getItem('pls.y.' + k) || 0; } catch (e) {} scrollTo(0, y); }
+
   var man = document.getElementById('manual');
   document.getElementById('infoBtn').onclick = function () { man.classList.add('open'); };
   document.getElementById('manualOk').onclick = function () { man.classList.remove('open'); };
@@ -178,12 +288,32 @@
   try { inv(localStorage.getItem('pls.invert') === '1'); } catch (e) {}
   document.getElementById('invBtn').onclick = function () { inv(!document.documentElement.classList.contains('inv')); };
 
-  var st = load(); filter = st.f || 'all';
-  fetch(src, { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) {
-    data = (j.products || []).sort(function (a, b) { return (newest(b).releaseDate || '').localeCompare(newest(a).releaseDate || ''); });
-    render(); if (st.y) scrollTo(0, st.y);
-    if (location.hash.length > 1) open(location.hash.slice(1));
-  }).catch(function () { grid.innerHTML = '<div class="empty">Couldn\'t load the product list. Try again in a moment.</div>'; });
+  var saved = null; try { saved = sessionStorage.getItem('pls.vk'); } catch (e) {}
+  if (saved) loadVault().then(function (v) { vault = v; return unlockWith(b64(saved)); }).then(showApp).catch(function () { try { sessionStorage.removeItem('pls.vk'); } catch (e) {} });
+
+  // ---------- shelf art ----------
+  function artPC() {
+    return '<svg viewBox="0 0 200 140" aria-hidden="true"><rect x="22" y="12" width="156" height="96" rx="8" fill="#1d1d22" stroke="#e63329" stroke-width="4"/>' +
+      '<rect x="32" y="22" width="136" height="76" rx="3" fill="#0b2a33"/><polyline points="40,62 70,62 80,40 94,84 104,62 160,62" fill="none" stroke="#35c6e8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<rect x="90" y="108" width="20" height="16" fill="#2a2a30"/><rect x="62" y="122" width="76" height="8" rx="4" fill="#3a3a42"/></svg>';
+  }
+  function artDroid() {
+    return '<svg viewBox="0 0 200 140" aria-hidden="true"><defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>' +
+      '<polygon points="34,30 98,18 98,128 34,112" fill="#1d1d22" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round"/>' +
+      '<polygon points="98,18 168,32 168,114 98,128" fill="#26262c" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round"/>' +
+      '<polygon points="40,35 95,25 95,121 40,107" fill="#0b2a33"/><polygon points="101,25 162,37 162,109 101,121" fill="#0d3240"/>' +
+      '<g transform="translate(98 70)"><line x1="0" y1="-34" x2="0" y2="-26" stroke="#35c6e8" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-36" r="3" fill="#e63329"/>' +
+      '<rect x="-17" y="-26" width="34" height="24" rx="7" fill="#35c6e8"/><rect x="-12" y="-19" width="24" height="9" rx="4.5" fill="#0b2a33"/><circle cx="-5" cy="-14.5" r="2.2" fill="#fff"/><circle cx="5" cy="-14.5" r="2.2" fill="#fff"/>' +
+      '<rect x="-14" y="0" width="28" height="24" rx="5" fill="#35c6e8"/><rect x="-22" y="2" width="6" height="16" rx="3" fill="#35c6e8"/><rect x="16" y="2" width="6" height="16" rx="3" fill="#35c6e8"/>' +
+      '<polyline points="-8,12 -3,12 -1,7 2,17 4,12 8,12" fill="none" stroke="#e63329" stroke-width="2" stroke-linejoin="round"/>' +
+      '<rect x="-11" y="24" width="7" height="9" rx="2" fill="#35c6e8"/><rect x="4" y="24" width="7" height="9" rx="2" fill="#35c6e8"/></g>' +
+      '<polygon points="34,30 98,18 98,128 34,112" fill="url(#gl)"/><polygon points="98,18 168,32 168,114 98,128" fill="url(#gl)"/>' +
+      '<line x1="98" y1="18" x2="98" y2="128" stroke="#555" stroke-width="2"/></svg>';
+  }
+  function artPuzzle() {
+    return '<svg viewBox="0 0 200 140" aria-hidden="true"><path d="M60 40 h22 a12 12 0 1 1 24 0 h22 v22 a12 12 0 1 1 0 24 v22 h-22 a12 12 0 1 0 -24 0 h-22 v-22 a12 12 0 1 0 0 -24 z" fill="#e63329" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>' +
+      '<polyline points="72,74 84,74 90,62 98,86 104,74 116,74" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  }
 })();
 </script>
 </body>
