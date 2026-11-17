@@ -164,7 +164,7 @@ try {
   $msg = 'Vault: farm update (' + (($updates | ForEach-Object { $_.id }) -join ', ') + ')'
   $n = Invoke-PlsPublish -Updates $updates -RepoPath $RepoPath -MK $mk -Message $msg -Log { param($m) Log $m } `
         -Watcher ([pscustomobject]@{ ok = (Get-Date).ToString('o'); error = '' }) -DryRun:$DryRun
-  Log "published $n change(s)"
+  Log ($(if ($DryRun) { "dry run: would publish $n change(s) - nothing was pushed" } else { "published $n change(s)" }))
   # tell the ticket watcher which notes went out (for "Fixes T-...")
   $fixedPath = $(if ($env:PLS_FIXED_REFS) { $env:PLS_FIXED_REFS } else { 'C:\PulseLabs\fixed-refs.json' })
   if (-not $DryRun) {
