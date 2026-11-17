@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4 — 2026-11-16
+- Build history: every build kept newest-first with its own changelog (from the farm Release notes), date, size,
+  download, share and fingerprint; newest 8 per shelf stored on the site, older ones "Archived · farm copy" links.
+  First watcher run backfills history from the farm's existing Releases.
+- Tickets: "Report a problem" form (build picker, text, pasted log, screenshot pick/paste) writing to the private
+  pls-tickets repo; ticket list with status on each app page (New / Being fixed / Fixed in v… / Needs Jason).
+- New `tools/Watch-Tickets.ps1` (ticket → seat mailbox, wake only on new tickets, "Fixes T-..." → fixed) and
+  `tools/Set-TicketKey.ps1`; `run-hidden.vbs` runs builds then tickets every 2 minutes.
+- Tested on Linux/PowerShell 7 + headless Chrome against a fake farm: 3 builds → 2 downloadable + 1 archived, then a
+  4th; ticket → mailbox → fixed in v1.24.303 by release notes; browser ticket sent 3 files with the right key;
+  history, changelog toggle and ticket status render on a phone-size screen.
+
 ## v0.3 — 2026-11-16
 - Automatic: `Watch-Builds.ps1` + `Install-Watcher.ps1` + `run-hidden.vbs`: farm Releases → vault every 2 min.
 - Shared publish engine `PlsSite.ps1`; `Publish-ToSite.ps1` now a thin by-hand wrapper.

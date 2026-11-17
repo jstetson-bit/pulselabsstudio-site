@@ -50,7 +50,7 @@ function New-PlsBlobName { (((Get-PlsRandom 10) | ForEach-Object { $_.ToString('
 #>
 function Invoke-PlsPublish {
   param([Parameter(Mandatory)]$Updates, [Parameter(Mandatory)][string]$RepoPath, [Parameter(Mandatory)][byte[]]$MK,
-        [string]$Repo = 'jstetson-bit/pulselabsstudio-site', [string]$Message = 'Vault: publish', $Watcher, [switch]$DryRun, [scriptblock]$Log = { param($m) Write-Host "[publish] $m" -ForegroundColor Cyan })
+        [string]$Repo = 'jstetson-bit/pulselabsstudio-site', [string]$Message = 'Vault: publish', $Watcher, [int]$Keep = $(if ($env:PLS_KEEP_PER_SHELF) { [int]$env:PLS_KEEP_PER_SHELF } else { 8 }), $Tickets, [switch]$DryRun, [scriptblock]$Log = { param($m) Write-Host "[publish] $m" -ForegroundColor Cyan })
   $work = Join-Path ([IO.Path]::GetTempPath()) ('pls-seal-' + (New-PlsBlobName).Replace('.bin',''))
   New-Item -ItemType Directory -Force $work | Out-Null
   $upload = New-Object Collections.ArrayList; $retire = New-Object Collections.ArrayList
@@ -86,6 +86,14 @@ function Invoke-PlsPublish {
       $old = @($p.downloads | Where-Object { $_ })
       $new = @()
       foreach ($f in @($u.files)) {
+        if ($f.archivedOnly) {
+          # history only: no file on the site, the farm Release keeps it
+          $new += [pscustomobject]@{
+            platform = $f.platform; version = $f.version; file = $f.fileName; size = [long]$f.assetSize; signer = 'n/a'; sha256 = ''
+            buildDate = $f.releaseDate; releaseDate = $f.releaseDate; published = (Get-Date).ToString('o'); releasedAt = [string]$f.releasedAt
+            notes = [string]$f.notes; source = [string]$f.source; sourceUrl = [string]$f.sourceUrl; archived = $true; b = $null; k = $null }
+          $changes++; continue
+        }
         $fi = Get-Item -LiteralPath $f.path
         if ($fi.Length -ge 1.5GB) { & $Log "SKIPPED $($fi.Name): over 1.5 GB"; continue }
         $signer = $(if ($f.signer) { $f.signer } elseif ($f.platform -eq 'android') { Get-PlsApkSigner $fi.FullName } else { 'n/a' })
@@ -96,18 +104,38 @@ function Invoke-PlsPublish {
           sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $fi.FullName).Hash.ToLower()
           buildDate = $(if ($f.buildDate) { $f.buildDate } else { $fi.LastWriteTime.ToString('yyyy-MM-dd') })
           releaseDate = $(if ($f.releaseDate) { $f.releaseDate } else { $today })
-          published = (Get-Date).ToString('o'); releasedAt = [string]$f.releasedAt; notes = [string]$f.notes; source = [string]$f.source; b = $sealed.b; k = $sealed.k
+          published = (Get-Date).ToString('o'); releasedAt = $(if ($f.releasedAt) { [string]$f.releasedAt } else { (Get-Date).ToUniversalTime().ToString('o') }); notes = [string]$f.notes; source = [string]$f.source
+          sourceUrl = [string]$f.sourceUrl; archived = $false; b = $sealed.b; k = $sealed.k
         }
         & $Log ("{0}: {1} {2} ({3}, {4:N1} MB, {5})" -f $p.name, $f.platform, $f.version, $fi.Name, ($fi.Length / 1MB), $signer)
         $changes++
       }
-      $plats = @($new | ForEach-Object { $_.platform })
-      foreach ($o in $old) { if ($plats -contains $o.platform) { [void]$retire.Add($o.b) } }
-      $p.downloads = @($new) + @($old | Where-Object { $plats -notcontains $_.platform })
+      # newest first (by when the farm released it), so the history reads top-down
+      $new = @($new | Sort-Object { [string]$_.releasedAt } -Descending)
+      $old = @($old | Sort-Object { [string]$_.releasedAt } -Descending)
+      # History: every build is kept, newest first. The newest $Keep per shelf stay downloadable here; older ones are
+      # "archived" (their file leaves the site to save space, but the entry, its changelog and its farm Release link stay).
+      $all = @(@($new) + @($old | Where-Object { $o = $_; -not ($new | Where-Object { $_.platform -eq $o.platform -and $_.version -eq $o.version }) }) | Sort-Object { [string]$_.releasedAt } -Descending)
+      foreach ($dup in @($old | Where-Object { $o = $_; $new | Where-Object { $_.platform -eq $o.platform -and $_.version -eq $o.version } })) { if ($dup.b) { [void]$retire.Add($dup.b) } }
+      $kept = @()
+      foreach ($pl in @($all | ForEach-Object { $_.platform } | Select-Object -Unique)) {
+        $i = 0
+        foreach ($d in @($all | Where-Object { $_.platform -eq $pl })) {
+          $i++
+          if ($i -gt $Keep -and $d.b) {
+            [void]$retire.Add($d.b)
+            $d.b = $null; $d.k = $null
+            if ($d.PSObject.Properties['archived']) { $d.archived = $true } else { $d | Add-Member -NotePropertyName archived -NotePropertyValue $true }
+          }
+          $kept += $d
+        }
+      }
+      $p.downloads = @($kept)
       if ($u.icon -or $u.shots -or $u.purpose -or $u.bullets -or $u.description) { $changes++ }
     }
 
     if ($Watcher) { $man | Add-Member -Force -NotePropertyName watcher -NotePropertyValue $Watcher; $changes++ }
+    if ($Tickets) { $man | Add-Member -Force -NotePropertyName tickets -NotePropertyValue $Tickets; $changes++ }
     if ($changes -eq 0) { return 0 }
     $man.products = @($list | Sort-Object name)
     $man.updated = $today

@@ -76,6 +76,34 @@
   .sharebtn { border:1px solid var(--line); background:var(--panel2); color:var(--text); border-radius:12px; padding:0 16px; font:inherit; font-weight:700; cursor:pointer; }
   .alert { background:#3a0d0b; border:1px solid var(--red); border-radius:12px; padding:10px 14px; margin-bottom:16px; }
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--green); color:#fff; padding:10px 18px; border-radius:999px; font-weight:700; z-index:40; }
+  .hist { border:1px solid var(--line); border-radius:12px; overflow:hidden; margin:8px 0 18px; }
+  .hrow { display:flex; align-items:center; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--panel); }
+  .hrow:first-child { border-top:none; }
+  .hrow .when { flex:1; text-align:left; background:none; border:none; color:var(--text); font:inherit; cursor:pointer; padding:0; }
+  .hrow .when b { display:block; }
+  .hrow .when span { font-size:12px; color:var(--dim); }
+  .hrow .mini { border:none; border-radius:9px; padding:8px 12px; font:inherit; font-weight:700; cursor:pointer; color:#fff; background:var(--red); }
+  .hrow .mini.ghost { background:var(--panel2); border:1px solid var(--line); }
+  .hrow a.mini { text-decoration:none; font-size:13px; }
+  .newest { font-size:11px; background:var(--green); color:#fff; border-radius:999px; padding:1px 7px; margin-left:6px; }
+  .hnotes { display:none; white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; padding:10px 14px; background:var(--panel2); border-top:1px dashed var(--line); }
+  .hnotes.open { display:block; }
+  .report { display:block; width:100%; margin:6px 0 18px; border:1px solid var(--red); background:transparent; color:var(--text); border-radius:12px; padding:12px; font:inherit; font-weight:700; cursor:pointer; }
+  .tk { border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin:6px 0; background:var(--panel); font-size:14px; }
+  .tk b { margin-right:6px; }
+  .st { font-size:12px; border-radius:999px; padding:2px 8px; border:1px solid var(--line); }
+  .st.new { border-color:#d9a400; color:#ffd24d; } .st.queued, .st.working { border-color:var(--cyan); color:var(--cyan); } .st.fixed { border-color:var(--green); color:#6fe08a; } .st.owner { border-color:var(--red); color:#ff8a80; }
+  #ticket { position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:35; display:none; overflow:auto; }
+  #ticket.open { display:block; }
+  #ticket .box { max-width:560px; margin:24px auto; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px 20px; }
+  #ticket label { display:block; font-size:14px; margin:12px 0 6px; }
+  #ticket textarea, #ticket select { width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px; font:inherit; }
+  #ticket textarea { min-height:90px; }
+  #ticket .log { font-family:ui-monospace,Consolas,monospace; font-size:12px; min-height:120px; }
+  .tbtns { display:flex; gap:12px; justify-content:center; margin-top:16px; }
+  .round { width:60px; height:60px; border-radius:50%; border:none; color:#fff; font-size:28px; cursor:pointer; }
+  .round.ok2 { background:var(--green); } .round.undo { background:var(--red); }
+  .shotprev { max-width:100%; max-height:220px; border-radius:10px; margin-top:8px; display:none; }
   #manual { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:30; display:none; overflow:auto; }
   #manual.open { display:grid; place-items:center; }
   #manual .box { max-width:540px; margin:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
@@ -110,6 +138,18 @@
   <div id="app" class="hidden"></div>
 </div>
 
+<div id="ticket" role="dialog" aria-modal="true"><div class="box">
+  <h2 style="margin:0 0 4px">Report a problem</h2>
+  <div class="count" id="tkWhat"></div>
+  <label for="tkVer">Which build</label><select id="tkVer"></select>
+  <label for="tkText">What happened? What did you expect?</label><textarea id="tkText" placeholder="I tapped ... and then ..."></textarea>
+  <label for="tkLog">Log (open the app's Support / crash log, copy it, paste it here)</label><textarea id="tkLog" class="log" placeholder="Paste the log here"></textarea>
+  <label for="tkShot">Screenshot (pick one, or paste it into this box)</label><input type="file" id="tkShot" accept="image/*">
+  <img id="tkPrev" class="shotprev" alt="">
+  <div class="err" id="tkErr"></div>
+  <div class="tbtns"><button class="round ok2" id="tkSend" aria-label="Send the ticket">✔</button><button class="round undo" id="tkCancel" aria-label="Cancel">↶</button></div>
+</div></div>
+
 <div id="manual" role="dialog" aria-modal="true">
   <div class="box">
     <button class="ok" id="manualOk" aria-label="Close">✔</button>
@@ -121,6 +161,8 @@
     <p><b>Test build</b> means bench-signed for testing. It won't install over a store copy of the same app.</p>
     <p><b>Phone apps</b> download as an APK. Open it and allow the install. It installs over the old version, so settings stay. <b>PC apps</b> download as an exe or zip.</p>
     <p>Every file has a fingerprint (SHA-256), and the page checks each download is untouched before handing it over.</p>
+    <p><b>Every build</b> (on each app page) lists every version ever made, newest on top. Tap a date to read that build's changelog. The newest builds download right here. Older ones say "Archived" and link to the farm's copy on GitHub, so nothing is ever lost.</p>
+    <p><b>Report a problem</b> (on each app page) sends a ticket: what happened, the pasted log and a screenshot. The farm picks it up within a couple of minutes. The ticket's status shows on the app page: New, Being fixed, Fixed in v…, or Needs Jason.</p>
     <p>◐ flips the colors. ⏻ signs you out.</p>
   </div>
 </div>
@@ -194,7 +236,7 @@
     }).then(function (mk) {
       mk = new Uint8Array(mk);
       return unlockWith(mk).then(function () { try { sessionStorage.setItem('pls.vk', toB64(mk)); } catch (e2) {} });
-    }).then(function () { document.getElementById('pw').value = ''; showApp(); })
+    }).then(function () { document.getElementById('pw').value = ''; try { sessionStorage.setItem('pls.who', name.trim()); } catch (e3) {} showApp(); })
     .catch(function (x) { err.textContent = x && x.message === 'novault' ? 'The vault isn\'t set up yet.' : 'That name or password didn\'t work.'; })
     .then(function () { goBtn.disabled = false; goBtn.textContent = '✔'; });
   });
@@ -211,7 +253,7 @@
   function day(d) { if (!d) return '—'; var t = new Date(String(d).slice(0, 10) + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
   function ago(iso) { var m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : day(iso); }
   function onShelf(p, s) { return (p.downloads || []).some(function (d) { return d.platform === s; }); }
-  function dlFor(p, s) { return (p.downloads || []).filter(function (d) { return d.platform === s; })[0] || {}; }
+  function dlFor(p, s) { return (p.downloads || []).filter(function (d) { return d.platform === s && d.b; })[0] || (p.downloads || []).filter(function (d) { return d.platform === s; })[0] || {}; }
   function systems(p) { return SHELVES.filter(function (s) { return onShelf(p, s.id); }); }
   function products(s) {
     return (manifest.products || []).filter(function (p) { return onShelf(p, s); })
@@ -269,11 +311,13 @@
       }).join('') : '<div class="empty">Nothing on this shelf yet.</div>') + '</div>';
     fillImages(app); restoreScroll(s.id);
   }
+  function latestOf(p) { var seen = {}, out = []; (p.downloads || []).forEach(function (d) { if (!seen[d.platform]) { seen[d.platform] = 1; out.push(d); } }); return out; }
   function viewProduct(s, pid) {
     var p = (manifest.products || []).filter(function (x) { return x.id === pid; })[0];
     if (!p) return viewShelf(s);
     var d = dlFor(p, s.id), shots = p.shots || [];
-    var dls = (p.downloads || []).slice().sort(function (a, b) { return (b.platform === s.id) - (a.platform === s.id); });
+    var latest = latestOf(p).sort(function (a, b) { return (b.platform === s.id) - (a.platform === s.id); });
+    var plats = latest.map(function (x) { return x.platform; });
     app.innerHTML = alertBar() + '<div class="jumpin"><div class="titlerow"><button class="back" data-go="' + s.id + '" aria-label="Back">↶</button>' +
       '<div class="icon"' + (p.icon ? ' data-img="' + handle(p.icon) + '"' : '') + ' style="width:56px;height:56px;flex-basis:56px"></div><div><h1 style="margin:0">' + esc(p.name) + '</h1>' +
       '<div class="purpose">' + esc(p.purpose || 'No description yet.') + '</div><div class="sys">' + sysBadges(p) + signerBadge(d) + '</div></div></div>' +
@@ -281,18 +325,112 @@
       (shots.length ? '<h3>What it looks like</h3><div class="pics">' + shots.map(function (x) {
         return '<figure><img alt="" data-img="' + handle(x) + '"><figcaption>' + esc(x.caption || '') + '</figcaption></figure>'; }).join('') + '</div>'
         : '<p class="count">No screen pictures yet. They show up when the farm attaches them to a build.</p>') +
-      dls.map(function (x) {
+      latest.map(function (x) {
         var label = (shelfOf(x.platform) || {}).sys || x.platform;
-        return '<div class="dlrow" style="margin:10px 0"><button class="dlbtn" data-dl="' + handle(x) + '">Download for ' + esc(label) + ' · v' + esc(x.version) +
-          '<small>' + esc(x.file) + ' · ' + size(x.size) + '</small></button><button class="sharebtn" data-share="' + handle(x) + '" data-pname="' + esc(p.name) + '">Share</button></div>';
+        return x.b ? '<div class="dlrow" style="margin:10px 0"><button class="dlbtn" data-dl="' + handle(x) + '">Download for ' + esc(label) + ' · v' + esc(x.version) +
+          '<small>' + esc(x.file) + ' · ' + size(x.size) + '</small></button><button class="sharebtn" data-share="' + handle(x) + '" data-pname="' + esc(p.name) + '">Share</button></div>' : '';
       }).join('') +
+      '<button class="report" data-report="' + esc(p.id) + '">⚠ Report a problem with ' + esc(p.name) + '</button>' +
+      '<div id="tkList"></div>' +
       (p.description ? '<p>' + esc(p.description) + '</p>' : '') +
       '<div class="jmeta"><div>Version<b>' + esc(d.version || '—') + '</b></div><div>Built<b>' + day(d.buildDate) + '</b></div>' +
       '<div>Released<b>' + day(d.releaseDate) + '</b></div><div>Size<b>' + size(d.size) + '</b></div></div>' +
-      (d.notes ? '<h3>What changed</h3><div class="notes">' + esc(d.notes) + '</div>' : '') +
-      dls.map(function (x) { return '<p class="hash">' + esc(x.file) + ' SHA-256: ' + esc(x.sha256) + (x.source ? '<br>From: ' + esc(x.source) : '') + '</p>'; }).join('') + '</div>';
+      plats.map(function (pl) {
+        var list = (p.downloads || []).filter(function (x) { return x.platform === pl; });
+        return '<h3>Every build · ' + esc((shelfOf(pl) || {}).sys || pl) + ' <span class="count">(' + list.length + ')</span></h3><div class="hist">' +
+          list.map(function (x, i) {
+            var id = 'n' + pl + i;
+            return '<div class="hrow"><button class="when" data-notes="' + id + '"><b>v' + esc(x.version) + (i === 0 ? '<span class="newest">newest</span>' : '') + '</b><span>' +
+              day(x.releasedAt || x.releaseDate) + ' · ' + size(x.size) + ' · tap for changelog</span></button>' +
+              (x.b ? '<button class="mini" data-dl="' + handle(x) + '">Download</button><button class="mini ghost" data-share="' + handle(x) + '" data-pname="' + esc(p.name) + '">Share</button>'
+                   : (x.sourceUrl ? '<a class="mini ghost" href="' + esc(x.sourceUrl) + '" target="_blank" rel="noopener">Archived · farm copy</a>' : '<span class="count">Archived</span>')) +
+              '</div><div class="hnotes" id="' + id + '">' + esc(x.notes || 'No changelog for this build.') +
+              (x.sha256 ? '\n\n' + esc(x.file) + '\nSHA-256: ' + esc(x.sha256) : '') + '</div>';
+          }).join('') + '</div>';
+      }).join('') + '</div>';
     fillImages(app); scrollTo(0, 0);
+    loadTickets(p);
   }
+
+  // ---------- tickets: a private GitHub repo, written straight from this page ----------
+  // The key that may write there lives INSIDE the encrypted product list, so only signed-in people ever have it.
+  function gh(path, opts) {
+    var t = manifest.tickets; opts = opts || {};
+    return fetch('https://api.github.com/repos/' + t.repo + '/contents/' + path, {
+      method: opts.method || 'GET', body: opts.body ? JSON.stringify(opts.body) : undefined,
+      headers: { 'Authorization': 'Bearer ' + t.token, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
+    }).then(function (r) { if (r.status === 404) return null; if (!r.ok) throw new Error('GitHub said ' + r.status); return r.json(); });
+  }
+  function u8b64(u8) { var s = '', CH = 0x8000; for (var i = 0; i < u8.length; i += CH) s += String.fromCharCode.apply(null, u8.subarray(i, i + CH)); return btoa(s); }
+  function textB64(t) { return u8b64(enc.encode(t)); }
+  var STATUS = { 'new': 'New', queued: 'Being fixed', working: 'Being fixed', fixed: 'Fixed', owner: 'Needs Jason', closed: 'Closed' };
+  var mine = [];
+  function loadTickets(p) {
+    var box = document.getElementById('tkList'); if (!box) return;
+    if (!manifest.tickets || !manifest.tickets.token) { box.innerHTML = ''; return; }
+    gh('index.json').then(function (f) {
+      var idx = f ? JSON.parse(dec.decode(b64(f.content.replace(/\s/g, '')))) : { tickets: [] };
+      var list = (idx.tickets || []).filter(function (t) { return t.product === p.id; });
+      mine.filter(function (m) { return m.product === p.id && !list.some(function (t) { return t.id === m.id; }); }).forEach(function (m) { list.unshift(m); });
+      if (!list.length) { box.innerHTML = ''; return; }
+      list.sort(function (a, b) { return (b.when || '').localeCompare(a.when || ''); });
+      box.innerHTML = '<h3>Tickets <span class="count">(' + list.length + ')</span></h3>' + list.slice(0, 20).map(function (t) {
+        var st = t.status || 'new';
+        return '<div class="tk"><b>' + esc(t.id) + '</b><span class="st ' + esc(st) + '">' + esc(STATUS[st] || st) + (t.fixedIn ? ' in v' + esc(t.fixedIn) : '') + '</span><br>' +
+          esc((t.title || '').slice(0, 160)) + '<br><span class="count">' + day(t.when) + ' · v' + esc(t.version) + ' · ' + esc(t.who || '') + (t.note ? ' · ' + esc(t.note) : '') + '</span></div>';
+      }).join('');
+    }).catch(function () { box.innerHTML = '<p class="count">Couldn\'t load tickets right now.</p>'; });
+  }
+  var tkProduct = null, tkShot = null;
+  function openTicket(pid) {
+    var p = (manifest.products || []).filter(function (x) { return x.id === pid; })[0]; if (!p) return;
+    tkProduct = p; tkShot = null;
+    document.getElementById('tkWhat').textContent = p.name;
+    document.getElementById('tkVer').innerHTML = (p.downloads || []).map(function (x, i) {
+      return '<option value="' + i + '">v' + esc(x.version) + ' · ' + esc((shelfOf(x.platform) || {}).sys || x.platform) + ' · ' + day(x.releasedAt || x.releaseDate) + '</option>'; }).join('');
+    ['tkText', 'tkLog'].forEach(function (id) { document.getElementById(id).value = ''; });
+    document.getElementById('tkShot').value = ''; document.getElementById('tkPrev').style.display = 'none'; document.getElementById('tkErr').textContent = '';
+    document.getElementById('ticket').classList.add('open');
+  }
+  function setShot(file) {
+    if (!file) return; tkShot = file;
+    var pv = document.getElementById('tkPrev'); pv.src = URL.createObjectURL(file); pv.style.display = 'block';
+  }
+  document.getElementById('tkShot').addEventListener('change', function () { setShot(this.files[0]); });
+  document.getElementById('ticket').addEventListener('paste', function (e) {
+    var it = (e.clipboardData || {}).items || []; for (var i = 0; i < it.length; i++) if (it[i].type.indexOf('image') === 0) { setShot(it[i].getAsFile()); e.preventDefault(); }
+  });
+  document.getElementById('tkCancel').onclick = function () { document.getElementById('ticket').classList.remove('open'); };
+  document.getElementById('tkSend').onclick = function () {
+    var p = tkProduct, err = document.getElementById('tkErr'), btn = this;
+    var text = document.getElementById('tkText').value.trim(), log = document.getElementById('tkLog').value;
+    if (!text) { err.textContent = 'Say what happened first.'; return; }
+    var x = (p.downloads || [])[+document.getElementById('tkVer').value] || {};
+    var now = new Date(), pad = function (n) { return ('0' + n).slice(-2); };
+    var id = 'T-' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + '-' + Math.random().toString(36).slice(2, 6);
+    var who = ''; try { who = sessionStorage.getItem('pls.who') || ''; } catch (e) {}
+    var t = { id: id, product: p.id, productName: p.name, version: x.version || '', platform: x.platform || '', source: x.source || '', who: who,
+              when: now.toISOString(), title: text.split('\n')[0].slice(0, 120), text: text, hasLog: !!log.trim(), hasShot: !!tkShot,
+              device: navigator.userAgent, status: 'new' };
+    if (!manifest.tickets || !manifest.tickets.token) {
+      location.href = 'mailto:support@pulselabsstudio.com?subject=' + encodeURIComponent(p.name + ' problem ' + id) +
+        '&body=' + encodeURIComponent(text + '\n\nBuild: v' + t.version + ' ' + t.platform + '\n\nLog:\n' + log.slice(0, 6000));
+      return;
+    }
+    btn.disabled = true; err.textContent = 'Sending…';
+    var dir = 'tickets/' + id + '/';
+    var steps = Promise.resolve();
+    if (tkShot) steps = steps.then(function () { return tkShot.arrayBuffer(); }).then(function (buf) {
+      var ext = (tkShot.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+      t.shot = 'screenshot.' + ext;
+      return gh(dir + t.shot, { method: 'PUT', body: { message: id + ' screenshot', content: u8b64(new Uint8Array(buf)) } });
+    });
+    if (log.trim()) steps = steps.then(function () { return gh(dir + 'log.txt', { method: 'PUT', body: { message: id + ' log', content: textB64(log) } }); });
+    steps.then(function () { return gh(dir + 'ticket.json', { method: 'PUT', body: { message: id + ': ' + p.name + ' v' + t.version + ' - ' + t.title, content: textB64(JSON.stringify(t, null, 2)) } }); })
+      .then(function () { mine.push(t); document.getElementById('ticket').classList.remove('open'); toast('Ticket ' + id + ' sent'); loadTickets(p); })
+      .catch(function (e) { err.textContent = 'Couldn\'t send: ' + e.message + '. Nothing was lost; try again.'; })
+      .then(function () { btn.disabled = false; });
+  };
 
   function download(btn) {
     var ref = refs[btn.getAttribute('data-dl')], small = btn.querySelector('small'), was = btn.innerHTML;
@@ -319,6 +457,8 @@
   }
 
   app.addEventListener('click', function (e) {
+    var nt = e.target.closest('[data-notes]'); if (nt) { document.getElementById(nt.getAttribute('data-notes')).classList.toggle('open'); return; }
+    var rp = e.target.closest('[data-report]'); if (rp) return openTicket(rp.getAttribute('data-report'));
     var b = e.target.closest('[data-dl]'); if (b) return download(b);
     var sh = e.target.closest('[data-share]'); if (sh) return share(sh);
     var g = e.target.closest('[data-go]'); if (g) { saveScroll(); location.hash = g.getAttribute('data-go'); }

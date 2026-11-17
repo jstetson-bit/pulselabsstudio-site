@@ -49,12 +49,30 @@ installed by `tools/Install-Watcher.ps1`, started hidden through `run-hidden.vbs
    page after sign-in (once per distinct error), cleared automatically on the next good run.
 APK signer is read with apksigner when the SDK is present: cards show "Test build" (debug) or "Release-signed".
 
+## Every build, kept (v0.4)
+Each product keeps its whole build history, newest first, per shelf. Each entry: version, release date (tap → that
+build's own changelog = the farm Release's notes), size, Download + Share, fingerprint. The newest
+`PLS_KEEP_PER_SHELF` (default 8) per shelf are stored on the site; older ones become "Archived · farm copy" entries
+that link to their GitHub Release on the farm repo (nothing is ever deleted there). The watcher's first run backfills
+history from the last 30 Releases of every repo.
+
+## Tickets (v0.4)
+- "Report a problem" on every app page: which build, what happened, pasted log, screenshot (pick or paste).
+- Saved straight from the browser into the private repo `jstetson-bit/pls-tickets` as
+  `tickets/<T-id>/{ticket.json, log.txt, screenshot.png}` using a fine-grained token that can only touch that repo.
+  The token lives inside the encrypted product list (`tools/Set-TicketKey.ps1`), so only signed-in browsers have it.
+  Without the token the form falls back to an email to support@pulselabsstudio.com.
+- `tools/Watch-Tickets.ps1` (same 2-minute task, token-free): new ticket → mailbox ticket on the farm repo's
+  `orders` branch (the seat's poll) → status "Being fixed"; runs `C:\PulseLabs\wake-seat.cmd` ONLY when there was a
+  new ticket. A seat sets "Needs Jason" with `tickets/<id>/status.json`. A Release whose notes say "Fixes T-..." marks
+  the ticket "Fixed in v<version>" automatically. `index.json` in the tickets repo is what the page shows.
+
 ## Share links (v0.3)
 Every stored file has its own random key (kept inside the encrypted list). Share makes
 `share.html#<file>.<key>.<name>.<filename>.<size>`: opens that ONE build without signing in, nothing else.
 The key sits after the # so it never reaches any server; the page wipes it from the address bar on open.
-Not truly one-time (a static site can't count uses), but it dies automatically when a newer build of that
-product replaces the file.
+Not truly one-time (a static site can't count uses). It dies when that build leaves the site's downloadable window
+(becomes Archived).
 
 ## Farm tools (admin PowerShell, need git + gh signed in)
 - `tools/Vault-User.ps1 -Init | -Add -Name X | -Remove -Name X | -List`

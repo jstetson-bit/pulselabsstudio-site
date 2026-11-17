@@ -46,11 +46,12 @@ try {
   $vault = $null; Push-Location $RepoPath; try { git pull --ff-only -q 2>$null | Out-Null; $vault = Read-PlsVault $RepoPath } finally { Pop-Location }
   $man = Get-PlsManifest $vault $mk
   $have = @{}   # "id|platform" -> current entry
-  foreach ($p in @($man.products)) { foreach ($d in @($p.downloads)) { if ($d) { $have["$($p.id)|$($d.platform)"] = $d } } }
+  foreach ($p in @($man.products)) { foreach ($d in @($p.downloads)) { if ($d -and -not $have["$($p.id)|$($d.platform)"]) { $have["$($p.id)|$($d.platform)"] = $d } } }
 
   $repos = gh repo list $Owner --limit 200 --json nameWithOwner --jq '.[].nameWithOwner'
   if ($LASTEXITCODE -ne 0) { throw 'gh repo list failed (is gh signed in for this user?)' }
-  $cands = @{}   # "id|platform" -> candidate
+  $cands = @{}   # "id|platform" -> list of candidates (every build found, for the history)
+  $knownSources = @{}; foreach ($p in @($man.products)) { foreach ($d in @($p.downloads)) { if ($d -and $d.source) { $knownSources[[string]$d.source] = 1 } } }
   $extras = @{}  # id -> listing/pictures info
   $newState = @{}
   foreach ($r in $repos) {
@@ -73,9 +74,10 @@ try {
         $k = Get-PlsProductKey $a.name; if (-not $k) { Log "skip $($a.name): no Name-vX.Y in the file name"; continue }
         if ($a.size -ge 1.5GB) { Log "skip $($a.name): over 1.5 GB"; continue }
         $relIds += $k.id
-        $c = [pscustomobject]@{ id = $k.id; name = $k.name; version = $k.version; platform = $plat; repo = $r; tag = $rel.tagName; asset = $a.name; pub = $pub }
+        $c = [pscustomobject]@{ id = $k.id; name = $k.name; version = $k.version; platform = $plat; repo = $r; tag = $rel.tagName; asset = $a.name; size = [long]$a.size; pub = $pub; body = [string]$v.body }
         $key = "$($k.id)|$plat"
-        if (-not $cands[$key] -or $cands[$key].pub -lt $pub) { $cands[$key] = $c }
+        if (-not $cands[$key]) { $cands[$key] = New-Object Collections.ArrayList }
+        [void]$cands[$key].Add($c)
       }
       # Pictures / listing riding along with this Release
       $relIds = @($relIds | Select-Object -Unique)
@@ -91,11 +93,20 @@ try {
     $newState[$r] = $newest.ToString('o')
   }
 
-  # Only what's actually newer than what the site already has.
-  $todo = @($cands.Values | Where-Object {
-    $cur = $have["$($_.id)|$($_.platform)"]
-    -not $cur -or ($cur.source -ne "$($_.repo)@$($_.tag)/$($_.asset)" -and (-not $cur.releasedAt -or [datetime]$cur.releasedAt -lt $_.pub))
-  })
+  # Every build the site doesn't have yet (by its farm Release), newest first. The newest $Keep per shelf are
+  # downloaded and stored; older ones become history entries (changelog + link to their farm Release) without a file.
+  $Keep = $(if ($env:PLS_KEEP_PER_SHELF) { [int]$env:PLS_KEEP_PER_SHELF } else { 8 })
+  $todo = @()
+  foreach ($key in @($cands.Keys)) {
+    $cur = $have[$key]
+    $list = @($cands[$key] | Where-Object { -not $knownSources["$($_.repo)@$($_.tag)/$($_.asset)"] } | Sort-Object pub -Descending)
+    $i = 0
+    foreach ($c in $list) {
+      $i++
+      $c | Add-Member -Force -NotePropertyName archivedOnly -NotePropertyValue ($i -gt $Keep)
+      $todo += $c
+    }
+  }
   $extraIds = @($extras.Keys)
   if (-not $todo.Count -and -not $extraIds.Count) {
     foreach ($kv in $newState.GetEnumerator()) { $state[$kv.Key] = $kv.Value }
@@ -110,13 +121,17 @@ try {
   New-Item -ItemType Directory -Force $work | Out-Null
   $byId = @{}
   foreach ($c in $todo) {
-    $dir = Join-Path $work ($c.id + '-' + $c.platform); New-Item -ItemType Directory -Force $dir | Out-Null
-    gh release download $c.tag --repo $c.repo --pattern $c.asset --dir $dir --clobber
-    if ($LASTEXITCODE -ne 0) { Log "download failed: $($c.repo)@$($c.tag)/$($c.asset)"; continue }
+    $dir = Join-Path $work ($c.id + '-' + $c.platform + '-' + ($c.tag -replace '[^\w.-]', '_')); New-Item -ItemType Directory -Force $dir | Out-Null
+    if (-not $c.archivedOnly) {
+      gh release download $c.tag --repo $c.repo --pattern $c.asset --dir $dir --clobber
+      if ($LASTEXITCODE -ne 0) { Log "download failed: $($c.repo)@$($c.tag)/$($c.asset)"; continue }
+    }
     if (-not $byId[$c.id]) { $byId[$c.id] = @{ id = $c.id; files = @() } }
     if (-not ($have.Keys | Where-Object { $_ -like "$($c.id)|*" })) { $byId[$c.id].name = $c.name }
-    $byId[$c.id].files += @{ path = (Join-Path $dir $c.asset); platform = $c.platform; version = $c.version
-      source = "$($c.repo)@$($c.tag)/$($c.asset)"; releasedAt = $c.pub.ToUniversalTime().ToString('o'); releaseDate = $c.pub.ToString('yyyy-MM-dd'); notes = "From $($c.repo) release $($c.tag)" }
+    $byId[$c.id].files += @{ path = (Join-Path $dir $c.asset); platform = $c.platform; version = $c.version; archivedOnly = [bool]$c.archivedOnly; assetSize = $c.size; fileName = $c.asset
+      source = "$($c.repo)@$($c.tag)/$($c.asset)"; sourceUrl = "https://github.com/$($c.repo)/releases/tag/$($c.tag)"
+      releasedAt = $c.pub.ToUniversalTime().ToString('o'); releaseDate = $c.pub.ToString('yyyy-MM-dd')
+      notes = $(if ($c.body.Trim()) { $c.body.Trim().Substring(0, [Math]::Min(6000, $c.body.Trim().Length)) } else { "No changelog in release $($c.tag) on $($c.repo)." }) }
   }
   foreach ($id in $extraIds) {
     $e = $extras[$id]
@@ -150,6 +165,13 @@ try {
   $n = Invoke-PlsPublish -Updates $updates -RepoPath $RepoPath -MK $mk -Message $msg -Log { param($m) Log $m } `
         -Watcher ([pscustomobject]@{ ok = (Get-Date).ToString('o'); error = '' }) -DryRun:$DryRun
   Log "published $n change(s)"
+  # tell the ticket watcher which notes went out (for "Fixes T-...")
+  $fixedPath = $(if ($env:PLS_FIXED_REFS) { $env:PLS_FIXED_REFS } else { 'C:\PulseLabs\fixed-refs.json' })
+  if (-not $DryRun) {
+    $refs = @($todo | Where-Object { -not $_.archivedOnly } | ForEach-Object { [pscustomobject]@{ product = $_.id; version = $_.version; notes = $_.body } })
+    if ($refs.Count) { $old = @(); if (Test-Path $fixedPath) { $old = @(Get-Content $fixedPath -Raw | ConvertFrom-Json) }
+      [IO.File]::WriteAllText($fixedPath, (@($old) + $refs | ConvertTo-Json -Depth 4), (New-Object Text.UTF8Encoding $false)) }
+  }
   foreach ($kv in $newState.GetEnumerator()) { $state[$kv.Key] = $kv.Value }
   if (-not $DryRun) { $state | ConvertTo-Json | Set-Content $StatePath }
 }
