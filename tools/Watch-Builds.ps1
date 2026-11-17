@@ -34,7 +34,7 @@ if ((Test-Path $LogPath) -and (Get-Item $LogPath).Length -gt 1MB) { Move-Item -F
 function Log($m) { $line = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') + '  ' + $m; Add-Content -Path $LogPath -Value $line; Write-Host $line }
 
 # One run at a time.
-$mutex = New-Object Threading.Mutex($false, 'Global\PulseLabsSiteWatcher')
+$mutex = New-Object Threading.Mutex($false, 'Local\PulseLabsSiteWatcher')
 if (-not $mutex.WaitOne(0)) { return }
 $work = Join-Path ([IO.Path]::GetTempPath()) 'pls-watch'
 try {
