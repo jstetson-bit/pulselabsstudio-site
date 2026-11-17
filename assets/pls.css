@@ -1,0 +1,43 @@
+:root { --bg:#0a0a0b; --panel:#141416; --panel2:#1b1b1e; --text:#fff; --dim:#c9c9c4; --red:#e63329; --line:#2a2a2f; --green:#2fbf4f; --cyan:#35c6e8; }
+* { box-sizing:border-box; }
+html.inv { filter:invert(1) hue-rotate(180deg); } html.inv img { filter:invert(1) hue-rotate(180deg); }
+body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+a { color:var(--red); }
+header { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:5; }
+header .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; color:var(--text); text-decoration:none; }
+header nav { margin-left:auto; display:flex; gap:8px; align-items:center; }
+header nav a.nav { color:var(--text); text-decoration:none; font-weight:600; padding:6px 8px; border-radius:8px; }
+header nav a.nav.on { background:var(--panel2); }
+.badge-n { background:var(--red); color:#fff; border-radius:999px; font-size:11px; padding:1px 6px; margin-left:3px; }
+@media (max-width:520px) { header .brand span { display:none; } }
+.iconbtn { width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:17px; cursor:pointer; display:grid; place-items:center; }
+.wrap { max-width:1000px; margin:0 auto; padding:22px 16px 60px; }
+h1 { margin:4px 0 4px; font-size:28px; } .sub { color:var(--dim); margin:0 0 18px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; }
+.price { font-size:22px; font-weight:800; } .play { color:var(--dim); font-size:13px; text-decoration:line-through; margin-left:6px; }
+.save { color:#6fe08a; font-size:13px; }
+.sys { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
+.badge { font-size:12px; padding:3px 9px; border-radius:999px; background:var(--panel2); border:1px solid var(--line); }
+.btn { border:none; border-radius:12px; padding:12px 16px; font:inherit; font-weight:700; cursor:pointer; color:#fff; background:var(--red); }
+.btn.ghost { background:var(--panel2); border:1px solid var(--line); }
+.btn.go { background:var(--green); }
+.btn:disabled { opacity:.5; cursor:default; }
+.round { width:60px; height:60px; border-radius:50%; border:none; color:#fff; font-size:28px; cursor:pointer; }
+.round.ok { background:var(--green); } .round.undo { background:var(--red); }
+.form { max-width:420px; margin:20px auto; } .form label { display:block; font-size:14px; margin:12px 0 6px; }
+.form input { width:100%; padding:12px 14px; font-size:17px; border-radius:10px; border:1px solid var(--line); background:var(--panel2); color:var(--text); }
+.msg { min-height:1.5em; margin-top:10px; } .msg.err { color:#ff6b61; } .msg.good { color:#6fe08a; }
+.tabs { display:flex; gap:8px; margin:6px 0 16px; flex-wrap:wrap; }
+.tab { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:999px; padding:8px 14px; font:inherit; cursor:pointer; }
+.tab.on { background:var(--red); border-color:var(--red); }
+.row { display:flex; align-items:center; gap:10px; padding:12px 0; border-top:1px solid var(--line); }
+.row:first-child { border-top:none; } .grow { flex:1; }
+.key { font-family:ui-monospace,Consolas,monospace; font-size:12px; word-break:break-all; background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:8px; margin-top:6px; }
+.soon { border:1px dashed var(--line); border-radius:14px; padding:18px; color:var(--dim); text-align:center; }
+.toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--green); color:#fff; padding:10px 18px; border-radius:999px; font-weight:700; z-index:40; }
+#manual { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:30; display:none; overflow:auto; }
+#manual.open { display:grid; place-items:center; }
+#manual .box { max-width:540px; margin:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+.ok-x { width:52px; height:52px; border-radius:50%; border:none; background:var(--green); color:#fff; font-size:26px; cursor:pointer; float:right; margin-left:10px; }
+footer { margin-top:40px; border-top:1px solid var(--line); padding-top:16px; color:var(--dim); font-size:13px; }

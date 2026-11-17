@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Labs Studio — Products</title>
+<meta name="description" content="Pulse Labs apps for Android, Windows and Chrome: PLS PDF, Keyboard Studio, PulseMark and more. Offline, no ads, no subscriptions. Cheaper here than on Google Play.">
+<link rel="stylesheet" href="assets/pls.css">
+<script src="store-config.js"></script>
+<script src="assets/pls-store.js"></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Pulse Labs Studio</span></a>
+  <nav>
+    <a class="nav on" href="products.html">Products</a>
+    <a class="nav" href="cart.html">Cart<span class="badge-n" id="cartN" style="display:none">0</span></a>
+    <a class="nav" href="account.html" id="acctLink">Sign in</a>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
+    <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <h1>Products</h1>
+  <p class="sub">Offline apps with no ads and no subscriptions. Buy once, keep it. Always the same price or cheaper here than on Google Play.</p>
+  <div id="soon" class="soon" style="display:none;margin-bottom:16px">The store opens soon. Everything below is coming.</div>
+  <div class="grid" id="grid"><div class="card" data-pid="plspdf"><h2 style="margin:0;font-size:20px">PLS PDF</h2><div class="sys"><span class="badge">Android</span><span class="badge">Windows PC</span></div><p style="margin:6px 0 12px">Read, sign, merge and build PDFs. Offline, no subscription.</p><div class="buy"></div></div><div class="card" data-pid="keyboardstudio"><h2 style="margin:0;font-size:20px">Keyboard Studio</h2><div class="sys"><span class="badge">Android</span></div><p style="margin:6px 0 12px">Design and use your own themed Android keyboard.</p><div class="buy"></div></div><div class="card" data-pid="plsmark"><h2 style="margin:0;font-size:20px">PulseMark</h2><div class="sys"><span class="badge">Windows PC</span><span class="badge">Android</span></div><p style="margin:6px 0 12px">Snip the screen and mark it up.</p><div class="buy"></div></div><div class="card" data-pid="pls-launcher"><h2 style="margin:0;font-size:20px">PLS Launcher</h2><div class="sys"><span class="badge">Android</span></div><p style="margin:6px 0 12px">Open the whole Pulse family in one tap.</p><div class="buy"></div></div><div class="card" data-pid="pulse-meter"><h2 style="margin:0;font-size:20px">Pulse Meter</h2><div class="sys"><span class="badge">Chrome / Edge</span><span class="badge">Windows PC</span><span class="badge">Android</span></div><p style="margin:6px 0 12px">Your usage limits at a glance, before you hit the wall.</p><div class="buy"></div></div><div class="card" data-pid="pulse-dark"><h2 style="margin:0;font-size:20px">Pulse Dark</h2><div class="sys"><span class="badge">Chrome / Edge</span></div><p style="margin:6px 0 12px">Dark mode for every website.</p><div class="buy"></div></div><div class="card" data-pid="pls-authenticator"><h2 style="margin:0;font-size:20px">PLS Authenticator</h2><div class="sys"><span class="badge">Android</span></div><p style="margin:6px 0 12px">Offline password vault and 2FA codes.</p><div class="buy"></div></div><div class="card" data-pid="pulse-meds"><h2 style="margin:0;font-size:20px">Pulse Meds</h2><div class="sys"><span class="badge">Android</span></div><p style="margin:6px 0 12px">Offline medication reminders.</p><div class="buy"></div></div></div>
+</div>
+<div id="manual" role="dialog" aria-modal="true"><div class="box">
+  <button class="ok-x" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">How the store works</h2>
+  <p><b>Products</b> lists every Pulse Labs app. Buying here always costs the same or less than Google Play, and bundles cost less again.</p>
+  <p><b>Your account</b>: make one with your email and a password. We send you an email; tap the link in it and your account is verified. Only verified accounts can check out, so every purchase is tied to you.</p>
+  <p><b>Paying</b>: the payment window comes from Paddle, our reseller. Cards and PayPal work there, and Paddle keeps any saved payment details. Your card number never reaches us.</p>
+  <p><b>After you buy</b>: your Pulse key appears under Account, My products. Open the app, tap the ghost "i", then Unlock, and paste the key. It works offline, forever, on the copy from our site or from Google Play.</p>
+  <p>◐ flips the colors.</p>
+</div></div>
+<footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="privacy.html">Privacy Policy</a></footer>
+<script>
+(function () {
+  PLS.header();
+  if (!PLS.ready) { document.getElementById('soon').style.display = ''; return; }
+  PLS.refresh().then(PLS.catalog).then(function (cat) {
+    var byId = {}; cat.forEach(function (p) { byId[p.id] = p; });
+    var grid = document.getElementById('grid');
+    // products on sale that aren't in the static list (bundles, new apps) get a card too
+    cat.forEach(function (p) { if (!grid.querySelector('[data-pid="' + p.id + '"]')) { var d = document.createElement('div'); d.className = 'card'; d.setAttribute('data-pid', p.id);
+      d.innerHTML = '<h2 style="margin:0;font-size:20px">' + PLS.esc(p.name) + '</h2><div class="sys">' + PLS.sys(p.systems) + '</div><p style="margin:6px 0 12px">' + PLS.esc(p.purpose) + (p.bundle && p.bundle.length ? '<br><span class="save">Bundle: ' + p.bundle.length + ' apps</span>' : '') + '</p><div class="buy"></div>'; grid.appendChild(d); } });
+    Array.prototype.forEach.call(grid.querySelectorAll('[data-pid]'), function (card) {
+      var p = byId[card.getAttribute('data-pid')], buy = card.querySelector('.buy');
+      if (!p) { buy.innerHTML = '<span class="badge">Coming soon</span>'; return; }
+      var save = p.play_cents && p.play_cents > p.price_cents ? '<span class="play">' + PLS.money(p.play_cents) + ' on Play</span> <span class="save">save ' + PLS.money(p.play_cents - p.price_cents) + '</span>' : '';
+      buy.innerHTML = '<div><span class="price">' + PLS.money(p.price_cents) + '</span> ' + save + '</div><button class="btn" style="margin-top:10px" data-add="' + PLS.esc(p.id) + '">Add to cart</button>';
+    });
+    grid.addEventListener('click', function (e) { var b = e.target.closest('[data-add]'); if (!b) return; PLS.add(b.getAttribute('data-add')).then(function () { PLS.toast('Added to your cart'); }); });
+  }).catch(function () { document.getElementById('soon').style.display = ''; document.getElementById('soon').textContent = 'Prices could not load right now. Try again in a moment.'; });
+})();
+</script>
+</body>
+</html>

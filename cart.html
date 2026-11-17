@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Labs Studio — Cart</title>
+<meta name="description" content="Your Pulse Labs cart.">
+<link rel="stylesheet" href="assets/pls.css">
+<script src="store-config.js"></script>
+<script src="assets/pls-store.js"></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Pulse Labs Studio</span></a>
+  <nav>
+    <a class="nav" href="products.html">Products</a>
+    <a class="nav on" href="cart.html">Cart<span class="badge-n" id="cartN" style="display:none">0</span></a>
+    <a class="nav" href="account.html" id="acctLink">Sign in</a>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
+    <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
+  </nav>
+</header>
+
+<div class="wrap" style="max-width:640px">
+  <h1>Your cart</h1>
+  <div id="body" class="card"><p class="sub">Loading…</p></div>
+</div>
+<div id="manual" role="dialog" aria-modal="true"><div class="box">
+  <button class="ok-x" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">How the store works</h2>
+  <p><b>Products</b> lists every Pulse Labs app. Buying here always costs the same or less than Google Play, and bundles cost less again.</p>
+  <p><b>Your account</b>: make one with your email and a password. We send you an email; tap the link in it and your account is verified. Only verified accounts can check out, so every purchase is tied to you.</p>
+  <p><b>Paying</b>: the payment window comes from Paddle, our reseller. Cards and PayPal work there, and Paddle keeps any saved payment details. Your card number never reaches us.</p>
+  <p><b>After you buy</b>: your Pulse key appears under Account, My products. Open the app, tap the ghost "i", then Unlock, and paste the key. It works offline, forever, on the copy from our site or from Google Play.</p>
+  <p>◐ flips the colors.</p>
+</div></div>
+<footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="privacy.html">Privacy Policy</a></footer>
+<script>
+(function () {
+  PLS.header();
+  var body = document.getElementById('body');
+  if (!PLS.ready) { body.innerHTML = '<div class="soon">The store opens soon.</div>'; return; }
+  function draw() {
+    Promise.all([PLS.refresh().then(PLS.catalog), PLS.cart()]).then(function (r) {
+      var cat = {}, c = r[1]; r[0].forEach(function (p) { cat[p.id] = p; });
+      var ids = Object.keys(c).filter(function (id) { return cat[id]; });
+      if (!ids.length) { body.innerHTML = '<p>Your cart is empty.</p><a class="btn" style="display:inline-block;text-decoration:none" href="products.html">See the products</a>'; return; }
+      var total = 0;
+      var rows = ids.map(function (id) { var p = cat[id]; total += p.price_cents * c[id];
+        return '<div class="row"><div class="grow"><b>' + PLS.esc(p.name) + '</b>' + (c[id] > 1 ? ' × ' + c[id] : '') + '<div class="sys">' + PLS.sys(p.systems) + '</div></div><div class="price" style="font-size:18px">' + PLS.money(p.price_cents * c[id]) + '</div><button class="round undo" style="width:44px;height:44px;font-size:20px" data-remove="' + PLS.esc(id) + '" aria-label="Take ' + PLS.esc(p.name) + ' out">↶</button></div>'; }).join('');
+      var who = !PLS.user() ? '<p class="msg">Sign in (or make an account) to check out, so your purchase is saved to you. <a href="account.html">Sign in</a></p>'
+              : !PLS.verified() ? '<p class="msg err">Verify your email first: tap the link in the email we sent. <button class="btn ghost" id="resend">Send it again</button></p>' : '';
+      body.innerHTML = rows + '<div class="row"><div class="grow"><b>Total</b><div class="sub" style="margin:0;font-size:13px">Sales tax, if any, is added in the payment window.</div></div><div class="price">' + PLS.money(total) + '</div></div>' + who +
+        '<div style="text-align:center;margin-top:10px"><button class="round ok" id="pay" aria-label="Check out"' + (PLS.user() && PLS.verified() ? '' : ' disabled style="opacity:.4"') + '>✔</button><div class="sub" style="margin-top:6px">Check out (cards and PayPal)</div></div>';
+      var rs = document.getElementById('resend'); if (rs) rs.onclick = function () { PLS.resend(PLS.user().email).then(function () { PLS.toast('Sent. Check your email.'); }).catch(function (e) { PLS.toast(e.message, true); }); };
+      document.getElementById('pay').onclick = function () {
+        PLS.checkout(ids.map(function (id) { return { priceId: cat[id].paddle_price, quantity: c[id] }; }))
+          .catch(function (e) { PLS.toast(e.message === 'signin' ? 'Sign in first' : e.message === 'verify' ? 'Verify your email first' : e.message, true); });
+      };
+    }).catch(function (e) { body.innerHTML = '<p class="msg err">The cart could not load: ' + PLS.esc(e.message) + '</p>'; });
+  }
+  PLS.onPaid = function () { PLS.clearCart(); };
+  body.addEventListener('click', function (e) { var b = e.target.closest('[data-remove]'); if (b) PLS.remove(b.getAttribute('data-remove')).then(draw); });
+  draw();
+})();
+</script>
+</body>
+</html>

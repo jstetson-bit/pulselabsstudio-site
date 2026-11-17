@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Labs Studio — Account</title>
+<meta name="description" content="Your Pulse Labs account: products, keys and orders.">
+<link rel="stylesheet" href="assets/pls.css">
+<script src="store-config.js"></script>
+<script src="assets/pls-store.js"></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Pulse Labs Studio</span></a>
+  <nav>
+    <a class="nav" href="products.html">Products</a>
+    <a class="nav" href="cart.html">Cart<span class="badge-n" id="cartN" style="display:none">0</span></a>
+    <a class="nav on" href="account.html" id="acctLink">Sign in</a>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
+    <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
+  </nav>
+</header>
+
+<div class="wrap" style="max-width:720px" id="root"><p class="sub">Loading…</p></div>
+<div id="manual" role="dialog" aria-modal="true"><div class="box">
+  <button class="ok-x" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">How the store works</h2>
+  <p><b>Products</b> lists every Pulse Labs app. Buying here always costs the same or less than Google Play, and bundles cost less again.</p>
+  <p><b>Your account</b>: make one with your email and a password. We send you an email; tap the link in it and your account is verified. Only verified accounts can check out, so every purchase is tied to you.</p>
+  <p><b>Paying</b>: the payment window comes from Paddle, our reseller. Cards and PayPal work there, and Paddle keeps any saved payment details. Your card number never reaches us.</p>
+  <p><b>After you buy</b>: your Pulse key appears under Account, My products. Open the app, tap the ghost "i", then Unlock, and paste the key. It works offline, forever, on the copy from our site or from Google Play.</p>
+  <p>◐ flips the colors.</p>
+</div></div>
+<footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="privacy.html">Privacy Policy</a></footer>
+<script>
+(function () {
+  PLS.header();
+  var root = document.getElementById('root');
+  if (!PLS.ready) { root.innerHTML = '<h1>Account</h1><div class="soon">Accounts open with the store, soon.</div>'; return; }
+  var view = 'signin', note = '';
+  function form(title, fields, button, links) {
+    return '<form class="form" id="f"><h1>' + title + '</h1>' + fields.map(function (f) {
+      return '<label for="' + f[0] + '">' + f[1] + '</label><input id="' + f[0] + '" type="' + (f[2] || 'text') + '"' + (f[3] ? ' autocomplete="' + f[3] + '"' : '') + ' required>'; }).join('') +
+      '<div style="text-align:center;margin-top:18px"><button class="round ok" type="submit" aria-label="' + button + '">✔</button><div class="sub" style="margin-top:6px">' + button + '</div></div>' +
+      '<div class="msg" id="msg">' + note + '</div><p>' + links + '</p></form>';
+  }
+  function v(id) { return document.getElementById(id).value.trim(); }
+  function say(t, good) { var m = document.getElementById('msg'); m.textContent = t; m.className = 'msg ' + (good ? 'good' : 'err'); }
+  function show(vw, n) { view = vw; note = n || ''; draw(); }
+  function draw() {
+    if (PLS.user() && view !== 'reset') return dash();
+    if (view === 'signup') {
+      root.innerHTML = form('Make an account', [['nm', 'Your name'], ['em', 'Email', 'email', 'email'], ['pw', 'Password (10 or more characters)', 'password', 'new-password']], 'Make my account',
+        'Already have one? <a href="#" data-v="signin">Sign in</a>');
+      document.getElementById('f').onsubmit = function (e) { e.preventDefault(); if (v('pw').length < 10) return say('Use at least 10 characters.');
+        PLS.signUp(v('em'), v('pw'), v('nm')).then(function () { show('sent', ''); }).catch(function (x) { say(x.message); }); };
+    } else if (view === 'forgot') {
+      root.innerHTML = form('Forgot your password?', [['em', 'Email', 'email', 'email']], 'Send me a reset link', '<a href="#" data-v="signin">Back to sign in</a>');
+      document.getElementById('f').onsubmit = function (e) { e.preventDefault(); PLS.forgot(v('em')).then(function () { say('If that email has an account, a reset link is on its way.', true); }).catch(function (x) { say(x.message); }); };
+    } else if (view === 'reset') {
+      root.innerHTML = form('Pick a new password', [['pw', 'New password (10 or more characters)', 'password', 'new-password']], 'Save my new password', '');
+      document.getElementById('f').onsubmit = function (e) { e.preventDefault(); if (v('pw').length < 10) return say('Use at least 10 characters.');
+        PLS.newPassword(v('pw')).then(function () { view = 'signin'; PLS.toast('Password saved'); draw(); }).catch(function (x) { say(x.message); }); };
+    } else if (view === 'sent') {
+      root.innerHTML = '<div class="form" style="text-align:center"><h1>Check your email</h1><p>We sent you a link. Tap it and your account is verified, then sign in here.</p><p class="sub">Nothing after a few minutes? Look in spam, or <a href="#" data-v="signin">go back</a> and sign in to send it again.</p></div>';
+    } else {
+      root.innerHTML = form('Sign in', [['em', 'Email', 'email', 'email'], ['pw', 'Password', 'password', 'current-password']], 'Sign in',
+        'New here? <a href="#" data-v="signup">Make an account</a> · <a href="#" data-v="forgot">Forgot password</a>');
+      document.getElementById('f').onsubmit = function (e) { e.preventDefault();
+        PLS.signIn(v('em'), v('pw')).then(function () { PLS.header(); draw(); })
+          .catch(function (x) { if (/confirm/i.test(x.message)) { say('Your email isn\'t verified yet. '); var b = document.createElement('a'); b.href = '#'; b.textContent = 'Send the link again'; b.onclick = function (ev) { ev.preventDefault(); PLS.resend(v('em')).then(function () { say('Sent. Check your email.', true); }); }; document.getElementById('msg').appendChild(b); } else say(/invalid/i.test(x.message) ? 'That email or password didn\'t work.' : x.message); }); };
+    }
+  }
+  var tab = 'products';
+  function dash() {
+    var u = PLS.user();
+    root.innerHTML = (note ? '<div class="card" style="border-color:var(--green);margin-bottom:14px">' + note + '</div>' : '') +
+      '<h1>Your account</h1><p class="sub">' + PLS.esc(u.email) + (PLS.verified() ? ' · <span class="save">verified ✔</span>' : ' · <span style="color:#ff8a80">not verified yet</span>') + '</p>' +
+      '<div class="tabs">' + [['products', 'My products'], ['orders', 'Order history'], ['profile', 'Profile']].map(function (t) { return '<button class="tab' + (tab === t[0] ? ' on' : '') + '" data-tab="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="card" id="pane"><p class="sub">Loading…</p></div>';
+    var pane = document.getElementById('pane');
+    if (tab === 'products') Promise.all([PLS.keys(), PLS.catalog().catch(function () { return []; })]).then(function (r) {
+      var ks = r[0], names = {}; r[1].forEach(function (p) { names[p.id] = p.name; });
+      pane.innerHTML = !ks.length ? '<p>Nothing bought yet. <a href="products.html">See the products</a></p>' : ks.map(function (k) {
+        return '<div class="row" style="display:block"><b>' + PLS.esc(names[k.product_id] || k.product_id) + '</b> <span class="sub" style="font-size:13px">since ' + new Date(k.issued_at).toLocaleDateString('en-US') + '</span>' + (k.revoked ? ' <span class="badge">refunded</span>' : '') +
+          '<div class="key">' + PLS.esc(k.pulse_key) + '</div><button class="btn ghost" style="margin-top:8px" data-copy="' + PLS.esc(k.pulse_key) + '">Copy key</button> <span class="sub" style="font-size:13px">In the app: ghost "i" → Unlock → paste.</span></div>'; }).join('');
+    }).catch(function (e) { pane.innerHTML = '<p class="msg err">' + PLS.esc(e.message) + '</p>'; });
+    else if (tab === 'orders') PLS.orders().then(function (os) {
+      pane.innerHTML = !os.length ? '<p>No orders yet.</p>' : os.map(function (o) {
+        return '<div class="row"><div class="grow"><b>' + new Date(o.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) + '</b> · ' + PLS.esc(o.status) +
+          '<div class="sub" style="margin:0;font-size:13px">' + (o.order_items || []).map(function (i) { return PLS.esc(i.product_id || i.price_id) + (i.quantity > 1 ? ' × ' + i.quantity : ''); }).join(', ') + ' · order ' + PLS.esc(String(o.id).slice(0, 8)) + '</div></div><div class="price" style="font-size:18px">' + PLS.money(o.total_cents) + '</div></div>'; }).join('') +
+        '<p class="sub" style="font-size:13px;margin-top:10px">Receipts and refunds come from Paddle, our reseller, by email.</p>';
+    }).catch(function (e) { pane.innerHTML = '<p class="msg err">' + PLS.esc(e.message) + '</p>'; });
+    else PLS.profile().then(function (p) {
+      pane.innerHTML = '<label for="dn">Your name</label><input id="dn" class="key" style="font:inherit;font-size:16px" value="' + PLS.esc(p.display_name || '') + '">' +
+        '<div style="display:flex;gap:12px;margin-top:14px;align-items:center"><button class="round ok" id="saveN" style="width:48px;height:48px;font-size:22px" aria-label="Save">✔</button><span class="sub">Save</span></div>' +
+        '<hr style="border-color:var(--line);margin:18px 0"><button class="btn ghost" id="out">Sign out</button>';
+      document.getElementById('saveN').onclick = function () { PLS.saveName(document.getElementById('dn').value.trim()).then(function () { PLS.toast('Saved'); }); };
+      document.getElementById('out').onclick = function () { PLS.signOut().then(function () { PLS.header(); note = ''; view = 'signin'; draw(); }); };
+    });
+  }
+  root.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-v]'); if (a) { e.preventDefault(); show(a.getAttribute('data-v')); return; }
+    var t = e.target.closest('[data-tab]'); if (t) { tab = t.getAttribute('data-tab'); dash(); return; }
+    var c = e.target.closest('[data-copy]'); if (c) { (navigator.clipboard ? navigator.clipboard.writeText(c.getAttribute('data-copy')) : Promise.reject()).then(function () { PLS.toast('Key copied'); }).catch(function () { prompt('Copy your key:', c.getAttribute('data-copy')); }); }
+  });
+  var paid = location.hash === '#paid';
+  PLS.fromEmailLink().then(function (type) {
+    if (type === 'recovery') { view = 'reset'; return draw(); }
+    if (type) note = '<b>Email verified ✔</b> Your account is ready.';
+    if (paid) { history.replaceState(null, '', location.pathname); note = '<b>Thank you! ✔</b> Your keys appear under My products within a minute.'; tab = 'products'; PLS.clearCart();
+      var n = 0, t = setInterval(function () { if (++n > 8 || tab !== 'products' || !PLS.user()) return clearInterval(t); dash(); }, 8000); }
+    return PLS.refresh();
+  }).then(function () { PLS.header(); draw(); }).catch(function () { draw(); });
+})();
+</script>
+</body>
+</html>

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.5 — 2026-11-16
+- The store: products.html, cart.html, account.html, assets/pls.css, assets/pls-store.js, store-config.js; home page
+  links to Products and Account. Opens "soon" until docs/STORE-SETUP.md is done.
+- Supabase schema with row-level security (001_store.sql); Paddle webhook edge function + lib.js (signature check,
+  idempotent orders, bundle unlocks, refund revokes); Pulse key signer; offline key checkers for Android and Windows;
+  key-pair maker.
+- Tested: store core (node: forged/tampered/wrong-product keys refused, Paddle signature + replay, bundles); schema on
+  real Postgres 16 with Supabase stand-ins (other users' orders/keys/cart invisible, no self-made orders or keys,
+  unverified accounts can't use the cart, profile trigger); Windows checker via .NET 8 and Android checker via Java,
+  20/20 real keys each; full browser flow with fake Supabase + fake Paddle (sign up, unverified sign-in refused,
+  email link verifies, cart follows into the account, Paddle opens with the account id, keys + order appear, cart
+  cleared). Not yet tested against the real Supabase or Paddle.
+
 ## v0.4 — 2026-11-16
 - Build history: every build kept newest-first with its own changelog (from the farm Release notes), date, size,
   download, share and fingerprint; newest 8 per shelf stored on the site, older ones "Archived · farm copy" links.

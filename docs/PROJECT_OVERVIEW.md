@@ -81,11 +81,28 @@ Not truly one-time (a static site can't count uses). It dies when that build lea
 - Sign-ins (2026-11-16): ElFuego, KatieCakes (KatyCakes also accepted). Names ignore case, spaces, symbols.
 - Private vault is for testing, so debug-signed bench builds ARE published (labeled Test build).
 
+## The store (v0.5, public pages; opens when the accounts exist — docs/STORE-SETUP.md)
+- Pages: `products.html` (catalog: static product cards for search engines, prices and Add to cart filled in live,
+  "save $X vs Play"), `cart.html`, `account.html` (make account → verification email → verified; sign in, forgot /
+  new password, My products with Pulse keys, Order history, Profile, sign out). Shared `assets/pls.css`,
+  `assets/pls-store.js` (no libraries), `store-config.js` (public keys only).
+- Accounts/data: Supabase (Auth with email confirmation; Postgres with row-level security —
+  `supabase/migrations/001_store.sql`): products, profiles, cart_items (verified accounts only), orders, order_items,
+  licenses. Browsers can never write orders or keys.
+- Payments: Paddle as merchant of record (cards, PayPal, sales tax/VAT, receipts, refunds, saved payment details;
+  card data never touches us). Checkout opens Paddle's overlay with customData.user_id.
+- `supabase/functions/paddle-webhook`: verifies Paddle's signature (5-minute replay window), records the order once
+  (txn id unique), issues one Pulse key per product (bundles unlock each app inside), revokes keys on refund.
+- Pulse keys: `PLS1-<payload>.<ECDSA P-256 signature>`; apps check them fully offline with the public key
+  (`store/keys/PulseKey.java`, `PulseKey.cs`); the same key works on the site copy and the Play copy.
+
 ## Roadmap
 1. ✅ v0.1 public downloads page (replaced)
 2. ✅ v0.2 private, encrypted vault with sign-in and three shelves
 3. ✅ v0.3 automatic farm watcher, per-file keys, share links, at-a-glance cards, full product pages
-4. QUEUED: public `/products` catalog (pulselabsstudio.com/products): living showcase of every product,
+4. ✅ v0.5 store pages + database + payment webhook + offline key checkers (built and tested; waiting on accounts).
+   QUEUED: Terms + Refund policy pages (Paddle requires them), product detail pages with every screen for SEO, bundles.
+   (Was: public `/products` catalog (pulselabsstudio.com/products): living showcase of every product,
    detailed descriptions, every screen, NO download links; feeds SEO and later direct sales (site price
    cheaper than Play / bundles). Needs: public (unencrypted) listing + pictures per product, opt-in per
    product so unreleased work stays private; payment processor decision; signing-key plan (a direct-sale
