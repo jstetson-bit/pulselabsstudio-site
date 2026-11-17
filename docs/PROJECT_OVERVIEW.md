@@ -67,6 +67,12 @@ history from the last 30 Releases of every repo.
   new ticket. A seat sets "Needs Jason" with `tickets/<id>/status.json`. A Release whose notes say "Fixes T-..." marks
   the ticket "Fixed in v<version>" automatically. `index.json` in the tickets repo is what the page shows.
 
+## Where it stands (v0.6)
+`tools/Watch-Status.ps1` (third line of run-hidden.vbs; works every 30 minutes) reads `projects/README.md` on the farm
+repo (folder, branch, state; "Separate repo" rows use that repo's default branch), matches each site product by
+name/id, and stores `status` = {state, lastCommitAt, lastCommit, commitUrl, repo, branch, branchUrl, summary,
+summaryFrom, checkedAt} inside the encrypted list. Only changes are pushed.
+
 ## Share links (v0.3)
 Every stored file has its own random key (kept inside the encrypted list). Share makes
 `share.html#<file>.<key>.<name>.<filename>.<size>`: opens that ONE build without signing in, nothing else.

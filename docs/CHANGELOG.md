@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.6 — 2026-11-17
+- First real farm run (Snow White, PowerShell 5.1): Keyboard Studio (30 builds of history), PLS File Explorer (7),
+  Pulse Meter Android (7), PLS Launcher (1) on the private shelves.
+- Vault master key replaced (the old one had been written into a mailbox Order); same sign-ins.
+- Product overviews written for those four (what it's for, bullets, description).
+- "Where it stands" on every app page: state (farm project directory), last touched (last commit: when + message,
+  linked), last delivered (newest build), where the code is (repo + branch), status notes (top of STATUS.md /
+  CHANGELOG). Shelf cards show "code touched X ago". New `tools/Watch-Status.ps1`, every 30 minutes from the same task.
+- Fixes: publishing an update with no files (overview/pictures only) crashed; dry-run log wording.
+
 ## v0.5 — 2026-11-16
 - The store: products.html, cart.html, account.html, assets/pls.css, assets/pls-store.js, store-config.js; home page
   links to Products and Account. Opens "soon" until docs/STORE-SETUP.md is done.

@@ -104,6 +104,13 @@
   .round { width:60px; height:60px; border-radius:50%; border:none; color:#fff; font-size:28px; cursor:pointer; }
   .round.ok2 { background:var(--green); } .round.undo { background:var(--red); }
   .shotprev { max-width:100%; max-height:220px; border-radius:10px; margin-top:8px; display:none; }
+  .stand { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--cyan); border-radius:12px; padding:12px 14px; margin:12px 0 16px; font-size:14px; }
+  .stand h3 { margin:0 0 6px; font-size:16px; }
+  .stand .k { color:var(--dim); display:inline-block; min-width:150px; }
+  .stand a, .hrow a, .tk a { color:var(--cyan); }
+  .stand pre { white-space:pre-wrap; font:inherit; font-size:13px; background:var(--panel2); border-radius:8px; padding:8px 10px; margin:8px 0 0; display:none; }
+  .stand pre.open { display:block; }
+  .touched { font-size:12px; color:var(--cyan); }
   #manual { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:30; display:none; overflow:auto; }
   #manual.open { display:grid; place-items:center; }
   #manual .box { max-width:540px; margin:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
@@ -251,7 +258,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function size(b) { if (!b) return '—'; var u = ['B','KB','MB','GB'], i = 0; while (b >= 1024 && i < 3) { b /= 1024; i++; } return b.toFixed(i ? 1 : 0) + ' ' + u[i]; }
   function day(d) { if (!d) return '—'; var t = new Date(String(d).slice(0, 10) + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
-  function ago(iso) { var m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : day(iso); }
+  function ago(iso) { if (!iso) return '—'; var m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 2 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : m < 10080 ? Math.round(m / 1440) + ' days ago' : day(iso); }
   function onShelf(p, s) { return (p.downloads || []).some(function (d) { return d.platform === s; }); }
   function dlFor(p, s) { return (p.downloads || []).filter(function (d) { return d.platform === s && d.b; })[0] || (p.downloads || []).filter(function (d) { return d.platform === s; })[0] || {}; }
   function systems(p) { return SHELVES.filter(function (s) { return onShelf(p, s.id); }); }
@@ -305,11 +312,25 @@
           '<div class="body"><div class="row"><div class="icon"' + (p.icon ? ' data-img="' + handle(p.icon) + '"' : '') + '></div><div><div class="name">' + esc(p.name) + '</div>' +
           '<div class="sys">' + sysBadges(p) + signerBadge(d) + '</div></div></div>' +
           (p.purpose ? '<div class="purpose">' + esc(p.purpose) + '</div>' : '') +
+          (p.status && p.status.lastCommitAt ? '<div class="touched">● code touched ' + ago(p.status.lastCommitAt) + '</div>' : '') +
           '<div class="meta" style="margin-top:8px"><span>Version</span><b>' + esc(d.version || '—') + '</b><span>Built</span><b>' + day(d.buildDate) +
           '</b><span>Released</span><b>' + day(d.releaseDate) + '</b><span>Size</span><b>' + size(d.size) + '</b></div></div></div>' +
           '<div class="quick"><button class="qbtn" data-dl="' + handle(d) + '">Download</button><button class="qbtn share" data-share="' + handle(d) + '" data-pname="' + esc(p.name) + '">Share</button></div></div>';
       }).join('') : '<div class="empty">Nothing on this shelf yet.</div>') + '</div>';
     fillImages(app); restoreScroll(s.id);
+  }
+  // "Where it stands": kept fresh by the farm (tools/Watch-Status.ps1, every 30 minutes)
+  function newestBuild(p) { return (p.downloads || [])[0] || {}; }
+  function stand(p) {
+    var t = p.status, nb = newestBuild(p);
+    if (!t && !nb.version) return '';
+    return '<div class="stand"><h3>Where it stands</h3>' +
+      (t && t.state ? '<div><span class="k">State</span>' + esc(t.state) + '</div>' : '') +
+      (t && t.lastCommitAt ? '<div><span class="k">Last touched</span>' + ago(t.lastCommitAt) + ' · ' + (t.commitUrl ? '<a href="' + esc(t.commitUrl) + '" target="_blank" rel="noopener">' + esc(t.lastCommit) + '</a>' : esc(t.lastCommit)) + '</div>' : '') +
+      (nb.version ? '<div><span class="k">Last delivered</span>v' + esc(nb.version) + ' · ' + ago(nb.releasedAt || nb.published || nb.releaseDate) + (nb.signer === 'debug' ? ' · test build' : '') + '</div>' : '') +
+      (t && t.branch ? '<div><span class="k">Where the code is</span><a href="' + esc(t.branchUrl) + '" target="_blank" rel="noopener">' + esc(t.repo.split('/')[1] + ' · ' + t.branch) + '</a></div>' : '') +
+      (t && t.summary ? '<div style="margin-top:6px"><a href="#" data-stand="1">Status notes ▾</a> <span class="count">(' + esc(t.summaryFrom || 'STATUS') + ', checked ' + ago(t.checkedAt) + ')</span></div><pre>' + esc(t.summary) + '</pre>' : '') +
+      '</div>';
   }
   function latestOf(p) { var seen = {}, out = []; (p.downloads || []).forEach(function (d) { if (!seen[d.platform]) { seen[d.platform] = 1; out.push(d); } }); return out; }
   function viewProduct(s, pid) {
@@ -322,6 +343,7 @@
       '<div class="icon"' + (p.icon ? ' data-img="' + handle(p.icon) + '"' : '') + ' style="width:56px;height:56px;flex-basis:56px"></div><div><h1 style="margin:0">' + esc(p.name) + '</h1>' +
       '<div class="purpose">' + esc(p.purpose || 'No description yet.') + '</div><div class="sys">' + sysBadges(p) + signerBadge(d) + '</div></div></div>' +
       ((p.bullets || []).length ? '<ul class="bullets">' + p.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>' : '') +
+      stand(p) +
       (shots.length ? '<h3>What it looks like</h3><div class="pics">' + shots.map(function (x) {
         return '<figure><img alt="" data-img="' + handle(x) + '"><figcaption>' + esc(x.caption || '') + '</figcaption></figure>'; }).join('') + '</div>'
         : '<p class="count">No screen pictures yet. They show up when the farm attaches them to a build.</p>') +
@@ -457,6 +479,7 @@
   }
 
   app.addEventListener('click', function (e) {
+    var sn = e.target.closest('[data-stand]'); if (sn) { e.preventDefault(); sn.parentNode.nextElementSibling.classList.toggle('open'); return; }
     var nt = e.target.closest('[data-notes]'); if (nt) { document.getElementById(nt.getAttribute('data-notes')).classList.toggle('open'); return; }
     var rp = e.target.closest('[data-report]'); if (rp) return openTicket(rp.getAttribute('data-report'));
     var b = e.target.closest('[data-dl]'); if (b) return download(b);

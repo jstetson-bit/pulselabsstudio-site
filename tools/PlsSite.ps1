@@ -78,6 +78,7 @@ function Invoke-PlsPublish {
       }
       foreach ($f in 'name','purpose','description') { if ($u.$f) { $p.$f = $u.$f } }
       if ($u.bullets) { $p.bullets = @($u.bullets) }
+      if ($u.status) { $p | Add-Member -Force -NotePropertyName status -NotePropertyValue $u.status }
       if ($u.icon) { if ($p.icon) { [void]$retire.Add($p.icon.b) }; $p.icon = & $seal $u.icon }
       if ($u.shots) {
         foreach ($s in @($p.shots)) { if ($s) { [void]$retire.Add($s.b) } }
@@ -85,7 +86,7 @@ function Invoke-PlsPublish {
       }
       $old = @($p.downloads | Where-Object { $_ })
       $new = @()
-      foreach ($f in @($u.files)) {
+      foreach ($f in @($u.files | Where-Object { $_ })) {
         if ($f.archivedOnly) {
           # history only: no file on the site, the farm Release keeps it
           $new += [pscustomobject]@{
@@ -131,7 +132,7 @@ function Invoke-PlsPublish {
         }
       }
       $p.downloads = @($kept)
-      if ($u.icon -or $u.shots -or $u.purpose -or $u.bullets -or $u.description) { $changes++ }
+      if ($u.icon -or $u.shots -or $u.purpose -or $u.bullets -or $u.description -or $u.status) { $changes++ }
     }
 
     if ($Watcher) { $man | Add-Member -Force -NotePropertyName watcher -NotePropertyValue $Watcher; $changes++ }
