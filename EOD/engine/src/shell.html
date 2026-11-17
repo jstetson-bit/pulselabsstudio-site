@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0f">
+<title>Editor · EOD · Editor of Doom</title>
+<style>
+/*CSS*/
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <a class="brand" href="index.html" title="EOD home"><span class="b1">E</span><span class="b2">O</span><span class="b1">D</span> <span class="b1 sub">EDITOR OF DOOM</span> <span id="ver" class="ver"></span></a>
+    <div class="grow"></div>
+    <button id="btnFile" class="tb">File</button>
+    <button id="btnInfo" class="ghostbtn" title="Manual"><svg viewBox="0 0 32 36" width="30" height="34"><path d="M16 2C8.8 2 4 7.6 4 14.5V33l4-3 4 3 4-3 4 3 4-3 4 3V14.5C28 7.6 23.2 2 16 2z" fill="#fff" stroke="#000" stroke-width="1.5"/><circle cx="16" cy="11" r="2.2" fill="#000"/><rect x="14.2" y="15" width="3.6" height="11" rx="1.5" fill="#000"/></svg></button>
+    <button id="btnInvert" class="iconbtn" title="Invert colors"><svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></svg></button>
+    <button id="btnSettings" class="iconbtn" title="Settings"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button>
+  </header>
+  <nav id="modes" class="strip"></nav>
+  <nav id="tools" class="strip"></nav>
+  <div id="stage">
+    <canvas id="ed"></canvas>
+    <div id="status"></div>
+    <div id="drawbar" hidden>
+      <button id="drawOk" class="okbtn" title="Finish shape"></button>
+      <button id="drawCancel" class="cancelbtn" title="Cancel drawing"></button>
+    </div>
+  </div>
+</div>
+<div id="props" class="panel">
+  <div class="phead"><span class="mover" id="propsMover">Move</span><span id="propsTitle">Properties</span><div class="grow"></div><button id="propsToggle" class="iconbtn small">▾</button></div>
+  <div id="propsBody"></div>
+</div>
+<div id="game" hidden>
+  <canvas id="gv"></canvas>
+  <div id="gtop">
+    <button id="gExit" class="cancelbtn" title="Back to editor"></button>
+    <span id="gTitle"></span>
+    <div class="grow"></div>
+    <button id="gControls" class="tb">Controls</button><button id="gArrange" class="tb">Arrange</button>
+    <button id="gInfo" class="ghostbtn" title="Manual"></button>
+    <button id="gInvert" class="iconbtn" title="Invert colors"></button>
+  </div>
+  <div id="ctls">
+    <div class="ctl" id="c-stick" data-c="stick"><div class="knob"></div></div>
+    <button class="ctl round" id="c-fire" data-c="fire">FIRE</button>
+    <button class="ctl round" id="c-use" data-c="use">USE</button>
+    <button class="ctl round" id="c-wpn" data-c="wpn">WPN</button>
+    <button class="ctl round" id="c-map" data-c="map">MAP</button>
+  </div>
+  <div id="vbar" hidden></div>
+  <div id="arrbar" hidden><span>Hold a yellow word to drag. Tap it to switch Move / Resize.</span><button id="arrOk" class="okbtn"></button><button id="arrCancel" class="cancelbtn"></button></div>
+  <div id="gover" hidden></div>
+</div>
+<div id="modal" hidden><div id="modalBox"></div></div>
+<div id="tut" hidden><div id="tutText"></div><div class="row"><button id="tutSkip" class="tb">Skip step</button><button id="tutQuit" class="cancelbtn"></button></div></div>
+<div id="toast"></div>
+<input type="file" id="fileIn" hidden accept=".wad,.WAD,.json,.nsde,application/octet-stream">
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/backend.js"></script>
+<script src="assets/site.js"></script>
+<script id="nsde-main">
+/*JS*/
+</script>
+</body>
+</html>

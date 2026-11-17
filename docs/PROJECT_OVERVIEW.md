@@ -19,6 +19,11 @@ Katy). The public home page only has a small "Sign in" link in the footer. The p
   corrupted files are refused. Unlocking happens in the visitor's browser (WebCrypto); no server.
 - Same code both ends: `tools/PlsVault.ps1` (farm) and the script in `downloads.html` (browser).
 
+## EOD (Editor of Doom) at /EOD
+A public preview of EOD lives in `EOD/` (its own README, docs, engine source and Supabase schema inside). The deploy
+workflow copies `EOD/` (minus `EOD/engine`, the source) and the `eod/` redirect into the site. It shares nothing with
+the vault or the store.
+
 ## Hosting
 - GitHub Pages deployed by `.github/workflows/pages.yml` (Pages source must be "GitHub Actions").
 - Encrypted builds are stored as assets of a single GitHub Release named `vault`, random file names.

@@ -1,0 +1,1 @@
+try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }

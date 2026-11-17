@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d"><link rel="stylesheet" href="assets/site.css">
+<title>Maps · EOD</title></head><body>
+<main><h1>Maps</h1>
+<div class="row"><input id="q" placeholder="Search maps or authors…" style="flex:1;min-width:180px"><select id="sort" style="width:auto"><option value="new">Newest</option><option value="top">Top rated</option><option value="plays">Most played</option></select><a class="btn primary" href="editor.html">+ New map</a></div>
+<div class="grid" id="grid" style="margin-top:14px"></div>
+<div class="row" style="justify-content:center;margin:16px"><button id="more" hidden>Load more</button></div>
+</main>
+<script src="assets/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/backend.js"></script><script src="assets/site.js"></script>
+<script>
+EOD.chrome('maps');
+let off=0,me=null;const grid=document.getElementById('grid'),more=document.getElementById('more'),q=document.getElementById('q'),sort=document.getElementById('sort');
+const p=new URLSearchParams(location.search);q.value=p.get('q')||'';sort.value=p.get('sort')||'new';
+async function load(reset){if(reset){off=0;grid.innerHTML='';}me=me||await EODB.user().catch(()=>null);try{const list=await EODB.listMaps({sort:sort.value,q:q.value.trim(),limit:24,offset:off});off+=list.length;list.forEach(m=>grid.appendChild(EOD.mapCard(m,me)));more.hidden=list.length<24;if(!grid.children.length)grid.innerHTML='<div class="empty card">No maps found.</div>';}catch(e){grid.innerHTML='<div class="empty card">'+EOD.esc(e.message)+'</div>';}
+history.replaceState(null,'','?sort='+sort.value+(q.value?'&q='+encodeURIComponent(q.value):''));}
+let t=0;q.oninput=()=>{clearTimeout(t);t=setTimeout(()=>load(true),300)};sort.onchange=()=>load(true);more.onclick=()=>load(false);load(true);
+</script></body></html>

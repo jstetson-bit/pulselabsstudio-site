@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d"><link rel="stylesheet" href="assets/site.css">
+<title>Forums · EOD</title></head><body>
+<main id="f"></main>
+<script src="assets/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/backend.js"></script><script src="assets/site.js"></script>
+<script>
+EOD.chrome('forums');
+const F=document.getElementById('f'),esc=EOD.esc;let me=null;
+const go=q=>{history.pushState(null,'',q?'?'+q:'forums.html');route();};
+addEventListener('popstate',route);
+async function route(){me=await EODB.user().catch(()=>null);const p=new URLSearchParams(location.search);try{if(p.get('t'))await thread(p.get('t'));else if(p.get('c'))await cat(+p.get('c'));else await home();}catch(e){F.innerHTML='<div class="empty card">'+esc(e.message)+'</div>';}window.scrollTo(0,0);}
+async function home(){const cats=await EODB.categories();F.innerHTML='<h1>Forums</h1><div class="list">'+cats.map(c=>'<a class="item" href="?c='+c.id+'" data-c="'+c.id+'"><div class="grow"><div class="t">'+esc(c.name)+'</div><div class="muted">'+esc(c.description)+'</div></div><span class="badge">'+c.threads+' threads</span></a>').join('')+'</div>';F.querySelectorAll('[data-c]').forEach(a=>a.onclick=e=>{e.preventDefault();go('c='+a.dataset.c);});}
+async function cat(id){const cats=await EODB.categories(),c=cats.find(x=>x.id===id);if(!c)throw new Error('Category not found');const ts=await EODB.threads(id);
+F.innerHTML='<div class="crumbs"><a href="forums.html" data-home>Forums</a> › '+esc(c.name)+'</div><div class="row"><h1 class="grow">'+esc(c.name)+'</h1>'+((!c.admin_only||(me&&me.role==='admin'))?'<button class="primary" id="nt">+ New thread</button>':'')+'</div><div class="list">'+(ts.map(t=>'<a class="item" href="?t='+t.id+'" data-t="'+t.id+'"><div class="grow"><div class="t">'+(t.pinned?'📌 ':'')+(t.locked?'🔒 ':'')+esc(t.title)+'</div><div class="muted">by '+esc(t.author)+' · last post '+EOD.ago(t.last_post_at)+'</div></div><span class="badge">'+t.replies+' replies</span></a>').join('')||'<div class="empty card">No threads yet. Start one.</div>')+'</div>';
+F.querySelector('[data-home]').onclick=e=>{e.preventDefault();go('');};F.querySelectorAll('[data-t]').forEach(a=>a.onclick=e=>{e.preventDefault();go('t='+a.dataset.t);});
+const nt=F.querySelector('#nt');if(nt)nt.onclick=()=>{if(!me)return EOD.auth(()=>route());EOD.modal('New thread in '+c.name,'<label>Title</label><input id="tt" maxlength="120"><label>Post</label><textarea id="tb"></textarea>',[{ok:1,fn:async b=>{const t=await EODB.newThread(id,b.querySelector('#tt').value,b.querySelector('#tb').value);go('t='+t.id);}},{cancel:1}]);};}
+async function thread(id){const t=await EODB.thread(id),ps=await EODB.posts(id),admin=me&&me.role==='admin';
+F.innerHTML='<div class="crumbs"><a href="forums.html" data-home>Forums</a> › <a href="?c='+t.category+'" data-cat>'+esc(t.category_name)+'</a></div><h1>'+(t.pinned?'📌 ':'')+(t.locked?'🔒 ':'')+esc(t.title)+'</h1>'+(admin?'<div class="row"><button data-m="pinned">'+(t.pinned?'Unpin':'Pin')+'</button><button data-m="locked">'+(t.locked?'Unlock':'Lock')+'</button><button data-m="delete">Delete thread</button></div>':'')+
+ps.map(p=>'<div class="post" id="p'+p.id+'"><div class="row"><span class="who">'+esc(p.author)+'</span><span class="muted grow">'+EOD.ago(p.created_at)+(p.edited_at?' · edited':'')+'</span>'+(me&&(me.id===p.owner||admin)?'<button data-e="'+p.id+'">Edit</button><button data-d="'+p.id+'">Delete</button>':'')+(me&&me.id!==p.owner?'<button data-r="'+p.id+'">Report</button>':'')+'</div><div class="body">'+esc(p.body)+'</div></div>').join('')+
+(t.locked&&!admin?'<div class="empty card">🔒 This thread is locked.</div>':me?'<div class="card"><label>Reply</label><textarea id="rb"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="okbtn" id="rs" title="Post reply"></button></div></div>':'<div class="empty card"><button class="primary" id="si">Sign in to reply</button></div>');
+F.querySelector('[data-home]').onclick=e=>{e.preventDefault();go('');};F.querySelector('[data-cat]').onclick=e=>{e.preventDefault();go('c='+t.category);};
+const rs=F.querySelector('#rs');if(rs)rs.onclick=async()=>{try{await EODB.reply(id,F.querySelector('#rb').value);route();}catch(e){EOD.toast(e.message);}};
+const si=F.querySelector('#si');if(si)si.onclick=()=>EOD.auth(()=>route());
+F.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const p=ps.find(x=>x.id===b.dataset.e);EOD.modal('Edit post','<textarea id="eb">'+esc(p.body)+'</textarea>',[{ok:1,fn:async m=>{await EODB.editPost(p.id,m.querySelector('#eb').value);route();}},{cancel:1}]);});
+F.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>EOD.modal('Delete this post?','<p>This cannot be undone.</p>',[{ok:1,fn:async()=>{await EODB.deletePost(b.dataset.d);ps.length===1?go('c='+t.category):route();}},{cancel:1}]));
+F.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>EOD.report('post',b.dataset.r));
+F.querySelectorAll('[data-m]').forEach(b=>b.onclick=async()=>{const k=b.dataset.m;if(k==='delete')return EOD.modal('Delete the whole thread?','<p>All replies go too. This cannot be undone.</p>',[{ok:1,fn:async()=>{await EODB.modThread(id,{delete:1});go('c='+t.category);}},{cancel:1}]);await EODB.modThread(id,{[k]:!t[k]});route();});}
+route();
+</script></body></html>

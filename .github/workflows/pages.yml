@@ -29,6 +29,10 @@ jobs:
           mkdir -p _site/v
           cp *.html CNAME _site/
           [ -d pulse-meter ] && cp -r pulse-meter _site/
+          [ -d assets ] && cp -r assets _site/
+          cp *.js _site/ 2>/dev/null || true
+          [ -d EOD ] && cp -r EOD _site/ && rm -rf _site/EOD/engine
+          [ -d eod ] && cp -r eod _site/
           [ -d vault ] && cp -r vault _site/
           if gh release view vault --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release download vault --repo "$GITHUB_REPOSITORY" --pattern '*.bin' --dir _site/v

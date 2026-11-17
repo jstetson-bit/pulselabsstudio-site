@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d"><link rel="stylesheet" href="assets/site.css">
+<title>Account · EOD</title></head><body>
+<main id="a"></main>
+<script src="assets/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/backend.js"></script><script src="assets/site.js"></script>
+<script>
+EOD.chrome('account');
+const A=document.getElementById('a'),esc=EOD.esc;
+async function draw(){const me=await EODB.user().catch(()=>null);
+if(!me){A.innerHTML='<div class="hero"><h1>Join EOD</h1><p>Free account: publish maps, vote, remix, post in the forums, and keep your controller and keyboard setup everywhere.</p><div class="row" style="justify-content:center"><button class="primary" id="up">Create account</button><button id="in">Sign in</button></div></div>';A.querySelector('#up').onclick=()=>EOD.auth(draw,'up');A.querySelector('#in').onclick=()=>EOD.auth(draw,'in');return;}
+A.innerHTML='<div class="row"><h1 class="grow">'+esc(me.username)+(me.role==="admin"?' <span class="badge">ADMIN</span>':'')+'</h1><button id="out">Sign out</button></div>'+
+'<div class="card"><label>Username</label><input id="un" value="'+esc(me.username)+'" maxlength="24"><label>About you</label><textarea id="bio" maxlength="500">'+esc(me.bio||'')+'</textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="okbtn" id="sv" title="Save profile"></button></div><p class="muted">Game controls: '+(me.bindings?'saved to your account ✓':'not saved yet (set them in the game → Controls)')+'</p></div>'+
+'<h2>My maps</h2><div class="grid" id="mine"></div>'+(me.role==='admin'?'<h2>Reports</h2><div class="list" id="reps"></div>':'');
+A.querySelector('#out').onclick=async()=>{await EODB.signOut();EOD.refreshUser();draw();};
+A.querySelector('#sv').onclick=async()=>{try{await EODB.updateProfile({username:A.querySelector('#un').value,bio:A.querySelector('#bio').value});EOD.toast('Profile saved');EOD.refreshUser();}catch(e){EOD.toast(e.message);}};
+const mine=A.querySelector('#mine');const list=await EODB.listMaps({owner:me.id,limit:200});
+if(!list.length)mine.innerHTML='<div class="empty card">No maps yet. <a href="editor.html">Open the editor</a> and use File → Publish to EOD.</div>';
+list.forEach(m=>{const c=EOD.mapCard(m,me,{extra:'<button data-ver>Versions</button><button data-pub>'+(m.published?'Unpublish':'Publish')+'</button><button data-del>Delete</button>'});mine.appendChild(c);
+c.querySelector('[data-del]').onclick=()=>EOD.modal('Delete "'+m.title+'"?','<p>This removes the map and its versions. This cannot be undone.</p>',[{ok:1,fn:async()=>{await EODB.deleteMap(m.id);draw();}},{cancel:1}]);
+c.querySelector('[data-pub]').onclick=async()=>{const full=await EODB.getMap(m.id);await EODB.saveMap({id:m.id,title:m.title,description:m.description,data:full.data,published:!m.published});draw();};
+c.querySelector('[data-ver]').onclick=async()=>{const vs=await EODB.versions(m.id);EOD.modal('Versions of '+m.title,vs.length?'<div class="list">'+vs.map(v=>'<div class="item"><span class="grow">'+new Date(v.created_at).toLocaleString()+'</span><button data-v="'+v.id+'">Restore</button></div>').join('')+'</div><p class="muted">Restoring keeps the current version in this list too, so nothing is lost.</p>':'<p>No older versions yet. Each time you publish changes, the previous version is kept here (last 20).</p>',[{cancel:1}],(b,close)=>b.querySelectorAll('[data-v]').forEach(x=>x.onclick=async()=>{await EODB.restoreVersion(m.id,x.dataset.v);close();EOD.toast('Version restored');draw();}));};});
+if(me.role==='admin'){const reps=await EODB.reports().catch(()=>[]),el=A.querySelector('#reps');el.innerHTML=reps.length?reps.map(r=>'<div class="item"><div class="grow"><b>'+esc(r.kind)+'</b> '+esc(r.target)+'<div class="muted">'+esc(r.reason)+' · by '+esc(r.reporter_name)+' · '+EOD.ago(r.created_at)+'</div></div>'+(r.kind==='map'?'<a class="btn" href="editor.html?play='+encodeURIComponent(r.target)+'">View</a><button data-rm="'+r.id+'" data-map="'+r.target+'">Delete map</button>':'')+(r.kind==='post'?'<button data-rp="'+r.id+'" data-post="'+r.target+'">Delete post</button>':'')+'<button data-ok="'+r.id+'">Dismiss</button></div>').join(''):'<div class="empty card">No reports. Nice.</div>';
+el.querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{await EODB.resolveReport(b.dataset.ok);draw();});
+el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{await EODB.deleteMap(b.dataset.map);await EODB.resolveReport(b.dataset.rm);draw();});
+el.querySelectorAll('[data-rp]').forEach(b=>b.onclick=async()=>{await EODB.deletePost(b.dataset.post);await EODB.resolveReport(b.dataset.rp);draw();});}}
+draw();EODB.onAuth(()=>draw());
+</script></body></html>

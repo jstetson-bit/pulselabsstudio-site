@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7 — 2026-11-17
+- EOD · Editor of Doom (preview v0.1.1) added at /EOD (public, no sign-in): web Doom map editor + game, map library,
+  forums, accounts, keyboard/mouse/controller mapping. Runs in its Local test mode until it gets Supabase keys
+  (EOD/assets/config.js). Lowercase /eod forwards to /EOD. Home page footer links to it.
+- Deploy fix: the workflow now also copies `assets/` and the root `.js` files (store-config.js), which the store pages
+  (products, cart, account) load but were not being published.
+
 ## v0.6 — 2026-11-17
 - First real farm run (Snow White, PowerShell 5.1): Keyboard Studio (30 builds of history), PLS File Explorer (7),
   Pulse Meter Android (7), PLS Launcher (1) on the private shelves.

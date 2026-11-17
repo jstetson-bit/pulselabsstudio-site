@@ -1,0 +1,33 @@
+# EOD · Editor of Doom — Project Overview
+
+**Owner:** Pulse Labs Studio · **Version:** 0.1.0 · **Started:** 2026-11-16 · **Repo:** `editor-of-doom` (GitHub Pages)
+
+## Goal
+A free, open web home for classic Doom mapping: an editor that feels like Ultimate Doom Builder, one-tap play on any device and input (touch, keyboard+mouse, Xbox/standard controllers), and a community map library + forums. Nothing like this existed when we checked (Nov 2026): DoomScroll plays WADs in a browser but has no editor or accounts; web editors (JZBuilder, WAD.js) are prototypes; SnapMap (Doom 2016) had the share/remix loop but only inside that game.
+
+## Architecture
+- **Static front end** (GitHub Pages): `index.html`, `maps.html`, `editor.html`, `forums.html`, `account.html` + `assets/`. No build step except the editor (`python3 engine/build.py` → `editor.html`).
+- **Engine** (`engine/src`, from No Shit Doom Editor v1.0.0): map model, UDB-style modes, WAD import/export, procedural art, column raycaster renderer, game logic, touch UI. EOD additions: `12_input.js` (keyboard/mouse/controller + remapping), `13_eod.js` (publish, library, play/remix/wad links), `99_start.js` (boot last).
+- **Backend** (`assets/backend.js`): one API (`EODB.*`) with two implementations, Supabase (live) and Local (localStorage). Pages never talk to Supabase directly.
+- **Database** (`supabase/schema.sql`): profiles, maps (+ allow_remix, allow_download, preview, plays, score), map_versions (auto, last 20), votes (score trigger), forum_categories, threads, posts, reports. Row-level security: anyone reads public content; members write only their own; admins moderate. Posting and map creation are rate-limited in the database.
+- **Play flow:** library → `editor.html?play=<id>` → browser downloads the map JSON → game runs locally → exit returns to the library. Plays are counted with a server function.
+
+## Map permissions
+Each map has: public/draft, remix allowed, WAD download allowed. These are enforced in the site UI. Map data has to reach the player's browser to be played, so a determined person could still copy a public map; the permissions are the author's stated wishes plus moderation, like most map-sharing sites.
+
+## Input defaults
+| Action | Keyboard/mouse | Controller (Xbox layout) |
+|---|---|---|
+| Move / strafe | WASD, ↑↓ | Left stick, D-pad up/down |
+| Turn | Mouse (locked), ←→ | Right stick, D-pad left/right |
+| Fire | Left click, Ctrl | RT |
+| Use / open | E, Space | A |
+| Next / previous weapon | Q or wheel down / wheel up | RB or Y / LB |
+| Automap | Tab | View |
+| Release mouse / exit | Esc | Menu |
+
+## Pulse Labs standards
+Ghost "i" manual, invert beside it, settings cog (look on first visit, font, size, crash log), green check confirm / red undo arrow cancel (always last), US spelling, white text in dark menus.
+
+## Legal notes
+Unofficial fan project footer on every page. No id Software assets; EOD draws its own art. Members may only upload their own maps; Report + admin removal handle the rest. The name contains "Doom" (id Software trademark), which fan tools commonly do; rename if id ever objects.
