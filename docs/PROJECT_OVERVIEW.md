@@ -33,16 +33,47 @@ Katy). The public home page only has a small "Sign in" link in the footer. The p
 - Chrome Extensions — `chrome` (.crx, or .zip with `-Platform chrome`)
 An app with both a phone and PC build (PLS PDF) shows on both shelves; its page offers both downloads.
 
+## Automatic publishing (v0.3) — the farm back door
+`tools/Watch-Builds.ps1` runs every 2 minutes on a farm machine (scheduled task "Pulse Labs Site Watcher",
+installed by `tools/Install-Watcher.ps1`, started hidden through `run-hidden.vbs`). Each run:
+1. Lists every `jstetson-bit` repo and its Releases (a Release = built and passed the in-house checks, per
+   the farm delivery rule). Only Releases newer than the last run are opened (state in
+   `C:\PulseLabs\watcher-state.json`, local only).
+2. Skips drafts, anything marked FAIL / "checks: fail", source/art/asset zips, files over 1.5 GB.
+3. Sorts files by name: `Name-vX.Y.Z...` gives product + version; .apk → Droid, .exe/.msi or zip with
+   -PC/windows → PC, .crx or zip with chrome/extension → Chrome. Newest per product per shelf wins.
+4. Picks up extras attached to the same Release: `pls-listing.json` (name, purpose, bullets, description,
+   shots with captions, icon), `<Name>-shot-<n>-<caption>.png`, `<Name>-icon.png`.
+5. Encrypts and publishes in one push; deletes the replaced build from the vault. Quiet when nothing is new.
+6. On error: logs to `C:\PulseLabs\logs\watcher.log` AND puts a red "Farm watcher problem" bar on the
+   page after sign-in (once per distinct error), cleared automatically on the next good run.
+APK signer is read with apksigner when the SDK is present: cards show "Test build" (debug) or "Release-signed".
+
+## Share links (v0.3)
+Every stored file has its own random key (kept inside the encrypted list). Share makes
+`share.html#<file>.<key>.<name>.<filename>.<size>`: opens that ONE build without signing in, nothing else.
+The key sits after the # so it never reaches any server; the page wipes it from the address bar on open.
+Not truly one-time (a static site can't count uses), but it dies automatically when a newer build of that
+product replaces the file.
+
 ## Farm tools (admin PowerShell, need git + gh signed in)
 - `tools/Vault-User.ps1 -Init | -Add -Name X | -Remove -Name X | -List`
-- `tools/Publish-ToSite.ps1 -Id <id> -Version <v> -Files <...> [-Name -Tagline -Description -Icon -Screenshots -Notes -Platform -DryRun]`
-  Refuses debug-signed APKs unless `-AllowDebugSigned`.
+- `tools/Publish-ToSite.ps1 -Files <...> [-Name -Purpose -Bullets -Description -Icon -Screenshots -Captions -Notes -Platform -Id -Version -DryRun]` (by hand; normally the watcher does it)
+- `tools/Watch-Builds.ps1 [-DryRun]`, `tools/Install-Watcher.ps1`
+- Sign-ins (2026-11-16): ElFuego, KatieCakes (KatyCakes also accepted). Names ignore case, spaces, symbols.
+- Private vault is for testing, so debug-signed bench builds ARE published (labeled Test build).
 
 ## Roadmap
 1. ✅ v0.1 public downloads page (replaced)
 2. ✅ v0.2 private, encrypted vault with sign-in and three shelves
-3. Forums / profiles — need a real back end (Supabase recommended); not started.
-4. Swap shelf art for final art if wanted.
+3. ✅ v0.3 automatic farm watcher, per-file keys, share links, at-a-glance cards, full product pages
+4. QUEUED: public `/products` catalog (pulselabsstudio.com/products): living showcase of every product,
+   detailed descriptions, every screen, NO download links; feeds SEO and later direct sales (site price
+   cheaper than Play / bundles). Needs: public (unencrypted) listing + pictures per product, opt-in per
+   product so unreleased work stays private; payment processor decision; signing-key plan (a direct-sale
+   APK and a Play-installed copy can't update each other unless signed with the same key).
+5. QUEUED: forums / profiles — need a real back end (Supabase recommended).
+6. Swap shelf art for final art if wanted.
 
 ## Limits to know
 - Removing a person stops them signing in on any new visit; someone who already copied the master key

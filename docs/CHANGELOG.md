@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.3 — 2026-11-16
+- Automatic: `Watch-Builds.ps1` + `Install-Watcher.ps1` + `run-hidden.vbs`: farm Releases → vault every 2 min.
+- Shared publish engine `PlsSite.ps1`; `Publish-ToSite.ps1` now a thin by-hand wrapper.
+- Every stored file has its own key; product list format v2 (purpose, bullets, captioned shots, signer,
+  source release). Share links + `share.html` (no sign-in, one build only, key never sent to a server).
+- Shelf cards show purpose, system, Test build/Release badge, version, dates, size, plus Download and Share.
+- Product page: name, what it's for, system at the top; bullets; "What it looks like" captioned screens;
+  per-platform download + share; what changed; fingerprints and source release.
+- Red "Farm watcher problem" bar when the farm can't publish.
+- Sign-in names ignore spaces/case/symbols ("El Fuego" = "ElFuego"). Min password 8.
+- Real vault created: sign-ins ElFuego, KatieCakes, KatyCakes.
+- Tested on Linux, PowerShell 7 + headless Chrome (phone size) against a fake farm of 3 repos: FAIL release and
+  source zip skipped; second run silent; newer build replaced older and old file retired; download and share
+  link byte-identical to the source; "katy cakes" sign-in works. Not yet run on Windows PowerShell 5.1.
+
 ## v0.2 — 2026-11-16
 - Downloads are now PRIVATE and ENCRYPTED. Sign-in box (name + password, green check) is the first
   thing anyone sees; nothing is listed until it unlocks. Sign-out button (⏻) in the header.

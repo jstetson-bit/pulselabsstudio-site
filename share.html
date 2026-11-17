@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Pulse Labs — Test build</title>
+<style>
+  :root { --bg:#0a0a0b; --panel:#141416; --panel2:#1b1b1e; --text:#fff; --dim:#c9c9c4; --red:#e63329; --line:#2a2a2f; --green:#2fbf4f; }
+  * { box-sizing:border-box; }
+  html.inv { filter:invert(1) hue-rotate(180deg); }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5; }
+  header { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); }
+  header nav { margin-left:auto; display:flex; gap:8px; }
+  .iconbtn { width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:17px; cursor:pointer; }
+  .box { max-width:440px; margin:40px auto; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px; text-align:center; }
+  h1 { margin:8px 0 4px; font-size:26px; }
+  .dim { color:var(--dim); font-size:14px; }
+  .dl { display:block; width:100%; margin:20px 0 8px; border:none; border-radius:14px; padding:16px; background:var(--red); color:#fff; font:inherit; font-size:19px; font-weight:800; cursor:pointer; }
+  .dl:disabled { opacity:.6; }
+  .hash { font-family:ui-monospace,Consolas,monospace; font-size:11px; color:var(--dim); word-break:break-all; margin-top:12px; }
+  .err { color:#ff6b61; }
+  #manual { position:fixed; inset:0; background:rgba(0,0,0,.75); display:none; place-items:center; }
+  #manual.open { display:grid; }
+  #manual .box { text-align:left; margin:20px; }
+  .ok { width:52px; height:52px; border-radius:50%; border:none; background:var(--green); color:#fff; font-size:26px; cursor:pointer; float:right; }
+</style>
+</head>
+<body>
+<header>
+  <svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <b>Pulse Labs</b>
+  <nav><button class="iconbtn" id="infoBtn" aria-label="Information">👻</button><button class="iconbtn" id="invBtn" aria-label="Invert colors">◐</button></nav>
+</header>
+<div class="box" id="main">
+  <div class="dim">You've been sent a test build</div>
+  <h1 id="pname">…</h1>
+  <div class="dim" id="fname"></div>
+  <button class="dl" id="dl" disabled>Download</button>
+  <div class="dim" id="note">The file is unlocked and checked on your device before it's saved.</div>
+  <div class="hash" id="hash"></div>
+</div>
+<div id="manual"><div class="box">
+  <button class="ok" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">About this link</h2>
+  <p>This link opens one test build of a Pulse Labs app, and nothing else. The file is stored scrambled; the key to unscramble it is inside the link itself, after the # sign, and never gets sent to any server.</p>
+  <p>If the link says the build is gone, a newer version has replaced it. Ask for a fresh link.</p>
+  <p><b>Android:</b> open the downloaded APK and allow the install. <b>PC:</b> run the exe or unzip the zip.</p>
+</div></div>
+<script>
+(function () {
+  'use strict';
+  function b64(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  function hex(a) { return Array.prototype.map.call(new Uint8Array(a), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
+  function size(b) { var u = ['B','KB','MB','GB'], i = 0; while (b >= 1024 && i < 3) { b /= 1024; i++; } return b.toFixed(i ? 1 : 0) + ' ' + u[i]; }
+  function open(key, blob) {
+    blob = new Uint8Array(blob); var n = blob.length - 32;
+    if (blob.length < 68 || blob[0] !== 0x50 || blob[3] !== 0x31) return Promise.reject(new Error('bad'));
+    return crypto.subtle.importKey('raw', key.slice(32, 64), { name:'HMAC', hash:'SHA-256' }, false, ['verify'])
+      .then(function (hk) { return crypto.subtle.verify('HMAC', hk, blob.subarray(n), blob.subarray(0, n)); })
+      .then(function (ok) { if (!ok) throw new Error('check'); return crypto.subtle.importKey('raw', key.slice(0, 32), { name:'AES-CBC' }, false, ['decrypt']); })
+      .then(function (ak) { return crypto.subtle.decrypt({ name:'AES-CBC', iv:blob.slice(4, 20) }, ak, blob.subarray(20, n)); });
+  }
+  var dec = new TextDecoder(), btn = document.getElementById('dl');
+  function fail(t) { document.getElementById('pname').textContent = t; document.getElementById('note').className = 'err'; document.getElementById('note').textContent = 'Ask whoever sent it for a fresh link.'; btn.style.display = 'none'; }
+  var parts = location.hash.slice(1).split('.');
+  // Scrub the key out of the address bar and history once read.
+  history.replaceState(null, '', location.pathname);
+  if (parts.length < 5) { fail('This link is incomplete.'); return; }
+  var blob = parts[0] + '.bin', key, pname, fname, bytes = +parts[4];
+  try { key = b64(parts[1]); pname = dec.decode(b64(parts[2])); fname = dec.decode(b64(parts[3])); } catch (e) { fail('This link is damaged.'); return; }
+  if (key.length !== 64 || !/^[0-9a-f]{20}$/.test(parts[0])) { fail('This link is damaged.'); return; }
+  document.getElementById('pname').textContent = pname;
+  document.getElementById('fname').textContent = fname + ' · ' + size(bytes);
+  btn.disabled = false;
+  btn.onclick = function () {
+    btn.disabled = true; btn.textContent = 'Downloading and checking…';
+    fetch('v/' + blob).then(function (r) { if (r.status === 404) throw new Error('gone'); if (!r.ok) throw new Error('net'); return r.arrayBuffer(); })
+      .then(function (buf) { return open(key, buf); })
+      .then(function (pt) {
+        crypto.subtle.digest('SHA-256', pt).then(function (h) { document.getElementById('hash').textContent = 'SHA-256: ' + hex(h); });
+        var a = document.createElement('a'), u = URL.createObjectURL(new Blob([pt], { type:'application/octet-stream' }));
+        a.href = u; a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+        btn.textContent = '✔ Saved'; btn.style.background = 'var(--green)';
+      })
+      .catch(function (e) {
+        btn.disabled = false; btn.textContent = 'Download';
+        if (e.message === 'gone') fail('This build has been replaced by a newer one.');
+        else document.getElementById('note').textContent = e.message === 'net' ? 'Couldn\'t reach the server. Try again.' : 'The file failed its check. Try again.';
+      });
+  };
+  document.getElementById('infoBtn').onclick = function () { document.getElementById('manual').classList.add('open'); };
+  document.getElementById('manualOk').onclick = function () { document.getElementById('manual').classList.remove('open'); };
+  document.getElementById('invBtn').onclick = function () { document.documentElement.classList.toggle('inv'); };
+})();
+</script>
+</body>
+</html>

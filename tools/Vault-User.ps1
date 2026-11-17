@@ -38,7 +38,7 @@ try {
     $mk = Get-PlsRandom 64
     [IO.File]::WriteAllText($KeyPath, [Convert]::ToBase64String($mk))
     $vault = [pscustomobject]@{ v = 1; iter = $script:PlsIter; users = [pscustomobject]@{}; manifest = '' }
-    Set-PlsManifest $vault $mk ([pscustomobject]@{ updated = (Get-Date).ToString('yyyy-MM-dd'); products = @() })
+    Set-PlsManifest $vault $mk ([pscustomobject]@{ v = 2; updated = (Get-Date).ToString('yyyy-MM-dd'); products = @() })
     Write-PlsVault $RepoPath $vault
     Say "Master key written to $KeyPath  (back it up; copy it to other farm machines)"
     $msg = 'Create private downloads vault'
@@ -66,7 +66,7 @@ try {
         if ($a -cne $b) { throw 'The two passwords did not match. Nothing changed.' }
       }
       $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
-      if ($plain.Length -lt 10) { throw 'Use at least 10 characters. A short password is the one weak spot in this lock.' }
+      if ($plain.Length -lt 8) { throw 'Use at least 8 characters.' }
       $salt = Get-PlsRandom 16
       $kek = Get-PlsPasswordKey $plain $salt ([int]$vault.iter)
       $entry = [pscustomobject]@{ salt = [Convert]::ToBase64String($salt); wrap = [Convert]::ToBase64String((Protect-PlsBytes $kek $mk)) }

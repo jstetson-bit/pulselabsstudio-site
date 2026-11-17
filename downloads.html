@@ -59,6 +59,23 @@
   .jmeta b { display:block; color:var(--text); font-size:15px; }
   .hash { font-family:ui-monospace,Consolas,monospace; font-size:11px; color:var(--dim); word-break:break-all; }
   .notes { white-space:pre-wrap; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:14px; }
+  .sys { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0; }
+  .badge { font-size:12px; padding:3px 9px; border-radius:999px; background:var(--panel2); color:var(--text); border:1px solid var(--line); }
+  .badge.test { border-color:#d9a400; color:#ffd24d; }
+  .purpose { font-size:14px; margin:4px 0 0; }
+  .bullets { margin:12px 0 16px; padding-left:20px; }
+  .bullets li { margin:4px 0; }
+  .quick { display:flex; gap:8px; padding:0 14px 14px; }
+  .qbtn { flex:1; border:none; border-radius:10px; padding:10px; font:inherit; font-weight:700; cursor:pointer; color:#fff; background:var(--red); }
+  .qbtn.share { background:var(--panel2); border:1px solid var(--line); }
+  .pics { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin:10px 0 18px; }
+  .pics figure { margin:0; background:var(--panel2); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .pics img { width:100%; display:block; aspect-ratio:9/16; object-fit:cover; background:#000; }
+  .pics figcaption { font-size:13px; padding:6px 10px; }
+  .dlrow { display:flex; gap:8px; align-items:stretch; flex-wrap:wrap; }
+  .sharebtn { border:1px solid var(--line); background:var(--panel2); color:var(--text); border-radius:12px; padding:0 16px; font:inherit; font-weight:700; cursor:pointer; }
+  .alert { background:#3a0d0b; border:1px solid var(--red); border-radius:12px; padding:10px 14px; margin-bottom:16px; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--green); color:#fff; padding:10px 18px; border-radius:999px; font-weight:700; z-index:40; }
   #manual { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:30; display:none; overflow:auto; }
   #manual.open { display:grid; place-items:center; }
   #manual .box { max-width:540px; margin:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
@@ -99,7 +116,9 @@
     <h2 style="margin-top:0">How Downloads works</h2>
     <p><b>Sign in</b> with the name and password you were given. Everything here is locked: the list of apps, the pictures and the files stay scrambled until you sign in, and they unlock only inside your own browser.</p>
     <p><b>Pick a shelf:</b> Pulse Labs PC (Windows programs), Pulse Labs Droid (phone and tablet apps) or Chrome Extensions. Tap it and it jumps open to every app on that shelf.</p>
-    <p><b>Tap an app</b> to see its pictures, what changed, version, build date, release date, size and the download button. The red undo arrow takes you back one step.</p>
+    <p><b>Every app card</b> shows at a glance what it's for, which system it runs on, the newest version and when it was built, with Download and Share right on the card. Tap the card for the full page: bullet list, pictures of every screen, what changed, and the downloads. The red undo arrow takes you back one step.</p>
+    <p><b>Share</b> makes a link for that one build only. Whoever gets it can download that file without signing in, and nothing else. When a newer build replaces it, the old link stops working. Anyone holding the link can use it, so send it only to the person it's for.</p>
+    <p><b>Test build</b> means bench-signed for testing. It won't install over a store copy of the same app.</p>
     <p><b>Phone apps</b> download as an APK. Open it and allow the install. It installs over the old version, so settings stay. <b>PC apps</b> download as an exe or zip.</p>
     <p>Every file has a fingerprint (SHA-256), and the page checks each download is untouched before handing it over.</p>
     <p>◐ flips the colors. ⏻ signs you out.</p>
@@ -113,14 +132,15 @@
   var vault = null, MK = null, manifest = null, blobCache = {}, imgUrls = {};
   var app = document.getElementById('app'), lockView = document.getElementById('lockView');
   var SHELVES = [
-    { id:'windows', title:'Pulse Labs PC', blurb:'Windows programs', art:artPC() },
-    { id:'android', title:'Pulse Labs Droid', blurb:'Phone and tablet apps', art:artDroid() },
-    { id:'chrome',  title:'Chrome Extensions', blurb:'Browser add-ons', art:artPuzzle() }
+    { id:'windows', title:'Pulse Labs PC', sys:'Windows PC', blurb:'Windows programs', art:artPC() },
+    { id:'android', title:'Pulse Labs Droid', sys:'Android', blurb:'Phone and tablet apps', art:artDroid() },
+    { id:'chrome',  title:'Chrome Extensions', sys:'Chrome / Edge', blurb:'Browser add-ons', art:artPuzzle() }
   ];
 
   // ---------- crypto (matches tools/PlsVault.ps1) ----------
-  function b64(s) { var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  function b64(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
   function toB64(a) { var s = ''; for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
+  function urlB64(a) { return toB64(a).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   function hex(a) { return Array.prototype.map.call(a, function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
   function open(key, blob) {
     blob = new Uint8Array(blob);
@@ -128,15 +148,12 @@
     var n = blob.length - 32;
     return crypto.subtle.importKey('raw', key.slice(32, 64), { name:'HMAC', hash:'SHA-256' }, false, ['verify'])
       .then(function (hk) { return crypto.subtle.verify('HMAC', hk, blob.subarray(n), blob.subarray(0, n)); })
-      .then(function (ok) {
-        if (!ok) throw new Error('check failed');
-        return crypto.subtle.importKey('raw', key.slice(0, 32), { name:'AES-CBC' }, false, ['decrypt']);
-      })
+      .then(function (ok) { if (!ok) throw new Error('check failed'); return crypto.subtle.importKey('raw', key.slice(0, 32), { name:'AES-CBC' }, false, ['decrypt']); })
       .then(function (ak) { return crypto.subtle.decrypt({ name:'AES-CBC', iv:blob.slice(4, 20) }, ak, blob.subarray(20, n)); });
   }
   function userId(name) {
-    return crypto.subtle.digest('SHA-256', enc.encode('pls-vault-user:' + name.trim().toLowerCase()))
-      .then(function (d) { return hex(new Uint8Array(d).slice(0, 12)); });
+    var norm = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return crypto.subtle.digest('SHA-256', enc.encode('pls-vault-user:' + norm)).then(function (d) { return hex(new Uint8Array(d).slice(0, 12)); });
   }
   function passwordKey(pw, salt, iter) {
     return crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits'])
@@ -145,14 +162,16 @@
   }
   function loadVault() { return fetch('vault/vault.json', { cache:'no-cache' }).then(function (r) { if (!r.ok) throw new Error('novault'); return r.json(); }); }
   function unlockWith(mk) { return open(mk, b64(vault.manifest)).then(function (pt) { MK = mk; manifest = JSON.parse(dec.decode(pt)); }); }
-  function getBlob(name) {
-    if (!blobCache[name]) blobCache[name] = fetch('v/' + name).then(function (r) { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
-      .then(function (buf) { return open(MK, buf); });
-    return blobCache[name];
+  function getBlob(ref) {   // ref = { b: file name, k: that file's own key }
+    if (!blobCache[ref.b]) blobCache[ref.b] = fetch('v/' + ref.b).then(function (r) { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
+      .then(function (buf) { return open(b64(ref.k), buf); });
+    return blobCache[ref.b];
   }
-  function imgUrl(name) {
-    if (!imgUrls[name]) imgUrls[name] = getBlob(name).then(function (b) { return URL.createObjectURL(new Blob([b])); });
-    return imgUrls[name];
+  var refs = {};   // short handle -> ref, so the HTML never carries keys
+  function handle(ref) { refs[ref.b] = ref; return ref.b; }
+  function imgUrl(b) {
+    if (!imgUrls[b]) imgUrls[b] = getBlob(refs[b]).then(function (x) { return URL.createObjectURL(new Blob([x])); });
+    return imgUrls[b];
   }
   function fillImages(root) {
     Array.prototype.forEach.call(root.querySelectorAll('[data-img]'), function (el) {
@@ -167,40 +186,49 @@
   lockView.addEventListener('submit', function (e) {
     e.preventDefault(); err.textContent = ''; goBtn.disabled = true; goBtn.textContent = '…';
     var name = document.getElementById('nm').value, pw = document.getElementById('pw').value;
-    (vault ? Promise.resolve(vault) : loadVault()).then(function (v) {
-      vault = v; return userId(name);
-    }).then(function (id) {
+    (vault ? Promise.resolve(vault) : loadVault()).then(function (v) { vault = v; return userId(name); })
+    .then(function (id) {
       var u = vault.users && vault.users[id];
       if (!u) throw new Error('nouser');
       return passwordKey(pw, b64(u.salt), vault.iter).then(function (kek) { return open(kek, b64(u.wrap)); });
     }).then(function (mk) {
       mk = new Uint8Array(mk);
       return unlockWith(mk).then(function () { try { sessionStorage.setItem('pls.vk', toB64(mk)); } catch (e2) {} });
-    }).then(function () {
-      document.getElementById('pw').value = ''; showApp();
-    }).catch(function (x) {
-      err.textContent = x && x.message === 'novault' ? 'The vault isn\'t set up yet.' : 'That name or password didn\'t work.';
-    }).then(function () { goBtn.disabled = false; goBtn.textContent = '✔'; });
+    }).then(function () { document.getElementById('pw').value = ''; showApp(); })
+    .catch(function (x) { err.textContent = x && x.message === 'novault' ? 'The vault isn\'t set up yet.' : 'That name or password didn\'t work.'; })
+    .then(function () { goBtn.disabled = false; goBtn.textContent = '✔'; });
   });
   document.getElementById('outBtn').onclick = function () {
     try { sessionStorage.removeItem('pls.vk'); } catch (e) {}
-    MK = null; manifest = null; blobCache = {}; imgUrls = {}; app.innerHTML = '';
+    MK = null; manifest = null; blobCache = {}; imgUrls = {}; refs = {}; app.innerHTML = '';
     app.classList.add('hidden'); lockView.classList.remove('hidden'); this.classList.add('hidden');
     history.replaceState(null, '', location.pathname);
   };
 
-  // ---------- views ----------
+  // ---------- helpers ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function size(b) { if (!b) return '—'; var u = ['B','KB','MB','GB'], i = 0; while (b >= 1024 && i < 3) { b /= 1024; i++; } return b.toFixed(i ? 1 : 0) + ' ' + u[i]; }
-  function day(d) { if (!d) return '—'; var t = new Date(d + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+  function day(d) { if (!d) return '—'; var t = new Date(String(d).slice(0, 10) + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+  function ago(iso) { var m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : day(iso); }
   function onShelf(p, s) { return (p.downloads || []).some(function (d) { return d.platform === s; }); }
   function dlFor(p, s) { return (p.downloads || []).filter(function (d) { return d.platform === s; })[0] || {}; }
+  function systems(p) { return SHELVES.filter(function (s) { return onShelf(p, s.id); }); }
   function products(s) {
     return (manifest.products || []).filter(function (p) { return onShelf(p, s); })
-      .sort(function (a, b) { return (dlFor(b, s).releaseDate || '').localeCompare(dlFor(a, s).releaseDate || '') || a.name.localeCompare(b.name); });
+      .sort(function (a, b) { return (dlFor(b, s).published || dlFor(b, s).releaseDate || '').localeCompare(dlFor(a, s).published || dlFor(a, s).releaseDate || '') || a.name.localeCompare(b.name); });
   }
   function shelfOf(id) { return SHELVES.filter(function (s) { return s.id === id; })[0]; }
+  function signerBadge(d) {
+    return d.signer === 'debug' ? '<span class="badge test">Test build</span>' : d.signer === 'release' ? '<span class="badge">Release-signed</span>' : '';
+  }
+  function sysBadges(p) { return systems(p).map(function (s) { return '<span class="badge">' + s.sys + '</span>'; }).join(''); }
+  function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600); }
+  function alertBar() {
+    var w = manifest.watcher;
+    return w && w.error ? '<div class="alert"><b>Farm watcher problem</b> (' + ago(w.at) + '): ' + esc(w.error) + '<br><span class="count">New builds may not be showing until this clears.</span></div>' : '';
+  }
 
+  // ---------- views ----------
   function showApp() {
     lockView.classList.add('hidden'); app.classList.remove('hidden');
     document.getElementById('outBtn').classList.remove('hidden');
@@ -210,13 +238,14 @@
     if (!manifest) return;
     var parts = location.hash.slice(1).split('/'), s = shelfOf(parts[0]);
     if (!s) return viewShelves();
-    if (parts[1]) return viewProduct(s, parts[1]);
+    if (parts[1]) return viewProduct(s, decodeURIComponent(parts[1]));
     viewShelf(s);
   }
   addEventListener('hashchange', route);
 
   function viewShelves() {
-    app.innerHTML = '<h1>Downloads</h1><p class="sub">Pick a shelf. Updated ' + day(manifest.updated) + '.</p><div class="grid jumpin">' +
+    var w = manifest.watcher;
+    app.innerHTML = alertBar() + '<h1>Downloads</h1><p class="sub">Pick a shelf. Last change ' + (w && w.ok ? ago(w.ok) : day(manifest.updated)) + '.</p><div class="grid jumpin">' +
       SHELVES.map(function (s) {
         var n = products(s.id).length;
         return '<button class="card shelf" data-go="' + s.id + '"><div class="art">' + s.art + '</div><div class="body"><div class="name">' + s.title +
@@ -226,55 +255,72 @@
   }
   function viewShelf(s) {
     var list = products(s.id);
-    app.innerHTML = '<div class="titlerow"><button class="back" data-go="" aria-label="Back">↶</button><h1>' + s.title + '</h1></div>' +
+    app.innerHTML = alertBar() + '<div class="titlerow"><button class="back" data-go="" aria-label="Back">↶</button><h1>' + s.title + '</h1></div>' +
       '<div class="grid jumpin">' + (list.length ? list.map(function (p) {
-        var d = dlFor(p, s.id), shot = (p.screenshots || [])[0];
-        return '<button class="card" data-go="' + s.id + '/' + esc(p.id) + '">' +
-          '<div class="shot"' + (shot ? ' data-img="' + esc(shot) + '"' : '') + '>' + (shot ? 'Unlocking…' : 'No picture yet') + '</div>' +
-          '<div class="body"><div class="row"><div class="icon"' + (p.icon ? ' data-img="' + esc(p.icon) + '"' : '') + '></div><div class="name">' + esc(p.name) + '</div></div>' +
-          '<div class="desc">' + esc(p.tagline || p.description) + '</div>' +
-          '<div class="meta"><span>Version</span><b>' + esc(d.version || '—') + '</b><span>Built</span><b>' + day(d.buildDate) +
-          '</b><span>Released</span><b>' + day(d.releaseDate) + '</b><span>Size</span><b>' + size(d.size) + '</b></div></div></button>';
+        var d = dlFor(p, s.id), shot = (p.shots || [])[0];
+        return '<div class="card"><div data-go="' + s.id + '/' + encodeURIComponent(p.id) + '">' +
+          '<div class="shot"' + (shot ? ' data-img="' + handle(shot) + '"' : '') + '>' + (shot ? 'Unlocking…' : 'No picture yet') + '</div>' +
+          '<div class="body"><div class="row"><div class="icon"' + (p.icon ? ' data-img="' + handle(p.icon) + '"' : '') + '></div><div><div class="name">' + esc(p.name) + '</div>' +
+          '<div class="sys">' + sysBadges(p) + signerBadge(d) + '</div></div></div>' +
+          (p.purpose ? '<div class="purpose">' + esc(p.purpose) + '</div>' : '') +
+          '<div class="meta" style="margin-top:8px"><span>Version</span><b>' + esc(d.version || '—') + '</b><span>Built</span><b>' + day(d.buildDate) +
+          '</b><span>Released</span><b>' + day(d.releaseDate) + '</b><span>Size</span><b>' + size(d.size) + '</b></div></div></div>' +
+          '<div class="quick"><button class="qbtn" data-dl="' + handle(d) + '">Download</button><button class="qbtn share" data-share="' + handle(d) + '" data-pname="' + esc(p.name) + '">Share</button></div></div>';
       }).join('') : '<div class="empty">Nothing on this shelf yet.</div>') + '</div>';
     fillImages(app); restoreScroll(s.id);
   }
   function viewProduct(s, pid) {
     var p = (manifest.products || []).filter(function (x) { return x.id === pid; })[0];
     if (!p) return viewShelf(s);
-    var d = dlFor(p, s.id), shots = p.screenshots || [];
+    var d = dlFor(p, s.id), shots = p.shots || [];
     var dls = (p.downloads || []).slice().sort(function (a, b) { return (b.platform === s.id) - (a.platform === s.id); });
-    app.innerHTML = '<div class="jumpin"><div class="titlerow"><button class="back" data-go="' + s.id + '" aria-label="Back">↶</button>' +
-      '<div class="icon"' + (p.icon ? ' data-img="' + esc(p.icon) + '"' : '') + ' style="width:52px;height:52px;flex-basis:52px"></div><div><h1 style="margin:0">' + esc(p.name) + '</h1>' +
-      '<div class="sub" style="margin:0">' + esc(p.tagline || '') + '</div></div></div>' +
-      (shots[0] ? '<div class="hero" data-img="' + esc(shots[0]) + '"></div>' : '') +
-      '<div class="dl">' + dls.map(function (x) {
-        var label = (shelfOf(x.platform) || {}).title || x.platform;
-        return '<button class="dlbtn" data-blob="' + esc(x.blob) + '" data-file="' + esc(x.file) + '">Download · ' + esc(label) + '<small>' + esc(x.file) + ' · ' + size(x.size) + '</small></button>';
-      }).join('') + '</div>' +
-      '<p>' + esc(p.description || '') + '</p>' +
-      (shots.length > 1 ? '<div class="shots">' + shots.map(function (n) { return '<img alt="" data-img="' + esc(n) + '">'; }).join('') + '</div>' : '') +
+    app.innerHTML = alertBar() + '<div class="jumpin"><div class="titlerow"><button class="back" data-go="' + s.id + '" aria-label="Back">↶</button>' +
+      '<div class="icon"' + (p.icon ? ' data-img="' + handle(p.icon) + '"' : '') + ' style="width:56px;height:56px;flex-basis:56px"></div><div><h1 style="margin:0">' + esc(p.name) + '</h1>' +
+      '<div class="purpose">' + esc(p.purpose || 'No description yet.') + '</div><div class="sys">' + sysBadges(p) + signerBadge(d) + '</div></div></div>' +
+      ((p.bullets || []).length ? '<ul class="bullets">' + p.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>' : '') +
+      (shots.length ? '<h3>What it looks like</h3><div class="pics">' + shots.map(function (x) {
+        return '<figure><img alt="" data-img="' + handle(x) + '"><figcaption>' + esc(x.caption || '') + '</figcaption></figure>'; }).join('') + '</div>'
+        : '<p class="count">No screen pictures yet. They show up when the farm attaches them to a build.</p>') +
+      dls.map(function (x) {
+        var label = (shelfOf(x.platform) || {}).sys || x.platform;
+        return '<div class="dlrow" style="margin:10px 0"><button class="dlbtn" data-dl="' + handle(x) + '">Download for ' + esc(label) + ' · v' + esc(x.version) +
+          '<small>' + esc(x.file) + ' · ' + size(x.size) + '</small></button><button class="sharebtn" data-share="' + handle(x) + '" data-pname="' + esc(p.name) + '">Share</button></div>';
+      }).join('') +
+      (p.description ? '<p>' + esc(p.description) + '</p>' : '') +
       '<div class="jmeta"><div>Version<b>' + esc(d.version || '—') + '</b></div><div>Built<b>' + day(d.buildDate) + '</b></div>' +
       '<div>Released<b>' + day(d.releaseDate) + '</b></div><div>Size<b>' + size(d.size) + '</b></div></div>' +
       (d.notes ? '<h3>What changed</h3><div class="notes">' + esc(d.notes) + '</div>' : '') +
-      dls.map(function (x) { return '<p class="hash">' + esc(x.file) + ' SHA-256: ' + esc(x.sha256) + '</p>'; }).join('') + '</div>';
+      dls.map(function (x) { return '<p class="hash">' + esc(x.file) + ' SHA-256: ' + esc(x.sha256) + (x.source ? '<br>From: ' + esc(x.source) : '') + '</p>'; }).join('') + '</div>';
     fillImages(app); scrollTo(0, 0);
   }
 
   function download(btn) {
-    var name = btn.getAttribute('data-blob'), file = btn.getAttribute('data-file'), small = btn.querySelector('small'), was = small.textContent;
-    btn.disabled = true; small.textContent = 'Downloading and checking…';
-    getBlob(name).then(function (buf) {
-      delete blobCache[name];
+    var ref = refs[btn.getAttribute('data-dl')], small = btn.querySelector('small'), was = btn.innerHTML;
+    if (!ref) return;
+    btn.disabled = true; if (small) small.textContent = 'Downloading and checking…'; else btn.textContent = 'Checking…';
+    getBlob(ref).then(function (buf) {
+      delete blobCache[ref.b];
       var a = document.createElement('a'), u = URL.createObjectURL(new Blob([buf], { type:'application/octet-stream' }));
-      a.href = u; a.download = file; document.body.appendChild(a); a.click(); a.remove();
+      a.href = u; a.download = ref.file; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
-      small.textContent = was;
-    }).catch(function () { delete blobCache[name]; small.textContent = 'That download failed its check. Try again.'; })
+      btn.innerHTML = was;
+    }).catch(function () { delete blobCache[ref.b]; btn.innerHTML = was; toast('Download failed its check. Try again.'); })
       .then(function () { btn.disabled = false; });
+  }
+  function share(btn) {
+    var x = refs[btn.getAttribute('data-share')]; if (!x) return;
+    // The link carries only THIS file's key, after the # (never sent to any server).
+    var parts = [x.b.replace('.bin', ''), urlB64(b64(x.k)), urlB64(enc.encode(btn.getAttribute('data-pname') + ' v' + x.version)), urlB64(enc.encode(x.file)), String(x.size)];
+    var link = location.origin + location.pathname.replace(/downloads\.html$/, '') + 'share.html#' + parts.join('.');
+    var text = btn.getAttribute('data-pname') + ' v' + x.version + ' (test build). Tap to download:';
+    if (navigator.share) { navigator.share({ title: btn.getAttribute('data-pname'), text: text, url: link }).catch(function () {}); return; }
+    (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast('Share link copied'); })
+      .catch(function () { prompt('Copy this link:', link); });
   }
 
   app.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-blob]'); if (b) return download(b);
+    var b = e.target.closest('[data-dl]'); if (b) return download(b);
+    var sh = e.target.closest('[data-share]'); if (sh) return share(sh);
     var g = e.target.closest('[data-go]'); if (g) { saveScroll(); location.hash = g.getAttribute('data-go'); }
   });
 

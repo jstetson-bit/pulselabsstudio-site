@@ -5,6 +5,8 @@
 # Format of every sealed blob:  "PLS1" | IV(16) | AES-256-CBC ciphertext | HMAC-SHA256(32)
 #   key = 64 bytes: first 32 encrypt, last 32 authenticate. The HMAC covers "PLS1"+IV+ciphertext,
 #   so a tampered or wrong-key file is rejected before anything is decrypted.
+# Every stored file has its OWN random key (kept inside the encrypted product list), so a share link
+#   can unlock one build without exposing anything else.
 # Users: password -> PBKDF2-SHA256 (600,000 rounds, per-user salt) -> 64-byte key that unlocks
 #   ("unwraps") the master key. The master key never leaves the farm except wrapped like that.
 
@@ -44,7 +46,9 @@ function Unprotect-PlsBytes([byte[]]$Key, [byte[]]$Blob) {
 
 function Get-PlsUserId([string]$Name) {
   $sha = [Security.Cryptography.SHA256]::Create()
-  $d = $sha.ComputeHash([Text.Encoding]::UTF8.GetBytes('pls-vault-user:' + $Name.Trim().ToLowerInvariant())); $sha.Dispose()
+  # Names ignore case, spaces and symbols: "El Fuego", "ElFuego" and "el-fuego" are the same person.
+  $norm = ($Name.ToLowerInvariant() -replace '[^a-z0-9]', '')
+  $d = $sha.ComputeHash([Text.Encoding]::UTF8.GetBytes('pls-vault-user:' + $norm)); $sha.Dispose()
   return (($d[0..11] | ForEach-Object { $_.ToString('x2') }) -join '')
 }
 
