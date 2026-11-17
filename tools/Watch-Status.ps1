@@ -58,8 +58,9 @@ try {
     if (-not $row) { continue }
     $branch = $row.branch
     if (-not $branch) { $branch = (gh api "repos/$($row.repo)" --jq .default_branch 2>$null); if (-not $branch) { $branch = 'main' } }
-    $c = gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" --jq '.[0] | [.sha, .commit.committer.date, (.commit.message | split("\n") | .[0])] | @tsv' 2>$null
+    $c = gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" --jq '.[0] | [.sha, .commit.committer.date, .commit.message] | @tsv' 2>$null   # no inner double quotes: Windows PowerShell 5.1 strips them from native args
     $sha, $when, $msg = $(if ($c) { ($c -split "`t") } else { @('', '', '') })
+    $msg = ([string]$msg -split '\\n')[0]   # @tsv writes newlines as a literal \n; keep the first line
     $st = $null
     foreach ($path in @("projects/$($row.folder)/STATUS.md", 'docs/STATUS.md', 'STATUS.md', 'docs/CHANGELOG.md')) {
       if ($path -like 'projects//*') { continue }
