@@ -145,6 +145,9 @@ function Invoke-PlsPublish {
 
     if ($DryRun) { & $Log "DRY RUN: would upload $($upload.Count) encrypted file(s), retire $($retire.Count)."; return $changes }
 
+    # Windows PowerShell 5.1: stderr from gh/git turns into a terminating error under 'Stop', which skipped the
+    # 'create the vault release if missing' path. From here on only exit codes decide (PS 7 already works this way).
+    $ErrorActionPreference = 'Continue'
     if ($upload.Count) {
       gh release view vault --repo $Repo *> $null
       if ($LASTEXITCODE -ne 0) { gh release create vault --repo $Repo --title 'vault' --notes 'Encrypted storage for the private downloads page. Contents are unreadable without the key.' *> $null }
