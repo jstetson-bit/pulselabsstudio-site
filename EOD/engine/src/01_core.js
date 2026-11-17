@@ -1,6 +1,6 @@
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.1.1', VC = 1;
+const VERSION = '0.2.0', VC = 1;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -109,6 +109,7 @@ let AC = null;
 function audio() { if (!S.sound) return null; try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
 function sfx(kind, vol = 1) {
   const ac = audio(); if (!ac) return;
+  if (typeof resSound === 'function') { const rb = resSound(kind); if (rb) { const src = ac.createBufferSource(), gn = ac.createGain(); src.buffer = rb; gn.gain.value = Math.min(1, vol); src.connect(gn); gn.connect(ac.destination); src.start(); return; } }
   const t = ac.currentTime, g = ac.createGain(); g.connect(ac.destination);
   const noise = (dur, f0, f1, v) => {
     const len = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);

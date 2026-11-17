@@ -1,12 +1,22 @@
 # EOD · Editor of Doom — Changelog
 
 ## Queued
+- Boom/MBF line actions and sector specials (most popular modern maps), DEHACKED patches, MUSINFO/music
+- Publishing a map that brings its own custom art to the library (needs a rights checkbox + file storage)
+- Play straight from the /idgames archive by search (needs a CORS-friendly mirror or a tiny proxy)
 - Go live: Supabase keys in `EOD/assets/config.js` so accounts, maps and forums are shared between visitors (waiting on owner)
 - Live co-editing (two people on one map at once) via Supabase Realtime
 - Map comments on each map, member profile pages, follow authors
-- Load real textures from a member's own IWAD / Freedoom (stays on their device)
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
+
+## v0.2.0 — 2026-11-17 — plays maps everyone has made
+- **Open any map:** File → Open any map takes a .wad (PWAD or IWAD), an /idgames .zip, or a ZDoom .pk3 (maps/*.wad + PNG textures/flats/sprites). Multi-map files list every map with ✎ Edit (build off it) or ▶ Play. An import report shows lines, sectors, things, the map's own art, the art stack in use and any missing texture names.
+- **Resource stack (top wins):** the map's own art (TEXTURE1/2 + PNAMES + patches, flats, sprites, sounds, loose patches, PK3 PNGs) → the player's own IWAD if they open one (memory only, never uploaded or published) → Freedoom art pack → EOD in-house art as the last fallback.
+- **Freedoom art pack** (Freedoom 0.13.0, BSD license, credited): textures, flats, sprites and sounds trimmed into one 7.2 MB gzip file (`res/freedoom-res.wad.gz`), downloaded once and kept in the browser cache. Settings → Art pack: Freedoom (default) or EOD in-house (lightest, no download). License and credits in `res/`.
+- **Engine:** real Doom picture/texture decoding (any texture size, tall patches), 8-angle monster sprites with walk/attack/pain/corpse frames, animated item sprites, projectile/explosion/puff/blood frames, first-person weapon sprites with muzzle flashes, animated flats (nukage, water, lava, blood, slime), per-map sky (SKY1/2/3, episode skies), Doom sounds from the art pack (synth sounds as fallback).
+- **Speed for big maps:** per-frame column bucketing in the renderer and a 128-unit spatial grid for collision, sight, bullets, projectiles, triggers and sector lookups. Freedoom MAP15 (5,397 lines, 330 things) renders in ~7.5 ms per frame on desktop Chrome at phone-portrait size; game logic ~0.15 ms per tic.
+- Tested in headless Chrome: Freedoom pack load, community-style PWAD + .zip import (3 maps, picker, Play/Edit), full IWAD import (32 maps listed, MAP15 played), sprites/weapon/flats render, no page errors.
 
 ## v0.1.1 — 2026-11-17 — live test on pulselabsstudio.com/EOD
 - EOD now lives in the Pulse Labs site repo under `EOD/` and deploys with the site to pulselabsstudio.com/EOD (lowercase /eod forwards there).

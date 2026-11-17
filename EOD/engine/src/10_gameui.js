@@ -49,14 +49,40 @@ function showOver() {
 }
 
 /* ---------- drawing ---------- */
+const frameOf = (seq, t, sp) => seq[Math.floor(t / sp) % seq.length];
 function gameSprites() {
-  const out = [];
+  const out = [], cam = G.p, useRes = RES.packs.length > 0 && !!resPal();
+  const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
-    if (e.alive) { const img = e.d.spr ? SPR[e.d.spr] : null; if (!img) continue; out.push({ x: e.x, y: e.y, z: e.z, img, flip: e.flip, bright: e.d.bright || e.flash > 0, fuzz: e.d.fuzz, light: G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160, id: e.ti }); if (e.flash > 0) e.flash--; }
-    else if (e.d.cat === 'monster') out.push({ x: e.x, y: e.y, z: e.z, img: SPR.corpse, light: G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160, id: e.ti });
+    const ds = useRes ? DSPR[e.type] : null;
+    if (e.alive) {
+      let spr = null;
+      if (ds) {
+        if (e.d.cat === 'monster') {
+          let fr;
+          if (e.pain > 0 && ds[3]) fr = ds[3][0];
+          else if (e.atk > 0 || e.flash > 0) fr = e.flash > 0 ? ds[2][ds[2].length - 1] : ds[2][Math.min(ds[2].length - 1, Math.floor((10 - e.atk) / 4))];
+          else fr = e.state === 'idle' ? ds[1][0] : frameOf(ds[1], e.anim, 6);
+          const f = getSpriteFrame(ds[0], fr, spriteRot(e.a, e.x, e.y, cam.x, cam.y)); if (f) spr = f;
+        } else { const f = getSpriteFrame(ds[0], frameOf(ds[1], G.tic, 6), 0); if (f) spr = f; }
+      }
+      if (!spr) { const img = e.d.spr ? SPR[e.d.spr] : null; if (!img) continue; spr = { img, flip: e.flip }; }
+      out.push({ x: e.x, y: e.y, z: e.z, img: spr.img, flip: spr.flip, bright: e.d.bright || e.flash > 0, fuzz: e.d.fuzz, light: lightAt(e), id: e.ti }); if (e.flash > 0) e.flash--;
+    } else if (e.d.cat === 'monster') {
+      let img = SPR.corpse, flip = false;
+      if (ds) { if (!ds[4]) continue; const f = getSpriteFrame(ds[0], ds[4], 0); if (f) { img = f.img; flip = f.flip; } }
+      out.push({ x: e.x, y: e.y, z: e.z, img, flip, light: lightAt(e), id: e.ti });
+    }
   }
-  for (const p of G.projs) out.push({ x: p.x, y: p.y, z: p.z - p.img.h / 2, img: p.img, bright: 1 });
-  for (const f of G.fx) out.push({ x: f.x, y: f.y, z: f.z, img: f.img, bright: f.bright });
+  for (const p of G.projs) {
+    const ps = useRes ? PSPR[p.kind] : null, f = ps ? getSpriteFrame(ps[0], frameOf(ps[1], p.t, 4), 0) : null;
+    if (f) out.push({ x: p.x, y: p.y, z: p.z - 8, img: f.img, flip: f.flip, bright: 1 }); else out.push({ x: p.x, y: p.y, z: p.z - p.img.h / 2, img: p.img, bright: 1 });
+  }
+  for (const fx of G.fx) {
+    const fs = useRes ? FXSPR[fx.k] : null;
+    const f = fs ? getSpriteFrame(fs[0], fs[1][Math.min(fs[1].length - 1, Math.floor((fx.t0 - fx.t) / (fx.t0 / fs[1].length)))], 0) : null;
+    if (f) out.push({ x: fx.x, y: fx.y, z: fx.z, img: f.img, flip: f.flip, bright: 1 }); else out.push({ x: fx.x, y: fx.y, z: fx.z, img: fx.img, bright: fx.bright });
+  }
   return out;
 }
 function drawGame() {
@@ -84,8 +110,18 @@ function drawGame() {
   G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
   if (G.automap) drawAutomap(g, W, H);
 }
+function drawWeaponRes(g, W, H, u, bx, by) {
+  const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
+  const firing = p.fireT > 0, fr = firing ? ws[2][Math.min(ws[2].length - 1, Math.floor((6 - p.fireT) / 2))] : ws[1][Math.floor(G.tic / 4) % ws[1].length];
+  const main = getSpriteFrame(ws[0], fr, 0); if (!main) return false;
+  const s = Math.min(W / 320, (H - 20 * u) / 168), viewBottom = H - 20 * u;
+  const put = f => { if (!f) return; const img = f.img; g.drawImage(spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
+  put(main); if (firing && p.fireT > 2 && ws[3]) put(getSpriteFrame(ws[3], ws[4][Math.min(ws[4].length - 1, Math.floor((6 - p.fireT) / 2))], 0));
+  return true;
+}
 function drawWeapon(g, W, H, u) {
   const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4), by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  if (drawWeaponRes(g, W, H, u, bx, by)) return;
   const cx = W / 2 + bx, base = H - 34 * u + by + (p.fireT > 3 ? 4 * u : 0), w = p.w;
   if (p.fireT > 2 && w !== 1) { g.fillStyle = w >= 7 ? '#8cf' : '#ffd060'; g.beginPath(); g.arc(cx, base - 34 * u, 10 * u, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, base - 34 * u, 5 * u, 0, 7); g.fill(); }
   const col = { 1: '#a33', 2: '#666', 3: '#555', 4: '#444', 5: '#777', 6: '#5a6a4a', 7: '#4a5a7a', 8: '#3a6a3a' }[w];

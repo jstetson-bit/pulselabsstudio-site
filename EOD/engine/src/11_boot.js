@@ -64,6 +64,11 @@ function openManual() {
 <ul><li><b>Export Doom WAD:</b> a real Doom-format PWAD. Play it in <b>GZDoom</b> (PC) or <b>Delta Touch</b> (Android) with Doom II or the free <b>Freedoom</b> IWAD. GZDoom builds the nodes itself.</li>
 <li><b>Export playable game:</b> one .html file with your map baked in. It opens straight into the game on any phone or PC browser. It's your shareable "executable".</li>
 <li><b>Open:</b> loads Doom, Hexen and UDMF WADs (other people's maps), or a saved EOD project.</li></ul>
+<h3>Playing other people's maps</h3>
+<ul><li><b>File → Open any map</b> takes a .wad, a .zip straight from the /idgames archive, or a ZDoom .pk3. EOD reads its maps, its own textures, flats, sprites and sounds, and lets you pick ✎ Edit or ▶ Play for each map.</li>
+<li>Most maps borrow art from the original Doom files. EOD fills that in with <b>Freedoom</b> (free, same names) or, if you own Doom/Doom II, open your own doom2.wad once and its art is used on your device only. It is never uploaded.</li>
+<li>Classic (vanilla/limit-removing) maps play as made. Boom/ZDoom extras (scripts, slopes, 3D floors, DEHACKED monsters) are ignored for now.</li></ul>
+<h3>Credits</h3><p>Engine, editor and in-house art: Pulse Labs Studio. Optional "Freedoom" art pack © 2001-2024 contributors to the Freedoom project, BSD license (<a href="res/FREEDOOM-COPYING.txt" target="_blank">license</a>, <a href="res/FREEDOOM-CREDITS.txt" target="_blank">credits</a>). DOOM is a trademark of id Software; EOD is an unofficial fan project.</p>
 <h3>Safety nets</h3>
 <ul><li>Autosave after every change, 150 levels of Undo, <b>Map Analysis</b> before export, and a crash log in Settings → Support.</li></ul>
 <h3>Keyboard (PC)</h3>
@@ -144,12 +149,12 @@ function boot() {
     E.mode = 'sectors'; buildBars(); edResize();
     const p1 = M.t.find(t => t.type === 1);
     if (S.theme == null) { S.theme = 'device'; LS.set('settings', S); }
-    initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
+    applyArtSetting(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
   }
   const saved = LS.get('autosave', null);
   if (saved && saved.l && saved.l.length) M = saved; else buildSampleMap();
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) firstRun();
-  pullAccountBinds(); eodBoot();
+  pullAccountBinds(); applyArtSetting(); eodBoot();
 }

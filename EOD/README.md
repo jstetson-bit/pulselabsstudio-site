@@ -19,6 +19,12 @@ A free website for building classic Doom maps in the browser, playing them with 
 | `supabase/schema.sql` | Database tables, security rules, triggers. Run once in Supabase |
 | `docs/` | CHANGELOG and PROJECT_OVERVIEW |
 
+## Art, credits and what we can't get sued over
+- Engine, editor, site and the in-house art: Pulse Labs Studio, written from scratch.
+- Optional Freedoom art pack in `res/`: © Contributors to the Freedoom project, BSD license (`res/FREEDOOM-COPYING.txt`, `res/FREEDOOM-CREDITS.txt`). Free to redistribute with that notice.
+- No id Software files are included or hosted. If a member opens their own doom2.wad, it stays in their browser.
+- Community maps are opened by the member from their own device; EOD doesn't host other people's WADs.
+
 ## How it works (why hosting is cheap)
 Everything runs in the visitor's own browser. The website is plain files (HTML/JS/CSS) served free by GitHub Pages. When someone plays a map, their browser downloads the map data (usually 5-50 KB of JSON) and the game engine runs on their device. No game server, no video streaming. The only "server" is Supabase, which stores accounts, maps, votes and forum posts and enforces who can change what.
 

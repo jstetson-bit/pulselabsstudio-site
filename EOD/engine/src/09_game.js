@@ -34,7 +34,7 @@ function initGame(mode, start) {
   audio();
   const secs = M.sec.map(s => Object.assign({}, s, { base: s.li, mover: null }));
   const sc = buildScene(secs);
-  G = { mode, sc, secs, tic: 0, ents: [], projs: [], fx: [], msgs: [], kills: 0, totK: 0, items: 0, totI: 0, secrets: 0, totS: 0, over: null, automap: false, flash: 0, bonus: 0, lineUsed: new Set(), acc: 0, last: performance.now(), t0: performance.now(), nbr: secs.map((_, i) => neighbors(i)), sideOrig: new Map() };
+  G = { grid: buildGrid(sc.lines), mode, sc, secs, tic: 0, ents: [], projs: [], fx: [], msgs: [], kills: 0, totK: 0, items: 0, totI: 0, secrets: 0, totS: 0, over: null, automap: false, flash: 0, bonus: 0, lineUsed: new Set(), acc: 0, last: performance.now(), t0: performance.now(), nbr: secs.map((_, i) => neighbors(i)), sideOrig: new Map() };
   secs.forEach(s => { if (s.sp === 9) G.totS++; });
   const skillBit = S.skill === 1 ? 1 : S.skill === 3 ? 4 : 2;
   let id = 0;
@@ -57,23 +57,50 @@ function initGame(mode, start) {
 function msg(t) { if (!G) return; G.msgs.push({ t, until: G.tic + 105 }); if (G.msgs.length > 4) G.msgs.shift(); }
 
 /* ---------- world queries ---------- */
-function secOf(x, y) { return sectorAt(x, y); }
+function secOf(x, y) { return gSectorAt(x, y); }
+/* spatial grid over the scene lines (keeps collision, sight and sector lookups fast on huge maps) */
+const GCS = 128;
+function buildGrid(L) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const l of L) { x0 = Math.min(x0, l.ax, l.bx); y0 = Math.min(y0, l.ay, l.by); x1 = Math.max(x1, l.ax, l.bx); y1 = Math.max(y1, l.ay, l.by); }
+  if (!L.length) { x0 = y0 = 0; x1 = y1 = 1; }
+  const gw = Math.max(1, Math.ceil((x1 - x0 + 1) / GCS)), gh = Math.max(1, Math.ceil((y1 - y0 + 1) / GCS)), cells = new Array(gw * gh);
+  L.forEach((l, i) => { const cx0 = Math.floor((Math.min(l.ax, l.bx) - x0) / GCS), cx1 = Math.floor((Math.max(l.ax, l.bx) - x0) / GCS), cy0 = Math.floor((Math.min(l.ay, l.by) - y0) / GCS), cy1 = Math.floor((Math.max(l.ay, l.by) - y0) / GCS); for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) (cells[cy * gw + cx] || (cells[cy * gw + cx] = [])).push(i); });
+  return { x0, y0, gw, gh, cells, stamp: new Int32Array(L.length), s: 0 };
+}
+function gridEach(ax, ay, bx, by, fn) {
+  const g = G.grid, L = G.sc.lines; g.s++;
+  const cx0 = clamp(Math.floor((Math.min(ax, bx) - g.x0) / GCS), 0, g.gw - 1), cx1 = clamp(Math.floor((Math.max(ax, bx) - g.x0) / GCS), 0, g.gw - 1);
+  const cy0 = clamp(Math.floor((Math.min(ay, by) - g.y0) / GCS), 0, g.gh - 1), cy1 = clamp(Math.floor((Math.max(ay, by) - g.y0) / GCS), 0, g.gh - 1);
+  for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) { const c = g.cells[cy * g.gw + cx]; if (!c) continue; for (const i of c) { if (g.stamp[i] === g.s) continue; g.stamp[i] = g.s; if (fn(L[i], i) === false) return; } }
+}
+function gSectorAt(x, y) {
+  const g = G.grid, L = G.sc.lines, cy = Math.floor((y - g.y0) / GCS); if (cy < 0 || cy >= g.gh) return -1;
+  let cx = Math.max(0, Math.floor((x - g.x0) / GCS)), best = Infinity, res = -1;
+  for (; cx < g.gw; cx++) {
+    const c = g.cells[cy * g.gw + cx];
+    if (c) for (const i of c) { const l = L[i]; if ((l.ay > y) === (l.by > y)) continue; const ix = l.ax + (y - l.ay) * (l.bx - l.ax) / (l.by - l.ay); if (ix < x) continue; const d = ix - x; if (d < best) { best = d; res = (l.ex * (y - l.ay) - l.ey * (x - l.ax)) < 0 ? (l.s1 ? l.s1.sec : -1) : (l.s2 ? l.s2.sec : -1); } }
+    if (x + best <= g.x0 + (cx + 1) * GCS) break;
+  }
+  return res;
+}
 function opening(l) { const f = G.secs[l.s1.sec], b = G.secs[l.s2.sec]; return { top: Math.min(f.ch, b.ch), bot: Math.max(f.fh, b.fh), lo: Math.min(f.fh, b.fh) }; }
 function blockedBy(ent, nx, ny, isPlayer) {
-  const r = ent.r, L = G.sc.lines;
-  for (let i = 0; i < L.length; i++) {
-    const l = L[i];
-    if (nx + r < Math.min(l.ax, l.bx) || nx - r > Math.max(l.ax, l.bx) || ny + r < Math.min(l.ay, l.by) || ny - r > Math.max(l.ay, l.by)) continue;
-    const d = distSeg(nx, ny, l.ax, l.ay, l.bx, l.by); if (d >= r) continue;
-    const d0 = distSeg(ent.x, ent.y, l.ax, l.ay, l.bx, l.by); if (d0 < r && d >= d0 - 0.01) continue;
-    if (!l.s2) return l;
-    if (l.f & 1) return l; if (!isPlayer && (l.f & 2)) return l;
+  const r = ent.r; let hit = null;
+  gridEach(nx - r, ny - r, nx + r, ny + r, l => {
+    if (nx + r < Math.min(l.ax, l.bx) || nx - r > Math.max(l.ax, l.bx) || ny + r < Math.min(l.ay, l.by) || ny - r > Math.max(l.ay, l.by)) return;
+    const d = distSeg(nx, ny, l.ax, l.ay, l.bx, l.by); if (d >= r) return;
+    const d0 = distSeg(ent.x, ent.y, l.ax, l.ay, l.bx, l.by); if (d0 < r && d >= d0 - 0.01) return;
+    const B = () => { hit = l; return false; };
+    if (!l.s2) return B();
+    if (l.f & 1) return B(); if (!isPlayer && (l.f & 2)) return B();
     const o = opening(l);
-    if (o.top - o.bot < ent.h) return l;
-    if (o.bot - ent.z > 24 && !(ent.d && ent.d.float)) return l;
-    if (o.top - (ent.d && ent.d.float ? ent.z : ent.z) < ent.h && !(ent.d && ent.d.float)) return l;
-    if (!isPlayer && !(ent.d && ent.d.float) && ent.z - o.lo > 24) return l;
-  }
+    if (o.top - o.bot < ent.h) return B();
+    if (o.bot - ent.z > 24 && !(ent.d && ent.d.float)) return B();
+    if (o.top - ent.z < ent.h && !(ent.d && ent.d.float)) return B();
+    if (!isPlayer && !(ent.d && ent.d.float) && ent.z - o.lo > 24) return B();
+  });
+  if (hit) return hit;
   for (const e of G.ents) {
     if (e === ent || !e.alive || !(e.d.cat === 'monster' || e.d.solid)) continue;
     const d = Math.hypot(e.x - nx, e.y - ny), d0 = Math.hypot(e.x - ent.x, e.y - ent.y);
@@ -95,22 +122,23 @@ function tryMove(ent, dx, dy, isPlayer) {
 }
 function lineCross(ax, ay, bx, by, l) { const r = segInter(ax, ay, bx, by, l.ax, l.ay, l.bx, l.by); return r && r.t >= 0 && r.t <= 1 && r.u >= 0 && r.u <= 1 ? r : null; }
 function sight(ax, ay, az, bx, by, bz) {
-  for (const l of G.sc.lines) {
-    const r = lineCross(ax, ay, bx, by, l); if (!r) continue;
-    if (!l.s2) return false;
+  let ok = true;
+  gridEach(ax, ay, bx, by, l => {
+    const r = lineCross(ax, ay, bx, by, l); if (!r) return;
+    if (!l.s2) { ok = false; return false; }
     const o = opening(l); const z = az + (bz - az) * r.t;
-    if (z <= o.bot || z >= o.top) return false;
-  }
-  return true;
+    if (z <= o.bot || z >= o.top) { ok = false; return false; }
+  });
+  return ok;
 }
 function wallDistAlong(x, y, z, a, max) {
   const ex = x + Math.cos(a) * max, ey = y + Math.sin(a) * max; let best = max, hit = null;
-  for (const l of G.sc.lines) {
-    const r = lineCross(x, y, ex, ey, l); if (!r) continue; const d = r.t * max;
-    if (d >= best) continue;
-    if (!l.s2) { best = d; hit = l; continue; }
+  gridEach(x, y, ex, ey, l => {
+    const r = lineCross(x, y, ex, ey, l); if (!r) return; const d = r.t * max;
+    if (d >= best) return;
+    if (!l.s2) { best = d; hit = l; return; }
     const o = opening(l); if (z <= o.bot || z >= o.top) { best = d; hit = l; }
-  }
+  });
   return { d: best, l: hit };
 }
 
@@ -197,7 +225,7 @@ function activate(l, how, fromFront) {
 function playerUse() {
   const p = G.p, ex = p.x + Math.cos(p.a) * 72, ey = p.y + Math.sin(p.a) * 72;
   const hits = [];
-  for (const l of G.sc.lines) { const r = lineCross(p.x, p.y, ex, ey, l); if (r) hits.push([r.t, l]); }
+  gridEach(p.x, p.y, ex, ey, l => { const r = lineCross(p.x, p.y, ex, ey, l); if (r) hits.push([r.t, l]); });
   hits.sort((a, b) => a[0] - b[0]);
   for (const [, l] of hits) {
     const front = lineSide2(l, p.x, p.y) < 0;
@@ -212,7 +240,7 @@ function lineSide2(l, x, y) { return l.ex * (y - l.ay) - l.ey * (x - l.ax); }
 function damageMonster(e, dmg, src) {
   if (!e.alive) return;
   e.hp -= dmg;
-  G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10 });
+  G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10, t0: 10, k: 'blood' });
   if (e.hp <= 0) {
     e.alive = false; e.state = 'dead';
     if (e.d.barrel) { explode(e.x, e.y, e.z + 20, 128, 128, src); return; }
@@ -229,7 +257,7 @@ function damagePlayer(dmg) {
   if (p.hp <= 0) { p.hp = 0; p.dead = true; G.over = { k: 'dead' }; showOver(); }
 }
 function explode(x, y, z, radius, maxd, src) {
-  G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, bright: 1 }); sfx('explode');
+  G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, t0: 14, k: 'explode', bright: 1 }); sfx('explode');
   for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; const d = Math.hypot(e.x - x, e.y - y) - e.r; if (d < radius && sight(x, y, z, e.x, e.y, e.z + e.h / 2)) damageMonster(e, Math.max(1, Math.round(maxd * (1 - Math.max(0, d) / radius))), src); }
   if (G.p) { const d = Math.hypot(G.p.x - x, G.p.y - y) - G.p.r; if (d < radius && sight(x, y, z, G.p.x, G.p.y, G.p.z + 32)) damagePlayer(Math.round(maxd * (1 - Math.max(0, d) / radius) * (src === 'player' ? 0.5 : 1))); }
 }
@@ -241,7 +269,7 @@ function hitscan(a, dmg) {
     if (Math.abs(dx * s - dy * c) < e.r && sight(p.x, p.y, z, e.x, e.y, e.z + e.h * 0.5)) { best = e; bd = al; }
   }
   if (best) { damageMonster(best, dmg, 'player'); return true; }
-  G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 6, bright: 1 });
+  G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
   return false;
 }
 function autoAim(a) {
@@ -273,8 +301,8 @@ function tickProjs() {
     for (let s = 0; s < steps && !pr.dead; s++) {
       const nx = pr.x + pr.vx / steps, ny = pr.y + pr.vy / steps, nz = pr.z + pr.vz / steps;
       let hitWall = false;
-      for (const l of G.sc.lines) { const r = lineCross(pr.x, pr.y, nx, ny, l); if (!r) continue; if (!l.s2) { hitWall = true; break; } const o = opening(l); if (nz <= o.bot || nz >= o.top) { hitWall = true; break; } }
-      const si = sectorAt(nx, ny); if (si < 0 || nz < G.secs[si].fh || nz > G.secs[si].ch) hitWall = true;
+      gridEach(pr.x, pr.y, nx, ny, l => { const r = lineCross(pr.x, pr.y, nx, ny, l); if (!r) return; if (!l.s2) { hitWall = true; return false; } const o = opening(l); if (nz <= o.bot || nz >= o.top) { hitWall = true; return false; } });
+      const si = gSectorAt(nx, ny); if (si < 0 || nz < G.secs[si].fh || nz > G.secs[si].ch) hitWall = true;
       if (!hitWall) {
         if (pr.owner === 'player') { for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; if (Math.hypot(e.x - nx, e.y - ny) < e.r + 8 && nz > e.z - 8 && nz < e.z + e.h + 8) { damageMonster(e, rnd(...P.dmg), 'player'); hitWall = true; break; } } }
         else { const p = G.p; if (Math.hypot(p.x - nx, p.y - ny) < p.r + 8 && nz > p.z - 8 && nz < p.z + p.h + 8) { damagePlayer(rnd(...P.dmg)); hitWall = true; } }
@@ -310,7 +338,7 @@ function tickMonsters() {
       if (!tryMove(e, Math.cos(ang) * sp, Math.sin(ang) * sp, false)) { e.dir = e.a + (Math.random() < 0.5 ? 1 : -1) * (Math.PI / 2 + Math.random()); e.dirT = 12 + rnd(0, 20); }
     }
     if (e.d.float) { const tz = clamp(p.z + 16, G.secs[Math.max(0, e.sec)].fh, G.secs[Math.max(0, e.sec)].ch - e.h); e.z += clamp(tz - e.z, -2, 2); }
-    const s2 = sectorAt(e.x, e.y); if (s2 >= 0) e.sec = s2;
+    const s2 = gSectorAt(e.x, e.y); if (s2 >= 0) e.sec = s2;
   }
 }
 function monsterAttack(e, dist) {
@@ -355,11 +383,11 @@ function gameTic() {
   p.vx += (mx - p.vx) * 0.35; p.vy += (my - p.vy) * 0.35;
   const ox = p.x, oy = p.y;
   if (!p.dead && (Math.abs(p.vx) > 0.01 || Math.abs(p.vy) > 0.01)) tryMove(p, p.vx, p.vy, true);
-  const ns = sectorAt(p.x, p.y);
+  const ns = gSectorAt(p.x, p.y);
   if (ns < 0 && !p.noclip) { p.x = ox; p.y = oy; } else if (ns >= 0) p.sec = ns;
   const S0 = G.secs[p.sec];
   // walk triggers
-  if (G.mode === 'play' && (ox !== p.x || oy !== p.y)) for (const l of G.sc.lines) { if (!l.sp) continue; if (lineCross(ox, oy, p.x, p.y, l)) activate(l, 'walk', lineSide2(l, ox, oy) < 0); }
+  if (G.mode === 'play' && (ox !== p.x || oy !== p.y)) { const crossed = []; gridEach(ox, oy, p.x, p.y, l => { if (l.sp && lineCross(ox, oy, p.x, p.y, l)) crossed.push(l); }); crossed.forEach(l => activate(l, 'walk', lineSide2(l, ox, oy) < 0)); }
   // vertical
   if (G.mode === 'visual') { p.z = S0.fh + IN.up * 0; }
   if (p.z > S0.fh) { p.vz -= 1; p.z += p.vz; if (p.z <= S0.fh) { p.z = S0.fh; p.vz = 0; } } else { p.z = S0.fh; p.vz = 0; }

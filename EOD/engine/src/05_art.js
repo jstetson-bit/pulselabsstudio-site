@@ -18,7 +18,7 @@ function nameColor(n) {
   const h = hashStr(n); return [70 + (h & 63), 70 + ((h >> 6) & 63), 70 + ((h >> 12) & 63)];
 }
 const TEXC = {};
-function getTex(name, flat) {
+function getTexProc(name, flat) {
   name = (name || '-').toUpperCase(); const k = (flat ? 'F:' : 'W:') + name;
   return TEXC[k] || (TEXC[k] = flat ? makeFlat(name) : makeWall(name));
 }
@@ -76,7 +76,7 @@ function makeFlat(n) {
   return texObj(W, H, px);
 }
 let SKY = null;
-function getSky() {
+function getSkyProc() {
   if (SKY) return SKY;
   const W = 256, H = 128, px = new Uint32Array(W * H), R = mulberry(77);
   const mh = []; let hgt = 60; for (let x = 0; x < W; x++) { hgt += (R() - 0.5) * 6; hgt = clamp(hgt, 40, 95); mh.push(hgt); }

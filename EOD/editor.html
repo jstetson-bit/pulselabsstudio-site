@@ -182,7 +182,7 @@ a.brand{color:var(--text);text-decoration:none}
 <div id="modal" hidden><div id="modalBox"></div></div>
 <div id="tut" hidden><div id="tutText"></div><div class="row"><button id="tutSkip" class="tb">Skip step</button><button id="tutQuit" class="cancelbtn"></button></div></div>
 <div id="toast"></div>
-<input type="file" id="fileIn" hidden accept=".wad,.WAD,.json,.nsde,application/octet-stream">
+<input type="file" id="fileIn" hidden accept=".wad,.WAD,.zip,.ZIP,.pk3,.PK3,.ipk3,.json,application/octet-stream,application/zip">
 <script src="assets/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/backend.js"></script>
@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.1.1', VC = 1;
+const VERSION = '0.2.0', VC = 1;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -299,6 +299,7 @@ let AC = null;
 function audio() { if (!S.sound) return null; try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
 function sfx(kind, vol = 1) {
   const ac = audio(); if (!ac) return;
+  if (typeof resSound === 'function') { const rb = resSound(kind); if (rb) { const src = ac.createBufferSource(), gn = ac.createGain(); src.buffer = rb; gn.gain.value = Math.min(1, vol); src.connect(gn); gn.connect(ac.destination); src.start(); return; } }
   const t = ac.currentTime, g = ac.createGain(); g.connect(ac.destination);
   const noise = (dur, f0, f1, v) => {
     const len = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
@@ -951,24 +952,79 @@ function saveProject() { download(fileBase() + '.eod.json', JSON.stringify({ app
 function openFile() { const fi = $('#fileIn'); fi.value = ''; fi.click(); }
 function handleFile(file) {
   const rd = new FileReader();
-  rd.onload = () => {
-    try {
-      const buf = rd.result; const head = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
-      const id = String.fromCharCode(...head);
-      if (id === 'IWAD' || id === 'PWAD') {
-        const w = parseWad(buf); const maps = wadMaps(w);
-        if (!maps.length) return toast('No maps found in that WAD');
-        const pick = m => { const r = loadWadMap(w, m); pushUndo(); M = r.map; S.mapName = M.name; saveSettings(); compact(); clearSel(); mapChanged(); zoomFit(); toast('Loaded ' + m.name + ' (' + M.l.length + ' lines, ' + M.sec.length + ' sectors)' + (r.note ? ' — ' + r.note : ''), 5000); };
-        if (maps.length === 1) pick(maps[0]);
-        else modal('Pick a map from ' + file.name, '<div class="list">' + maps.map((m, i) => '<button data-i="' + i + '">' + esc(m.name) + (m.udmf ? ' (UDMF)' : '') + '</button>').join('') + '</div>', [{ cancel: 1 }], b => b.querySelectorAll('button[data-i]').forEach(bt => bt.onclick = () => { closeModal(); pick(maps[+bt.dataset.i]); }));
-      } else {
-        const j = JSON.parse(new TextDecoder().decode(buf));
-        if (!j.map || !j.map.l) throw new Error('Not an EOD project');
-        pushUndo(); M = j.map; clearSel(); mapChanged(); zoomFit(); toast('Project loaded');
-      }
-    } catch (e) { logCrash('open file: ' + e.stack); toast('Could not open: ' + e.message, 4000); }
-  };
+  rd.onload = () => importBuffer(rd.result, file.name).catch(e => { logCrash('open file: ' + (e.stack || e)); toast('Could not open: ' + e.message, 5000); });
   rd.readAsArrayBuffer(file);
+}
+// Recognize anything people ship: IWAD/PWAD, idgames .zip, ZDoom .pk3, or an EOD project.
+async function importBuffer(buf, fname) {
+  const head = String.fromCharCode(...new Uint8Array(buf, 0, Math.min(4, buf.byteLength)));
+  if (head === 'IWAD' || head === 'PWAD') return importWads([{ name: fname, w: parseWad(buf) }], fname);
+  if (head.startsWith('PK')) {
+    toast('Unpacking ' + fname + '…');
+    const entries = await readZip(buf), wads = [], pack = { name: fname, kind: 'map', pal: null, tex: new Map(), patches: new Map(), flats: new Map(), sprites: new Map(), sounds: new Map(), imgTex: new Map(), imgFlat: new Map(), imgSpr: new Map() };
+    const notes = [];
+    for (const e of entries) {
+      const low = e.name.toLowerCase(), base = e.name.split('/').pop(), stem = base.replace(/\.[^.]+$/, '').toUpperCase().slice(0, 8);
+      if (/\.(wad|iwad|pwad)$/.test(low)) { try { wads.push({ name: base, w: parseWad(await e.get()), mapName: /^maps\//.test(low) ? stem : null }); } catch (er) { notes.push('skipped ' + base); } }
+      else if (/\.(png|jpe?g|webp)$/.test(low)) {
+        try {
+          const t = await imageToTex(await e.get());
+          if (/(^|\/)flats\//.test(low)) pack.imgFlat.set(stem, t); else if (/(^|\/)sprites\//.test(low)) pack.imgSpr.set(stem, t); else if (/(^|\/)(textures|patches|graphics|hires)\//.test(low)) pack.imgTex.set(stem, t);
+        } catch (er) { }
+      } else if (/\.(deh|bex)$/.test(low) || /dehacked/.test(low)) notes.push('DEHACKED patch not applied');
+    }
+    if (!wads.length) throw new Error('No maps found inside ' + fname);
+    return importWads(wads, fname, pack, notes);
+  }
+  const j = JSON.parse(new TextDecoder().decode(buf));
+  if (!j.map || !j.map.l) throw new Error('Not a map file EOD recognizes');
+  pushUndo(); M = j.map; clearSel(); mapChanged(); zoomFit(); toast('Project loaded');
+}
+function importWads(list, fname, extraPack, notes = []) {
+  // resources: the user's own IWAD sits under the map art; PWAD/PK3 art goes on top
+  let mapPack = extraPack || null, iwad = null;
+  for (const it of list) {
+    const p = packFromWad(it.w, it.name, 'map');
+    const id = String.fromCharCode(...new Uint8Array(it.w.buf, 0, 4));
+    if (id === 'IWAD') { p.kind = 'iwad'; p.name = it.name + ' (your copy, stays on this device)'; iwad = p; continue; }
+    if (!mapPack) mapPack = p; else mergePack(mapPack, p);
+  }
+  const has = p => p && (p.tex.size || p.patches.size || p.flats.size || p.sprites.size || p.imgTex.size || p.imgFlat.size || p.imgSpr.size || p.pal);
+  if (iwad) setPack('iwad', iwad);
+  setPack('map', has(mapPack) ? mapPack : null);
+  const maps = [];
+  for (const it of list) for (const m of wadMaps(it.w)) maps.push({ it, m, label: (it.mapName && m.name === 'MAP01' ? it.mapName : m.name) });
+  if (!maps.length) { toast(iwad ? 'Your IWAD art is loaded for this session (nothing is uploaded). Open a map next.' : 'Art loaded from ' + fname + ', but it has no maps.', 5000); return; }
+  const open = (k, play) => {
+    const { it, m, label } = maps[k]; const r = loadWadMap(it.w, m);
+    pushUndo(); M = r.map; M.name = /^(MAP\d\d|E\dM\d)$/.test(label) ? label : M.name; S.mapName = M.name; saveSettings(); compact(); clearSel(); mapChanged(); zoomFit();
+    if ((S.artPack || 'freedoom') === 'freedoom') loadFreedoom(true);
+    const rep = recognizeReport(r.note, notes, mapPack, iwad);
+    if (play) { const p1 = M.t.find(t => t.type === 1); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
+    else modal('Imported ' + label + ' from ' + fname, rep, [{ label: '▶ Play it', cls: 'demo', fn: () => setTimeout(() => startDemo(), 50) }, { cancel: 1 }]);
+  };
+  if (maps.length === 1) { open(0, false); return; }
+  modal(fname + ' · ' + maps.length + ' maps', '<p class="hint">Pick a map. ✎ opens it in the editor (to build off it), ▶ plays it right away.</p><div class="list">' + maps.map((x, i) => `<div class="row"><b style="flex:1">${esc(x.label)}${x.m.udmf ? ' (UDMF)' : ''}</b><button data-e="${i}">✎ Edit</button><button data-p="${i}" class="demo">▶ Play</button></div>`).join('') + '</div>', [{ cancel: 1 }], b => {
+    b.querySelectorAll('[data-e]').forEach(x => x.onclick = () => { closeModal(); open(+x.dataset.e, false); });
+    b.querySelectorAll('[data-p]').forEach(x => x.onclick = () => { closeModal(); open(+x.dataset.p, true); });
+  });
+}
+function mergePack(a, b) { for (const k of ['tex', 'patches', 'flats', 'sprites', 'sounds', 'imgTex', 'imgFlat', 'imgSpr']) for (const [n, v] of b[k]) if (!a[k].has(n)) a[k].set(n, v); if (!a.pal && b.pal) a.pal = b.pal; }
+function recognizeReport(note, notes, mapPack, iwad) {
+  const walls = new Set(), flats = new Set();
+  M.sd.forEach(d => [d.up, d.mid, d.lo].forEach(n => { if (n && n !== '-') walls.add(n); })); M.sec.forEach(s => { if (s.ft !== 'F_SKY1') flats.add(s.ft); if (s.ct !== 'F_SKY1') flats.add(s.ct); });
+  const inPacks = (n, flat) => RES.packs.some(p => flat ? (p.flats.has(n) || p.imgFlat.has(n)) : (p.tex.has(n) || p.imgTex.has(n)));
+  const fdOn = (S.artPack || 'freedoom') === 'freedoom';
+  const missW = [...walls].filter(n => !inPacks(n, false)), missF = [...flats].filter(n => !inPacks(n, true));
+  const custom = mapPack ? (mapPack.tex.size + mapPack.imgTex.size) + ' textures, ' + (mapPack.flats.size + mapPack.imgFlat.size) + ' flats, ' + (mapPack.sprites.size + mapPack.imgSpr.size) + ' sprites' : 'none';
+  const things = M.t.length, known = M.t.filter(t => THINGS[t.type]).length;
+  return `<ul><li><b>${M.l.length}</b> lines, <b>${M.sec.length}</b> sectors, <b>${things}</b> things (${known} EOD understands).</li>
+    <li>Art in this file: ${esc(custom)}.</li>
+    <li>Art stack: ${RES.packs.map(p => esc(p.name)).join(' → ') || '—'}${fdOn && !RES.packs.some(p => p.kind === 'freedoom') ? ' (Freedoom is still loading)' : ''} → EOD in-house art.</li>
+    ${missW.length + missF.length ? `<li>${missW.length + missF.length} texture name(s) not found yet${fdOn ? '' : ' (turn on the Freedoom art pack in Settings)'}; EOD draws stand-ins: ${esc([...missW, ...missF].slice(0, 12).join(', '))}${missW.length + missF.length > 12 ? '…' : ''}</li>` : '<li>Every texture name has art. ✓</li>'}
+    ${note ? '<li>' + esc(note) + '</li>' : ''}${notes.map(n => '<li>' + esc(n) + '</li>').join('')}
+    ${iwad ? '<li>Your IWAD art is in use on this device only. It is never uploaded or published.</li>' : ''}</ul>
+    <p class="hint">Boom/ZDoom-only features (scripts, slopes, 3D floors, custom monsters) are ignored. Classic Doom maps play as made.</p>`;
 }
 
 /* ================= PROCEDURAL ART (original, no id Software assets) ================= */
@@ -991,7 +1047,7 @@ function nameColor(n) {
   const h = hashStr(n); return [70 + (h & 63), 70 + ((h >> 6) & 63), 70 + ((h >> 12) & 63)];
 }
 const TEXC = {};
-function getTex(name, flat) {
+function getTexProc(name, flat) {
   name = (name || '-').toUpperCase(); const k = (flat ? 'F:' : 'W:') + name;
   return TEXC[k] || (TEXC[k] = flat ? makeFlat(name) : makeWall(name));
 }
@@ -1049,7 +1105,7 @@ function makeFlat(n) {
   return texObj(W, H, px);
 }
 let SKY = null;
-function getSky() {
+function getSkyProc() {
   if (SKY) return SKY;
   const W = 256, H = 128, px = new Uint32Array(W * H), R = mulberry(77);
   const mh = []; let hgt = 60; for (let x = 0; x < W; x++) { hgt += (R() - 0.5) * 6; hgt = clamp(hgt, 40, 95); mh.push(hgt); }
@@ -1148,6 +1204,184 @@ function initSprites() {
   ball('p_fire', 14, '#fff6a0', '#ff4000'); ball('p_caco', 16, '#ffd0ff', '#a020c0'); ball('p_baron', 16, '#e0ffe0', '#20c040'); ball('p_plasmam', 12, '#e0f8ff', '#20a0ff'); ball('p_plasma', 12, '#e0f8ff', '#3070ff'); ball('p_rocket', 12, '#fff', '#f80'); ball('p_rocketm', 14, '#fff', '#f60'); ball('p_bfg', 30, '#efe', '#2c2');
   ball('explode', 48, '#fff8c0', '#ff3000'); ball('puff', 8, '#fff', '#888'); ball('blood', 8, '#f44', '#600');
 }
+
+/* ================= RESOURCE STACK: read art, sprites and sounds from any WAD / PK3 =================
+   Stack (top wins): the map's own WAD/PK3 → the player's own IWAD (kept on their device only) →
+   Freedoom (free, BSD license) → EOD in-house procedural art (always there as the last fallback). */
+const RES = { packs: [], ver: 0, loading: null };
+const TEXC2 = new Map(), SPRC = new Map();
+function resChanged() { RES.ver++; TEXC2.clear(); SPRC.clear(); SNDC.clear(); if (G && G.sc) G.sc = buildScene(G.secs); if (window.refreshProps) refreshProps(); }
+function lumpBytes(w, l) { return new Uint8Array(w.buf, l.pos, l.size); }
+function packFromWad(w, name, kind) {
+  const p = { name, kind, pal: null, tex: new Map(), patches: new Map(), flats: new Map(), sprites: new Map(), sounds: new Map(), imgTex: new Map(), imgFlat: new Map(), imgSpr: new Map() };
+  let sec = null;
+  for (const l of w.lumps) {
+    const n = l.name;
+    if (/^(P|PP|P\d)_START$/.test(n)) { sec = 'P'; continue; } if (/^(P|PP|P\d)_END$/.test(n)) { sec = null; continue; }
+    if (/^(F|FF|F\d)_START$/.test(n)) { sec = 'F'; continue; } if (/^(F|FF|F\d)_END$/.test(n)) { sec = null; continue; }
+    if (/^(S|SS)_START$/.test(n)) { sec = 'S'; continue; } if (/^(S|SS)_END$/.test(n)) { sec = null; continue; }
+    if (n === 'SN_START') { sec = 'N'; continue; } if (n === 'SN_END') { sec = null; continue; }
+    if (n === 'PLAYPAL' && l.size >= 768) { const b = lumpBytes(w, l), pal = new Uint32Array(256); for (let i = 0; i < 256; i++) pal[i] = rgb(b[i * 3], b[i * 3 + 1], b[i * 3 + 2]); p.pal = pal; continue; }
+    if (!l.size) continue;
+    if (sec === 'P') p.patches.set(n, lumpBytes(w, l));
+    else if (sec === 'F') { if (l.size >= 4096) p.flats.set(n, lumpBytes(w, l)); }
+    else if (sec === 'S') p.sprites.set(n, lumpBytes(w, l));
+    else if (sec === 'N' || (/^DS/.test(n) && l.size > 8 && w.dv.getUint16(l.pos, true) === 3)) p.sounds.set(n, lumpBytes(w, l));
+    else if (!sec && l.size > 8 && !MAP_LUMPS.has(n) && !p.patches.has(n) && looksLikePicture(w, l)) p.patches.set(n, lumpBytes(w, l)); // loose patches (common in PWADs)
+  }
+  const pn = w.lumps.find(l => l.name === 'PNAMES'); let names = [];
+  if (pn) { const n = w.dv.getInt32(pn.pos, true); for (let i = 0; i < n; i++) names.push(rdName(w.dv, pn.pos + 4 + i * 8)); }
+  for (const tn of ['TEXTURE1', 'TEXTURE2']) {
+    const tl = w.lumps.find(l => l.name === tn); if (!tl || !names.length) continue;
+    const dv = w.dv, b = tl.pos, n = dv.getInt32(b, true);
+    for (let i = 0; i < n; i++) {
+      const o = b + dv.getInt32(b + 4 + i * 4, true); const nm = rdName(dv, o), tw = dv.getInt16(o + 12, true), th = dv.getInt16(o + 14, true), pc = dv.getInt16(o + 20, true);
+      const ps = []; for (let k = 0; k < pc; k++) { const q = o + 22 + k * 10; ps.push({ x: dv.getInt16(q, true), y: dv.getInt16(q + 2, true), patch: names[dv.getInt16(q + 4, true)] }); }
+      if (!p.tex.has(nm)) p.tex.set(nm, { w: tw, h: th, ps });
+    }
+  }
+  return p;
+}
+function looksLikePicture(w, l) { // cheap sanity check of the Doom picture header
+  const dv = w.dv, wd = dv.getInt16(l.pos, true), ht = dv.getInt16(l.pos + 2, true);
+  if (wd <= 0 || wd > 4096 || ht <= 0 || ht > 4096 || 8 + wd * 4 > l.size) return false;
+  const c0 = dv.getUint32(l.pos + 8, true); return c0 >= 8 + wd * 4 && c0 < l.size;
+}
+function resPal() { for (const p of RES.packs) if (p.pal) return p.pal; return null; }
+// Doom picture format → {w,h,ox,oy,px(alpha 0 = transparent)}
+function decodePicture(b) {
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength), w = dv.getInt16(0, true), h = dv.getInt16(2, true), ox = dv.getInt16(4, true), oy = dv.getInt16(6, true);
+  const pal = resPal(), px = new Uint32Array(Math.max(1, w * h));
+  if (!pal || w <= 0 || h <= 0) return null;
+  for (let x = 0; x < w; x++) {
+    let o = dv.getUint32(8 + x * 4, true), top = -1;
+    for (let guard = 0; o < b.length && guard < 256; guard++) {
+      let td = b[o]; if (td === 255) break;
+      top = td <= top ? top + td : td; // tall patches
+      const len = b[o + 1]; o += 3;
+      for (let k = 0; k < len && o + k < b.length; k++) { const y = top + k; if (y >= 0 && y < h) px[y * w + x] = pal[b[o + k]]; }
+      o += len + 1;
+    }
+  }
+  const t = texObj(w, h, px); t.ox = ox; t.oy = oy; return t;
+}
+function findPatch(name, fromIdx) { for (let i = fromIdx; i < RES.packs.length; i++) { const b = RES.packs[i].patches.get(name); if (b) return b; } for (const p of RES.packs) { const b = p.patches.get(name); if (b) return b; } return null; }
+function composeTexture(def, packIdx) {
+  const W_ = def.w, H_ = def.h, px = new Uint32Array(W_ * H_);
+  for (const pt of def.ps) {
+    const pb = findPatch(pt.patch, packIdx); if (!pb) continue;
+    const pic = decodePicture(pb); if (!pic) continue;
+    for (let y = 0; y < pic.h; y++) { const ty = pt.y + y; if (ty < 0 || ty >= H_) continue; for (let x = 0; x < pic.w; x++) { const tx = pt.x + x; if (tx < 0 || tx >= W_) continue; const c = pic.px[y * pic.w + x]; if (c) px[ty * W_ + tx] = c; } }
+  }
+  return texObj(W_, H_, px);
+}
+function getTex(name, flat) {
+  name = (name || '-').toUpperCase(); const k = (flat ? 'F:' : 'W:') + name;
+  let t = TEXC2.get(k); if (t) return t;
+  if (RES.packs.length && resPal()) {
+    for (let i = 0; i < RES.packs.length && !t; i++) {
+      const p = RES.packs[i];
+      if (flat) {
+        if (p.imgFlat.has(name)) t = p.imgFlat.get(name);
+        else if (p.flats.has(name)) { const b = p.flats.get(name), pal = resPal(), px = new Uint32Array(4096); for (let j = 0; j < 4096; j++) px[j] = pal[b[j]]; t = texObj(64, 64, px); }
+      } else {
+        if (p.imgTex.has(name)) t = p.imgTex.get(name);
+        else if (p.tex.has(name)) t = composeTexture(p.tex.get(name), i);
+      }
+    }
+  }
+  if (!t) t = getTexProc(name, flat);
+  TEXC2.set(k, t); return t;
+}
+function getSky() {
+  const n = M && M.name ? M.name : 'MAP01'; let s = 'SKY1';
+  const m = n.match(/^MAP(\d\d)$/), e = n.match(/^E(\d)M\d$/);
+  if (m) s = +m[1] >= 21 ? 'SKY3' : +m[1] >= 12 ? 'SKY2' : 'SKY1'; else if (e) s = 'SKY' + e[1];
+  if (RES.packs.some(p => p.tex.has(s) || p.imgTex.has(s))) return getTex(s); if (RES.packs.some(p => p.tex.has('SKY1'))) return getTex('SKY1');
+  return getSkyProc();
+}
+// animated flats: name ranges cycle every 8 tics
+const FLAT_ANIMS = [['NUKAGE1', 'NUKAGE3'], ['FWATER1', 'FWATER4'], ['SWATER1', 'SWATER4'], ['LAVA1', 'LAVA4'], ['BLOOD1', 'BLOOD3'], ['RROCK05', 'RROCK08'], ['SLIME01', 'SLIME04'], ['SLIME05', 'SLIME08'], ['SLIME09', 'SLIME12']];
+function animFlat(name, tic) {
+  for (const [a, z] of FLAT_ANIMS) { const base = a.slice(0, -1); if (name.startsWith(base) && name.length === a.length) { const lo = +a.slice(-1), hi = +z.slice(-1), cur = +name.slice(-1); if (cur >= lo && cur <= hi) return base + (lo + ((cur - lo + Math.floor(tic / 8)) % (hi - lo + 1))); } }
+  return name;
+}
+/* ---------- sprites ---------- */
+function spriteLump(name) { for (const p of RES.packs) { if (p.imgSpr.has(name)) return { img: p.imgSpr.get(name) }; const b = p.sprites.get(name); if (b) return { bytes: b }; } return null; }
+function spriteNames(prefix) { const out = new Set(); for (const p of RES.packs) { for (const n of p.sprites.keys()) if (n.startsWith(prefix)) out.add(n); for (const n of p.imgSpr.keys()) if (n.startsWith(prefix)) out.add(n); } return out; }
+// returns {img, flip} for prefix+frame at rotation 1..8 (0 = any), or null when no pack has it
+function getSpriteFrame(prefix, frame, rot) {
+  const key = prefix + frame + rot; if (SPRC.has(key)) return SPRC.get(key);
+  let res = null;
+  if (RES.packs.length && resPal()) {
+    const names = spriteNames(prefix + frame); const all = spriteNames(prefix);
+    const tryName = (n, flip) => { const s = spriteLump(n); if (!s) return null; const img = s.img || decodePicture(s.bytes); return img ? { img, flip } : null; };
+    res = tryName(prefix + frame + '0', false);
+    if (!res) res = tryName(prefix + frame + (rot || 1), false);
+    if (!res) for (const n of all) { if (n[6] === frame && n[7] === String(rot || 1)) { res = tryName(n, true); if (res) break; } }
+    if (!res) for (const n of names) { res = tryName(n, false); if (res) break; }
+  }
+  SPRC.set(key, res); return res;
+}
+const DSPR = {
+  3004: ['POSS', 'ABCD', 'EF', 'G', 'L'], 9: ['SPOS', 'ABCD', 'EF', 'G', 'L'], 65: ['CPOS', 'ABCD', 'EF', 'G', 'N'], 3001: ['TROO', 'ABCD', 'EFG', 'H', 'M'], 3002: ['SARG', 'ABCD', 'EFG', 'H', 'N'], 58: ['SARG', 'ABCD', 'EFG', 'H', 'N'],
+  3006: ['SKUL', 'AB', 'CD', 'E', ''], 3005: ['HEAD', 'A', 'BCD', 'E', 'L'], 69: ['BOS2', 'ABCD', 'EFG', 'H', 'O'], 3003: ['BOSS', 'ABCD', 'EFG', 'H', 'O'], 68: ['BSPI', 'ABCDEF', 'GH', 'I', 'P'], 7: ['SPID', 'ABCDEF', 'GH', 'I', 'S'], 16: ['CYBR', 'ABCD', 'EF', 'G', 'P'],
+  2001: ['SHOT', 'A'], 82: ['SGN2', 'A'], 2002: ['MGUN', 'A'], 2003: ['LAUN', 'A'], 2004: ['PLAS', 'A'], 2006: ['BFUG', 'A'], 2005: ['CSAW', 'A'], 2007: ['CLIP', 'A'], 2048: ['AMMO', 'A'], 2008: ['SHEL', 'A'], 2049: ['SBOX', 'A'], 2010: ['ROCK', 'A'], 2046: ['BROK', 'A'], 2047: ['CELL', 'A'], 17: ['CELP', 'A'], 8: ['BPAK', 'A'],
+  2011: ['STIM', 'A'], 2012: ['MEDI', 'A'], 2014: ['BON1', 'ABCDCB'], 2013: ['SOUL', 'ABCDCB'], 83: ['MEGA', 'ABCD'], 2015: ['BON2', 'ABCDCB'], 2018: ['ARM1', 'AB'], 2019: ['ARM2', 'AB'],
+  5: ['BKEY', 'AB'], 6: ['YKEY', 'AB'], 13: ['RKEY', 'AB'], 40: ['BSKU', 'AB'], 39: ['YSKU', 'AB'], 38: ['RSKU', 'AB'], 2035: ['BAR1', 'AB'], 2028: ['COLU', 'A'], 48: ['ELEC', 'A'], 30: ['COL1', 'A'], 46: ['TRED', 'ABCD'], 44: ['TBLU', 'ABCD'], 34: ['CAND', 'A'], 35: ['CBRA', 'A'], 10: ['PLAY', 'W']
+};
+const PSPR = { fire: ['BAL1', 'AB'], caco: ['BAL2', 'AB'], baron: ['BAL7', 'AB'], plasmam: ['APLS', 'AB'], rocketm: ['MISL', 'A'], rocket: ['MISL', 'A'], plasma: ['PLSS', 'AB'], bfg: ['BFS1', 'AB'] };
+const FXSPR = { explode: ['MISL', 'BCD'], puff: ['PUFF', 'ABCD'], blood: ['BLUD', 'CBA'] };
+const WSPR = { 1: ['SAWG', 'CD', 'AB', '', ''], 2: ['PISG', 'A', 'BC', 'PISF', 'A'], 3: ['SHTG', 'A', 'BCD', 'SHTF', 'AB'], 4: ['SHT2', 'A', 'BCDE', 'SHT2', 'I'], 5: ['CHGG', 'A', 'AB', 'CHGF', 'AB'], 6: ['MISG', 'A', 'B', 'MISF', 'ABCD'], 7: ['PLSG', 'A', 'A', 'PLSF', 'AB'], 8: ['BFGG', 'A', 'B', 'BFGF', 'AB'] };
+function spriteRot(thingAng, tx, ty, cx, cy) { let r = Math.atan2(ty - cy, tx - cx) - thingAng + Math.PI + Math.PI / 8; r = ((r % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI); return 1 + (Math.floor(r / (Math.PI / 4)) % 8); }
+function spriteCanvas(img) { if (img.canvas) return img.canvas; const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; const id = new ImageData(img.w, img.h); new Uint32Array(id.data.buffer).set(img.px); c.getContext('2d').putImageData(id, 0, 0); img.canvas = c; return c; }
+/* ---------- sounds (Doom DMX format) ---------- */
+const SNDC = new Map();
+const SND_MAP = { pistol: 'DSPISTOL', shotgun: 'DSSHOTGN', chain: 'DSPISTOL', rocket: 'DSRLAUNC', plasma: 'DSPLASMA', explode: 'DSBAREXP', door: 'DSDOROPN', switch: 'DSSWTCHN', pickup: 'DSITEMUP', weapon: 'DSWPNUP', oof: 'DSNOWAY', pain: 'DSPLPAIN', die: 'DSPODTH1', fire: 'DSFIRSHT', tele: 'DSTELEPT', secret: 'DSGETPOW' };
+function resSound(kind) {
+  const lump = SND_MAP[kind]; if (!lump) return null; if (SNDC.has(lump)) return SNDC.get(lump);
+  let buf = null; const ac = AC;
+  for (const p of RES.packs) { const b = p.sounds.get(lump); if (b && ac && b.length > 24) { const dv = new DataView(b.buffer, b.byteOffset, b.byteLength), rate = dv.getUint16(2, true), n = Math.min(dv.getUint32(4, true), b.length - 8); if (rate < 4000 || n < 32) break; const ab = ac.createBuffer(1, n - 32, rate), d = ab.getChannelData(0); for (let i = 0; i < n - 32; i++) d[i] = (b[8 + 16 + i] - 128) / 128; buf = ab; break; } }
+  SNDC.set(lump, buf); return buf;
+}
+/* ---------- pack management ---------- */
+function setPack(kind, pack) { RES.packs = RES.packs.filter(p => p.kind !== kind); if (pack) { const order = { map: 0, iwad: 1, freedoom: 2 }; RES.packs.push(pack); RES.packs.sort((a, b) => order[a.kind] - order[b.kind]); } resChanged(); }
+const FREEDOOM_URL = 'res/freedoom-res.wad.gz';
+async function loadFreedoom(silent) {
+  if (RES.packs.some(p => p.kind === 'freedoom')) return true;
+  if (RES.loading) return RES.loading;
+  RES.loading = (async () => {
+    try {
+      if (!silent) toast('Loading Freedoom art (about 7 MB, only the first time)…', 6000);
+      let resp = null, cache = null;
+      try { cache = await caches.open('eod-res-v1'); resp = await cache.match(FREEDOOM_URL); } catch (e) { cache = null; }
+      if (!resp) { resp = await fetch(FREEDOOM_URL); if (!resp.ok) throw new Error('HTTP ' + resp.status); if (cache) { try { await cache.put(FREEDOOM_URL, resp.clone()); } catch (e) { } } }
+      const ds = new DecompressionStream('gzip'), buf = await new Response(resp.body.pipeThrough(ds)).arrayBuffer();
+      setPack('freedoom', packFromWad(parseWad(buf), 'Freedoom', 'freedoom'));
+      if (!silent) toast('Freedoom art loaded');
+      return true;
+    } catch (e) { logCrash('freedoom load: ' + (e.stack || e)); if (!silent) toast('Could not load the Freedoom art pack. Using EOD in-house art.', 5000); return false; }
+    finally { RES.loading = null; }
+  })();
+  return RES.loading;
+}
+function applyArtSetting() { if ((S.artPack || 'freedoom') === 'freedoom') loadFreedoom(true); else setPack('freedoom', null); }
+/* ---------- ZIP / PK3 reader (browser built-in inflate) ---------- */
+async function readZip(buf) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf); let e = -1;
+  for (let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('Not a readable zip');
+  const n = dv.getUint16(e + 10, true); let o = dv.getUint32(e + 16, true); const out = [];
+  for (let i = 0; i < n; i++) {
+    if (dv.getUint32(o, true) !== 0x02014b50) break;
+    const method = dv.getUint16(o + 10, true), csize = dv.getUint32(o + 20, true), nl = dv.getUint16(o + 28, true), xl = dv.getUint16(o + 30, true), cl = dv.getUint16(o + 32, true), lo = dv.getUint32(o + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(o + 46, o + 46 + nl)); o += 46 + nl + xl + cl;
+    if (name.endsWith('/')) continue;
+    out.push({ name, get: async () => { const ln = dv.getUint16(lo + 26, true), lx = dv.getUint16(lo + 28, true), st = lo + 30 + ln + lx, data = u8.slice(st, st + csize); if (method === 0) return data.buffer; if (method !== 8) throw new Error('Unsupported zip compression in ' + name); return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer(); } });
+  }
+  return out;
+}
+async function imageToTex(buf) { const bmp = await createImageBitmap(new Blob([buf])); const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height; const g = c.getContext('2d'); g.drawImage(bmp, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data, px = new Uint32Array(c.width * c.height); for (let i = 0; i < px.length; i++) px[i] = d[i * 4 + 3] > 100 ? rgb(d[i * 4], d[i * 4 + 1], d[i * 4 + 2]) : 0; const t = texObj(c.width, c.height, px); t.ox = c.width >> 1; t.oy = c.height; return t; }
 
 /* ================= 2D EDITOR (UDB-style classic modes) ================= */
 const E = {
@@ -1638,9 +1872,10 @@ function bindProps(body, ss, ls, ts, vs) {
 /* ---- browsers ---- */
 function openTexBrowser(flat, current, cb) {
   const used = new Set(flat ? FLAT_TEX : WALL_TEX);
+  RES.packs.forEach(p => { (flat ? [p.flats, p.imgFlat] : [p.tex, p.imgTex]).forEach(m => { for (const n of m.keys()) used.add(n); }); });
   if (flat) M.sec.forEach(s => { used.add(s.ft); used.add(s.ct); }); else M.sd.forEach(d => [d.up, d.mid, d.lo].forEach(n => n !== '-' && used.add(n)));
   const names = [...used].filter(Boolean).sort();
-  const b = modal(flat ? 'Flats (floors & ceilings)' : 'Wall textures', `<input id="txq" placeholder="Search…" style="width:100%;margin-bottom:8px" autocapitalize="characters"><div class="grid" id="txg"></div><p class="hint">EOD draws its own stand-in art for each Doom texture name. GZDoom shows the real textures from your IWAD (Doom, Doom II or Freedoom).</p>`, [{ label: 'Use typed name', fn: bd => { const v = bd.querySelector('#txq').value.trim().toUpperCase(); if (v) cb(v.slice(0, 8)); } }, { cancel: 1 }]);
+  const b = modal(flat ? 'Flats (floors & ceilings)' : 'Wall textures', `<input id="txq" placeholder="Search…" style="width:100%;margin-bottom:8px" autocapitalize="characters"><div class="grid" id="txg"></div><p class="hint">Art comes from the loaded packs (the map's own art, your IWAD if you opened it, Freedoom) and EOD's in-house stand-ins for anything missing.</p>`, [{ label: 'Use typed name', fn: bd => { const v = bd.querySelector('#txq').value.trim().toUpperCase(); if (v) cb(v.slice(0, 8)); } }, { cancel: 1 }]);
   const grid = b.querySelector('#txg');
   const render = q => {
     grid.innerHTML = '';
@@ -1703,7 +1938,7 @@ function openFileMenu() {
   <button id="fLib">Open from the EOD library</button>
   <button id="fNew">New blank map</button>
   <button id="fSample">Load the test map (Hangar of Shit)</button>
-  <button id="fOpen">Open… (.wad, or EOD project .json)</button>
+  <button id="fOpen">Open any map… (.wad, .zip from /idgames, .pk3, or EOD project)</button>
   <button id="fSave">Save project (.json)</button>
   <button id="fWad">Export Doom WAD (for GZDoom / Delta Touch)</button>
   <button id="fPlay">Export playable game (.html, runs on any phone or PC)</button>
@@ -1735,6 +1970,8 @@ function openSettings() {
   <div class="f"><label>Ellipse sides</label><input id="stES" type="number" min="3" max="64" value="${S.ellipseSides}"></div>
   <div class="h">Demo / game</div>
   <div class="f"><label>Screen layout</label><select id="stL">${[['auto', 'Auto (detect)'], ['portrait', 'Portrait 9:16'], ['landscape', 'Landscape 16:9'], ['fold', 'Z Fold unfolded']].map(([k, n]) => `<option value="${k}" ${S.layout === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+  <div class="f"><label>Art pack</label><select id="stArt"><option value="freedoom" ${(S.artPack || 'freedoom') === 'freedoom' ? 'selected' : ''}>Freedoom (looks like Doom · free · ~7 MB once)</option><option value="inhouse" ${S.artPack === 'inhouse' ? 'selected' : ''}>EOD in-house (lightest, no download)</option></select></div>
+  <p class="hint">Maps that bring their own art always use it. Freedoom is free art made by the Freedoom project (BSD license); see Credits in the manual.</p>
   <div class="f"><label>Picture detail</label><select id="stR">${[[200, 'Chunky (fastest)'], [320, 'Classic 320'], [480, 'Sharp 480']].map(([k, n]) => `<option value="${k}" ${S.res == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Skill</label><select id="stSk">${[[1, "I'm too young to die"], [2, 'Hurt me plenty'], [3, 'Ultra-violence']].map(([k, n]) => `<option value="${k}" ${S.skill == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Turn speed <b id="snV">${S.sens}</b></label><input id="stSn" type="range" min="0.3" max="3" step="0.1" value="${S.sens}"></div>
@@ -1749,6 +1986,7 @@ function openSettings() {
     const ch = (id, fn) => { const e = b.querySelector(id); e.oninput = e.onchange = () => { fn(e); saveSettings(); }; };
     ch('#stF', e => S.font = e.value); ch('#stFs', e => { S.fs = +e.value; b.querySelector('#fsV').textContent = S.fs; }); ch('#stInv', e => S.inverted = e.checked);
     ch('#stDW', e => S.defWall = e.value.toUpperCase().slice(0, 8)); ch('#stDF', e => S.defFloor = e.value.toUpperCase().slice(0, 8)); ch('#stDC', e => S.defCeil = e.value.toUpperCase().slice(0, 8)); ch('#stES', e => S.ellipseSides = clamp(+e.value || 16, 3, 64));
+    ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
     b.querySelector('#stArr').onclick = () => { closeModal(); startDemo({ arrange: true }); };
@@ -1782,22 +2020,47 @@ function buildScene(secs) {
     const side = s => { if (s < 0) return null; const d = M.sd[s]; return { sec: d.sec, si: s, xo: d.xo, yo: d.yo, up: d.up, mid: d.mid, lo: d.lo, upT: d.up !== '-' ? getTex(d.up) : null, midT: d.mid !== '-' ? getTex(d.mid) : null, loT: d.lo !== '-' ? getTex(d.lo) : null }; };
     lines.push({ idx, ax: a.x, ay: a.y, bx: b.x, by: b.y, ex: b.x - a.x, ey: b.y - a.y, len: Math.hypot(b.x - a.x, b.y - a.y), s1: side(L.s1), s2: side(L.s2), f: L.f, sp: L.sp, tag: L.tag });
   });
-  const flats = secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(s.ft, true), c: s.ct === 'F_SKY1' ? null : getTex(s.ct, true) }));
-  return { lines, secs, flats };
+  return { lines, secs };
 }
 function refreshSideTex(sc, li) { const l = sc.lines.find(x => x.idx === li); if (!l) return; for (const s of [l.s1, l.s2]) { if (!s) continue; const d = M.sd[s.si]; Object.assign(s, { up: d.up, mid: d.mid, lo: d.lo, upT: d.up !== '-' ? getTex(d.up) : null, midT: d.mid !== '-' ? getTex(d.mid) : null, loT: d.lo !== '-' ? getTex(d.lo) : null }); } }
-const HT = new Float32Array(8192), HU = new Float32Array(8192), HI = new Int32Array(8192), HD = new Float32Array(8192), ORD = new Int32Array(8192);
+let HT = new Float32Array(8192), HU = new Float32Array(8192), HI = new Int32Array(8192), HD = new Float32Array(8192), ORD = new Int32Array(8192);
+let BX0 = new Int32Array(0), BX1 = new Int32Array(0), BCNT = new Int32Array(0), BOFF = new Int32Array(0), BLIST = new Int32Array(0);
 function shadeLvl(light, d) { const f = (light / 255) * 1.35 - d / 2200; return f <= 0.06 ? 0 : f >= 1 ? 15 : (f * 15) | 0; }
+// per frame: which lines can be hit in which screen columns (keeps big community maps fast)
+function bucketLines(cam, L, W, proj) {
+  const n = L.length, ca = Math.cos(cam.a), sa = Math.sin(cam.a), NEAR = 0.05, half = W / 2;
+  if (BX0.length < n) { BX0 = new Int32Array(n); BX1 = new Int32Array(n); }
+  if (BCNT.length < W + 1) { BCNT = new Int32Array(W + 1); BOFF = new Int32Array(W + 1); }
+  BCNT.fill(0); let total = 0;
+  for (let i = 0; i < n; i++) {
+    const l = L[i]; let ax = l.ax - cam.x, ay = l.ay - cam.y, bx = l.bx - cam.x, by = l.by - cam.y;
+    let da = ax * ca + ay * sa, db = bx * ca + by * sa, sa_ = ax * sa - ay * ca, sb_ = bx * sa - by * ca;
+    if (da < NEAR && db < NEAR) { BX0[i] = 1; BX1[i] = 0; continue; }
+    if (da < NEAR) { const t = (NEAR - da) / (db - da); sa_ += (sb_ - sa_) * t; da = NEAR; }
+    else if (db < NEAR) { const t = (NEAR - db) / (da - db); sb_ += (sa_ - sb_) * t; db = NEAR; }
+    const xa = half + sa_ / da * proj, xb = half + sb_ / db * proj;
+    let lo = Math.floor(Math.min(xa, xb)) - 1, hi = Math.ceil(Math.max(xa, xb)) + 1;
+    if (lo < 0) lo = 0; if (hi > W - 1) hi = W - 1; if (lo > hi) { BX0[i] = 1; BX1[i] = 0; continue; }
+    BX0[i] = lo; BX1[i] = hi; for (let x = lo; x <= hi; x++) BCNT[x]++; total += hi - lo + 1;
+  }
+  if (BLIST.length < total) BLIST = new Int32Array(Math.ceil(total * 1.3) + 64);
+  let acc = 0; for (let x = 0; x < W; x++) { BOFF[x] = acc; acc += BCNT[x]; } BOFF[W] = acc;
+  const fill = BCNT; fill.fill(0);
+  for (let i = 0; i < n; i++) { const lo = BX0[i], hi = BX1[i]; for (let x = lo; x <= hi; x++) BLIST[BOFF[x] + fill[x]++] = i; }
+}
 function render3D(cam, sc, sprites) {
   const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   const hz = H / 2 + (cam.pitch || 0), proj = Math.max(W * 0.5, H * 0.42), plane = (W / 2) / proj;
-  const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, n = Math.min(L.length, 8192), secs = sc.secs;
-  const sky = getSky(), cz = cam.z, px = cam.x, py = cam.y;
+  const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, secs = sc.secs;
+  const sky = getSky(), cz = cam.z, px = cam.x, py = cam.y, tic = (performance.now() / 28.57) | 0;
+  const flats = secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(animFlat(s.ft, tic), true), c: s.ct === 'F_SKY1' ? null : getTex(animFlat(s.ct, tic), true) }));
+  bucketLines(cam, L, W, proj);
   for (let x = 0; x < W; x++) {
     const cx = (2 * (x + 0.5) / W - 1) * plane, rdx = ca + sa * cx, rdy = sa - ca * cx;
-    let nh = 0;
-    for (let i = 0; i < n; i++) {
-      const l = L[i], ex = l.ex, ey = l.ey, den = rdx * ey - rdy * ex;
+    let nh = 0; const b0 = BOFF[x], b1 = BOFF[x + 1];
+    if (b1 - b0 > HT.length) { const m = (b1 - b0) * 2; HT = new Float32Array(m); HU = new Float32Array(m); HI = new Int32Array(m); HD = new Float32Array(m); ORD = new Int32Array(m); }
+    for (let q = b0; q < b1; q++) {
+      const i = BLIST[q], l = L[i], ex = l.ex, ey = l.ey, den = rdx * ey - rdy * ex;
       if (den > -1e-9 && den < 1e-9) continue;
       const wx = l.ax - px, wy = l.ay - py, t = (wx * ey - wy * ex) / den;
       if (t <= 0.05) continue;
@@ -1806,7 +2069,7 @@ function render3D(cam, sc, sprites) {
     }
     for (let i = 1; i < nh; i++) { const k = ORD[i], tk = HT[k]; let j = i - 1; while (j >= 0 && HT[ORD[j]] > tk) { ORD[j + 1] = ORD[j]; j--; } ORD[j + 1] = k; }
     let top = 0, bot = H - 1, cur = cam.sec, solid = false;
-    const skyCol = ((Math.atan2(rdy, rdx) * -163) | 0) & 255;
+    const skyCol = (Math.atan2(rdy, rdx) * -163) | 0;
     for (let h = 0; h < nh && top <= bot; h++) {
       const k = ORD[h], l = L[HI[k]], t = HT[k], u = HU[k], front = HD[k] < 0;
       const near = front ? l.s1 : l.s2, far = front ? l.s2 : l.s1;
@@ -1814,9 +2077,8 @@ function render3D(cam, sc, sprites) {
       const S0 = secs[ns], pr = proj / t, li = S0.li;
       const yc = hz - (S0.ch - cz) * pr, yf = hz - (S0.fh - cz) * pr;
       const y0 = Math.max(top, Math.ceil(yc)), y1 = Math.min(bot, Math.ceil(yf) - 1);
-      // ceiling + floor of the near sector up to this line
-      plane3(x, top, Math.min(bot, Math.ceil(yc) - 1), S0.ch, sc.flats[ns].c, li, rdx, rdy, cam, hz, proj, true, ns, sky, skyCol);
-      plane3(x, Math.max(top, Math.ceil(yf)), bot, S0.fh, sc.flats[ns].f, li, rdx, rdy, cam, hz, proj, false, ns, sky, skyCol);
+      plane3(x, top, Math.min(bot, Math.ceil(yc) - 1), S0.ch, flats[ns].c, li, rdx, rdy, cam, hz, proj, true, ns, sky, skyCol);
+      plane3(x, Math.max(top, Math.ceil(yf)), bot, S0.fh, flats[ns].f, li, rdx, rdy, cam, hz, proj, false, ns, sky, skyCol);
       const side = near || l.s1; const tu = u * l.len + (side ? side.xo : 0);
       const lvl = shadeLvl(li, t);
       if (!far) {
@@ -1848,8 +2110,8 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
   if (ya > yb) return;
   const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
-    const sp = sky.shade(15), sh = R.H;
-    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.6) * 128 / sh) | 0, 0, 127); buf[o] = sp[v * 256 + skyCol]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
+    const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
+    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.6) * sth / sh) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
     return;
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
@@ -1866,10 +2128,10 @@ function wall3(x, ya, yb, tex, tu, ref, cz, hz, t, proj, lvl, kind, idx) {
   if (ya > yb) return;
   const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { for (let y = ya; y <= yb; y++) { const o = y * W + x; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
-  const sp = tex.shade(lvl), tw = tex.w, th = tex.h, col = Math.floor(tu) & (tw - 1);
+  const sp = tex.shade(lvl), tw = tex.w, th = tex.h, col = ((Math.floor(tu) % tw) + tw) % tw;
   const step = t / proj; let z = cz - (ya + 0.5 - hz) * step;
   for (let y = ya; y <= yb; y++, z -= step) {
-    const v = Math.floor(ref - z) & (th - 1); const o = y * W + x;
+    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = y * W + x;
     buf[o] = sp[v * tw + col]; dep[o] = t; pk[o] = kind; pi[o] = idx;
   }
 }
@@ -1882,8 +2144,10 @@ function drawSprites(cam, list, hz, proj) {
   const tic = (performance.now() / 50) | 0;
   for (const [d, side, s] of vis) {
     const img = s.img; if (!img) continue;
-    const sc = proj / d, sw = img.w * sc, sh = img.h * sc, sx = W / 2 + side * sc, x0 = sx - sw / 2;
-    const yt = hz - (s.z + img.h - cam.z) * sc;
+    const sc = proj / d * (s.scale || 1), sw = img.w * sc, sh = img.h * sc, sx = W / 2 + side * (proj / d);
+    const ox = img.ox != null ? img.ox : img.w / 2, oy = img.oy != null ? img.oy : img.h;
+    const x0 = s.flip ? sx - (img.w - ox) * sc : sx - ox * sc;
+    const yt = hz - (s.z - cam.z) * (proj / d) - oy * sc;
     const xa = Math.max(0, Math.ceil(x0)), xb = Math.min(W - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
     if (xa > xb || ya > yb) continue;
     const sp = img.shade(s.bright ? 15 : shadeLvl(s.light || 160, d)), iw = img.w, ih = img.h;
@@ -1936,7 +2200,7 @@ function initGame(mode, start) {
   audio();
   const secs = M.sec.map(s => Object.assign({}, s, { base: s.li, mover: null }));
   const sc = buildScene(secs);
-  G = { mode, sc, secs, tic: 0, ents: [], projs: [], fx: [], msgs: [], kills: 0, totK: 0, items: 0, totI: 0, secrets: 0, totS: 0, over: null, automap: false, flash: 0, bonus: 0, lineUsed: new Set(), acc: 0, last: performance.now(), t0: performance.now(), nbr: secs.map((_, i) => neighbors(i)), sideOrig: new Map() };
+  G = { grid: buildGrid(sc.lines), mode, sc, secs, tic: 0, ents: [], projs: [], fx: [], msgs: [], kills: 0, totK: 0, items: 0, totI: 0, secrets: 0, totS: 0, over: null, automap: false, flash: 0, bonus: 0, lineUsed: new Set(), acc: 0, last: performance.now(), t0: performance.now(), nbr: secs.map((_, i) => neighbors(i)), sideOrig: new Map() };
   secs.forEach(s => { if (s.sp === 9) G.totS++; });
   const skillBit = S.skill === 1 ? 1 : S.skill === 3 ? 4 : 2;
   let id = 0;
@@ -1959,23 +2223,50 @@ function initGame(mode, start) {
 function msg(t) { if (!G) return; G.msgs.push({ t, until: G.tic + 105 }); if (G.msgs.length > 4) G.msgs.shift(); }
 
 /* ---------- world queries ---------- */
-function secOf(x, y) { return sectorAt(x, y); }
+function secOf(x, y) { return gSectorAt(x, y); }
+/* spatial grid over the scene lines (keeps collision, sight and sector lookups fast on huge maps) */
+const GCS = 128;
+function buildGrid(L) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const l of L) { x0 = Math.min(x0, l.ax, l.bx); y0 = Math.min(y0, l.ay, l.by); x1 = Math.max(x1, l.ax, l.bx); y1 = Math.max(y1, l.ay, l.by); }
+  if (!L.length) { x0 = y0 = 0; x1 = y1 = 1; }
+  const gw = Math.max(1, Math.ceil((x1 - x0 + 1) / GCS)), gh = Math.max(1, Math.ceil((y1 - y0 + 1) / GCS)), cells = new Array(gw * gh);
+  L.forEach((l, i) => { const cx0 = Math.floor((Math.min(l.ax, l.bx) - x0) / GCS), cx1 = Math.floor((Math.max(l.ax, l.bx) - x0) / GCS), cy0 = Math.floor((Math.min(l.ay, l.by) - y0) / GCS), cy1 = Math.floor((Math.max(l.ay, l.by) - y0) / GCS); for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) (cells[cy * gw + cx] || (cells[cy * gw + cx] = [])).push(i); });
+  return { x0, y0, gw, gh, cells, stamp: new Int32Array(L.length), s: 0 };
+}
+function gridEach(ax, ay, bx, by, fn) {
+  const g = G.grid, L = G.sc.lines; g.s++;
+  const cx0 = clamp(Math.floor((Math.min(ax, bx) - g.x0) / GCS), 0, g.gw - 1), cx1 = clamp(Math.floor((Math.max(ax, bx) - g.x0) / GCS), 0, g.gw - 1);
+  const cy0 = clamp(Math.floor((Math.min(ay, by) - g.y0) / GCS), 0, g.gh - 1), cy1 = clamp(Math.floor((Math.max(ay, by) - g.y0) / GCS), 0, g.gh - 1);
+  for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) { const c = g.cells[cy * g.gw + cx]; if (!c) continue; for (const i of c) { if (g.stamp[i] === g.s) continue; g.stamp[i] = g.s; if (fn(L[i], i) === false) return; } }
+}
+function gSectorAt(x, y) {
+  const g = G.grid, L = G.sc.lines, cy = Math.floor((y - g.y0) / GCS); if (cy < 0 || cy >= g.gh) return -1;
+  let cx = Math.max(0, Math.floor((x - g.x0) / GCS)), best = Infinity, res = -1;
+  for (; cx < g.gw; cx++) {
+    const c = g.cells[cy * g.gw + cx];
+    if (c) for (const i of c) { const l = L[i]; if ((l.ay > y) === (l.by > y)) continue; const ix = l.ax + (y - l.ay) * (l.bx - l.ax) / (l.by - l.ay); if (ix < x) continue; const d = ix - x; if (d < best) { best = d; res = (l.ex * (y - l.ay) - l.ey * (x - l.ax)) < 0 ? (l.s1 ? l.s1.sec : -1) : (l.s2 ? l.s2.sec : -1); } }
+    if (x + best <= g.x0 + (cx + 1) * GCS) break;
+  }
+  return res;
+}
 function opening(l) { const f = G.secs[l.s1.sec], b = G.secs[l.s2.sec]; return { top: Math.min(f.ch, b.ch), bot: Math.max(f.fh, b.fh), lo: Math.min(f.fh, b.fh) }; }
 function blockedBy(ent, nx, ny, isPlayer) {
-  const r = ent.r, L = G.sc.lines;
-  for (let i = 0; i < L.length; i++) {
-    const l = L[i];
-    if (nx + r < Math.min(l.ax, l.bx) || nx - r > Math.max(l.ax, l.bx) || ny + r < Math.min(l.ay, l.by) || ny - r > Math.max(l.ay, l.by)) continue;
-    const d = distSeg(nx, ny, l.ax, l.ay, l.bx, l.by); if (d >= r) continue;
-    const d0 = distSeg(ent.x, ent.y, l.ax, l.ay, l.bx, l.by); if (d0 < r && d >= d0 - 0.01) continue;
-    if (!l.s2) return l;
-    if (l.f & 1) return l; if (!isPlayer && (l.f & 2)) return l;
+  const r = ent.r; let hit = null;
+  gridEach(nx - r, ny - r, nx + r, ny + r, l => {
+    if (nx + r < Math.min(l.ax, l.bx) || nx - r > Math.max(l.ax, l.bx) || ny + r < Math.min(l.ay, l.by) || ny - r > Math.max(l.ay, l.by)) return;
+    const d = distSeg(nx, ny, l.ax, l.ay, l.bx, l.by); if (d >= r) return;
+    const d0 = distSeg(ent.x, ent.y, l.ax, l.ay, l.bx, l.by); if (d0 < r && d >= d0 - 0.01) return;
+    const B = () => { hit = l; return false; };
+    if (!l.s2) return B();
+    if (l.f & 1) return B(); if (!isPlayer && (l.f & 2)) return B();
     const o = opening(l);
-    if (o.top - o.bot < ent.h) return l;
-    if (o.bot - ent.z > 24 && !(ent.d && ent.d.float)) return l;
-    if (o.top - (ent.d && ent.d.float ? ent.z : ent.z) < ent.h && !(ent.d && ent.d.float)) return l;
-    if (!isPlayer && !(ent.d && ent.d.float) && ent.z - o.lo > 24) return l;
-  }
+    if (o.top - o.bot < ent.h) return B();
+    if (o.bot - ent.z > 24 && !(ent.d && ent.d.float)) return B();
+    if (o.top - ent.z < ent.h && !(ent.d && ent.d.float)) return B();
+    if (!isPlayer && !(ent.d && ent.d.float) && ent.z - o.lo > 24) return B();
+  });
+  if (hit) return hit;
   for (const e of G.ents) {
     if (e === ent || !e.alive || !(e.d.cat === 'monster' || e.d.solid)) continue;
     const d = Math.hypot(e.x - nx, e.y - ny), d0 = Math.hypot(e.x - ent.x, e.y - ent.y);
@@ -1997,22 +2288,23 @@ function tryMove(ent, dx, dy, isPlayer) {
 }
 function lineCross(ax, ay, bx, by, l) { const r = segInter(ax, ay, bx, by, l.ax, l.ay, l.bx, l.by); return r && r.t >= 0 && r.t <= 1 && r.u >= 0 && r.u <= 1 ? r : null; }
 function sight(ax, ay, az, bx, by, bz) {
-  for (const l of G.sc.lines) {
-    const r = lineCross(ax, ay, bx, by, l); if (!r) continue;
-    if (!l.s2) return false;
+  let ok = true;
+  gridEach(ax, ay, bx, by, l => {
+    const r = lineCross(ax, ay, bx, by, l); if (!r) return;
+    if (!l.s2) { ok = false; return false; }
     const o = opening(l); const z = az + (bz - az) * r.t;
-    if (z <= o.bot || z >= o.top) return false;
-  }
-  return true;
+    if (z <= o.bot || z >= o.top) { ok = false; return false; }
+  });
+  return ok;
 }
 function wallDistAlong(x, y, z, a, max) {
   const ex = x + Math.cos(a) * max, ey = y + Math.sin(a) * max; let best = max, hit = null;
-  for (const l of G.sc.lines) {
-    const r = lineCross(x, y, ex, ey, l); if (!r) continue; const d = r.t * max;
-    if (d >= best) continue;
-    if (!l.s2) { best = d; hit = l; continue; }
+  gridEach(x, y, ex, ey, l => {
+    const r = lineCross(x, y, ex, ey, l); if (!r) return; const d = r.t * max;
+    if (d >= best) return;
+    if (!l.s2) { best = d; hit = l; return; }
     const o = opening(l); if (z <= o.bot || z >= o.top) { best = d; hit = l; }
-  }
+  });
   return { d: best, l: hit };
 }
 
@@ -2099,7 +2391,7 @@ function activate(l, how, fromFront) {
 function playerUse() {
   const p = G.p, ex = p.x + Math.cos(p.a) * 72, ey = p.y + Math.sin(p.a) * 72;
   const hits = [];
-  for (const l of G.sc.lines) { const r = lineCross(p.x, p.y, ex, ey, l); if (r) hits.push([r.t, l]); }
+  gridEach(p.x, p.y, ex, ey, l => { const r = lineCross(p.x, p.y, ex, ey, l); if (r) hits.push([r.t, l]); });
   hits.sort((a, b) => a[0] - b[0]);
   for (const [, l] of hits) {
     const front = lineSide2(l, p.x, p.y) < 0;
@@ -2114,7 +2406,7 @@ function lineSide2(l, x, y) { return l.ex * (y - l.ay) - l.ey * (x - l.ax); }
 function damageMonster(e, dmg, src) {
   if (!e.alive) return;
   e.hp -= dmg;
-  G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10 });
+  G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10, t0: 10, k: 'blood' });
   if (e.hp <= 0) {
     e.alive = false; e.state = 'dead';
     if (e.d.barrel) { explode(e.x, e.y, e.z + 20, 128, 128, src); return; }
@@ -2131,7 +2423,7 @@ function damagePlayer(dmg) {
   if (p.hp <= 0) { p.hp = 0; p.dead = true; G.over = { k: 'dead' }; showOver(); }
 }
 function explode(x, y, z, radius, maxd, src) {
-  G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, bright: 1 }); sfx('explode');
+  G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, t0: 14, k: 'explode', bright: 1 }); sfx('explode');
   for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; const d = Math.hypot(e.x - x, e.y - y) - e.r; if (d < radius && sight(x, y, z, e.x, e.y, e.z + e.h / 2)) damageMonster(e, Math.max(1, Math.round(maxd * (1 - Math.max(0, d) / radius))), src); }
   if (G.p) { const d = Math.hypot(G.p.x - x, G.p.y - y) - G.p.r; if (d < radius && sight(x, y, z, G.p.x, G.p.y, G.p.z + 32)) damagePlayer(Math.round(maxd * (1 - Math.max(0, d) / radius) * (src === 'player' ? 0.5 : 1))); }
 }
@@ -2143,7 +2435,7 @@ function hitscan(a, dmg) {
     if (Math.abs(dx * s - dy * c) < e.r && sight(p.x, p.y, z, e.x, e.y, e.z + e.h * 0.5)) { best = e; bd = al; }
   }
   if (best) { damageMonster(best, dmg, 'player'); return true; }
-  G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 6, bright: 1 });
+  G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
   return false;
 }
 function autoAim(a) {
@@ -2175,8 +2467,8 @@ function tickProjs() {
     for (let s = 0; s < steps && !pr.dead; s++) {
       const nx = pr.x + pr.vx / steps, ny = pr.y + pr.vy / steps, nz = pr.z + pr.vz / steps;
       let hitWall = false;
-      for (const l of G.sc.lines) { const r = lineCross(pr.x, pr.y, nx, ny, l); if (!r) continue; if (!l.s2) { hitWall = true; break; } const o = opening(l); if (nz <= o.bot || nz >= o.top) { hitWall = true; break; } }
-      const si = sectorAt(nx, ny); if (si < 0 || nz < G.secs[si].fh || nz > G.secs[si].ch) hitWall = true;
+      gridEach(pr.x, pr.y, nx, ny, l => { const r = lineCross(pr.x, pr.y, nx, ny, l); if (!r) return; if (!l.s2) { hitWall = true; return false; } const o = opening(l); if (nz <= o.bot || nz >= o.top) { hitWall = true; return false; } });
+      const si = gSectorAt(nx, ny); if (si < 0 || nz < G.secs[si].fh || nz > G.secs[si].ch) hitWall = true;
       if (!hitWall) {
         if (pr.owner === 'player') { for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; if (Math.hypot(e.x - nx, e.y - ny) < e.r + 8 && nz > e.z - 8 && nz < e.z + e.h + 8) { damageMonster(e, rnd(...P.dmg), 'player'); hitWall = true; break; } } }
         else { const p = G.p; if (Math.hypot(p.x - nx, p.y - ny) < p.r + 8 && nz > p.z - 8 && nz < p.z + p.h + 8) { damagePlayer(rnd(...P.dmg)); hitWall = true; } }
@@ -2212,7 +2504,7 @@ function tickMonsters() {
       if (!tryMove(e, Math.cos(ang) * sp, Math.sin(ang) * sp, false)) { e.dir = e.a + (Math.random() < 0.5 ? 1 : -1) * (Math.PI / 2 + Math.random()); e.dirT = 12 + rnd(0, 20); }
     }
     if (e.d.float) { const tz = clamp(p.z + 16, G.secs[Math.max(0, e.sec)].fh, G.secs[Math.max(0, e.sec)].ch - e.h); e.z += clamp(tz - e.z, -2, 2); }
-    const s2 = sectorAt(e.x, e.y); if (s2 >= 0) e.sec = s2;
+    const s2 = gSectorAt(e.x, e.y); if (s2 >= 0) e.sec = s2;
   }
 }
 function monsterAttack(e, dist) {
@@ -2257,11 +2549,11 @@ function gameTic() {
   p.vx += (mx - p.vx) * 0.35; p.vy += (my - p.vy) * 0.35;
   const ox = p.x, oy = p.y;
   if (!p.dead && (Math.abs(p.vx) > 0.01 || Math.abs(p.vy) > 0.01)) tryMove(p, p.vx, p.vy, true);
-  const ns = sectorAt(p.x, p.y);
+  const ns = gSectorAt(p.x, p.y);
   if (ns < 0 && !p.noclip) { p.x = ox; p.y = oy; } else if (ns >= 0) p.sec = ns;
   const S0 = G.secs[p.sec];
   // walk triggers
-  if (G.mode === 'play' && (ox !== p.x || oy !== p.y)) for (const l of G.sc.lines) { if (!l.sp) continue; if (lineCross(ox, oy, p.x, p.y, l)) activate(l, 'walk', lineSide2(l, ox, oy) < 0); }
+  if (G.mode === 'play' && (ox !== p.x || oy !== p.y)) { const crossed = []; gridEach(ox, oy, p.x, p.y, l => { if (l.sp && lineCross(ox, oy, p.x, p.y, l)) crossed.push(l); }); crossed.forEach(l => activate(l, 'walk', lineSide2(l, ox, oy) < 0)); }
   // vertical
   if (G.mode === 'visual') { p.z = S0.fh + IN.up * 0; }
   if (p.z > S0.fh) { p.vz -= 1; p.z += p.vz; if (p.z <= S0.fh) { p.z = S0.fh; p.vz = 0; } } else { p.z = S0.fh; p.vz = 0; }
@@ -2349,14 +2641,40 @@ function showOver() {
 }
 
 /* ---------- drawing ---------- */
+const frameOf = (seq, t, sp) => seq[Math.floor(t / sp) % seq.length];
 function gameSprites() {
-  const out = [];
+  const out = [], cam = G.p, useRes = RES.packs.length > 0 && !!resPal();
+  const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
-    if (e.alive) { const img = e.d.spr ? SPR[e.d.spr] : null; if (!img) continue; out.push({ x: e.x, y: e.y, z: e.z, img, flip: e.flip, bright: e.d.bright || e.flash > 0, fuzz: e.d.fuzz, light: G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160, id: e.ti }); if (e.flash > 0) e.flash--; }
-    else if (e.d.cat === 'monster') out.push({ x: e.x, y: e.y, z: e.z, img: SPR.corpse, light: G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160, id: e.ti });
+    const ds = useRes ? DSPR[e.type] : null;
+    if (e.alive) {
+      let spr = null;
+      if (ds) {
+        if (e.d.cat === 'monster') {
+          let fr;
+          if (e.pain > 0 && ds[3]) fr = ds[3][0];
+          else if (e.atk > 0 || e.flash > 0) fr = e.flash > 0 ? ds[2][ds[2].length - 1] : ds[2][Math.min(ds[2].length - 1, Math.floor((10 - e.atk) / 4))];
+          else fr = e.state === 'idle' ? ds[1][0] : frameOf(ds[1], e.anim, 6);
+          const f = getSpriteFrame(ds[0], fr, spriteRot(e.a, e.x, e.y, cam.x, cam.y)); if (f) spr = f;
+        } else { const f = getSpriteFrame(ds[0], frameOf(ds[1], G.tic, 6), 0); if (f) spr = f; }
+      }
+      if (!spr) { const img = e.d.spr ? SPR[e.d.spr] : null; if (!img) continue; spr = { img, flip: e.flip }; }
+      out.push({ x: e.x, y: e.y, z: e.z, img: spr.img, flip: spr.flip, bright: e.d.bright || e.flash > 0, fuzz: e.d.fuzz, light: lightAt(e), id: e.ti }); if (e.flash > 0) e.flash--;
+    } else if (e.d.cat === 'monster') {
+      let img = SPR.corpse, flip = false;
+      if (ds) { if (!ds[4]) continue; const f = getSpriteFrame(ds[0], ds[4], 0); if (f) { img = f.img; flip = f.flip; } }
+      out.push({ x: e.x, y: e.y, z: e.z, img, flip, light: lightAt(e), id: e.ti });
+    }
   }
-  for (const p of G.projs) out.push({ x: p.x, y: p.y, z: p.z - p.img.h / 2, img: p.img, bright: 1 });
-  for (const f of G.fx) out.push({ x: f.x, y: f.y, z: f.z, img: f.img, bright: f.bright });
+  for (const p of G.projs) {
+    const ps = useRes ? PSPR[p.kind] : null, f = ps ? getSpriteFrame(ps[0], frameOf(ps[1], p.t, 4), 0) : null;
+    if (f) out.push({ x: p.x, y: p.y, z: p.z - 8, img: f.img, flip: f.flip, bright: 1 }); else out.push({ x: p.x, y: p.y, z: p.z - p.img.h / 2, img: p.img, bright: 1 });
+  }
+  for (const fx of G.fx) {
+    const fs = useRes ? FXSPR[fx.k] : null;
+    const f = fs ? getSpriteFrame(fs[0], fs[1][Math.min(fs[1].length - 1, Math.floor((fx.t0 - fx.t) / (fx.t0 / fs[1].length)))], 0) : null;
+    if (f) out.push({ x: fx.x, y: fx.y, z: fx.z, img: f.img, flip: f.flip, bright: 1 }); else out.push({ x: fx.x, y: fx.y, z: fx.z, img: fx.img, bright: fx.bright });
+  }
   return out;
 }
 function drawGame() {
@@ -2384,8 +2702,18 @@ function drawGame() {
   G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
   if (G.automap) drawAutomap(g, W, H);
 }
+function drawWeaponRes(g, W, H, u, bx, by) {
+  const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
+  const firing = p.fireT > 0, fr = firing ? ws[2][Math.min(ws[2].length - 1, Math.floor((6 - p.fireT) / 2))] : ws[1][Math.floor(G.tic / 4) % ws[1].length];
+  const main = getSpriteFrame(ws[0], fr, 0); if (!main) return false;
+  const s = Math.min(W / 320, (H - 20 * u) / 168), viewBottom = H - 20 * u;
+  const put = f => { if (!f) return; const img = f.img; g.drawImage(spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
+  put(main); if (firing && p.fireT > 2 && ws[3]) put(getSpriteFrame(ws[3], ws[4][Math.min(ws[4].length - 1, Math.floor((6 - p.fireT) / 2))], 0));
+  return true;
+}
 function drawWeapon(g, W, H, u) {
   const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4), by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  if (drawWeaponRes(g, W, H, u, bx, by)) return;
   const cx = W / 2 + bx, base = H - 34 * u + by + (p.fireT > 3 ? 4 * u : 0), w = p.w;
   if (p.fireT > 2 && w !== 1) { g.fillStyle = w >= 7 ? '#8cf' : '#ffd060'; g.beginPath(); g.arc(cx, base - 34 * u, 10 * u, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, base - 34 * u, 5 * u, 0, 7); g.fill(); }
   const col = { 1: '#a33', 2: '#666', 3: '#555', 4: '#444', 5: '#777', 6: '#5a6a4a', 7: '#4a5a7a', 8: '#3a6a3a' }[w];
@@ -2595,6 +2923,11 @@ function openManual() {
 <ul><li><b>Export Doom WAD:</b> a real Doom-format PWAD. Play it in <b>GZDoom</b> (PC) or <b>Delta Touch</b> (Android) with Doom II or the free <b>Freedoom</b> IWAD. GZDoom builds the nodes itself.</li>
 <li><b>Export playable game:</b> one .html file with your map baked in. It opens straight into the game on any phone or PC browser. It's your shareable "executable".</li>
 <li><b>Open:</b> loads Doom, Hexen and UDMF WADs (other people's maps), or a saved EOD project.</li></ul>
+<h3>Playing other people's maps</h3>
+<ul><li><b>File → Open any map</b> takes a .wad, a .zip straight from the /idgames archive, or a ZDoom .pk3. EOD reads its maps, its own textures, flats, sprites and sounds, and lets you pick ✎ Edit or ▶ Play for each map.</li>
+<li>Most maps borrow art from the original Doom files. EOD fills that in with <b>Freedoom</b> (free, same names) or, if you own Doom/Doom II, open your own doom2.wad once and its art is used on your device only. It is never uploaded.</li>
+<li>Classic (vanilla/limit-removing) maps play as made. Boom/ZDoom extras (scripts, slopes, 3D floors, DEHACKED monsters) are ignored for now.</li></ul>
+<h3>Credits</h3><p>Engine, editor and in-house art: Pulse Labs Studio. Optional "Freedoom" art pack © 2001-2024 contributors to the Freedoom project, BSD license (<a href="res/FREEDOOM-COPYING.txt" target="_blank">license</a>, <a href="res/FREEDOOM-CREDITS.txt" target="_blank">credits</a>). DOOM is a trademark of id Software; EOD is an unofficial fan project.</p>
 <h3>Safety nets</h3>
 <ul><li>Autosave after every change, 150 levels of Undo, <b>Map Analysis</b> before export, and a crash log in Settings → Support.</li></ul>
 <h3>Keyboard (PC)</h3>
@@ -2675,14 +3008,14 @@ function boot() {
     E.mode = 'sectors'; buildBars(); edResize();
     const p1 = M.t.find(t => t.type === 1);
     if (S.theme == null) { S.theme = 'device'; LS.set('settings', S); }
-    initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
+    applyArtSetting(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
   }
   const saved = LS.get('autosave', null);
   if (saved && saved.l && saved.l.length) M = saved; else buildSampleMap();
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) firstRun();
-  pullAccountBinds(); eodBoot();
+  pullAccountBinds(); applyArtSetting(); eodBoot();
 }
 
 /* ================= INPUT: keyboard, mouse (pointer lock), controller (Gamepad API), remapping ================= */

@@ -107,9 +107,10 @@ function bindProps(body, ss, ls, ts, vs) {
 /* ---- browsers ---- */
 function openTexBrowser(flat, current, cb) {
   const used = new Set(flat ? FLAT_TEX : WALL_TEX);
+  RES.packs.forEach(p => { (flat ? [p.flats, p.imgFlat] : [p.tex, p.imgTex]).forEach(m => { for (const n of m.keys()) used.add(n); }); });
   if (flat) M.sec.forEach(s => { used.add(s.ft); used.add(s.ct); }); else M.sd.forEach(d => [d.up, d.mid, d.lo].forEach(n => n !== '-' && used.add(n)));
   const names = [...used].filter(Boolean).sort();
-  const b = modal(flat ? 'Flats (floors & ceilings)' : 'Wall textures', `<input id="txq" placeholder="Search…" style="width:100%;margin-bottom:8px" autocapitalize="characters"><div class="grid" id="txg"></div><p class="hint">EOD draws its own stand-in art for each Doom texture name. GZDoom shows the real textures from your IWAD (Doom, Doom II or Freedoom).</p>`, [{ label: 'Use typed name', fn: bd => { const v = bd.querySelector('#txq').value.trim().toUpperCase(); if (v) cb(v.slice(0, 8)); } }, { cancel: 1 }]);
+  const b = modal(flat ? 'Flats (floors & ceilings)' : 'Wall textures', `<input id="txq" placeholder="Search…" style="width:100%;margin-bottom:8px" autocapitalize="characters"><div class="grid" id="txg"></div><p class="hint">Art comes from the loaded packs (the map's own art, your IWAD if you opened it, Freedoom) and EOD's in-house stand-ins for anything missing.</p>`, [{ label: 'Use typed name', fn: bd => { const v = bd.querySelector('#txq').value.trim().toUpperCase(); if (v) cb(v.slice(0, 8)); } }, { cancel: 1 }]);
   const grid = b.querySelector('#txg');
   const render = q => {
     grid.innerHTML = '';
@@ -172,7 +173,7 @@ function openFileMenu() {
   <button id="fLib">Open from the EOD library</button>
   <button id="fNew">New blank map</button>
   <button id="fSample">Load the test map (Hangar of Shit)</button>
-  <button id="fOpen">Open… (.wad, or EOD project .json)</button>
+  <button id="fOpen">Open any map… (.wad, .zip from /idgames, .pk3, or EOD project)</button>
   <button id="fSave">Save project (.json)</button>
   <button id="fWad">Export Doom WAD (for GZDoom / Delta Touch)</button>
   <button id="fPlay">Export playable game (.html, runs on any phone or PC)</button>
@@ -204,6 +205,8 @@ function openSettings() {
   <div class="f"><label>Ellipse sides</label><input id="stES" type="number" min="3" max="64" value="${S.ellipseSides}"></div>
   <div class="h">Demo / game</div>
   <div class="f"><label>Screen layout</label><select id="stL">${[['auto', 'Auto (detect)'], ['portrait', 'Portrait 9:16'], ['landscape', 'Landscape 16:9'], ['fold', 'Z Fold unfolded']].map(([k, n]) => `<option value="${k}" ${S.layout === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+  <div class="f"><label>Art pack</label><select id="stArt"><option value="freedoom" ${(S.artPack || 'freedoom') === 'freedoom' ? 'selected' : ''}>Freedoom (looks like Doom · free · ~7 MB once)</option><option value="inhouse" ${S.artPack === 'inhouse' ? 'selected' : ''}>EOD in-house (lightest, no download)</option></select></div>
+  <p class="hint">Maps that bring their own art always use it. Freedoom is free art made by the Freedoom project (BSD license); see Credits in the manual.</p>
   <div class="f"><label>Picture detail</label><select id="stR">${[[200, 'Chunky (fastest)'], [320, 'Classic 320'], [480, 'Sharp 480']].map(([k, n]) => `<option value="${k}" ${S.res == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Skill</label><select id="stSk">${[[1, "I'm too young to die"], [2, 'Hurt me plenty'], [3, 'Ultra-violence']].map(([k, n]) => `<option value="${k}" ${S.skill == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Turn speed <b id="snV">${S.sens}</b></label><input id="stSn" type="range" min="0.3" max="3" step="0.1" value="${S.sens}"></div>
@@ -218,6 +221,7 @@ function openSettings() {
     const ch = (id, fn) => { const e = b.querySelector(id); e.oninput = e.onchange = () => { fn(e); saveSettings(); }; };
     ch('#stF', e => S.font = e.value); ch('#stFs', e => { S.fs = +e.value; b.querySelector('#fsV').textContent = S.fs; }); ch('#stInv', e => S.inverted = e.checked);
     ch('#stDW', e => S.defWall = e.value.toUpperCase().slice(0, 8)); ch('#stDF', e => S.defFloor = e.value.toUpperCase().slice(0, 8)); ch('#stDC', e => S.defCeil = e.value.toUpperCase().slice(0, 8)); ch('#stES', e => S.ellipseSides = clamp(+e.value || 16, 3, 64));
+    ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
     b.querySelector('#stArr').onclick = () => { closeModal(); startDemo({ arrange: true }); };

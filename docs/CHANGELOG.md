@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.1 — 2026-11-17
+- EOD 0.2.0 at /EOD: opens any community map (.wad / idgames .zip / .pk3) and plays it with its own art, the player's own
+  IWAD (device only) or the free Freedoom art pack (EOD/res, BSD license, 7.2 MB gzip, loaded on demand and cached).
+
 ## v0.7 — 2026-11-17
 - EOD · Editor of Doom (preview v0.1.1) added at /EOD (public, no sign-in): web Doom map editor + game, map library,
   forums, accounts, keyboard/mouse/controller mapping. Runs in its Local test mode until it gets Supabase keys

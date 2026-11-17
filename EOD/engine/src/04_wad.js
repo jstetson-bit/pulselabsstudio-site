@@ -114,22 +114,77 @@ function saveProject() { download(fileBase() + '.eod.json', JSON.stringify({ app
 function openFile() { const fi = $('#fileIn'); fi.value = ''; fi.click(); }
 function handleFile(file) {
   const rd = new FileReader();
-  rd.onload = () => {
-    try {
-      const buf = rd.result; const head = new Uint8Array(buf, 0, Math.min(4, buf.byteLength));
-      const id = String.fromCharCode(...head);
-      if (id === 'IWAD' || id === 'PWAD') {
-        const w = parseWad(buf); const maps = wadMaps(w);
-        if (!maps.length) return toast('No maps found in that WAD');
-        const pick = m => { const r = loadWadMap(w, m); pushUndo(); M = r.map; S.mapName = M.name; saveSettings(); compact(); clearSel(); mapChanged(); zoomFit(); toast('Loaded ' + m.name + ' (' + M.l.length + ' lines, ' + M.sec.length + ' sectors)' + (r.note ? ' — ' + r.note : ''), 5000); };
-        if (maps.length === 1) pick(maps[0]);
-        else modal('Pick a map from ' + file.name, '<div class="list">' + maps.map((m, i) => '<button data-i="' + i + '">' + esc(m.name) + (m.udmf ? ' (UDMF)' : '') + '</button>').join('') + '</div>', [{ cancel: 1 }], b => b.querySelectorAll('button[data-i]').forEach(bt => bt.onclick = () => { closeModal(); pick(maps[+bt.dataset.i]); }));
-      } else {
-        const j = JSON.parse(new TextDecoder().decode(buf));
-        if (!j.map || !j.map.l) throw new Error('Not an EOD project');
-        pushUndo(); M = j.map; clearSel(); mapChanged(); zoomFit(); toast('Project loaded');
-      }
-    } catch (e) { logCrash('open file: ' + e.stack); toast('Could not open: ' + e.message, 4000); }
-  };
+  rd.onload = () => importBuffer(rd.result, file.name).catch(e => { logCrash('open file: ' + (e.stack || e)); toast('Could not open: ' + e.message, 5000); });
   rd.readAsArrayBuffer(file);
+}
+// Recognize anything people ship: IWAD/PWAD, idgames .zip, ZDoom .pk3, or an EOD project.
+async function importBuffer(buf, fname) {
+  const head = String.fromCharCode(...new Uint8Array(buf, 0, Math.min(4, buf.byteLength)));
+  if (head === 'IWAD' || head === 'PWAD') return importWads([{ name: fname, w: parseWad(buf) }], fname);
+  if (head.startsWith('PK')) {
+    toast('Unpacking ' + fname + '…');
+    const entries = await readZip(buf), wads = [], pack = { name: fname, kind: 'map', pal: null, tex: new Map(), patches: new Map(), flats: new Map(), sprites: new Map(), sounds: new Map(), imgTex: new Map(), imgFlat: new Map(), imgSpr: new Map() };
+    const notes = [];
+    for (const e of entries) {
+      const low = e.name.toLowerCase(), base = e.name.split('/').pop(), stem = base.replace(/\.[^.]+$/, '').toUpperCase().slice(0, 8);
+      if (/\.(wad|iwad|pwad)$/.test(low)) { try { wads.push({ name: base, w: parseWad(await e.get()), mapName: /^maps\//.test(low) ? stem : null }); } catch (er) { notes.push('skipped ' + base); } }
+      else if (/\.(png|jpe?g|webp)$/.test(low)) {
+        try {
+          const t = await imageToTex(await e.get());
+          if (/(^|\/)flats\//.test(low)) pack.imgFlat.set(stem, t); else if (/(^|\/)sprites\//.test(low)) pack.imgSpr.set(stem, t); else if (/(^|\/)(textures|patches|graphics|hires)\//.test(low)) pack.imgTex.set(stem, t);
+        } catch (er) { }
+      } else if (/\.(deh|bex)$/.test(low) || /dehacked/.test(low)) notes.push('DEHACKED patch not applied');
+    }
+    if (!wads.length) throw new Error('No maps found inside ' + fname);
+    return importWads(wads, fname, pack, notes);
+  }
+  const j = JSON.parse(new TextDecoder().decode(buf));
+  if (!j.map || !j.map.l) throw new Error('Not a map file EOD recognizes');
+  pushUndo(); M = j.map; clearSel(); mapChanged(); zoomFit(); toast('Project loaded');
+}
+function importWads(list, fname, extraPack, notes = []) {
+  // resources: the user's own IWAD sits under the map art; PWAD/PK3 art goes on top
+  let mapPack = extraPack || null, iwad = null;
+  for (const it of list) {
+    const p = packFromWad(it.w, it.name, 'map');
+    const id = String.fromCharCode(...new Uint8Array(it.w.buf, 0, 4));
+    if (id === 'IWAD') { p.kind = 'iwad'; p.name = it.name + ' (your copy, stays on this device)'; iwad = p; continue; }
+    if (!mapPack) mapPack = p; else mergePack(mapPack, p);
+  }
+  const has = p => p && (p.tex.size || p.patches.size || p.flats.size || p.sprites.size || p.imgTex.size || p.imgFlat.size || p.imgSpr.size || p.pal);
+  if (iwad) setPack('iwad', iwad);
+  setPack('map', has(mapPack) ? mapPack : null);
+  const maps = [];
+  for (const it of list) for (const m of wadMaps(it.w)) maps.push({ it, m, label: (it.mapName && m.name === 'MAP01' ? it.mapName : m.name) });
+  if (!maps.length) { toast(iwad ? 'Your IWAD art is loaded for this session (nothing is uploaded). Open a map next.' : 'Art loaded from ' + fname + ', but it has no maps.', 5000); return; }
+  const open = (k, play) => {
+    const { it, m, label } = maps[k]; const r = loadWadMap(it.w, m);
+    pushUndo(); M = r.map; M.name = /^(MAP\d\d|E\dM\d)$/.test(label) ? label : M.name; S.mapName = M.name; saveSettings(); compact(); clearSel(); mapChanged(); zoomFit();
+    if ((S.artPack || 'freedoom') === 'freedoom') loadFreedoom(true);
+    const rep = recognizeReport(r.note, notes, mapPack, iwad);
+    if (play) { const p1 = M.t.find(t => t.type === 1); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
+    else modal('Imported ' + label + ' from ' + fname, rep, [{ label: '▶ Play it', cls: 'demo', fn: () => setTimeout(() => startDemo(), 50) }, { cancel: 1 }]);
+  };
+  if (maps.length === 1) { open(0, false); return; }
+  modal(fname + ' · ' + maps.length + ' maps', '<p class="hint">Pick a map. ✎ opens it in the editor (to build off it), ▶ plays it right away.</p><div class="list">' + maps.map((x, i) => `<div class="row"><b style="flex:1">${esc(x.label)}${x.m.udmf ? ' (UDMF)' : ''}</b><button data-e="${i}">✎ Edit</button><button data-p="${i}" class="demo">▶ Play</button></div>`).join('') + '</div>', [{ cancel: 1 }], b => {
+    b.querySelectorAll('[data-e]').forEach(x => x.onclick = () => { closeModal(); open(+x.dataset.e, false); });
+    b.querySelectorAll('[data-p]').forEach(x => x.onclick = () => { closeModal(); open(+x.dataset.p, true); });
+  });
+}
+function mergePack(a, b) { for (const k of ['tex', 'patches', 'flats', 'sprites', 'sounds', 'imgTex', 'imgFlat', 'imgSpr']) for (const [n, v] of b[k]) if (!a[k].has(n)) a[k].set(n, v); if (!a.pal && b.pal) a.pal = b.pal; }
+function recognizeReport(note, notes, mapPack, iwad) {
+  const walls = new Set(), flats = new Set();
+  M.sd.forEach(d => [d.up, d.mid, d.lo].forEach(n => { if (n && n !== '-') walls.add(n); })); M.sec.forEach(s => { if (s.ft !== 'F_SKY1') flats.add(s.ft); if (s.ct !== 'F_SKY1') flats.add(s.ct); });
+  const inPacks = (n, flat) => RES.packs.some(p => flat ? (p.flats.has(n) || p.imgFlat.has(n)) : (p.tex.has(n) || p.imgTex.has(n)));
+  const fdOn = (S.artPack || 'freedoom') === 'freedoom';
+  const missW = [...walls].filter(n => !inPacks(n, false)), missF = [...flats].filter(n => !inPacks(n, true));
+  const custom = mapPack ? (mapPack.tex.size + mapPack.imgTex.size) + ' textures, ' + (mapPack.flats.size + mapPack.imgFlat.size) + ' flats, ' + (mapPack.sprites.size + mapPack.imgSpr.size) + ' sprites' : 'none';
+  const things = M.t.length, known = M.t.filter(t => THINGS[t.type]).length;
+  return `<ul><li><b>${M.l.length}</b> lines, <b>${M.sec.length}</b> sectors, <b>${things}</b> things (${known} EOD understands).</li>
+    <li>Art in this file: ${esc(custom)}.</li>
+    <li>Art stack: ${RES.packs.map(p => esc(p.name)).join(' → ') || '—'}${fdOn && !RES.packs.some(p => p.kind === 'freedoom') ? ' (Freedoom is still loading)' : ''} → EOD in-house art.</li>
+    ${missW.length + missF.length ? `<li>${missW.length + missF.length} texture name(s) not found yet${fdOn ? '' : ' (turn on the Freedoom art pack in Settings)'}; EOD draws stand-ins: ${esc([...missW, ...missF].slice(0, 12).join(', '))}${missW.length + missF.length > 12 ? '…' : ''}</li>` : '<li>Every texture name has art. ✓</li>'}
+    ${note ? '<li>' + esc(note) + '</li>' : ''}${notes.map(n => '<li>' + esc(n) + '</li>').join('')}
+    ${iwad ? '<li>Your IWAD art is in use on this device only. It is never uploaded or published.</li>' : ''}</ul>
+    <p class="hint">Boom/ZDoom-only features (scripts, slopes, 3D floors, custom monsters) are ignored. Classic Doom maps play as made.</p>`;
 }
