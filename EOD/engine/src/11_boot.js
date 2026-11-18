@@ -149,12 +149,12 @@ function boot() {
     E.mode = 'sectors'; buildBars(); edResize();
     const p1 = M.t.find(t => t.type === 1);
     if (S.theme == null) { S.theme = 'device'; LS.set('settings', S); }
-    applyArtSetting(); syncCustomTex(true); syncMonsters(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
+    applyArtSetting(); syncCustomTex(true); syncMonsters(); syncWeapons(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
   }
   const saved = LS.get('autosave', null);
   if (saved && saved.l && saved.l.length) M = saved; else buildSampleMap();
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) firstRun();
-  pullAccountBinds(); applyArtSetting(); syncCustomTex(true); syncMonsters(); eodBoot();
+  pullAccountBinds(); applyArtSetting(); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
 }

@@ -50,6 +50,7 @@ function initGame(mode, start) {
   const s0 = sectorAt(start.x, start.y);
   G.p = { x: start.x, y: start.y, a: start.a * Math.PI / 180, z: secs[s0].fh, vz: 0, viewz: secs[s0].fh + 41, sec: s0, vx: 0, vy: 0, r: 16, h: 56, hp: 100, armor: 0, at: 0, ammo: { bullets: 50, shells: 0, rockets: 0, cells: 0 }, max: { bullets: 200, shells: 50, rockets: 50, cells: 300 }, w: 2, has: new Set([2]), keys: new Set(), cool: 0, bob: 0, fireT: 0, dead: false, hurt: 0, noclip: mode === 'visual', pitch: 0 };
   if (mode === 'visual') { G.p.has = new Set([2, 3, 4, 5, 6, 7]); }
+  if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
   msg(mode === 'visual' ? '3D Visual mode: aim the crosshair at a surface, then use the buttons' : (M.name + ' — find the exit'));
   requestAnimationFrame(gameFrame);
@@ -282,9 +283,9 @@ function fireWeapon() {
   if (p.cool > 0) return;
   if (w.ammo && p.ammo[w.ammo] < w.use) { const order = [7, 6, 4, 5, 3, 2, 1]; const nw = order.find(i => p.has.has(i) && (!WEAPONS[i].ammo || p.ammo[WEAPONS[i].ammo] >= WEAPONS[i].use)); if (nw && nw !== p.w) { p.w = nw; msg(WEAPONS[nw].name); } else sfx('oof'); p.cool = 10; return; }
   if (w.ammo) p.ammo[w.ammo] -= w.use;
-  p.cool = w.rate; p.fireT = 6; sfx(w.snd);
+  p.cool = w.rate; p.fireT = 6; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const a = autoAim(p.a);
-  if (w.melee) { const ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, 72); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < 72 + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); break; } }
+  if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); break; } }
   else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, 0); }
   else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg));
   p.refire = true;
@@ -407,7 +408,7 @@ function gameTic() {
       if (S0.sp === 11 && p.hp <= 10) endLevel(false);
       if (S0.sp === 9) { S0.sp = 0; G.secrets++; msg('A secret is revealed!'); sfx('secret'); }
     }
-    if (p.hurt > 0) p.hurt--; if (G.bonus > 0) G.bonus--; if (G.flash > 0) G.flash--;
+    if (p.hurt > 0) p.hurt--; if (G.bonus > 0) G.bonus--; if (G.flash > 0) G.flash--; if (G.kick) G.kick = G.kick > 0.3 ? G.kick * 0.72 : 0;
   } else if (IN.use) { IN.use = false; }
   tickMovers();
   G.ents.forEach(e => { if (!e.alive) return; if (!e.d.float) { const s = e.sec >= 0 ? G.secs[e.sec] : null; if (s) e.z = s.fh; } });

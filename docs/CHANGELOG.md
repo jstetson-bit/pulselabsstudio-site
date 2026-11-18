@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.4 — 2026-11-17
+- EOD 0.3.0/0.3.1: monster generator and weapon generator.
+
 ## v0.7.3 — 2026-11-17
 - EOD 0.2.2: Vanilla limits check (Off/On) with live counters, warnings and a whole-map scan.
 

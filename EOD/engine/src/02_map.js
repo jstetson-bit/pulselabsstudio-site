@@ -21,6 +21,7 @@ function mapChanged() {
   MAPVER++;
   if (window.syncCustomTex) syncCustomTex();
   if (window.syncMonsters) syncMonsters();
+  if (window.syncWeapons) syncWeapons();
   clearTimeout(saveT); saveT = setTimeout(() => LS.set('autosave', M), 400);
   if (window.edRedraw) edRedraw();
   if (window.refreshProps) refreshProps();

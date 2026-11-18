@@ -89,7 +89,8 @@ function buildWad() {
     Object.entries(M.res.tex || {}).forEach(([n, v]) => tx.push([n, dec(v.src)])); const fl = Object.entries(M.res.flat || {}).filter(([n]) => !(M.res.tex || {})[n]).map(([n, v]) => [n, dec(v.src)]);
     if (tx.length) lumps.push(['TX_START', E], ...tx, ['TX_END', E]);
     if (fl.length) lumps.push(['FF_START', E], ...fl, ['FF_END', E]); }
-  if (M.mon && Object.keys(M.mon).length && window.monsterExportLumps) { const mx = monsterExportLumps(); lumps.push(['DECORATE', new TextEncoder().encode(mx.decorate)], ['S_START', E], ...mx.sprites, ['S_END', E]); }
+  const hasMon = M.mon && Object.keys(M.mon).length, hasWep = M.wep && Object.keys(M.wep).length;
+  if (hasMon || hasWep) { const mx = hasMon ? monsterExportLumps() : { decorate: '', sprites: [] }, wx = hasWep ? weaponExportLumps() : { decorate: '', sprites: [] }; lumps.push(['DECORATE', new TextEncoder().encode(mx.decorate + wx.decorate)], ['S_START', E], ...mx.sprites, ...wx.sprites, ['S_END', E]); }
   let size = 12; lumps.forEach(l => size += l[1].length);
   const total = size + lumps.length * 16, out = new Uint8Array(total), dv = new DataView(out.buffer);
   out.set([80, 87, 65, 68], 0); dv.setInt32(4, lumps.length, true); dv.setInt32(8, size, true);

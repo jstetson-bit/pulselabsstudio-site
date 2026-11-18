@@ -55,6 +55,7 @@ function gameSprites() {
   const out = [], cam = G.p, useRes = RES.packs.length > 0 && !!resPal();
   const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
+    if (e.d.cw) { if (e.alive) out.push({ x: e.x, y: e.y, z: e.z, img: weaponPickupImg(e.type, e.d.cw), light: lightAt(e), id: e.ti }); continue; }
     const cm = e.d.custom ? monFrames(e.type, e.d.custom) : null;
     const ds = useRes ? DSPR[e.type] : null;
     if (cm) {
@@ -96,7 +97,7 @@ function gameSprites() {
 }
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
-  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: 0 }, G.sc, gameSprites());
+  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: -(G.kick || 0) }, G.sc, gameSprites());
   R.ctx.putImageData(R.img, 0, 0);
   const cv = $('#gv'), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
   g.drawImage(R.cv, 0, 0);
@@ -131,6 +132,7 @@ function drawWeaponRes(g, W, H, u, bx, by) {
 }
 function drawWeapon(g, W, H, u) {
   const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4), by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  if (WEAPONS[p.w] && WEAPONS[p.w].custom) { drawCustomWeapon(g, W, H, u, bx, by); return; }
   if (drawWeaponRes(g, W, H, u, bx, by)) return;
   const cx = W / 2 + bx, base = H - 34 * u + by + (p.fireT > 3 ? 4 * u : 0), w = p.w;
   if (p.fireT > 2 && w !== 1) { g.fillStyle = w >= 7 ? '#8cf' : '#ffd060'; g.beginPath(); g.arc(cx, base - 34 * u, 10 * u, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, base - 34 * u, 5 * u, 0, 7); g.fill(); }

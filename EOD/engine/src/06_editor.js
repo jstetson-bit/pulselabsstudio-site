@@ -321,7 +321,7 @@ function buildBars() {
   T('Paste', () => pasteClip(E.clip, E.view.x, E.view.y), 'Paste at screen center (Ctrl+V)');
   T('Prefabs', openPrefabs); sep();
   if (E.mode === 'linedefs') { T('Flip', () => { if (!E.sel.l.size) return toast('Select linedefs'); pushUndo(); E.sel.l.forEach(i => { const L = M.l[i]; if (L.s2 >= 0) flipLine(L); }); mapChanged(); }, 'Flip linedefs (F)'); T('Split', splitSelectedLines, 'Split linedefs in half'); T('Align X', alignTextures, 'Auto-align texture X offsets along the selected walls'); }
-  if (E.mode === 'things') { T('🎲 Monster generator', () => openMonsterGen(), 'Roll a brand-new Doom-style enemy'); T('My monsters', openBestiary); }
+  if (E.mode === 'things') { T('🎲 Monster generator', () => openMonsterGen(), 'Roll a brand-new Doom-style enemy'); T('My monsters', openBestiary); T('🎲 Weapon generator', () => openWeaponGen(), 'Roll a brand-new weapon'); T('My weapons', openArmory); }
   if (E.mode === 'sectors') { T('Join', () => sectorOp('join'), 'Join sectors (keep lines)'); T('Merge', () => sectorOp('merge'), 'Merge sectors (remove lines between)'); T('Stairs', stairsTool, 'Build stairs from selected sectors, in selection order'); T('Gradient', gradientTool, 'Gradient brightness / floors / ceilings across selected sectors'); T('Make Door', () => sectorRecipe('door'), 'Turn the selected sector into a door'); T('Make Lift', () => sectorRecipe('lift'), 'Turn the selected sector into a lift'); }
   T('Rotate 90°', () => transformSel(E.sel, 'rot')); T('Mirror ↔', () => transformSel(E.sel, 'mirx')); T('Mirror ↕', () => transformSel(E.sel, 'miry')); sep();
   T('Grid −', () => { const g = [1, 2, 4, 8, 16, 32, 64, 128, 256]; S.grid = g[Math.max(0, g.indexOf(S.grid) - 1)] || 32; saveSettings(); }, 'Smaller grid ([)');

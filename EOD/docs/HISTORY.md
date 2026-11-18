@@ -29,3 +29,11 @@ The story of how EOD came to be, in the owner's words where possible.
 - Decided: "My textures" (add, size, sharp/smooth, replace, rename, delete), saved inside the map, kept automatically for imported maps, exported into WADs, published only with the author's permission box.
 - Asked: *"vis plane overflow. is this an issue for us"* → not for EOD's own engine (no visplane limit); only matters for people taking an exported WAD to vanilla Doom / Chocolate Doom. A limits check is queued.
 - Asked: *"id like a turn that off or on feature"* → built the Vanilla limits check as an Off/On switch in Settings (counters, warnings, whole-map scan).
+
+## 2026-11-17 · Monster and weapon generators
+- Asked: *"add a monster generator that creates random enemies that fit the doomverse. health values . attack sequence. all that"* → built in 0.3.0.
+- Asked: *"and. Weapon generator the same"* → built in 0.3.1 (classes, every stat on a slider with reroll, own art, GZDoom export).
+
+## 2026-11-17 · Glass
+- Asked: *"we need panes of glass that both reflect and can break as a texture"*, then *"glass must also be transparent"*, then *"all of those glass options can be choices on or off as you build"*.
+- Decided: glass is a line setting with every part a switch (see-through, reflection, breakable, blocks movement, tint) plus sliders.

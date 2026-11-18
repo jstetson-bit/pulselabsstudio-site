@@ -10,6 +10,18 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.3.1 (vc6) — 2026-11-17 — weapon generator
+- **🎲 Weapon generator** (Things mode toolbar, Thing browser, File menu): rolls a Doom-style gun. Classes: sidearm, shotgun, repeater, explosive, energy, super, melee. Every stat has a slider and its own reroll: damage, pellets, spread, fire rate, ammo type and cost, projectile speed/splash, range (melee), recoil, starting ammo on pickup. Options: name, color palette (Pulse red default), start with it, slot.
+- Procedural first-person art (idle + fire frames with muzzle flash) and a pickup sprite; plain-words "fire story" preview of what one trigger pull does.
+- **My weapons** (armory): edit, duplicate, delete; custom weapons are saved in the map (`M.wep`, ids 21000+), placed like any thing, picked up in the Demo, fired with recoil kick.
+- WAD export adds DECORATE `Weapon` actors plus PNG sprites with grAb offsets (PWxxA0/B0, pickup PPxxA0) so GZDoom loads them.
+- Tested in headless Chrome: 6 weapons of different classes picked up and fired, kills registered, WAD lumps present, no page errors.
+
+## v0.3.0 (vc5) — 2026-11-17 — monster generator
+- **🎲 Monster generator**: rolls a random enemy that fits the Doom look. Archetypes: imp, beast, floater, soldier, hulk, crawler, cyber; tiers fodder → boss. Adjustable health, speed, size, pain chance, melee damage, ranged attack (hitscan/projectile, damage, burst, wind-up, gaps, cooldown), aggression; each with reroll. Palette (Pulse red default) and name.
+- Attack sequence preview in plain words; procedural sprite frames (walk, attack, pain, death).
+- **My monsters** (bestiary); saved in the map (`M.mon`, types 20000+); DECORATE + sprite export for GZDoom.
+
 ## v0.2.2 (vc4) — 2026-11-17 — vanilla limits check (on/off)
 - Settings → **Vanilla limits check: Off / On** (default Off), plus "Show the counters while playing" and "Pop up a warning when a view goes over".
 - When on: live counters in the Demo and 3D Visual mode (visplanes ~N/128, drawsegs N/256, sprites N/128; green, red when over) and a warning toast where original Doom / Chocolate Doom would crash ("visplane overflow" etc.).
