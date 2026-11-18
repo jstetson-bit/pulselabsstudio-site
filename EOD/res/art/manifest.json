@@ -139,68 +139,531 @@
    "arch": "hulk",
    "h": 88,
    "w": 103
+  },
+  {
+   "id": "grunt2",
+   "name": "Grunt",
+   "arch": "soldier",
+   "h": 56,
+   "w": 52
+  },
+  {
+   "id": "heavy_grunt",
+   "name": "Heavy Grunt",
+   "arch": "soldier",
+   "h": 60,
+   "w": 65
+  },
+  {
+   "id": "hell_hyena",
+   "name": "Hell Hyena",
+   "arch": "beast",
+   "h": 44,
+   "w": 60
+  },
+  {
+   "id": "gaze_orb",
+   "name": "Gaze Orb",
+   "arch": "floater",
+   "h": 54,
+   "w": 63
+  },
+  {
+   "id": "wraith_bat",
+   "name": "Wraith Bat",
+   "arch": "floater",
+   "h": 50,
+   "w": 68
+  },
+  {
+   "id": "red_widow",
+   "name": "Red Widow",
+   "arch": "crawler",
+   "h": 52,
+   "w": 72
+  },
+  {
+   "id": "rot_belly",
+   "name": "Rot Belly",
+   "arch": "hulk",
+   "h": 70,
+   "w": 92
+  },
+  {
+   "id": "hex_monk",
+   "name": "Hex Monk",
+   "arch": "imp",
+   "h": 60,
+   "w": 69
+  },
+  {
+   "id": "moss_golem",
+   "name": "Moss Golem",
+   "arch": "hulk",
+   "h": 78,
+   "w": 108
+  },
+  {
+   "id": "war_drone",
+   "name": "War Drone",
+   "arch": "cyber",
+   "h": 80,
+   "w": 114
+  },
+  {
+   "id": "slime_lord",
+   "name": "Slime Lord",
+   "arch": "beast",
+   "h": 44,
+   "w": 56
+  },
+  {
+   "id": "axe_bull",
+   "name": "Axe Bull",
+   "arch": "beast",
+   "h": 64,
+   "w": 86
+  },
+  {
+   "id": "blue_crown",
+   "name": "Blue Crown",
+   "arch": "floater",
+   "h": 46,
+   "w": 58
+  },
+  {
+   "id": "husk_mantis",
+   "name": "Husk Mantis",
+   "arch": "imp",
+   "h": 62,
+   "w": 85
+  },
+  {
+   "id": "magma_fiend",
+   "name": "Magma Fiend",
+   "arch": "imp",
+   "h": 64,
+   "w": 92
+  },
+  {
+   "id": "frost_knight",
+   "name": "Frost Knight",
+   "arch": "soldier",
+   "h": 64,
+   "w": 86
+  },
+  {
+   "id": "grave_worm",
+   "name": "Grave Worm",
+   "arch": "beast",
+   "h": 50,
+   "w": 70
+  },
+  {
+   "id": "spore_cap",
+   "name": "Spore Cap",
+   "arch": "imp",
+   "h": 54,
+   "w": 68
+  },
+  {
+   "id": "crab_horror",
+   "name": "Crab Horror",
+   "arch": "crawler",
+   "h": 46,
+   "w": 65
+  },
+  {
+   "id": "void_squid",
+   "name": "Void Squid",
+   "arch": "floater",
+   "h": 58,
+   "w": 80
+  },
+  {
+   "id": "scrap_hound",
+   "name": "Scrap Hound",
+   "arch": "beast",
+   "h": 46,
+   "w": 61
+  },
+  {
+   "id": "serpent_drake",
+   "name": "Serpent Drake",
+   "arch": "floater",
+   "h": 60,
+   "w": 70
+  },
+  {
+   "id": "armored_ogre",
+   "name": "Armored Ogre",
+   "arch": "hulk",
+   "h": 74,
+   "w": 91
+  },
+  {
+   "id": "gatling_brute",
+   "name": "Gatling Brute",
+   "arch": "cyber",
+   "h": 88,
+   "w": 104
+  },
+  {
+   "id": "inferno_lord",
+   "name": "Inferno Lord",
+   "arch": "hulk",
+   "h": 96,
+   "w": 129
+  },
+  {
+   "id": "spine_baron",
+   "name": "Spine Baron",
+   "arch": "hulk",
+   "h": 84,
+   "w": 83,
+   "rots": 5,
+   "death": 6
   }
  ],
  "weapons": [
   {
    "id": "pump1",
    "name": "Pump Shotgun Mk.I",
-   "cls": "shotgun"
+   "cls": "shotgun",
+   "frames": [
+    "w_pump1_idle.png",
+    "w_pump1_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_pump1_pick.png"
   },
   {
    "id": "pump2",
    "name": "Pump Shotgun Mk.II",
-   "cls": "shotgun"
+   "cls": "shotgun",
+   "frames": [
+    "w_pump2_idle.png",
+    "w_pump2_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_pump2_pick.png"
   },
   {
    "id": "pump3",
    "name": "Pump Shotgun Mk.III",
-   "cls": "shotgun"
+   "cls": "shotgun",
+   "frames": [
+    "w_pump3_idle.png",
+    "w_pump3_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_pump3_pick.png"
   },
   {
    "id": "dbl1",
    "name": "Octagon Double Barrel",
-   "cls": "shotgun"
+   "cls": "shotgun",
+   "frames": [
+    "w_dbl1_idle.png",
+    "w_dbl1_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_dbl1_pick.png"
   },
   {
    "id": "dbl2",
    "name": "Tactical Octagon",
-   "cls": "shotgun"
+   "cls": "shotgun",
+   "frames": [
+    "w_dbl2_idle.png",
+    "w_dbl2_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_dbl2_pick.png"
   },
   {
    "id": "mini1",
    "name": "Rotary Minigun",
-   "cls": "repeater"
+   "cls": "repeater",
+   "frames": [
+    "w_mini1_idle.png",
+    "w_mini1_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_mini1_pick.png"
   },
   {
    "id": "mini2",
    "name": "Storm Minigun",
-   "cls": "repeater"
+   "cls": "repeater",
+   "frames": [
+    "w_mini2_idle.png",
+    "w_mini2_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_mini2_pick.png"
   },
   {
    "id": "missile",
    "name": "Missile Launcher",
-   "cls": "explosive"
+   "cls": "explosive",
+   "frames": [
+    "w_missile_idle.png",
+    "w_missile_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_missile_pick.png"
   },
   {
    "id": "particle",
    "name": "Particle Cannon",
-   "cls": "energy"
+   "cls": "energy",
+   "frames": [
+    "w_particle_idle.png",
+    "w_particle_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_particle_pick.png"
   },
   {
    "id": "grinder",
    "name": "Angle Grinder",
-   "cls": "melee"
+   "cls": "melee",
+   "frames": [
+    "w_grinder_idle.png",
+    "w_grinder_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_grinder_pick.png"
   },
   {
    "id": "chainsaw",
    "name": "Chain Ripper",
-   "cls": "melee"
+   "cls": "melee",
+   "frames": [
+    "w_chainsaw_idle.png",
+    "w_chainsaw_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_chainsaw_pick.png"
   },
   {
    "id": "runner",
    "name": "Run-and-Gun Rifle",
-   "cls": "repeater"
+   "cls": "repeater",
+   "frames": [
+    "w_runner_idle.png",
+    "w_runner_fire.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "w_runner_pick.png"
+  },
+  {
+   "id": "spear",
+   "name": "Hell Spear",
+   "cls": "thrown",
+   "frames": [
+    "s_spear_1.png",
+    "s_spear_2.png",
+    "s_spear_3.png",
+    "s_spear_4.png",
+    "s_spear_5.png",
+    "s_spear_6.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "p_spear.png",
+   "proj": "s_spear_4.png"
+  },
+  {
+   "id": "knife",
+   "name": "Gut Knife",
+   "cls": "thrown",
+   "frames": [
+    "s_knife_1.png",
+    "s_knife_2.png",
+    "s_knife_3.png",
+    "s_knife_4.png",
+    "s_knife_5.png",
+    "s_knife_6.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "p_knife.png",
+   "proj": "s_knife_4.png"
+  },
+  {
+   "id": "sawblade",
+   "name": "Buzz Disc",
+   "cls": "thrown",
+   "frames": [
+    "s_sawblade_1.png",
+    "s_sawblade_2.png",
+    "s_sawblade_3.png",
+    "s_sawblade_4.png",
+    "s_sawblade_5.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "p_sawblade.png",
+   "proj": "s_sawblade_4.png"
+  },
+  {
+   "id": "storm_minigun",
+   "name": "Storm Minigun",
+   "cls": "repeater",
+   "frames": [
+    "s_storm_minigun_1.png",
+    "s_storm_minigun_2.png",
+    "s_storm_minigun_3.png",
+    "s_storm_minigun_4.png",
+    "s_storm_minigun_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "p_storm_minigun.png"
+  },
+  {
+   "id": "octagon_shotgun",
+   "name": "Octagon Breacher",
+   "cls": "shotgun",
+   "frames": [
+    "s_octagon_shotgun_1.png",
+    "s_octagon_shotgun_2.png",
+    "s_octagon_shotgun_3.png",
+    "s_octagon_shotgun_4.png",
+    "s_octagon_shotgun_5.png"
+   ],
+   "fire": [
+    2,
+    3,
+    4,
+    1
+   ],
+   "pick": "p_octagon_shotgun.png"
+  },
+  {
+   "id": "bazooka",
+   "name": "Bunker Buster",
+   "cls": "explosive",
+   "frames": [
+    "s_bazooka_1.png",
+    "s_bazooka_2.png",
+    "s_bazooka_3.png",
+    "s_bazooka_4.png"
+   ],
+   "fire": [
+    0
+   ],
+   "pick": "p_bazooka.png",
+   "proj": "s_bazooka_3.png"
+  },
+  {
+   "id": "void_cannon",
+   "name": "Void Cannon",
+   "cls": "energy",
+   "frames": [
+    "s_void_cannon_1.png",
+    "s_void_cannon_2.png",
+    "s_void_cannon_3.png",
+    "s_void_cannon_4.png",
+    "s_void_cannon_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "p_void_cannon.png"
+  },
+  {
+   "id": "grinder2",
+   "name": "Spark Grinder",
+   "cls": "melee",
+   "frames": [
+    "s_grinder2_1.png",
+    "s_grinder2_2.png",
+    "s_grinder2_3.png",
+    "s_grinder2_4.png",
+    "s_grinder2_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "p_grinder2.png"
+  },
+  {
+   "id": "chainsaw2",
+   "name": "Gore Saw",
+   "cls": "melee",
+   "frames": [
+    "s_chainsaw2_1.png",
+    "s_chainsaw2_2.png",
+    "s_chainsaw2_3.png",
+    "s_chainsaw2_4.png",
+    "s_chainsaw2_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "p_chainsaw2.png"
+  },
+  {
+   "id": "pulse_rifle",
+   "name": "Pulse Rifle",
+   "cls": "repeater",
+   "frames": [
+    "s_pulse_rifle_1.png",
+    "s_pulse_rifle_2.png",
+    "s_pulse_rifle_3.png",
+    "s_pulse_rifle_4.png",
+    "s_pulse_rifle_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "p_pulse_rifle.png"
   }
  ]
 }

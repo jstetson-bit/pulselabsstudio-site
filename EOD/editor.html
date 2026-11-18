@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.4.0', VC = 9;
+const VERSION = '0.4.1', VC = 10;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2510,7 +2510,7 @@ function fireWeapon() {
   if (p.cool > 0) return;
   if (w.ammo && p.ammo[w.ammo] < w.use) { const order = [7, 6, 4, 5, 3, 2, 1]; const nw = order.find(i => p.has.has(i) && (!WEAPONS[i].ammo || p.ammo[WEAPONS[i].ammo] >= WEAPONS[i].use)); if (nw && nw !== p.w) { p.w = nw; msg(WEAPONS[nw].name); } else sfx('oof'); p.cool = 10; return; }
   if (w.ammo) p.ammo[w.ammo] -= w.use;
-  p.cool = w.rate; p.fireT = 6; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
+  p.cool = w.rate; p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const a = autoAim(p.a);
   if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); ww.hitMon = 1; break; } if (!ww.hitMon && glassLive(ww.l)) damageGlass(ww.l, rnd(...w.dmg), p.x + Math.cos(a) * ww.d, p.y + Math.sin(a) * ww.d, p.viewz - 8, 'player'); }
   else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, 0); }
@@ -2714,7 +2714,7 @@ function gameSprites() {
   const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
     if (e.d.cw) { if (e.alive) out.push({ x: e.x, y: e.y, z: e.z, img: weaponPickupImg(e.type, e.d.cw), light: lightAt(e), id: e.ti }); continue; }
-    const cm = e.d.custom ? monFrames(e.type, e.d.custom) : null;
+    const cm = e.d.custom ? monFrames(e.type, e.d.custom, e.d.custom.look && e.d.custom.look.art && (artMon(e.d.custom.look.art) || {}).rots ? spriteRot(e.a, e.x, e.y, cam.x, cam.y) : 0) : null;
     const ds = useRes ? DSPR[e.type] : null;
     if (cm) {
       let fr;
@@ -3541,10 +3541,10 @@ function rollMonster(opts = {}, parts = { look: 1, stats: 1, attack: 1, name: 1 
 function monSize(d) { if (d.look.art) { const z = artMonSize(d); if (z) return z; } const s = d.look.size || 1; return { r: Math.round(20 * s), h: Math.round(56 * s) }; }
 /* ---------- procedural sprites ---------- */
 const MONF = new Map();
-function monFrames(type, d) {
-  const key = type + ':' + JSON.stringify(d.look) + d.arch;
+function monFrames(type, d, rot) {
+  const key = type + ':' + JSON.stringify(d.look) + d.arch + (rot ? ':' + rot : '');
   let f = MONF.get(key); if (f) return f;
-  if (d.look.art) { const af = artMonFrames(d); if (af) { MONF.set(key, af); return af; } }
+  if (d.look.art) { const af = artMonFrames(d, rot); if (af) { MONF.set(key, af); return af; } }
   const sz = d.look.size || 1, W_ = Math.round((d.arch === 'crawler' ? 90 : d.arch === 'floater' ? 60 : 48) * sz), H_ = Math.round((d.arch === 'crawler' ? 56 : 66) * sz);
   f = {}; const FR = 'ABCDEFGHIJKL';
   for (let i = 0; i < FR.length; i++) {
@@ -3751,12 +3751,13 @@ const WCLASS = {
   repeater: { n: 'Heavy repeater', kind: 'hit', ammo: 'bullets', pel: [1, 2], spr: [.02, .06], rate: [2, 5], dmg: [5, 15], slot: 4, snd: 'chain' },
   explosive: { n: 'Explosive launcher', kind: 'proj', ammo: 'rockets', proj: 'rocket', rate: [16, 34], dmg: [20, 160], slot: 5, snd: 'rocket' },
   energy: { n: 'Energy rifle', kind: 'proj', ammo: 'cells', proj: 'plasma', rate: [2, 6], dmg: [5, 40], slot: 6, snd: 'plasma' },
+  thrown: { n: 'Thrown (spear, knife, disc)', kind: 'proj', ammo: null, proj: 'baron', rate: [16, 30], dmg: [15, 70], slot: 1, snd: 'chain' },
   railgun: { n: 'Railgun', kind: 'hit', ammo: 'cells', pel: [1, 1], spr: [0, .005], rate: [30, 55], dmg: [60, 220], slot: 6, snd: 'plasma' },
   super: { n: 'Superweapon', kind: 'proj', ammo: 'cells', proj: 'bfg', rate: [45, 70], dmg: [100, 600], slot: 7, snd: 'plasma' },
   melee: { n: 'Melee', kind: 'melee', ammo: null, rate: [6, 18], dmg: [10, 60], slot: 1, snd: 'chain' }
 };
 const WN1 = ['Hell', 'Blood', 'Iron', 'Ash', 'Brim', 'Rot', 'Hex', 'Wrath', 'Cinder', 'Skull', 'Ember', 'Grave', 'Scorch', 'Rust', 'Venom', 'Dread', 'Pulse', 'Thunder', 'Bone', 'Riot'];
-const WN2 = { sidearm: ['Pistol', 'Revolver', 'Hand cannon', 'Repeater'], shotgun: ['Scattergun', 'Boomstick', 'Shotgun', 'Breacher'], repeater: ['Chaingun', 'Minigun', 'Ripper', 'Shredder'], explosive: ['Launcher', 'Mortar', 'Bombard', 'Cannon'], energy: ['Rifle', 'Lance', 'Arc gun', 'Projector', 'Carbine', 'Blaster'], railgun: ['Railgun', 'Rail lance', 'Spike driver', 'Gauss rifle'], super: ['Annihilator', 'Doomsday', 'Devastator', 'Obliterator'], melee: ['Cleaver', 'Saw', 'Maul', 'Fist'] };
+const WN2 = { sidearm: ['Pistol', 'Revolver', 'Hand cannon', 'Repeater'], shotgun: ['Scattergun', 'Boomstick', 'Shotgun', 'Breacher'], repeater: ['Chaingun', 'Minigun', 'Ripper', 'Shredder'], explosive: ['Launcher', 'Mortar', 'Bombard', 'Cannon'], energy: ['Rifle', 'Lance', 'Arc gun', 'Projector', 'Carbine', 'Blaster'], thrown: ['Spear', 'Knife', 'Disc', 'Javelin'], railgun: ['Railgun', 'Rail lance', 'Spike driver', 'Gauss rifle'], super: ['Annihilator', 'Doomsday', 'Devastator', 'Obliterator'], melee: ['Cleaver', 'Saw', 'Maul', 'Fist'] };
 const WAMMO = { bullets: 'Bullets', shells: 'Shells', rockets: 'Rockets', cells: 'Cells' };
 const WPROJ = { rocket: 'Rocket (splash)', plasma: 'Plasma bolt', bfg: 'Big green ball', fire: 'Fireball', caco: 'Purple orb', baron: 'Green bolt' };
 const WSND = { pistol: 'Pistol crack', shotgun: 'Shotgun boom', chain: 'Rapid rattle', rocket: 'Rocket whoosh', plasma: 'Energy zap' };
@@ -3898,7 +3899,7 @@ function drawGun(g, w, h, d, firing, side) { return side ? drawGunSide(g, w, h, 
 const WEPF = new Map();
 function weaponArt(id, d) {
   const key = id + JSON.stringify(d.look) + d.cls; let a = WEPF.get(key); if (a) return a;
-  if (d.look.art) { const af = artWepFrames(d); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
+  if (d.look.art) { const af = artWepFrames(d, id); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
   const W_ = 160, H_ = 120;
   a = { idle: mkSprite('w' + id + 'a', W_, H_, (g, w, h) => drawGun(g, w, h, d, false)), fire: mkSprite('w' + id + 'b', W_, H_, (g, w, h) => drawGun(g, w, h, d, true)), pick: mkSprite('w' + id + 'p', Math.round(48 + 24 * d.look.length), 20, (g, w, h) => drawGun(g, w, h, d, false, true)) };
   ['w' + id + 'a', 'w' + id + 'b', 'w' + id + 'p'].forEach(k => delete SPR[k]);
@@ -3906,7 +3907,8 @@ function weaponArt(id, d) {
 }
 function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
 function drawCustomWeapon(g, W, H, u, bx, by) {
-  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d), img = p.fireT > 2 ? art.fire : art.idle;
+  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
+  if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
   const s = Math.min(W / 320, (H - 20 * u) / 168) * 0.95, c = spriteCanvas(img);
   g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - 20 * u - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
 }
@@ -3923,6 +3925,7 @@ function syncWeapons() {
     const give = { w: +id }; if (d.ammo) give[d.ammo] = d.give;
     defT(+id, d.name, 'weapon', 20, 16, null, { give, cw: d });
   }
+  if (typeof WEPF !== 'undefined') WEPF.clear();
 }
 function fireStory(d) {
   const sec = t => (t / 35).toFixed(2) + 's';
@@ -4356,10 +4359,12 @@ function artLoaded() { ART_TICK++; if (typeof MONF !== 'undefined') MONF.clear()
 // files a map needs
 function artFilesFor(map) {
   const f = [];
-  for (const d of Object.values(map.mon || {})) if (d.look && d.look.art) f.push('m_' + d.look.art + '.png');
-  for (const d of Object.values(map.wep || {})) if (d.look && d.look.art) ['idle', 'fire', 'pick'].forEach(k => f.push('w_' + d.look.art + '_' + k + '.png'));
+  for (const d of Object.values(map.mon || {})) if (d.look && d.look.art) f.push(...monFiles(d.look.art));
+  for (const d of Object.values(map.wep || {})) if (d.look && d.look.art) f.push(...wepFiles(d.look.art));
   return [...new Set(f)];
 }
+function monFiles(id) { const a = artMon(id); if (a && a.rots) { const o = []; for (let i = 1; i <= a.rots; i++) o.push('m_' + id + '_r' + i + '.png'); for (let i = 1; i <= (a.death || 0); i++) o.push('m_' + id + '_d' + i + '.png'); return o; } return ['m_' + id + '.png']; }
+function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj].filter(Boolean); }
 function artPreload() { const f = artFilesFor(M); if (f.length) artManifest().then(() => artLoadAll(f)); }
 /* ---------- recolor ---------- */
 function hueMatrix(deg) {
@@ -4418,19 +4423,28 @@ function poseFrame(src, kind, k) {
   }
   return { w: W, h: H, rgba: out };
 }
-function artMonFrames(d) {
-  const L = d.look, a = artMon(L.art), im = a && artImg('m_' + L.art + '.png'); if (!im) return null;
-  const scale = (a.h / im.height) * (L.size || 1), src = artPixels(im, L, scale, L.mirror);
+function artMonFrames(d, rot) {
+  const L = d.look, a = artMon(L.art); if (!a) return null;
+  let file = 'm_' + L.art + '.png', mir = !!L.mirror;
+  if (a.rots) { const r = rot || 1, map = a.rots >= 5 ? [1, 2, 3, 4, 5, 4, 3, 2] : [1, 1, 1, 1, 1, 1, 1, 1], idx = map[r - 1]; file = 'm_' + L.art + '_r' + idx + '.png'; if (r > 5 && a.rots >= 5) mir = !mir; }
+  const im = artImg(file); if (!im) return null;
+  const base = a.rots ? artImg('m_' + L.art + '_r1.png') || im : im;
+  const scale = (a.h / base.height) * (L.size || 1), src = artPixels(im, L, scale, mir);
   const f = {}, FR = 'ABCDEFGHIJKL';
+  if (a.death) { const dl = []; for (let i = 1; i <= a.death; i++) { const di = artImg('m_' + L.art + '_d' + i + '.png'); if (di) dl.push(di); } if (dl.length >= 5) { const pk = dl.slice(0, 5); const poses = [['walk', 0], ['walk', 1], ['walk', 2], ['walk', 3], ['attack', 0], ['attack', 1], ['pain', 0]]; poses.forEach(([kind, k], i) => { const p = poseFrame(src, kind, k); f[FR[i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); }); pk.forEach((di, i) => { const p = artPixels(di, L, scale, mir); f[FR[7 + i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); }); f._art = true; return f; } }
   const poses = [['walk', 0], ['walk', 1], ['walk', 2], ['walk', 3], ['attack', 0], ['attack', 1], ['pain', 0], ['dead', 0], ['dead', 1], ['dead', 2], ['dead', 3], ['dead', 4]];
   poses.forEach(([kind, k], i) => { const p = poseFrame(src, kind, k); f[FR[i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); });
   f._art = true; f._h = src.h; f._w = src.w; return f;
 }
-function artWepFrames(d) {
+function artWepFrames(d, id) {
   const L = d.look, a = artWep(L.art); if (!a) return null;
-  const ims = ['idle', 'fire', 'pick'].map(k => artImg('w_' + L.art + '_' + k + '.png')); if (ims.some(x => !x)) return null;
-  const sc = (L.size || 1) * 0.66, L2 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk = (im, s) => { const p = artPixels(im, L2, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
-  return { idle: mk(ims[0], sc), fire: mk(ims[1], sc), pick: mk(ims[2], 1) };
+  const fr = (a.frames || []).map(f => artImg(f)), pk = artImg(a.pick), pj = a.proj ? artImg(a.proj) : null;
+  if (fr.some(x => !x) || !pk || (a.proj && !pj)) return null;
+  const sc0 = (L.size || 1) * 0.66, L0 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk0 = (im, s) => { const p = artPixels(im, L0, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
+  const out = { idle: mk0(fr[0], sc0), seq: (a.fire || [1]).map(i => mk0(fr[i] || fr[0], sc0)), pick: mk0(pk, 1) };
+  out.fire = out.seq[0];
+  if (pj && id != null) { const p = artPixels(pj, L, 0.55, false), s = clayToSprite(p, p.w >> 1, p.h >> 1, { dither: 3, rim: false }); SPR['p_cw' + id] = s; }
+  return out;
 }
 // sizes for collision when a painted body is used
 function artMonSize(d) { const a = artMon(d.look.art); if (!a) return null; const s = d.look.size || 1, h = Math.round(a.h * s), w = Math.round((a.w || a.h * .8) * (a.h / (a.h)) * s); return { r: clamp(Math.round(w / 2.6), 12, 64), h }; }

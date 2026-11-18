@@ -28,10 +28,12 @@ function artLoaded() { ART_TICK++; if (typeof MONF !== 'undefined') MONF.clear()
 // files a map needs
 function artFilesFor(map) {
   const f = [];
-  for (const d of Object.values(map.mon || {})) if (d.look && d.look.art) f.push('m_' + d.look.art + '.png');
-  for (const d of Object.values(map.wep || {})) if (d.look && d.look.art) ['idle', 'fire', 'pick'].forEach(k => f.push('w_' + d.look.art + '_' + k + '.png'));
+  for (const d of Object.values(map.mon || {})) if (d.look && d.look.art) f.push(...monFiles(d.look.art));
+  for (const d of Object.values(map.wep || {})) if (d.look && d.look.art) f.push(...wepFiles(d.look.art));
   return [...new Set(f)];
 }
+function monFiles(id) { const a = artMon(id); if (a && a.rots) { const o = []; for (let i = 1; i <= a.rots; i++) o.push('m_' + id + '_r' + i + '.png'); for (let i = 1; i <= (a.death || 0); i++) o.push('m_' + id + '_d' + i + '.png'); return o; } return ['m_' + id + '.png']; }
+function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj].filter(Boolean); }
 function artPreload() { const f = artFilesFor(M); if (f.length) artManifest().then(() => artLoadAll(f)); }
 /* ---------- recolor ---------- */
 function hueMatrix(deg) {
@@ -90,19 +92,28 @@ function poseFrame(src, kind, k) {
   }
   return { w: W, h: H, rgba: out };
 }
-function artMonFrames(d) {
-  const L = d.look, a = artMon(L.art), im = a && artImg('m_' + L.art + '.png'); if (!im) return null;
-  const scale = (a.h / im.height) * (L.size || 1), src = artPixels(im, L, scale, L.mirror);
+function artMonFrames(d, rot) {
+  const L = d.look, a = artMon(L.art); if (!a) return null;
+  let file = 'm_' + L.art + '.png', mir = !!L.mirror;
+  if (a.rots) { const r = rot || 1, map = a.rots >= 5 ? [1, 2, 3, 4, 5, 4, 3, 2] : [1, 1, 1, 1, 1, 1, 1, 1], idx = map[r - 1]; file = 'm_' + L.art + '_r' + idx + '.png'; if (r > 5 && a.rots >= 5) mir = !mir; }
+  const im = artImg(file); if (!im) return null;
+  const base = a.rots ? artImg('m_' + L.art + '_r1.png') || im : im;
+  const scale = (a.h / base.height) * (L.size || 1), src = artPixels(im, L, scale, mir);
   const f = {}, FR = 'ABCDEFGHIJKL';
+  if (a.death) { const dl = []; for (let i = 1; i <= a.death; i++) { const di = artImg('m_' + L.art + '_d' + i + '.png'); if (di) dl.push(di); } if (dl.length >= 5) { const pk = dl.slice(0, 5); const poses = [['walk', 0], ['walk', 1], ['walk', 2], ['walk', 3], ['attack', 0], ['attack', 1], ['pain', 0]]; poses.forEach(([kind, k], i) => { const p = poseFrame(src, kind, k); f[FR[i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); }); pk.forEach((di, i) => { const p = artPixels(di, L, scale, mir); f[FR[7 + i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); }); f._art = true; return f; } }
   const poses = [['walk', 0], ['walk', 1], ['walk', 2], ['walk', 3], ['attack', 0], ['attack', 1], ['pain', 0], ['dead', 0], ['dead', 1], ['dead', 2], ['dead', 3], ['dead', 4]];
   poses.forEach(([kind, k], i) => { const p = poseFrame(src, kind, k); f[FR[i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); });
   f._art = true; f._h = src.h; f._w = src.w; return f;
 }
-function artWepFrames(d) {
+function artWepFrames(d, id) {
   const L = d.look, a = artWep(L.art); if (!a) return null;
-  const ims = ['idle', 'fire', 'pick'].map(k => artImg('w_' + L.art + '_' + k + '.png')); if (ims.some(x => !x)) return null;
-  const sc = (L.size || 1) * 0.66, L2 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk = (im, s) => { const p = artPixels(im, L2, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
-  return { idle: mk(ims[0], sc), fire: mk(ims[1], sc), pick: mk(ims[2], 1) };
+  const fr = (a.frames || []).map(f => artImg(f)), pk = artImg(a.pick), pj = a.proj ? artImg(a.proj) : null;
+  if (fr.some(x => !x) || !pk || (a.proj && !pj)) return null;
+  const sc0 = (L.size || 1) * 0.66, L0 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk0 = (im, s) => { const p = artPixels(im, L0, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
+  const out = { idle: mk0(fr[0], sc0), seq: (a.fire || [1]).map(i => mk0(fr[i] || fr[0], sc0)), pick: mk0(pk, 1) };
+  out.fire = out.seq[0];
+  if (pj && id != null) { const p = artPixels(pj, L, 0.55, false), s = clayToSprite(p, p.w >> 1, p.h >> 1, { dither: 3, rim: false }); SPR['p_cw' + id] = s; }
+  return out;
 }
 // sizes for collision when a painted body is used
 function artMonSize(d) { const a = artMon(d.look.art); if (!a) return null; const s = d.look.size || 1, h = Math.round(a.h * s), w = Math.round((a.w || a.h * .8) * (a.h / (a.h)) * s); return { r: clamp(Math.round(w / 2.6), 12, 64), h }; }

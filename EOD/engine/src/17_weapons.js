@@ -8,12 +8,13 @@ const WCLASS = {
   repeater: { n: 'Heavy repeater', kind: 'hit', ammo: 'bullets', pel: [1, 2], spr: [.02, .06], rate: [2, 5], dmg: [5, 15], slot: 4, snd: 'chain' },
   explosive: { n: 'Explosive launcher', kind: 'proj', ammo: 'rockets', proj: 'rocket', rate: [16, 34], dmg: [20, 160], slot: 5, snd: 'rocket' },
   energy: { n: 'Energy rifle', kind: 'proj', ammo: 'cells', proj: 'plasma', rate: [2, 6], dmg: [5, 40], slot: 6, snd: 'plasma' },
+  thrown: { n: 'Thrown (spear, knife, disc)', kind: 'proj', ammo: null, proj: 'baron', rate: [16, 30], dmg: [15, 70], slot: 1, snd: 'chain' },
   railgun: { n: 'Railgun', kind: 'hit', ammo: 'cells', pel: [1, 1], spr: [0, .005], rate: [30, 55], dmg: [60, 220], slot: 6, snd: 'plasma' },
   super: { n: 'Superweapon', kind: 'proj', ammo: 'cells', proj: 'bfg', rate: [45, 70], dmg: [100, 600], slot: 7, snd: 'plasma' },
   melee: { n: 'Melee', kind: 'melee', ammo: null, rate: [6, 18], dmg: [10, 60], slot: 1, snd: 'chain' }
 };
 const WN1 = ['Hell', 'Blood', 'Iron', 'Ash', 'Brim', 'Rot', 'Hex', 'Wrath', 'Cinder', 'Skull', 'Ember', 'Grave', 'Scorch', 'Rust', 'Venom', 'Dread', 'Pulse', 'Thunder', 'Bone', 'Riot'];
-const WN2 = { sidearm: ['Pistol', 'Revolver', 'Hand cannon', 'Repeater'], shotgun: ['Scattergun', 'Boomstick', 'Shotgun', 'Breacher'], repeater: ['Chaingun', 'Minigun', 'Ripper', 'Shredder'], explosive: ['Launcher', 'Mortar', 'Bombard', 'Cannon'], energy: ['Rifle', 'Lance', 'Arc gun', 'Projector', 'Carbine', 'Blaster'], railgun: ['Railgun', 'Rail lance', 'Spike driver', 'Gauss rifle'], super: ['Annihilator', 'Doomsday', 'Devastator', 'Obliterator'], melee: ['Cleaver', 'Saw', 'Maul', 'Fist'] };
+const WN2 = { sidearm: ['Pistol', 'Revolver', 'Hand cannon', 'Repeater'], shotgun: ['Scattergun', 'Boomstick', 'Shotgun', 'Breacher'], repeater: ['Chaingun', 'Minigun', 'Ripper', 'Shredder'], explosive: ['Launcher', 'Mortar', 'Bombard', 'Cannon'], energy: ['Rifle', 'Lance', 'Arc gun', 'Projector', 'Carbine', 'Blaster'], thrown: ['Spear', 'Knife', 'Disc', 'Javelin'], railgun: ['Railgun', 'Rail lance', 'Spike driver', 'Gauss rifle'], super: ['Annihilator', 'Doomsday', 'Devastator', 'Obliterator'], melee: ['Cleaver', 'Saw', 'Maul', 'Fist'] };
 const WAMMO = { bullets: 'Bullets', shells: 'Shells', rockets: 'Rockets', cells: 'Cells' };
 const WPROJ = { rocket: 'Rocket (splash)', plasma: 'Plasma bolt', bfg: 'Big green ball', fire: 'Fireball', caco: 'Purple orb', baron: 'Green bolt' };
 const WSND = { pistol: 'Pistol crack', shotgun: 'Shotgun boom', chain: 'Rapid rattle', rocket: 'Rocket whoosh', plasma: 'Energy zap' };
@@ -155,7 +156,7 @@ function drawGun(g, w, h, d, firing, side) { return side ? drawGunSide(g, w, h, 
 const WEPF = new Map();
 function weaponArt(id, d) {
   const key = id + JSON.stringify(d.look) + d.cls; let a = WEPF.get(key); if (a) return a;
-  if (d.look.art) { const af = artWepFrames(d); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
+  if (d.look.art) { const af = artWepFrames(d, id); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
   const W_ = 160, H_ = 120;
   a = { idle: mkSprite('w' + id + 'a', W_, H_, (g, w, h) => drawGun(g, w, h, d, false)), fire: mkSprite('w' + id + 'b', W_, H_, (g, w, h) => drawGun(g, w, h, d, true)), pick: mkSprite('w' + id + 'p', Math.round(48 + 24 * d.look.length), 20, (g, w, h) => drawGun(g, w, h, d, false, true)) };
   ['w' + id + 'a', 'w' + id + 'b', 'w' + id + 'p'].forEach(k => delete SPR[k]);
@@ -163,7 +164,8 @@ function weaponArt(id, d) {
 }
 function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
 function drawCustomWeapon(g, W, H, u, bx, by) {
-  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d), img = p.fireT > 2 ? art.fire : art.idle;
+  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
+  if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
   const s = Math.min(W / 320, (H - 20 * u) / 168) * 0.95, c = spriteCanvas(img);
   g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - 20 * u - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
 }
@@ -180,6 +182,7 @@ function syncWeapons() {
     const give = { w: +id }; if (d.ammo) give[d.ammo] = d.give;
     defT(+id, d.name, 'weapon', 20, 16, null, { give, cw: d });
   }
+  if (typeof WEPF !== 'undefined') WEPF.clear();
 }
 function fireStory(d) {
   const sec = t => (t / 35).toFixed(2) + 's';

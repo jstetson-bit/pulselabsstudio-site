@@ -56,7 +56,7 @@ function gameSprites() {
   const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
     if (e.d.cw) { if (e.alive) out.push({ x: e.x, y: e.y, z: e.z, img: weaponPickupImg(e.type, e.d.cw), light: lightAt(e), id: e.ti }); continue; }
-    const cm = e.d.custom ? monFrames(e.type, e.d.custom) : null;
+    const cm = e.d.custom ? monFrames(e.type, e.d.custom, e.d.custom.look && e.d.custom.look.art && (artMon(e.d.custom.look.art) || {}).rots ? spriteRot(e.a, e.x, e.y, cam.x, cam.y) : 0) : null;
     const ds = useRes ? DSPR[e.type] : null;
     if (cm) {
       let fr;

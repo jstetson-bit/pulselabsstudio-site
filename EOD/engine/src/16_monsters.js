@@ -49,10 +49,10 @@ function rollMonster(opts = {}, parts = { look: 1, stats: 1, attack: 1, name: 1 
 function monSize(d) { if (d.look.art) { const z = artMonSize(d); if (z) return z; } const s = d.look.size || 1; return { r: Math.round(20 * s), h: Math.round(56 * s) }; }
 /* ---------- procedural sprites ---------- */
 const MONF = new Map();
-function monFrames(type, d) {
-  const key = type + ':' + JSON.stringify(d.look) + d.arch;
+function monFrames(type, d, rot) {
+  const key = type + ':' + JSON.stringify(d.look) + d.arch + (rot ? ':' + rot : '');
   let f = MONF.get(key); if (f) return f;
-  if (d.look.art) { const af = artMonFrames(d); if (af) { MONF.set(key, af); return af; } }
+  if (d.look.art) { const af = artMonFrames(d, rot); if (af) { MONF.set(key, af); return af; } }
   const sz = d.look.size || 1, W_ = Math.round((d.arch === 'crawler' ? 90 : d.arch === 'floater' ? 60 : 48) * sz), H_ = Math.round((d.arch === 'crawler' ? 56 : 66) * sz);
   f = {}; const FR = 'ABCDEFGHIJKL';
   for (let i = 0; i < FR.length; i++) {

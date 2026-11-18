@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.8 — 2026-11-18
+- EOD 0.4.1: 46 painted monsters, 22 guns, turning monsters, firing animations, thrown weapons.
+
 ## v0.7.7 — 2026-11-18
 - EOD 0.4.0: painted art library (EOD/res/art) behind the monster and weapon generators.
 
