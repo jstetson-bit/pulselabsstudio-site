@@ -38,3 +38,7 @@ The story of how EOD came to be, in the owner's words where possible.
 - Asked: *"we need panes of glass that both reflect and can break as a texture"*, then *"glass must also be transparent"*, then *"all of those glass options can be choices on or off as you build"*.
 - Decided: glass is a line setting with every part a switch (see-through, reflection, breakable, blocks movement, tint) plus sliders.
 - Built in 0.3.2: glass on two-sided lines, real reflections, cracks where you shoot, shards, quick looks; GZDoom export as translucent glass.
+
+## 2026-11-17 · Cooler guns
+- Asked: *"Are there sliders where I could have a super strong weapon and the way it looks? Like, are you making spacer rifles? Because that would be cool if you made really cool looking guns, all variations of it."*
+- Honest answer: the first gun art was plain blocks and there was no single "strength" slider. Built 0.3.3: six gun styles (space rifle, railgun, bio, heavy, raygun, classic) and a Power 1–10 slider that changes both the look and the stats.

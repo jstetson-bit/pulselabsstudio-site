@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.3.3 (vc8) — 2026-11-17 — weapon art overhaul (space rifles and more)
+- New gun art: shaded metal, glow, hands, and six **styles**: Classic military, **Space rifle** (emitter prongs, glow strips, energy coils, holo sight), **Railgun** (twin rails with glowing coils), Bio / hell-tech (organic shell, veins, glowing pods, teeth), Heavy industrial (rotary barrels, vents, hazard stripes), Retro raygun (rings, fins, emitter dish). Any class can wear any style.
+- **Power slider 1–10** (peashooter → doomsday): makes the gun bigger and brighter and, if "Power changes the stats too" is on, scales damage, splash and kick with it. Damage sliders now go to 1000/2000.
+- New look sliders/switches: size/bulk, glow strength, energy coils, emitter prongs, glow strips, panel lines, hazard stripes; "Side magazine / power cell".
+- New class: **Railgun** (cells, one precise high-damage shot).
+- Muzzle flashes match the gun: energy bursts with rays for energy styles, star flash for bullets. Pickups lying on the floor match the style.
+- In-game weapon drawn a bit smaller so it doesn't cover the view.
+- Tested in headless Chrome: a gallery of all 6 styles at power 1/4/7/10 plus firing frames, generator screens, in-game firing; no page errors.
+
 ## v0.3.2 (vc7) — 2026-11-17 — glass panes
 - **🪟 Glass** on any two-sided line (Linedefs mode → select a line → Make glass / Glass settings). Every part is its own on/off switch with settings:
   - See-through on/off + how much the glass color covers what's behind (0–100%)

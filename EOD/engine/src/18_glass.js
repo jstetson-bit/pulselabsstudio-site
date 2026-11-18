@@ -19,7 +19,7 @@ const GLASS_PRESETS = {
   'Ghost pane (walk through)': { block: 0, bullets: 0, monSee: 1, brk: 0, op: 12, rs: 25 }
 };
 function glassOf(L) { return L && L.glass ? Object.assign({}, GLASS_DEF, L.glass) : null; }
-function hexRGB(h) { const n = parseInt((h || '#9fd8ff').slice(1), 16) || 0; return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function hexRGB(h) { let x = (h || '#9fd8ff').replace('#', ''); if (x.length === 3) x = x.split('').map(c => c + c).join(''); const n = parseInt(x, 16) || 0; return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 // per-play state for a scene line
 function glassInit(L) {
   const g = glassOf(L); if (!g || L.s2 < 0) return null;

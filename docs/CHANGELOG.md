@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.6 — 2026-11-17
+- EOD 0.3.3: weapon art overhaul (space rifles, railguns, power slider).
+
 ## v0.7.2 — 2026-11-17
 - PLS Zip gets its own product page at /pls-zip/ and a card in Products (Windows PC, Android inside PLS Explorer; "Coming soon"
   until it has a price). James: it "needs to be uploaded onto the website as a product that we offer now." The deploy now copies
