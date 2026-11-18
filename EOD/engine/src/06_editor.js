@@ -91,6 +91,7 @@ function edDraw() {
     else if (L.sp) col = '#45d36a';
     else if (L.s2 >= 0) col = dark ? '#8a8a96' : '#8a8a96';
     else col = dark ? '#ffffff' : '#111';
+    if (L.glass && L.s2 >= 0) { col = '#5fd0ff'; w = 2.6; }
     if (L.tag && selTagSec.has(L.tag)) { col = '#ffd400'; w = 2.5; }
     if (E.sel.l.has(i)) { col = '#ff3040'; w = 3; }
     else if (E.hover && E.hover.k === 'l' && E.hover.i === i) { col = '#ffd400'; w = 3; }

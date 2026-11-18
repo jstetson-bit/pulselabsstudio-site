@@ -37,3 +37,4 @@ The story of how EOD came to be, in the owner's words where possible.
 ## 2026-11-17 · Glass
 - Asked: *"we need panes of glass that both reflect and can break as a texture"*, then *"glass must also be transparent"*, then *"all of those glass options can be choices on or off as you build"*.
 - Decided: glass is a line setting with every part a switch (see-through, reflection, breakable, blocks movement, tint) plus sliders.
+- Built in 0.3.2: glass on two-sided lines, real reflections, cracks where you shoot, shards, quick looks; GZDoom export as translucent glass.

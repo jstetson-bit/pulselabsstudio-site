@@ -12,7 +12,7 @@ function buildScene(secs) {
   M.l.forEach((L, idx) => {
     if (L.s1 < 0) return; const a = M.v[L.v1], b = M.v[L.v2];
     const side = s => { if (s < 0) return null; const d = M.sd[s]; return { sec: d.sec, si: s, xo: d.xo, yo: d.yo, up: d.up, mid: d.mid, lo: d.lo, upT: d.up !== '-' ? getTex(d.up) : null, midT: d.mid !== '-' ? getTex(d.mid) : null, loT: d.lo !== '-' ? getTex(d.lo) : null }; };
-    lines.push({ idx, ax: a.x, ay: a.y, bx: b.x, by: b.y, ex: b.x - a.x, ey: b.y - a.y, len: Math.hypot(b.x - a.x, b.y - a.y), s1: side(L.s1), s2: side(L.s2), f: L.f, sp: L.sp, tag: L.tag });
+    lines.push({ idx, ax: a.x, ay: a.y, bx: b.x, by: b.y, ex: b.x - a.x, ey: b.y - a.y, len: Math.hypot(b.x - a.x, b.y - a.y), s1: side(L.s1), s2: side(L.s2), f: L.f, sp: L.sp, tag: L.tag, gl: glassInit(L) });
   });
   return { lines, secs };
 }
@@ -59,7 +59,7 @@ function render3D(cam, sc, sprites) {
   const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, secs = sc.secs;
   const sky = getSky(), cz = cam.z, px = cam.x, py = cam.y, tic = (performance.now() / 28.57) | 0;
   const flats = secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(animFlat(s.ft, tic), true), c: s.ct === 'F_SKY1' ? null : getTex(animFlat(s.ct, tic), true) }));
-  bucketLines(cam, L, W, proj);
+  bucketLines(cam, L, W, proj); GLN = 0;
   for (let x = 0; x < W; x++) {
     const cx = (2 * (x + 0.5) / W - 1) * plane, rdx = ca + sa * cx, rdy = sa - ca * cx;
     let nh = 0; const b0 = BOFF[x], b1 = BOFF[x + 1];
@@ -94,6 +94,7 @@ function render3D(cam, sc, sprites) {
       }
       const F = secs[far.sec]; if (!F) break;
       const yfc = hz - (F.ch - cz) * pr, yff = hz - (F.fh - cz) * pr;
+      if (l.gl && !l.gl.broken) { const ga = Math.max(top, Math.ceil(Math.max(yc, yfc))), gb = Math.min(bot, Math.ceil(Math.min(yf, yff)) - 1); if (ga <= gb) glassRec(x, ga, gb, t, u, HI[k], ns, rdx, rdy); }
       const skyBoth = S0.ct === 'F_SKY1' && F.ct === 'F_SKY1';
       if (F.ch < S0.ch) {
         const a0 = y0, a1 = Math.min(bot, Math.ceil(yfc) - 1);
@@ -111,6 +112,7 @@ function render3D(cam, sc, sprites) {
     if (!solid) for (let y = top; y <= bot; y++) { const o = y * W + x; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
   }
   if (sprites) drawSprites(cam, sprites, hz, proj);
+  glassComposite(cam, sc, hz, proj, flats, sky);
   if (LIM.on) { let v = 0; for (const r of LIM.keys.values()) v += r.max; LIM.visplanes = v; }
 }
 function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, skyCol) {

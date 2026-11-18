@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.5 — 2026-11-17
+- EOD 0.3.2: glass panes (see-through, reflecting, breakable; every part on/off).
+
 ## v0.7.4 — 2026-11-17
 - EOD 0.3.0/0.3.1: monster generator and weapon generator.
 

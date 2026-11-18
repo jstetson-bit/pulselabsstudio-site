@@ -91,7 +91,7 @@ function gameSprites() {
   for (const fx of G.fx) {
     const fs = useRes ? FXSPR[fx.k] : null;
     const f = fs ? getSpriteFrame(fs[0], fs[1][Math.min(fs[1].length - 1, Math.floor((fx.t0 - fx.t) / (fx.t0 / fs[1].length)))], 0) : null;
-    if (f) out.push({ x: fx.x, y: fx.y, z: fx.z, img: f.img, flip: f.flip, bright: 1 }); else out.push({ x: fx.x, y: fx.y, z: fx.z, img: fx.img, bright: fx.bright });
+    if (f) out.push({ x: fx.x, y: fx.y, z: fx.z, img: f.img, flip: f.flip, bright: 1 }); else out.push({ x: fx.x, y: fx.y, z: fx.z, img: fx.img, bright: fx.bright, scale: fx.scale, light: fx.k === 'shard' ? 200 : undefined });
   }
   return out;
 }

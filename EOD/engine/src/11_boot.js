@@ -21,6 +21,7 @@ function buildSampleMap() {
     if (L.s1 >= 0 && L.s2 >= 0) for (const s of [L.s1, L.s2]) { const d = M.sd[s]; if (d.lo === S.defWall && wallFor[d.sec]) d.lo = d.sec === Pl || [s1, s2, s3].includes(d.sec) ? 'BROWN96' : wallFor[d.sec]; if ([s1, s2, s3, Pl, P].includes(d.sec)) d.lo = 'BROWN96'; }
   });
   const v = (x, y) => findVertex(x, y);
+  const gw = findLine(v(192, 896), v(320, 896)); if (gw >= 0) M.l[gw].glass = {};
   const ex = findLine(v(576, 1536), v(640, 1536)); if (ex >= 0) { M.l[ex].sp = 11; M.sd[M.l[ex].s1].mid = 'SW1EXIT'; }
   const T = (type, x, y, a = 90) => M.t.push({ x, y, a, type, f: 7 });
   T(1, 256, 96, 90);
@@ -55,7 +56,8 @@ function openManual() {
 <li><b>Exit:</b> select a wall in Linedefs mode and press <b>Make exit switch</b>.</li>
 <li><b>Outdoors:</b> select a sector and press <b>Make ceiling sky</b>.</li>
 <li><b>Tagged actions:</b> give a line an action and a tag (<b>New tag</b>), then give the target sector the same tag. The <b>Tags</b> explorer shows every pair.</li>
-<li><b>Secret:</b> set a sector's Effect to <i>Secret area</i>.</li></ul>
+<li><b>Secret:</b> set a sector's Effect to <i>Secret area</i>.</li>
+<li><b>Glass:</b> select a line between two areas (Linedefs mode) and press <b>🪟 Make glass</b>. Every part is a switch: see-through (and how much), tint color, stained-glass pattern from the middle texture, real reflection (strength, side-angle shine, distance), shine streaks, breakable (strength, cracks, flying shards, shards left on the floor, sounds, monsters can break it), blocks walking, stops bullets, monsters can see through. Quick looks: Clear window, Mirror, Frosted, Stained, Bulletproof, Pulse red, Ghost pane. Glass lines show light blue on the map. The test map has a pane between the corridor and the yard: shoot it out.</li></ul>
 <h3>Demo controls</h3>
 <ul><li>Left stick moves and strafes. Drag anywhere else (or drag across FIRE) to turn. <b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap.</li>
 <li>Layouts for portrait 9:16, landscape 16:9 and Z Fold unfolded are picked automatically. Change them in Settings. <b>Arrange</b> lets you move and resize every button with the yellow words, saved separately for each layout.</li>

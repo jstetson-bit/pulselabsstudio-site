@@ -10,6 +10,20 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.3.2 (vc7) — 2026-11-17 — glass panes
+- **🪟 Glass** on any two-sided line (Linedefs mode → select a line → Make glass / Glass settings). Every part is its own on/off switch with settings:
+  - See-through on/off + how much the glass color covers what's behind (0–100%)
+  - Tint on/off + color (Pulse red / Clear blue quick buttons); stained-glass pattern from the line's middle texture
+  - Real reflection on/off (mirror ray of walls, steps, floor, ceiling, sky, other glass) + strength, "stronger from the side" (Fresnel) on/off, reflection distance
+  - Shine streaks on/off
+  - Breakable on/off + strength (hit points), cracks where it's hit, flying shards, shards stay on the floor, glass sounds, monster attacks can break it
+  - Blocks walking on/off, stops bullets/fireballs/rockets on/off, monsters can see through on/off
+  - Quick looks: Clear window, Mirror, Frosted, Stained, Bulletproof, Pulse red, Ghost pane; Remove glass
+- Monsters and sprites behind glass are tinted by it; bullets, melee, projectiles and explosion splash all damage it; monsters' hitscan hits the glass first; explosions don't pass through intact glass.
+- Glass lines draw light blue on the 2D map. Test map: a pane between the corridor and the yard (shoot it out).
+- WAD export: glass becomes a translucent PNG middle texture (EODGLSxx in TX_START) with Boom/GZDoom line action 260 (translucent) and impassable while "blocks walking" is on. Breaking and reflection are EOD-engine only.
+- Tested in headless Chrome: rendering (clear, angled, mirror, Pulse red), blocking, cracking, breaking (shards fly and settle), walk-through after break, WAD lumps, no page errors; ~3–5 ms per frame with glass on screen.
+
 ## v0.3.1 (vc6) — 2026-11-17 — weapon generator
 - **🎲 Weapon generator** (Things mode toolbar, Thing browser, File menu): rolls a Doom-style gun. Classes: sidearm, shotgun, repeater, explosive, energy, super, melee. Every stat has a slider and its own reroll: damage, pellets, spread, fire rate, ammo type and cost, projectile speed/splash, range (melee), recoil, starting ammo on pickup. Options: name, color palette (Pulse red default), start with it, slot.
 - Procedural first-person art (idle + fire frames with muzzle flash) and a pickup sprite; plain-words "fire story" preview of what one trigger pull does.

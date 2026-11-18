@@ -54,7 +54,7 @@ function refreshProps() {
   } else if (ls.length) {
     const L = M.l[ls[0]]; tt.textContent = ls.length > 1 ? ls.length + ' linedefs' : 'Linedef ' + ls[0];
     const fr = L.s1 >= 0 ? M.sd[L.s1] : null, bk = L.s2 >= 0 ? M.sd[L.s2] : null;
-    h = `${fieldSel('lS', 'Action', L.sp, LINE_SPECIALS)}<div class="f"><label>Tag</label><div class="texf"><input id="lT" type="number" value="${L.tag}"><button id="lTn">New tag</button></div></div><div class="row"><button id="mkExit">Make exit switch</button></div><div class="h">Flags</div>${[[1, 'Impassable'], [2, 'Block monsters'], [4, 'Two-sided'], [8, 'Upper unpegged'], [16, 'Lower unpegged'], [32, 'Secret (shows as wall on map)'], [64, 'Block sound'], [128, 'Hidden on map'], [256, 'Already on map']].map(([b, n]) => `<label class="chk"><input type="checkbox" data-lf="${b}" ${L.f & b ? 'checked' : ''}>${n}</label>`).join('')}`;
+    h = `${fieldSel('lS', 'Action', L.sp, LINE_SPECIALS)}<div class="f"><label>Tag</label><div class="texf"><input id="lT" type="number" value="${L.tag}"><button id="lTn">New tag</button></div></div><div class="row"><button id="mkExit">Make exit switch</button></div><div class="h">Glass</div>${L.s2 >= 0 ? `<div class="row"><button id="mkGlass">🪟 ${L.glass ? 'Glass settings' : 'Make glass'}</button></div><p class="hint">Glass: ${esc(glassLabel(L))}</p>` : '<p class="hint">Glass goes on a line between two areas (two-sided).</p>'}<div class="h">Flags</div>${[[1, 'Impassable'], [2, 'Block monsters'], [4, 'Two-sided'], [8, 'Upper unpegged'], [16, 'Lower unpegged'], [32, 'Secret (shows as wall on map)'], [64, 'Block sound'], [128, 'Hidden on map'], [256, 'Already on map']].map(([b, n]) => `<label class="chk"><input type="checkbox" data-lf="${b}" ${L.f & b ? 'checked' : ''}>${n}</label>`).join('')}`;
     for (const [k, d] of [['F', fr], ['B', bk]]) {
       if (!d) { h += `<div class="h">${k === 'F' ? 'Front' : 'Back'} side</div><p class="hint">None${k === 'F' ? ' (use Make Sector)' : ' (one-sided wall)'}</p>`; continue; }
       h += `<div class="h">${k === 'F' ? 'Front' : 'Back'} side · sector ${d.sec}</div>${fieldTex('d' + k + 'u', 'Upper', d.up, 0)}${fieldTex('d' + k + 'm', 'Middle', d.mid, 0)}${fieldTex('d' + k + 'l', 'Lower', d.lo, 0)}${fieldNum('d' + k + 'x', 'Offset X', d.xo)}${fieldNum('d' + k + 'y', 'Offset Y', d.yo)}`;
@@ -92,6 +92,7 @@ function bindProps(body, ss, ls, ts, vs) {
   // lines
   on('lS', e => ls.forEach(i => M.l[i].sp = +e.value)); on('lT', e => ls.forEach(i => M.l[i].tag = +e.value));
   const lt = body.querySelector('#lTn'); if (lt) lt.onclick = () => { pushUndo(); const t = nextTag(); ls.forEach(i => M.l[i].tag = t); mapChanged(); toast('Tag ' + t + ': now give the target sector the same tag'); };
+  const mg = body.querySelector('#mkGlass'); if (mg) mg.onclick = () => openGlass(ls);
   const mx = body.querySelector('#mkExit'); if (mx) mx.onclick = () => { pushUndo(); ls.forEach(i => { const L = M.l[i]; L.sp = 11; if (L.s1 >= 0) { if (L.s2 < 0) M.sd[L.s1].mid = 'SW1EXIT'; else M.sd[L.s1].lo = 'SW1EXIT'; } }); mapChanged(); toast('Exit switch: press USE on its front side'); };
   body.querySelectorAll('input[data-lf]').forEach(c => c.onchange = () => { pushUndo(); const b = +c.dataset.lf; ls.forEach(i => { M.l[i].f = c.checked ? M.l[i].f | b : M.l[i].f & ~b; }); mapChanged(); });
   for (const k of ['F', 'B']) {

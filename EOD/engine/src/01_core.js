@@ -1,6 +1,6 @@
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.3.1', VC = 6;
+const VERSION = '0.3.2', VC = 7;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -138,6 +138,8 @@ function sfx(kind, vol = 1) {
     case 'die': noise(0.6, 800, 60, 0.5); break;
     case 'fire': noise(0.3, 1200, 200, 0.3); break;
     case 'tele': tone('sine', 200, 1200, 0.5, 0.3); break;
+    case 'glass': noise(0.7, 12000, 1500, 0.7); tone('triangle', 3100, 2300, 0.35, 0.12); tone('sine', 4200, 3600, 0.5, 0.08); tone('triangle', 2600, 2000, 0.6, 0.07); break;
+    case 'glasshit': tone('sine', 3400, 2800, 0.12, 0.16); noise(0.08, 9000, 3000, 0.25); break;
     case 'secret': tone('triangle', 500, 1500, 0.6, 0.3); break;
   }
 }

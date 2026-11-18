@@ -95,6 +95,7 @@ function blockedBy(ent, nx, ny, isPlayer) {
     const B = () => { hit = l; return false; };
     if (!l.s2) return B();
     if (l.f & 1) return B(); if (!isPlayer && (l.f & 2)) return B();
+    if (l.gl && !l.gl.broken && l.gl.block) return B();
     const o = opening(l);
     if (o.top - o.bot < ent.h) return B();
     if (o.bot - ent.z > 24 && !(ent.d && ent.d.float)) return B();
@@ -127,6 +128,7 @@ function sight(ax, ay, az, bx, by, bz) {
   gridEach(ax, ay, bx, by, l => {
     const r = lineCross(ax, ay, bx, by, l); if (!r) return;
     if (!l.s2) { ok = false; return false; }
+    if (l.gl && !l.gl.broken && !(l.gl.see && l.gl.monSee)) { ok = false; return false; }
     const o = opening(l); const z = az + (bz - az) * r.t;
     if (z <= o.bot || z >= o.top) { ok = false; return false; }
   });
@@ -138,7 +140,7 @@ function wallDistAlong(x, y, z, a, max) {
     const r = lineCross(x, y, ex, ey, l); if (!r) return; const d = r.t * max;
     if (d >= best) return;
     if (!l.s2) { best = d; hit = l; return; }
-    const o = opening(l); if (z <= o.bot || z >= o.top) { best = d; hit = l; }
+    const o = opening(l); if (z <= o.bot || z >= o.top || (l.gl && !l.gl.broken && l.gl.bullets)) { best = d; hit = l; }
   });
   return { d: best, l: hit };
 }
@@ -259,8 +261,9 @@ function damagePlayer(dmg) {
 }
 function explode(x, y, z, radius, maxd, src) {
   G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, t0: 14, k: 'explode', bright: 1 }); sfx('explode');
-  for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; const d = Math.hypot(e.x - x, e.y - y) - e.r; if (d < radius && sight(x, y, z, e.x, e.y, e.z + e.h / 2)) damageMonster(e, Math.max(1, Math.round(maxd * (1 - Math.max(0, d) / radius))), src); }
-  if (G.p) { const d = Math.hypot(G.p.x - x, G.p.y - y) - G.p.r; if (d < radius && sight(x, y, z, G.p.x, G.p.y, G.p.z + 32)) damagePlayer(Math.round(maxd * (1 - Math.max(0, d) / radius) * (src === 'player' ? 0.5 : 1))); }
+  glassExplode(x, y, z, radius, maxd, src);
+  for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; const d = Math.hypot(e.x - x, e.y - y) - e.r; if (d < radius && sight(x, y, z, e.x, e.y, e.z + e.h / 2) && !glassBetween(x, y, z, e.x, e.y, e.z + e.h / 2)) damageMonster(e, Math.max(1, Math.round(maxd * (1 - Math.max(0, d) / radius))), src); }
+  if (G.p) { const d = Math.hypot(G.p.x - x, G.p.y - y) - G.p.r; if (d < radius && sight(x, y, z, G.p.x, G.p.y, G.p.z + 32) && !glassBetween(x, y, z, G.p.x, G.p.y, G.p.z + 32)) damagePlayer(Math.round(maxd * (1 - Math.max(0, d) / radius) * (src === 'player' ? 0.5 : 1))); }
 }
 function hitscan(a, dmg) {
   const p = G.p, z = p.viewz - 8, w = wallDistAlong(p.x, p.y, z, a, 2048);
@@ -270,6 +273,7 @@ function hitscan(a, dmg) {
     if (Math.abs(dx * s - dy * c) < e.r && sight(p.x, p.y, z, e.x, e.y, e.z + e.h * 0.5)) { best = e; bd = al; }
   }
   if (best) { damageMonster(best, dmg, 'player'); return true; }
+  if (glassLive(w.l)) damageGlass(w.l, dmg, p.x + c * w.d, p.y + s * w.d, z, 'player');
   G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
   return false;
 }
@@ -285,7 +289,7 @@ function fireWeapon() {
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   p.cool = w.rate; p.fireT = 6; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const a = autoAim(p.a);
-  if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); break; } }
+  if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); ww.hitMon = 1; break; } if (!ww.hitMon && glassLive(ww.l)) damageGlass(ww.l, rnd(...w.dmg), p.x + Math.cos(a) * ww.d, p.y + Math.sin(a) * ww.d, p.viewz - 8, 'player'); }
   else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, 0); }
   else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg));
   p.refire = true;
@@ -301,8 +305,9 @@ function tickProjs() {
     const P = PROJ[pr.kind], steps = 3;
     for (let s = 0; s < steps && !pr.dead; s++) {
       const nx = pr.x + pr.vx / steps, ny = pr.y + pr.vy / steps, nz = pr.z + pr.vz / steps;
-      let hitWall = false;
-      gridEach(pr.x, pr.y, nx, ny, l => { const r = lineCross(pr.x, pr.y, nx, ny, l); if (!r) return; if (!l.s2) { hitWall = true; return false; } const o = opening(l); if (nz <= o.bot || nz >= o.top) { hitWall = true; return false; } });
+      let hitWall = false, hitGlass = null;
+      gridEach(pr.x, pr.y, nx, ny, l => { const r = lineCross(pr.x, pr.y, nx, ny, l); if (!r) return; if (!l.s2) { hitWall = true; return false; } const o = opening(l); if (nz <= o.bot || nz >= o.top) { hitWall = true; return false; } if (l.gl && !l.gl.broken && l.gl.bullets) { hitWall = true; hitGlass = l; return false; } });
+      if (hitGlass && !P.splash) damageGlass(hitGlass, rnd(...P.dmg), pr.x, pr.y, pr.z, pr.owner);
       const si = gSectorAt(nx, ny); if (si < 0 || nz < G.secs[si].fh || nz > G.secs[si].ch) hitWall = true;
       if (!hitWall) {
         if (pr.owner === 'player') { for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; if (Math.hypot(e.x - nx, e.y - ny) < e.r + 8 && nz > e.z - 8 && nz < e.z + e.h + 8) { damageMonster(e, rnd(...P.dmg), 'player'); hitWall = true; break; } } }
@@ -348,7 +353,9 @@ function monsterAttack(e, dist) {
   if (d.atk === 'melee') return;
   if (!sight(e.x, e.y, e.z + 41, p.x, p.y, p.viewz)) return;
   e.flash = 4;
-  if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg)); } }
+  const gb = d.atk === 'hit' ? glassBetween(e.x, e.y, e.z + 41, p.x, p.y, p.viewz) : null;
+  if (gb) { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
+  else if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg)); } }
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
   if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
@@ -412,7 +419,7 @@ function gameTic() {
   } else if (IN.use) { IN.use = false; }
   tickMovers();
   G.ents.forEach(e => { if (!e.alive) return; if (!e.d.float) { const s = e.sec >= 0 ? G.secs[e.sec] : null; if (s) e.z = s.fh; } });
-  G.fx.forEach(f => f.t--); G.fx = G.fx.filter(f => f.t > 0);
+  tickShards(); G.fx.forEach(f => f.t--); G.fx = G.fx.filter(f => f.t > 0);
   G.msgs = G.msgs.filter(m => m.until > G.tic);
 }
 function gameFrame(now) {

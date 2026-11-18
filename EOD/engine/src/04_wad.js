@@ -76,19 +76,21 @@ function udmfInto(txt, out) {
 function wrName(u8, off, s) { s = (s || '').toUpperCase(); for (let i = 0; i < 8; i++) u8[off + i] = i < s.length ? s.charCodeAt(i) : 0; }
 function buildWad() {
   compact();
-  const lines = M.l.filter(L => L.s1 >= 0);
+  const lines = M.l.filter(L => L.s1 >= 0), GX_ = glassExportPlan(lines);
   const mk = (n, sz) => { const b = new ArrayBuffer(n * sz); return { dv: new DataView(b), u8: new Uint8Array(b) }; };
   const T = mk(M.t.length, 10); M.t.forEach((t, i) => { const o = i * 10; T.dv.setInt16(o, t.x, true); T.dv.setInt16(o + 2, t.y, true); T.dv.setInt16(o + 4, t.a, true); T.dv.setInt16(o + 6, t.type, true); T.dv.setInt16(o + 8, t.f, true); });
-  const Ld = mk(lines.length, 14); lines.forEach((L, i) => { const o = i * 14; Ld.dv.setUint16(o, L.v1, true); Ld.dv.setUint16(o + 2, L.v2, true); Ld.dv.setUint16(o + 4, L.f, true); Ld.dv.setInt16(o + 6, L.sp, true); Ld.dv.setInt16(o + 8, L.tag, true); Ld.dv.setUint16(o + 10, L.s1 < 0 ? 0xFFFF : L.s1, true); Ld.dv.setUint16(o + 12, L.s2 < 0 ? 0xFFFF : L.s2, true); });
-  const Sd = mk(M.sd.length, 30); M.sd.forEach((d, i) => { const o = i * 30; Sd.dv.setInt16(o, d.xo, true); Sd.dv.setInt16(o + 2, d.yo, true); wrName(Sd.u8, o + 4, d.up); wrName(Sd.u8, o + 12, d.lo); wrName(Sd.u8, o + 20, d.mid); Sd.dv.setUint16(o + 28, d.sec, true); });
+  const Ld = mk(lines.length, 14); lines.forEach((L, i) => { const o = i * 14; Ld.dv.setUint16(o, L.v1, true); Ld.dv.setUint16(o + 2, L.v2, true); const gm = GX_.lineMod.get(L); Ld.dv.setUint16(o + 4, gm ? gm.f : L.f, true); Ld.dv.setInt16(o + 6, gm ? gm.sp : L.sp, true); Ld.dv.setInt16(o + 8, L.tag, true); Ld.dv.setUint16(o + 10, L.s1 < 0 ? 0xFFFF : L.s1, true); Ld.dv.setUint16(o + 12, L.s2 < 0 ? 0xFFFF : L.s2, true); });
+  const Sd = mk(M.sd.length, 30); M.sd.forEach((d, i) => { const o = i * 30; Sd.dv.setInt16(o, d.xo, true); Sd.dv.setInt16(o + 2, d.yo, true); wrName(Sd.u8, o + 4, d.up); wrName(Sd.u8, o + 12, d.lo); wrName(Sd.u8, o + 20, GX_.sideMid.get(i) || d.mid); Sd.dv.setUint16(o + 28, d.sec, true); });
   const V = mk(M.v.length, 4); M.v.forEach((v, i) => { V.dv.setInt16(i * 4, v.x, true); V.dv.setInt16(i * 4 + 2, v.y, true); });
   const Se = mk(M.sec.length, 26); M.sec.forEach((s, i) => { const o = i * 26; Se.dv.setInt16(o, s.fh, true); Se.dv.setInt16(o + 2, s.ch, true); wrName(Se.u8, o + 4, s.ft); wrName(Se.u8, o + 12, s.ct); Se.dv.setInt16(o + 20, s.li, true); Se.dv.setInt16(o + 22, s.sp, true); Se.dv.setInt16(o + 24, s.tag, true); });
   const E = new Uint8Array(0);
   const lumps = [[M.name || 'MAP01', E], ['THINGS', T.u8], ['LINEDEFS', Ld.u8], ['SIDEDEFS', Sd.u8], ['VERTEXES', V.u8], ['SEGS', E], ['SSECTORS', E], ['NODES', E], ['SECTORS', Se.u8], ['REJECT', E], ['BLOCKMAP', E]];
   if (M.res) { const tx = []; const dec = src => { const b64 = src.split(',')[1] || '', bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
     Object.entries(M.res.tex || {}).forEach(([n, v]) => tx.push([n, dec(v.src)])); const fl = Object.entries(M.res.flat || {}).filter(([n]) => !(M.res.tex || {})[n]).map(([n, v]) => [n, dec(v.src)]);
+    tx.push(...GX_.lumps);
     if (tx.length) lumps.push(['TX_START', E], ...tx, ['TX_END', E]);
     if (fl.length) lumps.push(['FF_START', E], ...fl, ['FF_END', E]); }
+  if (!M.res && GX_.lumps.length) lumps.push(['TX_START', E], ...GX_.lumps, ['TX_END', E]);
   const hasMon = M.mon && Object.keys(M.mon).length, hasWep = M.wep && Object.keys(M.wep).length;
   if (hasMon || hasWep) { const mx = hasMon ? monsterExportLumps() : { decorate: '', sprites: [] }, wx = hasWep ? weaponExportLumps() : { decorate: '', sprites: [] }; lumps.push(['DECORATE', new TextEncoder().encode(mx.decorate + wx.decorate)], ['S_START', E], ...mx.sprites, ...wx.sprites, ['S_END', E]); }
   let size = 12; lumps.forEach(l => size += l[1].length);
