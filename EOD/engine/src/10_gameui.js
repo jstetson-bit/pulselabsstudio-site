@@ -55,7 +55,15 @@ function gameSprites() {
   const out = [], cam = G.p, useRes = RES.packs.length > 0 && !!resPal();
   const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
+    const cm = e.d.custom ? monFrames(e.type, e.d.custom) : null;
     const ds = useRes ? DSPR[e.type] : null;
+    if (cm) {
+      let fr;
+      if (!e.alive) { const k = Math.min(4, Math.floor((G.tic - (e.diedAt || 0)) / 5)); fr = 'HIJKL'[k]; }
+      else if (e.pain > 0) fr = 'G'; else if (e.atk > 0 || e.flash > 0) fr = (e.flash > 0 || e.atk <= 3) ? 'F' : 'E'; else fr = e.state === 'idle' ? 'A' : 'ABCD'[Math.floor(e.anim / 6) % 4];
+      out.push({ x: e.x, y: e.y, z: e.z, img: cm[fr], flip: e.alive && e.flip && fr < 'E', bright: e.flash > 0, fuzz: e.d.fuzz, light: lightAt(e), id: e.ti }); if (e.flash > 0) e.flash--;
+      continue;
+    }
     if (e.alive) {
       let spr = null;
       if (ds) {

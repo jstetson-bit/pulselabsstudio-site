@@ -124,9 +124,9 @@ function openTexBrowser(flat, current, cb) {
   render(''); b.querySelector('#txq').oninput = e => render(e.target.value.toUpperCase());
 }
 function openThingBrowser(cb) {
-  const cats = {}; Object.values(THINGS).forEach(t => (cats[t.cat] = cats[t.cat] || []).push(t));
-  let h = ''; for (const c in cats) { h += `<div class="h">${CAT_NAME[c]}</div><div class="list">` + cats[c].map(t => `<button data-t="${t.type}"><span class="dot" style="background:${CAT_COLOR[c]}"></span>${t.type} · ${esc(t.name)}</button>`).join('') + '</div>'; }
-  modal('Thing browser', h, [{ cancel: 1 }], b => b.querySelectorAll('button[data-t]').forEach(x => x.onclick = () => { closeModal(); cb(+x.dataset.t); }));
+  const cats = {}; Object.values(THINGS).forEach(t => { const c = t.custom ? 'custom' : t.cat; (cats[c] = cats[c] || []).push(t); });
+  let h = '<div class="row"><button id="tbGen" class="demo">🎲 Monster generator</button><button id="tbBest">My monsters</button></div>'; for (const c in cats) { h += `<div class="h">${c === 'custom' ? 'Custom monsters (this map)' : CAT_NAME[c]}</div><div class="list">` + cats[c].map(t => `<button data-t="${t.type}"><span class="dot" style="background:${CAT_COLOR[c] || '#ff3b3b'}"></span>${t.type} · ${esc(t.name)}</button>`).join('') + '</div>'; }
+  modal('Thing browser', h, [{ cancel: 1 }], b => { b.querySelectorAll('button[data-t]').forEach(x => x.onclick = () => { closeModal(); cb(+x.dataset.t); }); b.querySelector('#tbGen').onclick = () => { closeModal(); setTimeout(() => openMonsterGen(), 30); }; b.querySelector('#tbBest').onclick = () => { closeModal(); setTimeout(openBestiary, 30); }; });
 }
 function openAnalysis() {
   const iss = analyzeMap();
@@ -174,6 +174,7 @@ function openFileMenu() {
   <button id="fUpd">Check for updates</button>
   <button id="fPub" class="demo">Publish to EOD (share it)</button>
   <button id="fTex">My textures (add your own walls and floors)</button>
+  <button id="fMon">🎲 Monster generator / my monsters</button>
   <button id="fLib">Open from the EOD library</button>
   <button id="fNew">New blank map</button>
   <button id="fSample">Load the test map (Hangar of Shit)</button>
@@ -185,6 +186,7 @@ function openFileMenu() {
     b.querySelector('#fAbout').onclick = () => { closeModal(); openAbout(); };
     b.querySelector('#fUpd').onclick = () => { closeModal(); checkUpdates(); };
     b.querySelector('#fTex').onclick = () => { closeModal(); openMyTextures(); };
+    b.querySelector('#fMon').onclick = () => { closeModal(); openBestiary(); };
     b.querySelector('#fPub').onclick = () => { closeModal(); eodPublish(); };
     b.querySelector('#fLib').onclick = () => { closeModal(); eodLibrary(); };
     b.querySelector('#fNew').onclick = () => { closeModal(); modal('Start a new blank map?', '<p>Your current map stays in Undo, so one Undo brings it back.</p>', [{ ok: 1, fn: () => { pushUndo(); M = emptyMap(); clearSel(); mapChanged(); zoomFit(); } }, { cancel: 1 }]); };

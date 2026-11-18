@@ -10,7 +10,7 @@ async function eodBoot() {
   const me = await EODB.user().catch(() => null), mine = me && me.id === m.owner;
   if (play) {
     EODP.playOnly = { id, title: m.title, author: m.author };
-    const keep = M; M = m.data; compact(); syncCustomTex(true);
+    const keep = M; M = m.data; compact(); syncCustomTex(true); syncMonsters();
     const p1 = M.t.find(t => t.type === 1);
     if (!p1) { M = keep; return toast('That map has no Player 1 Start', 4000); }
     initGame('play', { x: p1.x, y: p1.y, a: p1.a });

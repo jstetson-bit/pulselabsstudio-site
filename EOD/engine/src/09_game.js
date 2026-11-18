@@ -242,7 +242,7 @@ function damageMonster(e, dmg, src) {
   e.hp -= dmg;
   G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10, t0: 10, k: 'blood' });
   if (e.hp <= 0) {
-    e.alive = false; e.state = 'dead';
+    e.alive = false; e.state = 'dead'; e.diedAt = G.tic;
     if (e.d.barrel) { explode(e.x, e.y, e.z + 20, 128, 128, src); return; }
     if (e.d.cat === 'monster') { G.kills++; sfx('die'); if (e.d.drop) G.ents.push({ id: 9000 + G.ents.length, x: e.x + 8, y: e.y, z: e.z, d: THINGS[e.d.drop], type: e.d.drop, r: 20, h: 16, alive: true, dropped: true, sec: e.sec }); }
     return;
@@ -328,8 +328,8 @@ function tickMonsters() {
     if ((G.tic + e.id) % 4 === 0) e.los = sight(e.x, e.y, e.z + 41, p.x, p.y, p.viewz);
     const meleeR = e.r + p.r + 24;
     if (e.los && e.cool <= 0) {
-      if (e.d.melee && dist < meleeR) { e.atk = 8; e.cool = 25; continue; }
-      if (e.d.atk !== 'melee' && Math.random() < (dist < 600 ? 0.07 : 0.03)) { e.atk = 10; e.burst = e.d.burst || 1; e.cool = 35 + rnd(0, 40); continue; }
+      if (e.d.melee && dist < meleeR) { e.atk = 8; e.meleeing = true; e.cool = 25; continue; }
+      if (e.d.atk !== 'melee' && Math.random() < (dist < 600 ? 0.07 : 0.03) * (e.d.aggro || 1)) { e.atk = e.d.windup || 10; e.meleeing = false; e.burst = e.d.burst || 1; e.cool = (e.d.coolMin != null ? e.d.coolMin : 35) + rnd(0, e.d.coolVar != null ? e.d.coolVar : 40); continue; }
     }
     // movement
     if (e.dirT > 0) e.dirT--;
@@ -349,7 +349,7 @@ function monsterAttack(e, dist) {
   e.flash = 4;
   if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg)); } }
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
-  if (--e.burst > 0) e.atk = 4;
+  if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
 function tickPickups() {
   const p = G.p;
