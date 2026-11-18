@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.4.3 (vc12) — 2026-11-18 — library grows to 74 monsters, 61 guns
+- From four more GPT sheets: **28 new monsters, every one with 5 painted angles (turns in all 8 directions) and a painted death** (Gore Eye, Azure Skull, Dawn Cleric, Magma Brute, Crimson Crusader, Blood Gargoyle, Jade Wraith, Void Sorcerer, Goblin Gunner, Flesh Brute, Iron Horn, Furnace Widow, Brain Maw, Bone Templar, Blue Specter, Crowned Void Skull, Blood Warlock, Fallen Seraph, Mist Wraith, War Crab, War Mech, Ember Golem, Red Paladin, Mecha Crab, Steel Trooper, Wing Fiend, Mecha Eye, Storm Golem).
+- **39 new guns/blades** with painted firing frames. 8 whose frames came out glued together are hidden from the pickers until recut (marked `hide` in the manifest).
+- Totals: 74 monsters (29 turn in 8 directions), 61 weapons (53 shown, 35 with painted firing animations).
+
 ## v0.4.2 (vc11) — 2026-11-18 — Pulse Forge art in EOD
 - Art made in **Pulse Forge** (pulselabsstudio.com/forge) shows up in both generators' Painted art lists, marked ⚒ (read from the shared IndexedDB library, refreshed when you come back to the tab).
 - A map that uses Forge art carries a copy of it (pictures + description) so published maps and playable exports show it to everyone.

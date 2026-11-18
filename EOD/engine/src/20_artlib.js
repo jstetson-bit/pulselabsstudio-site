@@ -136,8 +136,8 @@ function artWepFrames(d, id) {
 // sizes for collision when a painted body is used
 function artMonSize(d) { const a = artMon(d.look.art); if (!a) return null; const s = d.look.size || 1, h = Math.round(a.h * s), w = Math.round((a.w || a.h * .8) * (a.h / (a.h)) * s); return { r: clamp(Math.round(w / 2.6), 12, 64), h }; }
 function artPickFor(kind, want) { // random library entry, preferring a matching archetype / class
-  const list = ARTL.man ? ARTL.man[kind] : []; if (!list.length) return null;
+  const list = ARTL.man ? ARTL.man[kind].filter(x => !x.hide) : []; if (!list.length) return null;
   const key = kind === 'monsters' ? 'arch' : 'cls', match = want ? list.filter(x => x[key] === want) : [];
   const pool = match.length ? match : list; return pool[Math.floor(Math.random() * pool.length)];
 }
-function artOptions(kind) { const list = ARTL.man ? ARTL.man[kind] : []; return Object.assign({ '': kind === 'monsters' ? 'Old style (drawn by code)' : 'Old style (drawn by code)' }, Object.fromEntries(list.map(x => [x.id, x.name]))); }
+function artOptions(kind) { const list = ARTL.man ? ARTL.man[kind].filter(x => !x.hide) : []; return Object.assign({ '': kind === 'monsters' ? 'Old style (drawn by code)' : 'Old style (drawn by code)' }, Object.fromEntries(list.map(x => [x.id, x.name]))); }

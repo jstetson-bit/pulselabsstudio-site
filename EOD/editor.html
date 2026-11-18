@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.4.2', VC = 11;
+const VERSION = '0.4.3', VC = 12;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4467,11 +4467,11 @@ function artWepFrames(d, id) {
 // sizes for collision when a painted body is used
 function artMonSize(d) { const a = artMon(d.look.art); if (!a) return null; const s = d.look.size || 1, h = Math.round(a.h * s), w = Math.round((a.w || a.h * .8) * (a.h / (a.h)) * s); return { r: clamp(Math.round(w / 2.6), 12, 64), h }; }
 function artPickFor(kind, want) { // random library entry, preferring a matching archetype / class
-  const list = ARTL.man ? ARTL.man[kind] : []; if (!list.length) return null;
+  const list = ARTL.man ? ARTL.man[kind].filter(x => !x.hide) : []; if (!list.length) return null;
   const key = kind === 'monsters' ? 'arch' : 'cls', match = want ? list.filter(x => x[key] === want) : [];
   const pool = match.length ? match : list; return pool[Math.floor(Math.random() * pool.length)];
 }
-function artOptions(kind) { const list = ARTL.man ? ARTL.man[kind] : []; return Object.assign({ '': kind === 'monsters' ? 'Old style (drawn by code)' : 'Old style (drawn by code)' }, Object.fromEntries(list.map(x => [x.id, x.name]))); }
+function artOptions(kind) { const list = ARTL.man ? ARTL.man[kind].filter(x => !x.hide) : []; return Object.assign({ '': kind === 'monsters' ? 'Old style (drawn by code)' : 'Old style (drawn by code)' }, Object.fromEntries(list.map(x => [x.id, x.name]))); }
 
 try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }
 

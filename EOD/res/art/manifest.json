@@ -323,6 +323,258 @@
    "w": 83,
    "rots": 5,
    "death": 6
+  },
+  {
+   "id": "gore_eye",
+   "name": "Gore Eye",
+   "arch": "floater",
+   "h": 50,
+   "w": 59,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "azure_skull",
+   "name": "Azure Skull",
+   "arch": "floater",
+   "h": 46,
+   "w": 55,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "dawn_cleric",
+   "name": "Dawn Cleric",
+   "arch": "imp",
+   "h": 62,
+   "w": 71,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "magma_brute",
+   "name": "Magma Brute",
+   "arch": "hulk",
+   "h": 74,
+   "w": 87,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "crimson_crusader",
+   "name": "Crimson Crusader",
+   "arch": "soldier",
+   "h": 62,
+   "w": 66,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "blood_gargoyle",
+   "name": "Blood Gargoyle",
+   "arch": "floater",
+   "h": 56,
+   "w": 72,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "jade_wraith",
+   "name": "Jade Wraith",
+   "arch": "floater",
+   "h": 62,
+   "w": 66,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "void_sorcerer",
+   "name": "Void Sorcerer",
+   "arch": "imp",
+   "h": 64,
+   "w": 73,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "goblin_gunner",
+   "name": "Goblin Gunner",
+   "arch": "soldier",
+   "h": 52,
+   "w": 42,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "flesh_brute",
+   "name": "Flesh Brute",
+   "arch": "hulk",
+   "h": 70,
+   "w": 80,
+   "rots": 5,
+   "death": 0
+  },
+  {
+   "id": "iron_horn",
+   "name": "Iron Horn",
+   "arch": "hulk",
+   "h": 78,
+   "w": 84,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "furnace_widow",
+   "name": "Furnace Widow",
+   "arch": "crawler",
+   "h": 56,
+   "w": 85,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "brain_maw",
+   "name": "Brain Maw",
+   "arch": "floater",
+   "h": 58,
+   "w": 67,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "bone_templar",
+   "name": "Bone Templar",
+   "arch": "soldier",
+   "h": 66,
+   "w": 69,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "blue_specter",
+   "name": "Blue Specter",
+   "arch": "floater",
+   "h": 60,
+   "w": 56,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "crowned_skull_v",
+   "name": "Crowned Void Skull",
+   "arch": "floater",
+   "h": 50,
+   "w": 68,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "blood_warlock",
+   "name": "Blood Warlock",
+   "arch": "imp",
+   "h": 66,
+   "w": 90,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "fallen_seraph",
+   "name": "Fallen Seraph",
+   "arch": "imp",
+   "h": 74,
+   "w": 119,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "mist_wraith",
+   "name": "Mist Wraith",
+   "arch": "floater",
+   "h": 64,
+   "w": 99,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "war_crab",
+   "name": "War Crab",
+   "arch": "crawler",
+   "h": 56,
+   "w": 98,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "war_mech",
+   "name": "War Mech",
+   "arch": "cyber",
+   "h": 80,
+   "w": 75,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "ember_golem",
+   "name": "Ember Golem",
+   "arch": "hulk",
+   "h": 78,
+   "w": 88,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "red_paladin",
+   "name": "Red Paladin",
+   "arch": "soldier",
+   "h": 64,
+   "w": 63,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "mecha_crab",
+   "name": "Mecha Crab",
+   "arch": "crawler",
+   "h": 52,
+   "w": 71,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "steel_trooper",
+   "name": "Steel Trooper",
+   "arch": "soldier",
+   "h": 58,
+   "w": 108,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "wing_fiend",
+   "name": "Wing Fiend",
+   "arch": "imp",
+   "h": 66,
+   "w": 87,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "mecha_eye",
+   "name": "Mecha Eye",
+   "arch": "floater",
+   "h": 50,
+   "w": 69,
+   "rots": 5,
+   "death": 5
+  },
+  {
+   "id": "storm_golem",
+   "name": "Storm Golem",
+   "arch": "hulk",
+   "h": 80,
+   "w": 125,
+   "rots": 5,
+   "death": 5
   }
  ],
  "weapons": [
@@ -664,6 +916,636 @@
     4
    ],
    "pick": "p_pulse_rifle.png"
+  },
+  {
+   "id": "arc_cannon",
+   "name": "Arc Cannon",
+   "cls": "energy",
+   "frames": [
+    "x_arc_cannon_1.png",
+    "x_arc_cannon_2.png",
+    "x_arc_cannon_3.png",
+    "x_arc_cannon_4.png",
+    "x_arc_cannon_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_arc_cannon.png",
+   "proj": "xj_arc_cannon.png"
+  },
+  {
+   "id": "ripper_pump",
+   "name": "Ripper Pump",
+   "cls": "shotgun",
+   "frames": [
+    "x_ripper_pump_1.png",
+    "x_ripper_pump_2.png",
+    "x_ripper_pump_3.png",
+    "x_ripper_pump_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_ripper_pump.png"
+  },
+  {
+   "id": "hell_gatling",
+   "name": "Hell Gatling",
+   "cls": "repeater",
+   "frames": [
+    "x_hell_gatling_1.png",
+    "x_hell_gatling_2.png",
+    "x_hell_gatling_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_hell_gatling.png",
+   "hide": true
+  },
+  {
+   "id": "scorch_launcher",
+   "name": "Scorch Launcher",
+   "cls": "explosive",
+   "frames": [
+    "x_scorch_launcher_1.png",
+    "x_scorch_launcher_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_scorch_launcher.png",
+   "hide": true
+  },
+  {
+   "id": "saw_repeater",
+   "name": "Saw Repeater",
+   "cls": "melee",
+   "frames": [
+    "x_saw_repeater_1.png",
+    "x_saw_repeater_2.png",
+    "x_saw_repeater_3.png",
+    "x_saw_repeater_4.png",
+    "x_saw_repeater_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_saw_repeater.png"
+  },
+  {
+   "id": "shock_pistol",
+   "name": "Shock Pistol",
+   "cls": "energy",
+   "frames": [
+    "x_shock_pistol_1.png",
+    "x_shock_pistol_2.png",
+    "x_shock_pistol_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_shock_pistol.png",
+   "proj": "xj_shock_pistol.png"
+  },
+  {
+   "id": "bone_spear",
+   "name": "Bone Spear",
+   "cls": "melee",
+   "frames": [
+    "x_bone_spear_1.png",
+    "x_bone_spear_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_bone_spear.png",
+   "hide": true
+  },
+  {
+   "id": "crusader_dagger",
+   "name": "Crusader Dagger",
+   "cls": "melee",
+   "frames": [
+    "x_crusader_dagger_1.png",
+    "x_crusader_dagger_2.png",
+    "x_crusader_dagger_3.png",
+    "x_crusader_dagger_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_crusader_dagger.png"
+  },
+  {
+   "id": "chain_blade",
+   "name": "Chain Blade",
+   "cls": "melee",
+   "frames": [
+    "x_chain_blade_1.png",
+    "x_chain_blade_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_chain_blade.png",
+   "hide": true
+  },
+  {
+   "id": "reaper_disc",
+   "name": "Reaper Disc",
+   "cls": "melee",
+   "frames": [
+    "x_reaper_disc_1.png",
+    "x_reaper_disc_2.png",
+    "x_reaper_disc_3.png",
+    "x_reaper_disc_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_reaper_disc.png"
+  },
+  {
+   "id": "saw_shield",
+   "name": "Saw Shield",
+   "cls": "melee",
+   "frames": [
+    "x_saw_shield_1.png",
+    "x_saw_shield_2.png",
+    "x_saw_shield_3.png",
+    "x_saw_shield_4.png",
+    "x_saw_shield_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_saw_shield.png"
+  },
+  {
+   "id": "twin_breacher",
+   "name": "Twin Breacher",
+   "cls": "shotgun",
+   "frames": [
+    "x_twin_breacher_1.png",
+    "x_twin_breacher_2.png",
+    "x_twin_breacher_3.png",
+    "x_twin_breacher_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_twin_breacher.png"
+  },
+  {
+   "id": "twin_breacher2",
+   "name": "Twin Breacher Mk2",
+   "cls": "shotgun",
+   "frames": [
+    "x_twin_breacher2_1.png",
+    "x_twin_breacher2_2.png",
+    "x_twin_breacher2_3.png",
+    "x_twin_breacher2_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_twin_breacher2.png"
+  },
+  {
+   "id": "iron_gatling",
+   "name": "Iron Gatling",
+   "cls": "repeater",
+   "frames": [
+    "x_iron_gatling_1.png",
+    "x_iron_gatling_2.png",
+    "x_iron_gatling_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_iron_gatling.png"
+  },
+  {
+   "id": "blue_orb_cannon",
+   "name": "Blue Orb Cannon",
+   "cls": "energy",
+   "frames": [
+    "x_blue_orb_cannon_1.png",
+    "x_blue_orb_cannon_2.png",
+    "x_blue_orb_cannon_3.png",
+    "x_blue_orb_cannon_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_blue_orb_cannon.png"
+  },
+  {
+   "id": "void_lance",
+   "name": "Void Lance",
+   "cls": "energy",
+   "frames": [
+    "x_void_lance_1.png",
+    "x_void_lance_2.png",
+    "x_void_lance_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_void_lance.png",
+   "proj": "xj_void_lance.png"
+  },
+  {
+   "id": "green_bazooka",
+   "name": "Green Bazooka",
+   "cls": "explosive",
+   "frames": [
+    "x_green_bazooka_1.png",
+    "x_green_bazooka_2.png",
+    "x_green_bazooka_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_green_bazooka.png"
+  },
+  {
+   "id": "war_spear",
+   "name": "War Spear",
+   "cls": "melee",
+   "frames": [
+    "x_war_spear_1.png",
+    "x_war_spear_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_war_spear.png"
+  },
+  {
+   "id": "shadow_blade",
+   "name": "Shadow Blade",
+   "cls": "thrown",
+   "frames": [
+    "x_shadow_blade_1.png",
+    "x_shadow_blade_2.png",
+    "x_shadow_blade_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_shadow_blade.png",
+   "proj": "xj_shadow_blade.png"
+  },
+  {
+   "id": "hell_axe",
+   "name": "Hell Axe",
+   "cls": "melee",
+   "frames": [
+    "x_hell_axe_1.png",
+    "x_hell_axe_2.png",
+    "x_hell_axe_3.png",
+    "x_hell_axe_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_hell_axe.png"
+  },
+  {
+   "id": "gore_chainsaw",
+   "name": "Gore Chainsaw",
+   "cls": "melee",
+   "frames": [
+    "x_gore_chainsaw_1.png",
+    "x_gore_chainsaw_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_gore_chainsaw.png"
+  },
+  {
+   "id": "buzz_shield",
+   "name": "Buzz Shield",
+   "cls": "melee",
+   "frames": [
+    "x_buzz_shield_1.png",
+    "x_buzz_shield_2.png",
+    "x_buzz_shield_3.png",
+    "x_buzz_shield_4.png",
+    "x_buzz_shield_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_buzz_shield.png"
+  },
+  {
+   "id": "void_repeater",
+   "name": "Void Repeater",
+   "cls": "energy",
+   "frames": [
+    "x_void_repeater_1.png",
+    "x_void_repeater_2.png",
+    "x_void_repeater_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_void_repeater.png",
+   "hide": true
+  },
+  {
+   "id": "marksman_rifle",
+   "name": "Marksman Rifle",
+   "cls": "repeater",
+   "frames": [
+    "x_marksman_rifle_1.png",
+    "x_marksman_rifle_2.png",
+    "x_marksman_rifle_3.png",
+    "x_marksman_rifle_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_marksman_rifle.png"
+  },
+  {
+   "id": "belt_gatling",
+   "name": "Belt Gatling",
+   "cls": "repeater",
+   "frames": [
+    "x_belt_gatling_1.png",
+    "x_belt_gatling_2.png",
+    "x_belt_gatling_3.png",
+    "x_belt_gatling_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_belt_gatling.png"
+  },
+  {
+   "id": "blood_spear",
+   "name": "Blood Spear",
+   "cls": "melee",
+   "frames": [
+    "x_blood_spear_1.png",
+    "x_blood_spear_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_blood_spear.png"
+  },
+  {
+   "id": "twin_knife",
+   "name": "Twin Knife",
+   "cls": "melee",
+   "frames": [
+    "x_twin_knife_1.png",
+    "x_twin_knife_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_twin_knife.png"
+  },
+  {
+   "id": "butcher_blade",
+   "name": "Butcher Blade",
+   "cls": "melee",
+   "frames": [
+    "x_butcher_blade_1.png",
+    "x_butcher_blade_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_butcher_blade.png"
+  },
+  {
+   "id": "saw_cleaver",
+   "name": "Saw Cleaver",
+   "cls": "melee",
+   "frames": [
+    "x_saw_cleaver_1.png",
+    "x_saw_cleaver_2.png",
+    "x_saw_cleaver_3.png",
+    "x_saw_cleaver_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_saw_cleaver.png"
+  },
+  {
+   "id": "red_disc",
+   "name": "Red Disc",
+   "cls": "melee",
+   "frames": [
+    "x_red_disc_1.png",
+    "x_red_disc_2.png",
+    "x_red_disc_3.png",
+    "x_red_disc_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_red_disc.png"
+  },
+  {
+   "id": "pulse_carbine",
+   "name": "Pulse Carbine",
+   "cls": "repeater",
+   "frames": [
+    "x_pulse_carbine_1.png",
+    "x_pulse_carbine_2.png",
+    "x_pulse_carbine_3.png",
+    "x_pulse_carbine_4.png",
+    "x_pulse_carbine_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_pulse_carbine.png"
+  },
+  {
+   "id": "storm_gatling",
+   "name": "Storm Gatling",
+   "cls": "repeater",
+   "frames": [
+    "x_storm_gatling_1.png",
+    "x_storm_gatling_2.png",
+    "x_storm_gatling_3.png",
+    "x_storm_gatling_4.png",
+    "x_storm_gatling_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_storm_gatling.png"
+  },
+  {
+   "id": "plasma_maul",
+   "name": "Plasma Maul",
+   "cls": "energy",
+   "frames": [
+    "x_plasma_maul_1.png",
+    "x_plasma_maul_2.png",
+    "x_plasma_maul_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_plasma_maul.png"
+  },
+  {
+   "id": "siege_bazooka",
+   "name": "Siege Bazooka",
+   "cls": "explosive",
+   "frames": [
+    "x_siege_bazooka_1.png",
+    "x_siege_bazooka_2.png",
+    "x_siege_bazooka_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_siege_bazooka.png"
+  },
+  {
+   "id": "hunter_spear",
+   "name": "Hunter Spear",
+   "cls": "thrown",
+   "frames": [
+    "x_hunter_spear_1.png",
+    "x_hunter_spear_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_hunter_spear.png",
+   "proj": "xj_hunter_spear.png",
+   "hide": true
+  },
+  {
+   "id": "hell_sword",
+   "name": "Hell Sword",
+   "cls": "melee",
+   "frames": [
+    "x_hell_sword_1.png",
+    "x_hell_sword_2.png",
+    "x_hell_sword_3.png",
+    "x_hell_sword_4.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3
+   ],
+   "pick": "xp_hell_sword.png"
+  },
+  {
+   "id": "ripper_chain",
+   "name": "Ripper Chain",
+   "cls": "melee",
+   "frames": [
+    "x_ripper_chain_1.png",
+    "x_ripper_chain_2.png",
+    "x_ripper_chain_3.png",
+    "x_ripper_chain_4.png",
+    "x_ripper_chain_5.png"
+   ],
+   "fire": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "pick": "xp_ripper_chain.png"
+  },
+  {
+   "id": "gore_chain",
+   "name": "Gore Chain",
+   "cls": "melee",
+   "frames": [
+    "x_gore_chain_1.png",
+    "x_gore_chain_2.png"
+   ],
+   "fire": [
+    1
+   ],
+   "pick": "xp_gore_chain.png",
+   "hide": true
+  },
+  {
+   "id": "flame_disc",
+   "name": "Flame Disc",
+   "cls": "melee",
+   "frames": [
+    "x_flame_disc_1.png",
+    "x_flame_disc_2.png",
+    "x_flame_disc_3.png"
+   ],
+   "fire": [
+    1,
+    2
+   ],
+   "pick": "xp_flame_disc.png",
+   "hide": true
   }
  ]
 }

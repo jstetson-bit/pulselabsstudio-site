@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.11 — 2026-11-18
+- EOD 0.4.3: art library 74 monsters / 61 weapons (EOD/res/art ~7 MB, loaded per map).
+
 ## v0.7.10 — 2026-11-18
 - Pulse Forge 0.1.1: export each creature as a zip; copy fallback.
 
