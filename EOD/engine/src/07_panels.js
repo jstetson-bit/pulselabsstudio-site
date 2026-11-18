@@ -131,7 +131,7 @@ function openThingBrowser(cb) {
 function openAnalysis() {
   const iss = analyzeMap();
   const h = iss.length ? '<div class="list">' + iss.map((i, k) => `<button data-k="${k}"><span class="dot" style="background:${i.sev === 'error' ? '#e33' : '#fb0'}"></span>${esc(i.msg)}</button>`).join('') + '</div>' : '<p>No problems found. Map is good to go.</p>';
-  modal('Map Analysis · ' + iss.length + ' issue(s)', h + '<p class="hint">Tap an issue to jump to it.</p>', [{ cancel: 1 }], b => b.querySelectorAll('button[data-k]').forEach(x => x.onclick = () => {
+  modal('Map Analysis · ' + iss.length + ' issue(s)', h + '<p class="hint">Tap an issue to jump to it.</p>', [...(S.limits ? [{ label: 'Scan for vanilla limits', fn: () => { setTimeout(scanVanillaLimits, 50); } }] : []), { cancel: 1 }], b => b.querySelectorAll('button[data-k]').forEach(x => x.onclick = () => {
     const i = iss[+x.dataset.k]; closeModal(); if (!i.kind) return;
     const mode = { l: 'linedefs', s: 'sectors', t: 'things' }[i.kind]; setMode(mode); clearSel(); E.sel[i.kind].add(i.i);
     let p; if (i.kind === 't') p = M.t[i.i]; else if (i.kind === 'l') { const L = M.l[i.i]; p = { x: (M.v[L.v1].x + M.v[L.v2].x) / 2, y: (M.v[L.v1].y + M.v[L.v2].y) / 2 }; } else { const li = sectorLines(i.i)[0]; p = li >= 0 ? M.v[M.l[li].v1] : null; }
@@ -220,6 +220,12 @@ function openSettings() {
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
+  <div class="h">Vanilla limits check</div>
+  <p class="hint">Original Doom (and Chocolate Doom) crash on busy views: "visplane overflow", too many drawsegs or sprites. EOD and GZDoom have no such limits. Turn this on if your map is meant for vanilla.</p>
+  <div class="row">${[[false, 'Off'], [true, 'On']].map(([k, n]) => `<button data-lim="${k}" class="${!!S.limits === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+  <label class="chk"><input type="checkbox" id="stLimHud" ${S.limHud !== false ? 'checked' : ''}>Show the counters while playing (top right)</label>
+  <label class="chk"><input type="checkbox" id="stLimWarn" ${S.limWarn !== false ? 'checked' : ''}>Pop up a warning when a view goes over</label>
+  <div class="row"><button id="stLimScan">Scan this whole map now</button></div>
   <div class="h">Support & crash log</div>
   <p class="hint">${crash.length} entr${crash.length === 1 ? 'y' : 'ies'} logged. Version ${VERSION} (vc${VC}).</p>
   <div class="row"><button id="stCl">View log</button><button id="stCc">Copy log</button><button id="stCx">Clear log</button></div>
@@ -231,6 +237,9 @@ function openSettings() {
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
+    b.querySelectorAll('[data-lim]').forEach(x => x.onclick = () => { S.limits = x.dataset.lim === 'true'; saveSettings(); b.querySelectorAll('[data-lim]').forEach(y => y.classList.toggle('on', y === x)); toast('Vanilla limits check ' + (S.limits ? 'on' : 'off')); });
+    ch('#stLimHud', e => S.limHud = e.checked); ch('#stLimWarn', e => S.limWarn = e.checked);
+    b.querySelector('#stLimScan').onclick = () => { closeModal(); scanVanillaLimits(); };
     b.querySelector('#stArr').onclick = () => { closeModal(); startDemo({ arrange: true }); };
     b.querySelector('#stArrReset').onclick = () => { LS.set('ctlpos', {}); toast('Control layout reset'); };
     b.querySelector('#stCl').onclick = () => { const c = LS.get('crash', []); modal('Crash log', '<pre style="white-space:pre-wrap;font-size:12px">' + esc(c.map(x => x.t + ' v' + x.v + '\n' + x.m).join('\n\n') || 'Empty. Nothing has crashed.') + '</pre>', [{ cancel: 1 }]); };

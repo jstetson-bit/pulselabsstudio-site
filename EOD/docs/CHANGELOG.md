@@ -3,13 +3,19 @@
 ## Queued
 - Boom/MBF line actions and sector specials (most popular modern maps), DEHACKED patches, MUSINFO/music
 - Custom art on the live library: store it in Supabase Storage instead of inside the map row once the server is connected
-- Vanilla-limits check in Map Analysis (visplanes, drawsegs, savegame size) for people targeting Chocolate Doom
 - Play straight from the /idgames archive by search (needs a CORS-friendly mirror or a tiny proxy)
 - Go live: Supabase keys in `EOD/assets/config.js` so accounts, maps and forums are shared between visitors (waiting on owner)
 - Live co-editing (two people on one map at once) via Supabase Realtime
 - Map comments on each map, member profile pages, follow authors
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
+
+## v0.2.2 (vc4) — 2026-11-17 — vanilla limits check (on/off)
+- Settings → **Vanilla limits check: Off / On** (default Off), plus "Show the counters while playing" and "Pop up a warning when a view goes over".
+- When on: live counters in the Demo and 3D Visual mode (visplanes ~N/128, drawsegs N/256, sprites N/128; green, red when over) and a warning toast where original Doom / Chocolate Doom would crash ("visplane overflow" etc.).
+- **Scan this whole map now** (Settings, and Map Analysis when the check is on): stands at every sector and every player/monster spot, looks 8 ways (up to 4,000 views), lists the worst 12 spots; tap one to stand there in 3D Visual mode.
+- Estimates: visplanes counted per unique floor/ceiling (height + flat + light, sky as one) and split when the same plane shows twice in a column; drawsegs = walls drawn; sprites = sprites actually visible. EOD's own engine and GZDoom have none of these limits.
+- Tested: Freedoom MAP12 (7,245 lines) live counters + full scan (4,000 views, 14 flagged over drawsegs).
 
 ## v0.2.1 (vc3) — 2026-11-17 — your own walls and floors
 - **My textures:** add your own picture (PNG/JPG/WebP/GIF) as a wall, a floor/ceiling or both. Controls: name, width, height, quick 32/64/128/256 sizes, keep shape, sharp-pixel vs smooth, live tiled preview. Manage them in File → My textures (replace, rename with optional update of every surface using it, delete with Undo). Also from the texture browser: "＋ Add my own".

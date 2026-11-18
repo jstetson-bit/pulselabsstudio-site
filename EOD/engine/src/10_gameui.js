@@ -31,6 +31,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  LIM.on = false;
   if (EODP.playOnly) { eodLeavePlay(); return; }
   if (GL.arrange) exitArrange(false);
   const wasVisual = G && G.mode === 'visual';
@@ -109,6 +110,7 @@ function drawGame() {
   g.textAlign = 'left'; g.font = `${7 * u}px monospace`; g.fillStyle = '#fff';
   G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
   if (G.automap) drawAutomap(g, W, H);
+  drawLimitsHud(g, W, H, u);
 }
 function drawWeaponRes(g, W, H, u, bx, by) {
   const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;

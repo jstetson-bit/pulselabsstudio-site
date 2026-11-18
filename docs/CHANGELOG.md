@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.3 — 2026-11-17
+- EOD 0.2.2: Vanilla limits check (Off/On) with live counters, warnings and a whole-map scan.
+
 ## v0.7.2 — 2026-11-17
 - EOD 0.2.1 at /EOD: members can add their own wall/floor textures (saved in the map, exported into WADs); About + Check for updates.
 

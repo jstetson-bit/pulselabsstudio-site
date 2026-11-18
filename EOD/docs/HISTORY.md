@@ -28,3 +28,4 @@ The story of how EOD came to be, in the owner's words where possible.
 - Asked: *"do we support custom texture ie walls"* → *"go"*.
 - Decided: "My textures" (add, size, sharp/smooth, replace, rename, delete), saved inside the map, kept automatically for imported maps, exported into WADs, published only with the author's permission box.
 - Asked: *"vis plane overflow. is this an issue for us"* → not for EOD's own engine (no visplane limit); only matters for people taking an exported WAD to vanilla Doom / Chocolate Doom. A limits check is queued.
+- Asked: *"id like a turn that off or on feature"* → built the Vanilla limits check as an Off/On switch in Settings (counters, warnings, whole-map scan).

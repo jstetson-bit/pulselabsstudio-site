@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.2.1', VC = 3;
+const VERSION = '0.2.2', VC = 4;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -1903,7 +1903,7 @@ function openThingBrowser(cb) {
 function openAnalysis() {
   const iss = analyzeMap();
   const h = iss.length ? '<div class="list">' + iss.map((i, k) => `<button data-k="${k}"><span class="dot" style="background:${i.sev === 'error' ? '#e33' : '#fb0'}"></span>${esc(i.msg)}</button>`).join('') + '</div>' : '<p>No problems found. Map is good to go.</p>';
-  modal('Map Analysis · ' + iss.length + ' issue(s)', h + '<p class="hint">Tap an issue to jump to it.</p>', [{ cancel: 1 }], b => b.querySelectorAll('button[data-k]').forEach(x => x.onclick = () => {
+  modal('Map Analysis · ' + iss.length + ' issue(s)', h + '<p class="hint">Tap an issue to jump to it.</p>', [...(S.limits ? [{ label: 'Scan for vanilla limits', fn: () => { setTimeout(scanVanillaLimits, 50); } }] : []), { cancel: 1 }], b => b.querySelectorAll('button[data-k]').forEach(x => x.onclick = () => {
     const i = iss[+x.dataset.k]; closeModal(); if (!i.kind) return;
     const mode = { l: 'linedefs', s: 'sectors', t: 'things' }[i.kind]; setMode(mode); clearSel(); E.sel[i.kind].add(i.i);
     let p; if (i.kind === 't') p = M.t[i.i]; else if (i.kind === 'l') { const L = M.l[i.i]; p = { x: (M.v[L.v1].x + M.v[L.v2].x) / 2, y: (M.v[L.v1].y + M.v[L.v2].y) / 2 }; } else { const li = sectorLines(i.i)[0]; p = li >= 0 ? M.v[M.l[li].v1] : null; }
@@ -1992,6 +1992,12 @@ function openSettings() {
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
+  <div class="h">Vanilla limits check</div>
+  <p class="hint">Original Doom (and Chocolate Doom) crash on busy views: "visplane overflow", too many drawsegs or sprites. EOD and GZDoom have no such limits. Turn this on if your map is meant for vanilla.</p>
+  <div class="row">${[[false, 'Off'], [true, 'On']].map(([k, n]) => `<button data-lim="${k}" class="${!!S.limits === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+  <label class="chk"><input type="checkbox" id="stLimHud" ${S.limHud !== false ? 'checked' : ''}>Show the counters while playing (top right)</label>
+  <label class="chk"><input type="checkbox" id="stLimWarn" ${S.limWarn !== false ? 'checked' : ''}>Pop up a warning when a view goes over</label>
+  <div class="row"><button id="stLimScan">Scan this whole map now</button></div>
   <div class="h">Support & crash log</div>
   <p class="hint">${crash.length} entr${crash.length === 1 ? 'y' : 'ies'} logged. Version ${VERSION} (vc${VC}).</p>
   <div class="row"><button id="stCl">View log</button><button id="stCc">Copy log</button><button id="stCx">Clear log</button></div>
@@ -2003,6 +2009,9 @@ function openSettings() {
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
+    b.querySelectorAll('[data-lim]').forEach(x => x.onclick = () => { S.limits = x.dataset.lim === 'true'; saveSettings(); b.querySelectorAll('[data-lim]').forEach(y => y.classList.toggle('on', y === x)); toast('Vanilla limits check ' + (S.limits ? 'on' : 'off')); });
+    ch('#stLimHud', e => S.limHud = e.checked); ch('#stLimWarn', e => S.limWarn = e.checked);
+    b.querySelector('#stLimScan').onclick = () => { closeModal(); scanVanillaLimits(); };
     b.querySelector('#stArr').onclick = () => { closeModal(); startDemo({ arrange: true }); };
     b.querySelector('#stArrReset').onclick = () => { LS.set('ctlpos', {}); toast('Control layout reset'); };
     b.querySelector('#stCl').onclick = () => { const c = LS.get('crash', []); modal('Crash log', '<pre style="white-space:pre-wrap;font-size:12px">' + esc(c.map(x => x.t + ' v' + x.v + '\n' + x.m).join('\n\n') || 'Empty. Nothing has crashed.') + '</pre>', [{ cancel: 1 }]); };
@@ -2062,7 +2071,18 @@ function bucketLines(cam, L, W, proj) {
   const fill = BCNT; fill.fill(0);
   for (let i = 0; i < n; i++) { const lo = BX0[i], hi = BX1[i]; for (let x = lo; x <= hi; x++) BLIST[BOFF[x] + fill[x]++] = i; }
 }
+// Vanilla limits estimate (visplanes / drawsegs / sprites) — only when the check is switched on
+const LIM = { on: false, keys: new Map(), segStamp: new Int32Array(0), frame: 0, segs: 0, sprites: 0, visplanes: 0 };
+let texIdN = 0;
+function limPlane(x, h, tex, light, ceil) {
+  const key = tex ? (h + '|' + (tex.id || (tex.id = ++texIdN)) + '|' + light) : 'sky';
+  const r = LIM.keys.get(key);
+  if (!r) LIM.keys.set(key, { col: x, n: 1, max: 1 });
+  else if (r.col === x) { r.n++; if (r.n > r.max) r.max = r.n; }
+  else { r.col = x; r.n = 1; }
+}
 function render3D(cam, sc, sprites) {
+  if (LIM.on) { LIM.keys.clear(); LIM.frame++; LIM.segs = 0; if (LIM.segStamp.length < sc.lines.length) LIM.segStamp = new Int32Array(sc.lines.length); }
   const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   const hz = H / 2 + (cam.pitch || 0), proj = Math.max(W * 0.5, H * 0.42), plane = (W / 2) / proj;
   const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, secs = sc.secs;
@@ -2089,6 +2109,7 @@ function render3D(cam, sc, sprites) {
       const near = front ? l.s1 : l.s2, far = front ? l.s2 : l.s1;
       const ns = near ? near.sec : cur; if (ns < 0 || !secs[ns]) break;
       const S0 = secs[ns], pr = proj / t, li = S0.li;
+      if (LIM.on && LIM.segStamp[HI[k]] !== LIM.frame) { LIM.segStamp[HI[k]] = LIM.frame; LIM.segs++; }
       const yc = hz - (S0.ch - cz) * pr, yf = hz - (S0.fh - cz) * pr;
       const y0 = Math.max(top, Math.ceil(yc)), y1 = Math.min(bot, Math.ceil(yf) - 1);
       plane3(x, top, Math.min(bot, Math.ceil(yc) - 1), S0.ch, flats[ns].c, li, rdx, rdy, cam, hz, proj, true, ns, sky, skyCol);
@@ -2119,9 +2140,11 @@ function render3D(cam, sc, sprites) {
     if (!solid) for (let y = top; y <= bot; y++) { const o = y * W + x; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
   }
   if (sprites) drawSprites(cam, sprites, hz, proj);
+  if (LIM.on) { let v = 0; for (const r of LIM.keys.values()) v += r.max; LIM.visplanes = v; }
 }
 function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, skyCol) {
   if (ya > yb) return;
+  if (LIM.on) limPlane(x, h, tex, li, ceil);
   const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
@@ -2154,7 +2177,7 @@ function drawSprites(cam, list, hz, proj) {
   const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
   const vis = [];
   for (const s of list) { const dx = s.x - cam.x, dy = s.y - cam.y, d = dx * ca + dy * sa; if (d < 4) continue; vis.push([d, dx * sa - dy * ca, s]); }
-  vis.sort((a, b) => b[0] - a[0]);
+  vis.sort((a, b) => b[0] - a[0]); if (LIM.on) LIM.sprites = 0;
   const tic = (performance.now() / 50) | 0;
   for (const [d, side, s] of vis) {
     const img = s.img; if (!img) continue;
@@ -2164,6 +2187,7 @@ function drawSprites(cam, list, hz, proj) {
     const yt = hz - (s.z - cam.z) * (proj / d) - oy * sc;
     const xa = Math.max(0, Math.ceil(x0)), xb = Math.min(W - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
     if (xa > xb || ya > yb) continue;
+    let drew = false;
     const sp = img.shade(s.bright ? 15 : shadeLvl(s.light || 160, d)), iw = img.w, ih = img.h;
     for (let x = xa; x <= xb; x++) {
       let u = ((x - x0) / sw * iw) | 0; if (s.flip) u = iw - 1 - u; if (u < 0 || u >= iw) continue;
@@ -2172,9 +2196,10 @@ function drawSprites(cam, list, hz, proj) {
         if (s.fuzz && ((x + y + tic) & 1)) continue;
         const v = ((y - yt) / sh * ih) | 0; if (v < 0 || v >= ih) continue;
         const c = sp[v * iw + u]; if (!c) continue;
-        buf[o] = s.fuzz ? 0xff000000 : c; dep[o] = d; pk[o] = 6; pi[o] = s.id == null ? -1 : s.id;
+        buf[o] = s.fuzz ? 0xff000000 : c; dep[o] = d; pk[o] = 6; pi[o] = s.id == null ? -1 : s.id; drew = true;
       }
     }
+    if (LIM.on && drew) LIM.sprites++;
   }
 }
 
@@ -2596,6 +2621,7 @@ function gameTic() {
 }
 function gameFrame(now) {
   if (!G || $('#game').hidden) return;
+  LIM.on = limitsOn();
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
@@ -2637,6 +2663,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  LIM.on = false;
   if (EODP.playOnly) { eodLeavePlay(); return; }
   if (GL.arrange) exitArrange(false);
   const wasVisual = G && G.mode === 'visual';
@@ -2715,6 +2742,7 @@ function drawGame() {
   g.textAlign = 'left'; g.font = `${7 * u}px monospace`; g.fillStyle = '#fff';
   G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
   if (G.automap) drawAutomap(g, W, H);
+  drawLimitsHud(g, W, H, u);
 }
 function drawWeaponRes(g, W, H, u, bx, by) {
   const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
@@ -3373,6 +3401,55 @@ async function checkUpdates() {
     if (cmp(m[1], VERSION) > 0) modal('Update available', `<p>EOD ${esc(m[1])} is out (you have ${VERSION}). Your map is autosaved, so reloading is safe.</p>`, [{ label: 'Update now', cls: 'demo', fn: () => location.reload() }, { cancel: 1 }]);
     else toast('You have the newest EOD (' + VERSION + ')');
   } catch (e) { toast('Could not check for updates right now'); }
+}
+
+/* ================= VANILLA LIMITS CHECK (switchable) =================
+   Original Doom / Chocolate Doom crash past fixed limits: 128 visplanes, 256 drawsegs, 128 sprites in view.
+   EOD's own engine has none of these limits; this is only for people taking an exported WAD to vanilla.
+   Counts are estimates (EOD renders differently), tuned to err on the side of warning. */
+const VLIM = { visplanes: 128, drawsegs: 256, sprites: 128 };
+let limWarnT = 0;
+function limitsOn() { return !!S.limits; }
+function drawLimitsHud(g, W, H, u) {
+  if (!limitsOn() || S.limHud === false) return;
+  const over = LIM.visplanes > VLIM.visplanes || LIM.segs > VLIM.drawsegs || LIM.sprites > VLIM.sprites;
+  const txt = `VISPLANES ~${LIM.visplanes}/${VLIM.visplanes}  DRAWSEGS ${LIM.segs}/${VLIM.drawsegs}  SPRITES ${LIM.sprites}/${VLIM.sprites}`;
+  g.font = `bold ${6 * u}px monospace`; g.textAlign = 'right';
+  g.fillStyle = '#000'; g.fillText(txt, W - 3 * u, 30 * u + u);
+  g.fillStyle = over ? '#ff3030' : '#7fff7f'; g.fillText(txt, W - 4 * u, 30 * u);
+  g.textAlign = 'left';
+  if (over && S.limWarn !== false && performance.now() - limWarnT > 4000) {
+    limWarnT = performance.now();
+    const what = LIM.visplanes > VLIM.visplanes ? 'visplane overflow' : LIM.segs > VLIM.drawsegs ? 'too many drawsegs' : 'too many sprites';
+    toast('Original Doom would crash here: ' + what + '. EOD and GZDoom are fine.', 3500);
+  }
+}
+async function scanVanillaLimits() {
+  if (!M.sec.length) return toast('Nothing to scan yet');
+  const secs = M.sec.map(s => Object.assign({}, s, { base: s.li })), sc = buildScene(secs);
+  const pts = [];
+  M.sec.forEach((s, si) => { const li = sectorLines(si)[0]; if (li === undefined) return; const L = M.l[li]; const p = sampleSide(L, sideSec(L.s1) === si, 32); if (sectorAt(p.x, p.y) === si) pts.push({ x: p.x, y: p.y, sec: si }); });
+  M.t.forEach(t => { const si = sectorAt(t.x, t.y); if (si >= 0 && THINGS[t.type] && ['player', 'monster'].includes(THINGS[t.type].cat)) pts.push({ x: t.x, y: t.y, sec: si }); });
+  while (pts.length > 500) pts.splice(Math.floor(Math.random() * pts.length), 1);
+  const keepW = R.W, keepH = R.H, results = []; rSetup(320, 200); LIM.on = true;
+  const sprites = M.t.filter(t => THINGS[t.type] && THINGS[t.type].cat !== 'player').map(t => ({ x: t.x, y: t.y, z: 0, img: SPR.barrel }));
+  toast('Scanning ' + pts.length + ' spots × 8 directions…', 3000);
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i], s = secs[p.sec];
+    for (let a = 0; a < 8; a++) {
+      const cam = { x: p.x, y: p.y, z: s.fh + 41, a: a * Math.PI / 4, sec: p.sec };
+      render3D(cam, sc, sprites);
+      results.push({ x: p.x, y: p.y, a: a * 45, vp: LIM.visplanes, ds: LIM.segs, sp: LIM.sprites });
+    }
+    if (i % 20 === 19) await new Promise(r => setTimeout(r, 0));
+  }
+  LIM.on = false; if (keepW) rSetup(keepW, keepH);
+  results.sort((a, b) => (b.vp / VLIM.visplanes + b.ds / VLIM.drawsegs) - (a.vp / VLIM.visplanes + a.ds / VLIM.drawsegs));
+  const worst = results.slice(0, 12), bad = results.filter(r => r.vp > VLIM.visplanes || r.ds > VLIM.drawsegs || r.sp > VLIM.sprites).length;
+  modal('Vanilla limits scan', `<p>${bad ? `<b style="color:#ff5050">${bad} view(s) would likely crash original Doom.</b>` : '<b style="color:#4f4">No views over the vanilla limits found.</b>'} Checked ${results.length} views.</p>
+    <p class="hint">Estimates. EOD, GZDoom, PrBoom+ and other "limit-removing" ports have none of these limits. Tap a spot to stand there in 3D Visual mode with the counters on.</p>
+    <div class="list">${worst.map((r, i) => `<button data-i="${i}"><span class="dot" style="background:${r.vp > VLIM.visplanes || r.ds > VLIM.drawsegs ? '#e33' : r.vp > VLIM.visplanes * 0.75 ? '#fb0' : '#3c3'}"></span>Visplanes ~${r.vp} · drawsegs ${r.ds} · sprites ${r.sp} · at ${Math.round(r.x)}, ${Math.round(r.y)} facing ${r.a}°</button>`).join('')}</div>`,
+    [{ cancel: 1 }], b => b.querySelectorAll('[data-i]').forEach(x => x.onclick = () => { const r = worst[+x.dataset.i]; closeModal(); initGame('visual', { x: r.x, y: r.y, a: r.a }); }));
 }
 
 try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }

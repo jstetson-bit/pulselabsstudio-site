@@ -416,6 +416,7 @@ function gameTic() {
 }
 function gameFrame(now) {
   if (!G || $('#game').hidden) return;
+  LIM.on = limitsOn();
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }

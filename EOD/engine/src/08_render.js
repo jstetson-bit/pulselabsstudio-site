@@ -42,7 +42,18 @@ function bucketLines(cam, L, W, proj) {
   const fill = BCNT; fill.fill(0);
   for (let i = 0; i < n; i++) { const lo = BX0[i], hi = BX1[i]; for (let x = lo; x <= hi; x++) BLIST[BOFF[x] + fill[x]++] = i; }
 }
+// Vanilla limits estimate (visplanes / drawsegs / sprites) — only when the check is switched on
+const LIM = { on: false, keys: new Map(), segStamp: new Int32Array(0), frame: 0, segs: 0, sprites: 0, visplanes: 0 };
+let texIdN = 0;
+function limPlane(x, h, tex, light, ceil) {
+  const key = tex ? (h + '|' + (tex.id || (tex.id = ++texIdN)) + '|' + light) : 'sky';
+  const r = LIM.keys.get(key);
+  if (!r) LIM.keys.set(key, { col: x, n: 1, max: 1 });
+  else if (r.col === x) { r.n++; if (r.n > r.max) r.max = r.n; }
+  else { r.col = x; r.n = 1; }
+}
 function render3D(cam, sc, sprites) {
+  if (LIM.on) { LIM.keys.clear(); LIM.frame++; LIM.segs = 0; if (LIM.segStamp.length < sc.lines.length) LIM.segStamp = new Int32Array(sc.lines.length); }
   const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   const hz = H / 2 + (cam.pitch || 0), proj = Math.max(W * 0.5, H * 0.42), plane = (W / 2) / proj;
   const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, secs = sc.secs;
@@ -69,6 +80,7 @@ function render3D(cam, sc, sprites) {
       const near = front ? l.s1 : l.s2, far = front ? l.s2 : l.s1;
       const ns = near ? near.sec : cur; if (ns < 0 || !secs[ns]) break;
       const S0 = secs[ns], pr = proj / t, li = S0.li;
+      if (LIM.on && LIM.segStamp[HI[k]] !== LIM.frame) { LIM.segStamp[HI[k]] = LIM.frame; LIM.segs++; }
       const yc = hz - (S0.ch - cz) * pr, yf = hz - (S0.fh - cz) * pr;
       const y0 = Math.max(top, Math.ceil(yc)), y1 = Math.min(bot, Math.ceil(yf) - 1);
       plane3(x, top, Math.min(bot, Math.ceil(yc) - 1), S0.ch, flats[ns].c, li, rdx, rdy, cam, hz, proj, true, ns, sky, skyCol);
@@ -99,9 +111,11 @@ function render3D(cam, sc, sprites) {
     if (!solid) for (let y = top; y <= bot; y++) { const o = y * W + x; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
   }
   if (sprites) drawSprites(cam, sprites, hz, proj);
+  if (LIM.on) { let v = 0; for (const r of LIM.keys.values()) v += r.max; LIM.visplanes = v; }
 }
 function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, skyCol) {
   if (ya > yb) return;
+  if (LIM.on) limPlane(x, h, tex, li, ceil);
   const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
@@ -134,7 +148,7 @@ function drawSprites(cam, list, hz, proj) {
   const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
   const vis = [];
   for (const s of list) { const dx = s.x - cam.x, dy = s.y - cam.y, d = dx * ca + dy * sa; if (d < 4) continue; vis.push([d, dx * sa - dy * ca, s]); }
-  vis.sort((a, b) => b[0] - a[0]);
+  vis.sort((a, b) => b[0] - a[0]); if (LIM.on) LIM.sprites = 0;
   const tic = (performance.now() / 50) | 0;
   for (const [d, side, s] of vis) {
     const img = s.img; if (!img) continue;
@@ -144,6 +158,7 @@ function drawSprites(cam, list, hz, proj) {
     const yt = hz - (s.z - cam.z) * (proj / d) - oy * sc;
     const xa = Math.max(0, Math.ceil(x0)), xb = Math.min(W - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
     if (xa > xb || ya > yb) continue;
+    let drew = false;
     const sp = img.shade(s.bright ? 15 : shadeLvl(s.light || 160, d)), iw = img.w, ih = img.h;
     for (let x = xa; x <= xb; x++) {
       let u = ((x - x0) / sw * iw) | 0; if (s.flip) u = iw - 1 - u; if (u < 0 || u >= iw) continue;
@@ -152,8 +167,9 @@ function drawSprites(cam, list, hz, proj) {
         if (s.fuzz && ((x + y + tic) & 1)) continue;
         const v = ((y - yt) / sh * ih) | 0; if (v < 0 || v >= ih) continue;
         const c = sp[v * iw + u]; if (!c) continue;
-        buf[o] = s.fuzz ? 0xff000000 : c; dep[o] = d; pk[o] = 6; pi[o] = s.id == null ? -1 : s.id;
+        buf[o] = s.fuzz ? 0xff000000 : c; dep[o] = d; pk[o] = 6; pi[o] = s.id == null ? -1 : s.id; drew = true;
       }
     }
+    if (LIM.on && drew) LIM.sprites++;
   }
 }
