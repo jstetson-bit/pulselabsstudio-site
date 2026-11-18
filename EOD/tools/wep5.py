@@ -25,7 +25,10 @@ for si,y0,y1,x0,x1,N,wid,name,cls in L:
     px=lambda im: int((np.array(im)[:,:,3]>0).sum())
     hands=[f for f in fr if skin(f)>0.05 and px(f)>150]; noh=[f for f in fr if skin(f)<=0.05]
     if not hands: hands=sorted(fr,key=px)[-1:]
-    k=max(range(min(3,len(hands))),key=lambda i:px(hands[i])); idle=hands[k]; P=px(idle)
+    def flash(im):
+        a=np.array(im).astype(int); m=a[:,:,3]>0; r,g,b=a[:,:,0],a[:,:,1],a[:,:,2]
+        f=m&(r>220)&(g>170)&(b<170); return f.sum()/max(1,m.sum())
+    k=max(range(min(3,len(hands))),key=lambda i:px(hands[i])*(1-min(0.9,flash(hands[i])*8))); idle=hands[k]; P=px(idle)
     fire=[f for f in hands[k+1:] if px(f)>0.4*P][:4] or [f for f in hands[:k] if px(f)>0.4*P][:4] or [idle]
     proj=next((f for f in noh if f.width>f.height*1.8),None)
     s=60/idle.height; sv=lambda im,fn: im.resize((max(1,round(im.width*s)),max(1,round(im.height*s))),Image.LANCZOS).save(fn)

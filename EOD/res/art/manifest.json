@@ -961,11 +961,15 @@
    "frames": [
     "x_hell_gatling_1.png",
     "x_hell_gatling_2.png",
-    "x_hell_gatling_3.png"
+    "x_hell_gatling_3.png",
+    "x_hell_gatling_4.png",
+    "x_hell_gatling_5.png"
    ],
    "fire": [
     1,
-    2
+    2,
+    3,
+    4
    ],
    "pick": "xp_hell_gatling.png",
    "hide": true
@@ -1010,11 +1014,13 @@
    "frames": [
     "x_shock_pistol_1.png",
     "x_shock_pistol_2.png",
-    "x_shock_pistol_3.png"
+    "x_shock_pistol_3.png",
+    "x_shock_pistol_4.png"
    ],
    "fire": [
     1,
-    2
+    2,
+    3
    ],
    "pick": "xp_shock_pistol.png",
    "proj": "xj_shock_pistol.png"
@@ -1107,13 +1113,11 @@
    "frames": [
     "x_twin_breacher_1.png",
     "x_twin_breacher_2.png",
-    "x_twin_breacher_3.png",
-    "x_twin_breacher_4.png"
+    "x_twin_breacher_3.png"
    ],
    "fire": [
     1,
-    2,
-    3
+    2
    ],
    "pick": "xp_twin_breacher.png"
   },
@@ -1125,12 +1129,14 @@
     "x_twin_breacher2_1.png",
     "x_twin_breacher2_2.png",
     "x_twin_breacher2_3.png",
-    "x_twin_breacher2_4.png"
+    "x_twin_breacher2_4.png",
+    "x_twin_breacher2_5.png"
    ],
    "fire": [
     1,
     2,
-    3
+    3,
+    4
    ],
    "pick": "xp_twin_breacher2.png"
   },
@@ -1140,12 +1146,10 @@
    "cls": "repeater",
    "frames": [
     "x_iron_gatling_1.png",
-    "x_iron_gatling_2.png",
-    "x_iron_gatling_3.png"
+    "x_iron_gatling_2.png"
    ],
    "fire": [
-    1,
-    2
+    1
    ],
    "pick": "xp_iron_gatling.png"
   },
@@ -1172,12 +1176,10 @@
    "cls": "energy",
    "frames": [
     "x_void_lance_1.png",
-    "x_void_lance_2.png",
-    "x_void_lance_3.png"
+    "x_void_lance_2.png"
    ],
    "fire": [
-    1,
-    2
+    1
    ],
    "pick": "xp_void_lance.png",
    "proj": "xj_void_lance.png"
@@ -1299,12 +1301,14 @@
     "x_marksman_rifle_1.png",
     "x_marksman_rifle_2.png",
     "x_marksman_rifle_3.png",
-    "x_marksman_rifle_4.png"
+    "x_marksman_rifle_4.png",
+    "x_marksman_rifle_5.png"
    ],
    "fire": [
     1,
     2,
-    3
+    3,
+    4
    ],
    "pick": "xp_marksman_rifle.png"
   },
@@ -1316,12 +1320,14 @@
     "x_belt_gatling_1.png",
     "x_belt_gatling_2.png",
     "x_belt_gatling_3.png",
-    "x_belt_gatling_4.png"
+    "x_belt_gatling_4.png",
+    "x_belt_gatling_5.png"
    ],
    "fire": [
     1,
     2,
-    3
+    3,
+    4
    ],
    "pick": "xp_belt_gatling.png"
   },
