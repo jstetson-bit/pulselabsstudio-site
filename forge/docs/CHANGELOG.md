@@ -1,5 +1,9 @@
 # Pulse Forge changelog
 
+## v0.1.1 — 2026-11-18
+- **Export** on every library card and **Export every creature**: one zip per creature with its frames as named PNGs (front, angle-1…5, death-1…5 / idle, firing-1…, pickup, projectile), DNA.json and the art order.
+- Copy art order now works everywhere: falls back to the old copy method, and if the phone blocks both it selects the text so you can tap Copy (GPT's page failed here when opened as a downloaded file).
+
 ## v0.1.0 — 2026-11-18 — kickoff
 - DNA builder for monsters (26 types, 20 parts) and weapons (21 types, 20 parts): Yes / No / 🎲 per part, 🔒 locks, seed, Randomize, family variants, Save/Load DNA.
 - Art order writer with a strict, cuttable sheet layout (magenta background, rows per animation).

@@ -8,3 +8,4 @@
 - On painters: *"I have OpenArt and I have ImagineArt. But GPT does art the best… I have the farm. I have all the 3090s that we could probably easily do a generator with."*
 - GPT proposed a Windows Python/Qt "Creature & Weapon Forge" with DNA locking and a hybrid approach, and shared a prompt-builder prototype.
 - Decided: one web app (works on his phone on the road, on PCs and inside EOD) named **Pulse Forge**, its own product with a page and card; DNA locking and families adopted from GPT's idea; the cutter built in; farm painter next.
+- James tried GPT's generator page on his phone (opened as a downloaded file: empty artwork box, copy failed): *"You could probably build that and put it onto a page, right? Have it export each one of the creatures."* → Forge 0.1.1 adds per-creature export and a copy fallback.

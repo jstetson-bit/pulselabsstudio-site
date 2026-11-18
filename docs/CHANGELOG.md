@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.10 — 2026-11-18
+- Pulse Forge 0.1.1: export each creature as a zip; copy fallback.
+
 ## v0.7.9 — 2026-11-18
 - **Pulse Forge** launched at /forge (free, browser): monster/weapon DNA builder, art orders, sprite cutter, sends art to EOD. Product card added (Free · Open it). Deploy copies forge/ without src and docs.
 - EOD 0.4.2 reads Forge art.

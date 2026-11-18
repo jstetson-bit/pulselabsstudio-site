@@ -77,14 +77,14 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--pan2);border:1p
  <img id="src" hidden>
  <div class="frames" id="frames"></div>
  <div class="row" id="sendRow" hidden><div><label>Name</label><input type="text" id="artName"></div><button class="big" id="send">Send to EOD library</button><button id="dlPng">Download frames</button></div>
- <h3>My Forge art (on this device, shared with EOD)</h3>
+ <h3>My Forge art (on this device, shared with EOD)</h3><div class="row"><button id="expAll">Export every creature (one zip each)</button></div>
  <div class="lib" id="lib"></div>
 </section>
 </main>
 <div id="toast"></div>
 <div class="modal" id="modal"><div class="box"><div id="mBody"></div><div class="btns" id="mBtns"></div></div></div>
 <script>
-const VERSION='0.1.0';
+const VERSION='0.1.1';
 const PAL_B64='__PAL__';
 const $=id=>document.getElementById(id), LS={get:(k,d)=>{try{const v=localStorage.getItem('forge.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem('forge.'+k,JSON.stringify(v))}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -159,7 +159,8 @@ $('rand').onclick=()=>{const s=S();s.seed=1+Math.floor(Math.random()*2147483646)
   for(const f of (M?MON_FEATS:WEP_FEATS)){if(s.locks[f])continue;s.feats[f]=r()<.3?'yes':'no'}
   s.pal=PALS[Math.floor(r()*(PALS.length-1))];s.size=Object.keys(M?SIZES_M:SIZES_W)[Math.floor(r()*(M?5:4))];if(M)s.temper=TEMPERS[Math.floor(r()*TEMPERS.length)];build()};
 $('clear').onclick=()=>{const s=S();s.feats={};build()};
-$('copy').onclick=async()=>{const t=order();try{await navigator.clipboard.writeText(t);toast('Art order copied. Paste it into ChatGPT.')}catch(e){toast('Select the text and copy it.')}};
+function copyText(t){const ok=()=>toast('Art order copied. Paste it into ChatGPT.');const old=()=>{const ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);let r=false;try{r=document.execCommand('copy')}catch(e){}ta.remove();if(r)ok();else{const sel=getSelection(),rg=document.createRange();rg.selectNodeContents($('out'));sel.removeAllRanges();sel.addRange(rg);toast('Text selected: tap Copy in your phone menu.',4000)}};if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,old);else old()}
+$('copy').onclick=()=>copyText(order());
 $('saveDna').onclick=()=>{const b=new Blob([JSON.stringify({app:'Pulse Forge',version:VERSION,mode,dna:S()},null,1)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='PulseForge-DNA-'+S().seed+'.json';a.click()};
 $('loadDna').onclick=()=>$('dnaFile').click();$('dnaFile').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());mode=j.mode==='weapon'?'weapon':'monster';st[mode]=Object.assign(blank()[mode],j.dna);build();toast('DNA loaded')}catch(err){toast('That file is not Forge DNA')}};
 /* ---------- cutter ---------- */
@@ -230,6 +231,15 @@ function renderFrames(){
   $('sendRow').hidden=!CUTS.length;if(!$('artName').value)$('artName').value=S().kind;
   if(CUTS.length)toast(CUTS.length+' frames found. Check the labels under each one.');
 }
+/* ---------- creature export (one zip per creature: PNG frames + DNA + art order) ---------- */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=-1;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return(c^-1)>>>0}
+function makeZip(files){const enc=new TextEncoder(),parts=[],cen=[];let off=0;for(const[name,data]of files){const nm=enc.encode(name),u=typeof data==='string'?enc.encode(data):data,crc=crc32(u),h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint32(14,crc,true);h.setUint32(18,u.length,true);h.setUint32(22,u.length,true);h.setUint16(26,nm.length,true);parts.push(new Uint8Array(h.buffer),nm,u);const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,crc,true);c.setUint32(20,u.length,true);c.setUint32(24,u.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);cen.push(new Uint8Array(c.buffer),nm);off+=30+nm.length+u.length}const cs=cen.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/zip'})}
+const d2u=d=>{const b=atob(d.split(',')[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+function nice(o,f){const m=f.match(/_r(\d)\.png$/),dd=f.match(/_d(\d)\.png$/),s=f.match(/^s_.*_(\d+)\.png$/);if(m)return 'angle-'+m[1]+'.png';if(dd)return 'death-'+dd[1]+'.png';if(f.startsWith('p_'))return 'pickup.png';if(f.startsWith('j_'))return 'projectile.png';if(s)return s[1]==='1'?'idle.png':'firing-'+(s[1]-1)+'.png';return 'front.png'}
+function exportCreature(o){const base=(o.name||'creature').replace(/[^\w-]+/g,'_'),files=[];for(const[f,u]of Object.entries(o.files||{}))files.push([base+'/'+nice(o,f),d2u(u)]);if(o.dna){files.push([base+'/DNA.json',JSON.stringify({app:'Pulse Forge',version:VERSION,mode:o.kind,dna:o.dna},null,1)]);const keep=mode,ks=st[keep];mode=o.kind==='weapon'?'weapon':'monster';const sv=st[mode];st[mode]=Object.assign(blank()[mode],o.dna);files.push([base+'/art-order.txt',order()]);st[mode]=sv;mode=keep;build()}
+  files.push([base+'/README.txt',`${o.name} · made in Pulse Forge ${VERSION}\n${o.kind==='weapon'?'Weapon · '+o.cls:'Monster · '+o.arch+(o.rots?' · 5 angles (mirror 2-4 for 6-8)':'')}\nFrames are transparent PNGs in the Doom palette. DNA.json loads back into Forge.`]);
+  const a=document.createElement('a');a.href=URL.createObjectURL(makeZip(files));a.download='PulseForge-'+base+'.zip';a.click();toast('Exported '+o.name)}
 /* ---------- library (IndexedDB, shared with EOD on this site) ---------- */
 function idb(){return new Promise((res,rej)=>{const r=indexedDB.open('pulse-forge',1);r.onupgradeneeded=()=>r.result.createObjectStore('art',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function libAll(){const db=await idb();return new Promise(res=>{const t=db.transaction('art').objectStore('art').getAll();t.onsuccess=()=>res(t.result||[])})}
@@ -255,7 +265,8 @@ $('send').onclick=async()=>{
 };
 $('dlPng').onclick=()=>{const ref=refHeight();CUTS.forEach((c,i)=>{const a=document.createElement('a');a.href=finalFrame(c,ref).toDataURL('image/png');a.download=(S().kind+'-'+(i+1)+'-'+c.role).replace(/\W+/g,'_')+'.png';a.click()})};
 async function showLib(){const all=await libAll();$('lib').innerHTML=all.length?'':'<p class="hint">Nothing yet. Cut a picture and send it to EOD.</p>';
-  all.sort((a,b)=>b.made-a.made).forEach(o=>{const el=document.createElement('div');el.className='card';const f=Object.values(o.files)[0];el.innerHTML=`<img src="${f}" style="width:100%;height:90px;object-fit:contain;image-rendering:pixelated"><b>${esc(o.name)}</b><div class="hint">${o.kind==='monster'?'Monster · '+o.arch+(o.rots?' · 8 angles':''):'Weapon · '+o.cls} · DNA ${o.dna?o.dna.seed:'-'}</div><div class="row"><button data-dna="${o.id}">Load DNA</button><button data-del="${o.id}">Delete</button></div>`;$('lib').appendChild(el)});
+  all.sort((a,b)=>b.made-a.made).forEach(o=>{const el=document.createElement('div');el.className='card';const f=Object.values(o.files)[0];el.innerHTML=`<img src="${f}" style="width:100%;height:90px;object-fit:contain;image-rendering:pixelated"><b>${esc(o.name)}</b><div class="hint">${o.kind==='monster'?'Monster · '+o.arch+(o.rots?' · 8 angles':''):'Weapon · '+o.cls} · DNA ${o.dna?o.dna.seed:'-'}</div><div class="row"><button data-exp="${o.id}">Export</button><button data-dna="${o.id}">Load DNA</button><button data-del="${o.id}">Delete</button></div>`;$('lib').appendChild(el)});
+  $('lib').querySelectorAll('[data-exp]').forEach(b=>b.onclick=async()=>{const o=(await libAll()).find(x=>x.id===b.dataset.exp);if(o)exportCreature(o)});
   $('lib').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>modal('<p>Delete this from your Forge library? Maps that already use it keep their copy.</p>',[{ok:1,fn:()=>{libDel(b.dataset.del).then(showLib)}},{cancel:1}]));
   $('lib').querySelectorAll('[data-dna]').forEach(b=>b.onclick=async()=>{const o=(await libAll()).find(x=>x.id===b.dataset.dna);if(o&&o.dna){mode=o.kind==='weapon'?'weapon':'monster';st[mode]=Object.assign(blank()[mode],o.dna);build();toast('DNA loaded: change a part and copy a new order')}})}
 /* ---------- Pulse standards: manual, invert, settings, about, updates ---------- */
@@ -278,5 +289,6 @@ $('bSet').onclick=()=>{modal(`<h2>⚙ Settings</h2>
   $('fsR').oninput=e=>{LS.set('fs',+e.target.value);$('fsV').textContent=e.target.value;applyLook()};$('clr').onclick=()=>{LS.set('crash',[]);toast('Crash log cleared')};
   $('upd').onclick=async()=>{try{const t=await (await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'})).text(),m=t.match(/const VERSION='([^']+)'/);if(m&&m[1]!==VERSION)modal(`<p>Pulse Forge ${esc(m[1])} is out (you have ${VERSION}).</p>`,[{label:'Update now',fn:()=>location.reload()},{cancel:1}]);else toast('You have the newest Pulse Forge ('+VERSION+')')}catch(e){toast('Could not check right now')}}};
 if(!LS.get('seenTheme',false)){LS.set('seenTheme',true);modal(`<h2>Welcome to Pulse Forge</h2><p>Pick a look. You can change it any time under ⚙.</p><div class="row"><button id="w1">Dark</button><button id="w2">Light</button><button id="w3">Follow the device</button></div>`,[{ok:1}]);setTimeout(()=>{[['w1','dark'],['w2','light'],['w3','device']].forEach(([i,v])=>$(i).onclick=()=>{LS.set('theme',v);applyLook();toast('Look set')})},0)}
+$('expAll').onclick=async()=>{const all=await libAll();if(!all.length)return toast('Nothing to export yet');all.forEach((o,i)=>setTimeout(()=>exportCreature(o),i*400))};
 applyLook();build();showLib();
 </script></body></html>
