@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.4.2 (vc11) — 2026-11-18 — Pulse Forge art in EOD
+- Art made in **Pulse Forge** (pulselabsstudio.com/forge) shows up in both generators' Painted art lists, marked ⚒ (read from the shared IndexedDB library, refreshed when you come back to the tab).
+- A map that uses Forge art carries a copy of it (pictures + description) so published maps and playable exports show it to everyone.
+- Forge monsters with 5 angles turn like the Spine Baron; 5 death frames replace the squash death.
+
 ## v0.4.1 (vc10) — 2026-11-18 — bigger library, turning monsters, real firing animations
 - Art library now **46 painted monsters** and **22 guns** (third GPT sheet added: 25 more creatures, a full-turn demon, pickups and firing sequences).
 - **Spine Baron**: first monster with real angles (5 painted views, mirrored to all 8, picked by where you stand) and a painted 5-step death.

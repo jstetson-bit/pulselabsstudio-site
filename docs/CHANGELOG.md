@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.9 — 2026-11-18
+- **Pulse Forge** launched at /forge (free, browser): monster/weapon DNA builder, art orders, sprite cutter, sends art to EOD. Product card added (Free · Open it). Deploy copies forge/ without src and docs.
+- EOD 0.4.2 reads Forge art.
+
 ## v0.7.8 — 2026-11-18
 - EOD 0.4.1: 46 painted monsters, 22 guns, turning monsters, firing animations, thrown weapons.
 
