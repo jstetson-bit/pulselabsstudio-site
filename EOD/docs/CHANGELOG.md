@@ -2,13 +2,23 @@
 
 ## Queued
 - Boom/MBF line actions and sector specials (most popular modern maps), DEHACKED patches, MUSINFO/music
-- Publishing a map that brings its own custom art to the library (needs a rights checkbox + file storage)
+- Custom art on the live library: store it in Supabase Storage instead of inside the map row once the server is connected
+- Vanilla-limits check in Map Analysis (visplanes, drawsegs, savegame size) for people targeting Chocolate Doom
 - Play straight from the /idgames archive by search (needs a CORS-friendly mirror or a tiny proxy)
 - Go live: Supabase keys in `EOD/assets/config.js` so accounts, maps and forums are shared between visitors (waiting on owner)
 - Live co-editing (two people on one map at once) via Supabase Realtime
 - Map comments on each map, member profile pages, follow authors
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
+
+## v0.2.1 (vc3) — 2026-11-17 — your own walls and floors
+- **My textures:** add your own picture (PNG/JPG/WebP/GIF) as a wall, a floor/ceiling or both. Controls: name, width, height, quick 32/64/128/256 sizes, keep shape, sharp-pixel vs smooth, live tiled preview. Manage them in File → My textures (replace, rename with optional update of every surface using it, delete with Undo). Also from the texture browser: "＋ Add my own".
+- Custom art is saved inside the map (autosave, project file, Undo) and loads as the top art layer ("My textures").
+- **Imported art survives saving:** when you open a map that brings its own textures, the ones the map uses are copied into the map automatically (also File → My textures → "Keep this map's imported art"). Art from your own IWAD and Freedoom is never copied.
+- **WAD export** includes your textures as PNG lumps (TX_START/TX_END for walls, FF_START/FF_END for floors), which GZDoom reads.
+- **Publishing:** maps with custom art show a permission box ("I made them or have permission"); unticked, the map is published without the art.
+- **About** and **Check for updates** at the top of the File menu (version also shown in the top bar).
+- Tested in headless Chrome: add a 128×128 PNG, paint it on room walls, play it, export WAD (TX lumps present), reload page (texture persists), My textures screen.
 
 ## v0.2.0 — 2026-11-17 — plays maps everyone has made
 - **Open any map:** File → Open any map takes a .wad (PWAD or IWAD), an /idgames .zip, or a ZDoom .pk3 (maps/*.wad + PNG textures/flats/sprites). Multi-map files list every map with ✎ Edit (build off it) or ▶ Play. An import report shows lines, sectors, things, the map's own art, the art stack in use and any missing texture names.

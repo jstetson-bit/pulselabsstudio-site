@@ -10,7 +10,7 @@ async function eodBoot() {
   const me = await EODB.user().catch(() => null), mine = me && me.id === m.owner;
   if (play) {
     EODP.playOnly = { id, title: m.title, author: m.author };
-    const keep = M; M = m.data; compact();
+    const keep = M; M = m.data; compact(); syncCustomTex(true);
     const p1 = M.t.find(t => t.type === 1);
     if (!p1) { M = keep; return toast('That map has no Player 1 Start', 4000); }
     initGame('play', { x: p1.x, y: p1.y, a: p1.a });
@@ -45,10 +45,12 @@ async function eodPublish() {
     <label class="chk"><input type="checkbox" id="pbP" ${EODP.published ? 'checked' : ''}>Show it in the map library (off = private draft)</label>
     <label class="chk"><input type="checkbox" id="pbR" ${EODP.allowRemix ? 'checked' : ''}>Let people remix it (you stay credited)</label>
     <label class="chk"><input type="checkbox" id="pbW" ${EODP.allowDownload ? 'checked' : ''}>Let people download it as a Doom WAD</label>
+    ${customCount() ? `<div class="h">Custom art</div><label class="chk"><input type="checkbox" id="pbArt">This map has ${customCount()} custom texture(s). I made them or have permission to share them.</label><p class="hint">Leave it unticked and the map is published without your custom art (players see stand-ins).</p>` : ''}
     <p class="hint">Signed in as <b>${esc(me.username)}</b>.${EODP.remixOf ? ' This is a remix; the original author is credited automatically.' : ''}</p>`,
     [{ ok: 1, fn: b => {
       const v = id => b.querySelector(id);
       const data = JSON.parse(JSON.stringify(M));
+      const art = b.querySelector('#pbArt'); if (data.res && !(art && art.checked)) delete data.res;
       const rec = { id: EODP.cloudId, title: v('#pbT').value, description: v('#pbD').value, published: v('#pbP').checked, allow_remix: v('#pbR').checked, allow_download: v('#pbW').checked, data, remix_of: EODP.remixOf };
       EODB.saveMap(rec).then(r => { Object.assign(EODP, { cloudId: r.id, title: rec.title, description: rec.description, published: rec.published, allowRemix: rec.allow_remix, allowDownload: rec.allow_download }); toast(rec.published ? 'Published! It is in the map library now.' : 'Saved as a private draft.', 4000); }, e => toast('Publish failed: ' + e.message, 5000));
     } }, { cancel: 1 }]);

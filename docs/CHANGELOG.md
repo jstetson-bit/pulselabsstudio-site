@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.2 — 2026-11-17
+- EOD 0.2.1 at /EOD: members can add their own wall/floor textures (saved in the map, exported into WADs); About + Check for updates.
+
 ## v0.7.1 — 2026-11-17
 - EOD 0.2.0 at /EOD: opens any community map (.wad / idgames .zip / .pk3) and plays it with its own art, the player's own
   IWAD (device only) or the free Freedoom art pack (EOD/res, BSD license, 7.2 MB gzip, loaded on demand and cached).

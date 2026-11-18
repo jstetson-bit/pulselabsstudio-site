@@ -110,7 +110,7 @@ function openTexBrowser(flat, current, cb) {
   RES.packs.forEach(p => { (flat ? [p.flats, p.imgFlat] : [p.tex, p.imgTex]).forEach(m => { for (const n of m.keys()) used.add(n); }); });
   if (flat) M.sec.forEach(s => { used.add(s.ft); used.add(s.ct); }); else M.sd.forEach(d => [d.up, d.mid, d.lo].forEach(n => n !== '-' && used.add(n)));
   const names = [...used].filter(Boolean).sort();
-  const b = modal(flat ? 'Flats (floors & ceilings)' : 'Wall textures', `<input id="txq" placeholder="Search…" style="width:100%;margin-bottom:8px" autocapitalize="characters"><div class="grid" id="txg"></div><p class="hint">Art comes from the loaded packs (the map's own art, your IWAD if you opened it, Freedoom) and EOD's in-house stand-ins for anything missing.</p>`, [{ label: 'Use typed name', fn: bd => { const v = bd.querySelector('#txq').value.trim().toUpperCase(); if (v) cb(v.slice(0, 8)); } }, { cancel: 1 }]);
+  const b = modal(flat ? 'Flats (floors & ceilings)' : 'Wall textures', `<div class="row"><input id="txq" placeholder="Search…" style="flex:1" autocapitalize="characters"><button id="txAdd" class="demo">＋ Add my own</button></div><div style="height:8px"></div><div class="grid" id="txg"></div><p class="hint">Art comes from the loaded packs (the map's own art, your IWAD if you opened it, Freedoom) and EOD's in-house stand-ins for anything missing.</p>`, [{ label: 'Use typed name', fn: bd => { const v = bd.querySelector('#txq').value.trim().toUpperCase(); if (v) cb(v.slice(0, 8)); } }, { cancel: 1 }]);
   const grid = b.querySelector('#txg');
   const render = q => {
     grid.innerHTML = '';
@@ -120,6 +120,7 @@ function openTexBrowser(flat, current, cb) {
       t.append(c, document.createTextNode(n)); t.onclick = () => { closeModal(); cb(n); }; grid.appendChild(t);
     }
   };
+  b.querySelector('#txAdd').onclick = () => { closeModal(); addMyTexture(flat ? 'flat' : 'wall', name => cb(name)); };
   render(''); b.querySelector('#txq').oninput = e => render(e.target.value.toUpperCase());
 }
 function openThingBrowser(cb) {
@@ -169,7 +170,10 @@ function openPrefabs() {
 /* ---- File menu ---- */
 function openFileMenu() {
   modal('File', `<div class="list">
+  <button id="fAbout">About EOD · version ${VERSION}</button>
+  <button id="fUpd">Check for updates</button>
   <button id="fPub" class="demo">Publish to EOD (share it)</button>
+  <button id="fTex">My textures (add your own walls and floors)</button>
   <button id="fLib">Open from the EOD library</button>
   <button id="fNew">New blank map</button>
   <button id="fSample">Load the test map (Hangar of Shit)</button>
@@ -178,6 +182,9 @@ function openFileMenu() {
   <button id="fWad">Export Doom WAD (for GZDoom / Delta Touch)</button>
   <button id="fPlay">Export playable game (.html, runs on any phone or PC)</button>
   </div><p class="hint">Your work also autosaves on this device after every change.</p>`, [{ cancel: 1 }], b => {
+    b.querySelector('#fAbout').onclick = () => { closeModal(); openAbout(); };
+    b.querySelector('#fUpd').onclick = () => { closeModal(); checkUpdates(); };
+    b.querySelector('#fTex').onclick = () => { closeModal(); openMyTextures(); };
     b.querySelector('#fPub').onclick = () => { closeModal(); eodPublish(); };
     b.querySelector('#fLib').onclick = () => { closeModal(); eodLibrary(); };
     b.querySelector('#fNew').onclick = () => { closeModal(); modal('Start a new blank map?', '<p>Your current map stays in Undo, so one Undo brings it back.</p>', [{ ok: 1, fn: () => { pushUndo(); M = emptyMap(); clearSel(); mapChanged(); zoomFit(); } }, { cancel: 1 }]); };

@@ -71,15 +71,16 @@ function composeTexture(def, packIdx) {
 function getTex(name, flat) {
   name = (name || '-').toUpperCase(); const k = (flat ? 'F:' : 'W:') + name;
   let t = TEXC2.get(k); if (t) return t;
-  if (RES.packs.length && resPal()) {
+  if (RES.packs.length) {
+    const havePal = !!resPal();
     for (let i = 0; i < RES.packs.length && !t; i++) {
       const p = RES.packs[i];
       if (flat) {
         if (p.imgFlat.has(name)) t = p.imgFlat.get(name);
-        else if (p.flats.has(name)) { const b = p.flats.get(name), pal = resPal(), px = new Uint32Array(4096); for (let j = 0; j < 4096; j++) px[j] = pal[b[j]]; t = texObj(64, 64, px); }
+        else if (havePal && p.flats.has(name)) { const b = p.flats.get(name), pal = resPal(), px = new Uint32Array(4096); for (let j = 0; j < 4096; j++) px[j] = pal[b[j]]; t = texObj(64, 64, px); }
       } else {
         if (p.imgTex.has(name)) t = p.imgTex.get(name);
-        else if (p.tex.has(name)) t = composeTexture(p.tex.get(name), i);
+        else if (havePal && p.tex.has(name)) t = composeTexture(p.tex.get(name), i);
       }
     }
   }
@@ -138,7 +139,7 @@ function resSound(kind) {
   SNDC.set(lump, buf); return buf;
 }
 /* ---------- pack management ---------- */
-function setPack(kind, pack) { RES.packs = RES.packs.filter(p => p.kind !== kind); if (pack) { const order = { map: 0, iwad: 1, freedoom: 2 }; RES.packs.push(pack); RES.packs.sort((a, b) => order[a.kind] - order[b.kind]); } resChanged(); }
+function setPack(kind, pack) { RES.packs = RES.packs.filter(p => p.kind !== kind); if (pack) { const order = { custom: -1, map: 0, iwad: 1, freedoom: 2 }; RES.packs.push(pack); RES.packs.sort((a, b) => order[a.kind] - order[b.kind]); } resChanged(); }
 const FREEDOOM_URL = 'res/freedoom-res.wad.gz';
 async function loadFreedoom(silent) {
   if (RES.packs.some(p => p.kind === 'freedoom')) return true;

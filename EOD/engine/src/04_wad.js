@@ -85,6 +85,10 @@ function buildWad() {
   const Se = mk(M.sec.length, 26); M.sec.forEach((s, i) => { const o = i * 26; Se.dv.setInt16(o, s.fh, true); Se.dv.setInt16(o + 2, s.ch, true); wrName(Se.u8, o + 4, s.ft); wrName(Se.u8, o + 12, s.ct); Se.dv.setInt16(o + 20, s.li, true); Se.dv.setInt16(o + 22, s.sp, true); Se.dv.setInt16(o + 24, s.tag, true); });
   const E = new Uint8Array(0);
   const lumps = [[M.name || 'MAP01', E], ['THINGS', T.u8], ['LINEDEFS', Ld.u8], ['SIDEDEFS', Sd.u8], ['VERTEXES', V.u8], ['SEGS', E], ['SSECTORS', E], ['NODES', E], ['SECTORS', Se.u8], ['REJECT', E], ['BLOCKMAP', E]];
+  if (M.res) { const tx = []; const dec = src => { const b64 = src.split(',')[1] || '', bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
+    Object.entries(M.res.tex || {}).forEach(([n, v]) => tx.push([n, dec(v.src)])); const fl = Object.entries(M.res.flat || {}).filter(([n]) => !(M.res.tex || {})[n]).map(([n, v]) => [n, dec(v.src)]);
+    if (tx.length) lumps.push(['TX_START', E], ...tx, ['TX_END', E]);
+    if (fl.length) lumps.push(['FF_START', E], ...fl, ['FF_END', E]); }
   let size = 12; lumps.forEach(l => size += l[1].length);
   const total = size + lumps.length * 16, out = new Uint8Array(total), dv = new DataView(out.buffer);
   out.set([80, 87, 65, 68], 0); dv.setInt32(4, lumps.length, true); dv.setInt32(8, size, true);
@@ -161,7 +165,8 @@ function importWads(list, fname, extraPack, notes = []) {
     const { it, m, label } = maps[k]; const r = loadWadMap(it.w, m);
     pushUndo(); M = r.map; M.name = /^(MAP\d\d|E\dM\d)$/.test(label) ? label : M.name; S.mapName = M.name; saveSettings(); compact(); clearSel(); mapChanged(); zoomFit();
     if ((S.artPack || 'freedoom') === 'freedoom') loadFreedoom(true);
-    const rep = recognizeReport(r.note, notes, mapPack, iwad);
+    const kept = keepImportedArt(false);
+    const rep = recognizeReport(r.note, notes, mapPack, iwad) + (kept ? `<p class="hint">Kept ${kept} of this map's own textures inside the map so they survive saving (File → My textures).</p>` : '');
     if (play) { const p1 = M.t.find(t => t.type === 1); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
     else modal('Imported ' + label + ' from ' + fname, rep, [{ label: '▶ Play it', cls: 'demo', fn: () => setTimeout(() => startDemo(), 50) }, { cancel: 1 }]);
   };

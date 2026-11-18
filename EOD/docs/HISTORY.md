@@ -1,0 +1,30 @@
+# EOD · Editor of Doom — History
+
+The story of how EOD came to be, in the owner's words where possible.
+
+## 2026-11-16 · It starts as No Shit Doom Editor
+- Asked: *"build a new program today… call it No Shit Doom Editor… capable of creating and editing Doom maps… all the tools in the editor… make an executable version… a single demo button… on-screen controls for my phone… 9:16 portrait, 16:9 landscape, and the Z Fold when it's unfolded."*
+- Then: *"Take a look at… Ultimate Doom Builder… compare our product to that product. Incorporate all of its tools and structure… include a public test map… or create a quick test map."*
+- Decided: one self-contained HTML app; UDB-style modes; own Doom-style engine for the Demo; test map "Hangar of Shit"; export Doom WAD + a playable HTML file.
+
+## 2026-11-16 · Is there a web Doom editor already?
+- Asked: *"is there any type of Doom editor hosted on the internet as a web page that people can… log in… maps to share… click it, edit, and utilize it?"*
+- Found: DoomScroll plays maps in a browser (no editor); web editors are prototypes; SnapMap had share/remix but only inside Doom 2016.
+
+## 2026-11-16 · EOD
+- Asked: *"time to build EOD, or Editor of Doom… web-hosted… log in… sign up… free… forums… controller mapping and keyboard and mouse mapping… build the skeleton off the most popular Doom editor… put the whole website into GitHub."*
+- Then: *"I want to be able to link a Xbox controller… map a mouse and keyboard… a map library… who is the creator… when it was created… permissions… build a skeleton off it or play it… I want to gift it to Kevin so he can run it."*
+- Decided: static site + Supabase for accounts/data (local test mode until keys); Remix credits the original; map permissions; controller/KBM remapping saved to the account.
+
+## 2026-11-17 · Live on pulselabsstudio.com/EOD
+- Asked: *"tie it into pulselabstudios.com/EOD… as a test subject so I can be live and check it. Don't worry about safeguarding it with a password."*
+- Then: *"a link now that brings me directly to this editor and to be able to play it in real time."*
+
+## 2026-11-17 · Any map anyone has made
+- Asked: *"bring in any maps that anyone has made… recognize it, put it into our editor, overlay all of the assets and resources, and be playable. The editor needs to be familiar, but ours. The engine needs to be familiar, but ours… all on free sources and stuff that I can't get sued over."*
+- Decided: open .wad/.zip/.pk3; art stack = map's own art → player's own IWAD (device only) → Freedoom (BSD, credited) → in-house art. Big-map speed-ups.
+
+## 2026-11-17 · Custom textures
+- Asked: *"do we support custom texture ie walls"* → *"go"*.
+- Decided: "My textures" (add, size, sharp/smooth, replace, rename, delete), saved inside the map, kept automatically for imported maps, exported into WADs, published only with the author's permission box.
+- Asked: *"vis plane overflow. is this an issue for us"* → not for EOD's own engine (no visplane limit); only matters for people taking an exported WAD to vanilla Doom / Chocolate Doom. A limits check is queued.
