@@ -29,6 +29,7 @@ jobs:
           mkdir -p _site/v
           cp *.html CNAME _site/
           [ -d pulse-meter ] && cp -r pulse-meter _site/
+          [ -d pls-zip ] && cp -r pls-zip _site/
           [ -d assets ] && cp -r assets _site/
           cp *.js _site/ 2>/dev/null || true
           [ -d EOD ] && cp -r EOD _site/ && rm -rf _site/EOD/engine

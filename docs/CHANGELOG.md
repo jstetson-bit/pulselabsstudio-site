@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.2 — 2026-11-17
+- PLS Zip gets its own product page at /pls-zip/ and a card in Products (Windows PC, Android inside PLS Explorer; "Coming soon"
+  until it has a price). James: it "needs to be uploaded onto the website as a product that we offer now." The deploy now copies
+  the pls-zip folder.
+
 ## v0.7.5 — 2026-11-17
 - EOD 0.3.2: glass panes (see-through, reflecting, breakable; every part on/off).
 

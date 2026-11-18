@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLS Zip — open any zip or archive, old or new · Pulse Labs Studio</title>
+<meta name="description" content="PLS Zip opens zip, 7z, RAR (old and new), tar, gz and bz2 archives, split and password archives too, and makes zips with AES-256 passwords. Offline, no ads, never touches your original.">
+<link rel="stylesheet" href="../assets/pls.css">
+<script src="../store-config.js"></script>
+<script src="../assets/pls-store.js"></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="../index.html"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Pulse Labs Studio</span></a>
+  <nav>
+    <a class="nav on" href="../products.html">Products</a>
+    <a class="nav" href="../cart.html">Cart<span class="badge-n" id="cartN" style="display:none">0</span></a>
+    <a class="nav" href="../account.html" id="acctLink">Sign in</a>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
+    <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <h1 style="margin-bottom:4px;color:#e63329">PLS Zip</h1>
+  <div class="sys"><span class="badge">Windows PC</span><span class="badge">Android (inside PLS Explorer)</span></div>
+  <p class="sub" style="margin-top:12px"><b>Open any zip or archive, old or new.</b> The old RAR from a backup drive, the 7z a friend sent, the
+  file that came in five parts: PLS Zip opens them. It's our own engine, built from scratch, so it keeps opening the old formats
+  other tools quietly drop.</p>
+  <div class="soon" style="margin:14px 0">Coming soon for Windows. On Android it already works today inside PLS Explorer.</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Opens</h2>
+      <p style="margin:0">zip (also password zips) · 7z · RAR, from old RAR 2.9 up to RAR 5 · tar · tar.gz · tar.bz2 · gz · bz2 ·
+      archives split into parts (.7z.001, .part1.rar, .r00) · locked 7z with hidden file names</p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Makes</h2>
+      <p style="margin:0">Zip files, with or without a password. Passwords use AES-256, the same strong lock banks use.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Never touches your original</h2>
+      <p style="margin:0">Extracting always makes a new folder next to the archive. Nothing is overwritten, nothing is deleted.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Offline, no strings</h2>
+      <p style="margin:0">No internet, no ads, no account, no subscription. Opening archives is free forever.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:28px">Backwards compatible, on purpose</h2>
+  <p>Plenty of tools have stopped opening older archives. PLS Zip reads the old RAR versions, every common 7z packing method
+  (LZMA, LZMA2, PPMd, BZip2, Deflate) and archives split across many files. We test it against archives made by other
+  programs, file by file, byte for byte.</p>
+
+  <h2>Plain words when something's wrong</h2>
+  <p>"The password is wrong." "This is part 2: open part 1." No codes, no guessing.</p>
+</div>
+
+<div id="manual" role="dialog" aria-modal="true"><div class="box">
+  <button class="ok-x" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">About this page</h2>
+  <p>This is PLS Zip's page. The Windows version is coming soon; you can use it on Android today inside PLS Explorer.</p>
+  <p>Back to every product: <a href="../products.html">Products</a>.</p>
+  <p>◐ flips the colors.</p>
+</div></div>
+<footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="../privacy.html">Privacy Policy</a></footer>
+<script>PLS.header();</script>
+</body>
+</html>
