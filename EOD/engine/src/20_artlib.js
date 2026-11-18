@@ -7,16 +7,31 @@ const ART_DIR = 'res/art/';
 const ARTL = { man: null, manP: null, img: new Map(), wait: new Map() };
 function artManifest() {
   if (ARTL.man) return Promise.resolve(ARTL.man);
-  if (!ARTL.manP) ARTL.manP = fetch(ART_DIR + 'manifest.json').then(r => r.json()).then(j => (ARTL.man = j)).catch(() => (ARTL.man = { monsters: [], weapons: [] }));
+  if (!ARTL.manP) ARTL.manP = fetch(ART_DIR + 'manifest.json').then(r => r.json()).then(j => (ARTL.man = j)).catch(() => (ARTL.man = { monsters: [], weapons: [] })).then(m => forgeMerge().then(() => m));
   return ARTL.manP;
 }
-function artMon(id) { return ARTL.man && ARTL.man.monsters.find(m => m.id === id); }
-function artWep(id) { return ARTL.man && ARTL.man.weapons.find(m => m.id === id); }
+function artMon(id) { return (ARTL.man && ARTL.man.monsters.find(m => m.id === id)) || (M && M.artMeta && M.artMeta[id] && M.artMeta[id].kind === 'monster' ? M.artMeta[id] : null); }
+function artWep(id) { return (ARTL.man && ARTL.man.weapons.find(m => m.id === id)) || (M && M.artMeta && M.artMeta[id] && M.artMeta[id].kind === 'weapon' ? M.artMeta[id] : null); }
+/* Pulse Forge art (same site, IndexedDB 'pulse-forge'): merged into the library */
+ARTL.forge = {}; ARTL.forgeIds = new Set();
+function forgeLoad() {
+  return new Promise(res => { try { const r = indexedDB.open('pulse-forge', 1); r.onupgradeneeded = () => r.result.createObjectStore('art', { keyPath: 'id' }); r.onerror = () => res([]);
+    r.onsuccess = () => { try { const t = r.result.transaction('art').objectStore('art').getAll(); t.onsuccess = () => res(t.result || []); t.onerror = () => res([]); } catch (e) { res([]); } }; } catch (e) { res([]); } });
+}
+async function forgeMerge() {
+  if (!ARTL.man) return; const all = await forgeLoad();
+  for (const o of all) {
+    Object.assign(ARTL.forge, o.files || {}); if (ARTL.forgeIds.has(o.id)) continue; ARTL.forgeIds.add(o.id);
+    const meta = Object.assign({}, o); delete meta.files; delete meta.dna; meta.name = '⚒ ' + o.name;
+    (o.kind === 'weapon' ? ARTL.man.weapons : ARTL.man.monsters).push(meta);
+  }
+}
+window.addEventListener('focus', () => { forgeMerge(); });
 // returns a loaded Image or null (and starts loading). Embedded copies (playable exports) win.
 function artImg(file) {
   const have = ARTL.img.get(file); if (have) return have;
   if (!ARTL.wait.has(file)) {
-    const src = (M && M.artData && M.artData[file]) || (window.NSDE_EMBED && NSDE_EMBED.map && NSDE_EMBED.map.artData && NSDE_EMBED.map.artData[file]) || ART_DIR + file;
+    const src = (M && M.artData && M.artData[file]) || ARTL.forge[file] || (window.NSDE_EMBED && NSDE_EMBED.map && NSDE_EMBED.map.artData && NSDE_EMBED.map.artData[file]) || ART_DIR + file;
     const im = new Image(); const p = new Promise(res => { im.onload = () => { ARTL.img.set(file, im); res(im); artLoaded(); }; im.onerror = () => res(null); });
     im.src = src; ARTL.wait.set(file, p);
   }
@@ -34,7 +49,10 @@ function artFilesFor(map) {
 }
 function monFiles(id) { const a = artMon(id); if (a && a.rots) { const o = []; for (let i = 1; i <= a.rots; i++) o.push('m_' + id + '_r' + i + '.png'); for (let i = 1; i <= (a.death || 0); i++) o.push('m_' + id + '_d' + i + '.png'); return o; } return ['m_' + id + '.png']; }
 function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj].filter(Boolean); }
-function artPreload() { const f = artFilesFor(M); if (f.length) artManifest().then(() => artLoadAll(f)); }
+function artPreload() {
+  // maps that use Forge art carry their own copy (art + its description) so other players see it
+  for (const d of [...Object.values(M.mon || {}), ...Object.values(M.wep || {})]) { const id = d.look && d.look.art; if (!id || !ARTL.forgeIds.has(id)) continue; const meta = artMon(id) || artWep(id); if (!meta) continue; M.artMeta = M.artMeta || {}; if (!M.artMeta[id]) M.artMeta[id] = Object.assign({}, meta, { kind: d.hp != null ? 'monster' : 'weapon' }); M.artData = M.artData || {}; for (const f of (meta.kind === 'weapon' || d.hp == null ? wepFiles(id) : monFiles(id))) if (ARTL.forge[f] && !M.artData[f]) M.artData[f] = ARTL.forge[f]; }
+  const f = artFilesFor(M); if (f.length) artManifest().then(() => artLoadAll(f)); }
 /* ---------- recolor ---------- */
 function hueMatrix(deg) {
   const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
