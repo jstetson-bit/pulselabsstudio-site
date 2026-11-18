@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.3.3', VC = 8;
+const VERSION = '0.4.0', VC = 9;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -954,7 +954,8 @@ function fileBase() { return 'EOD-' + (M.name || 'MAP01') + '-' + new Date().toI
 function exportPlayable() {
   const issues = analyzeMap().filter(i => i.sev === 'error' && /Player 1/.test(i.msg));
   if (issues.length) return toast(issues[0].msg, 3500);
-  const json = JSON.stringify({ map: M, title: M.name }).replace(/</g, '\\u003c');
+  const artData = {}; for (const f of artFilesFor(M)) { const im = ARTL.img.get(f); if (im) { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); artData[f] = c.toDataURL('image/png'); } }
+  const json = JSON.stringify({ map: Object.assign({}, M, Object.keys(artData).length ? { artData } : {}), title: M.name }).replace(/</g, '\\u003c');
   const tag = '<script id="nsde-' + 'main">', etag = '<script id="nsde-' + 'embed">', close = '</' + 'script>';
   let html = ORIGINAL_HTML.replace(new RegExp(etag.replace(/[-]/g, '\\-') + '[\\s\\S]*?' + close + '\\n?'), '');
   const i2 = html.indexOf(tag);
@@ -3094,7 +3095,7 @@ function boot() {
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) firstRun();
-  pullAccountBinds(); applyArtSetting(); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
+  pullAccountBinds(); applyArtSetting(); artManifest().then(artPreload); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
 }
 
 /* ================= INPUT: keyboard, mouse (pointer lock), controller (Gamepad API), remapping ================= */
@@ -3514,9 +3515,10 @@ const mpick = (r, a) => a[Math.floor(r() * a.length)];
 const between = (r, [a, b]) => a + (b - a) * r();
 function rollMonster(opts = {}, parts = { look: 1, stats: 1, attack: 1, name: 1 }, base) {
   const seed = opts.seed != null ? opts.seed : (Math.random() * 2 ** 31) | 0, r = monRng(seed);
-  const arch = opts.arch && opts.arch !== 'random' ? opts.arch : mpick(r, Object.keys(ARCHETYPES)), A = ARCHETYPES[arch];
+  let arch = opts.arch && opts.arch !== 'random' ? opts.arch : mpick(r, Object.keys(ARCHETYPES)), A = ARCHETYPES[arch];
   const tier = opts.tier && opts.tier !== 'random' ? opts.tier : mpick(r, ['fodder', 'fodder', 'soldier', 'soldier', 'heavy', 'elite']), T = TIERS[tier];
   const d = Object.assign({ v: 1 }, base || {}); d.arch = arch; d.tier = tier;
+  if ((parts.look || !d.look) && ARTL.man && ARTL.man.monsters.length && opts.art !== '') { const a = opts.art ? artMon(opts.art) : (artPickFor('monsters', opts.arch && opts.arch !== 'random' ? arch : null)); if (a) { if (!opts.arch || opts.arch === 'random') { arch = a.arch; A = ARCHETYPES[arch]; d.arch = arch; } const big = r() < .25; d.look = { art: a.id, seed: (r() * 1e9) | 0, hue: r() < .5 ? 0 : Math.round((r() - .5) * (big ? 300 : 60)), sat: Math.round(80 + r() * 50), bri: Math.round(85 + r() * 30), tint: '#c4141c', tintAmt: 0, size: +(0.9 + r() * 0.3).toFixed(2), mirror: r() < .3 }; parts = Object.assign({}, parts, { look: 0 }); } }
   if (parts.name || !d.name) { const n2 = mpick(r, N2); d.name = mpick(r, N1) + ' ' + n2[0].toUpperCase() + n2.slice(1); }
   if (parts.look || !d.look) { const pal = mpick(r, PALETTES); d.look = { seed: (r() * 1e9) | 0, body: pal[0], accent: pal[1], eyes: pal[2], horns: r() < .6, spikes: r() < .5, eyesN: 1 + Math.floor(r() * 3), arms: arch === 'floater' || arch === 'crawler' ? 0 : 2, size: +between(r, A.size).toFixed(2), legs: arch === 'crawler' ? 4 : arch === 'floater' ? 0 : 2 }; }
   if (parts.stats || d.hp == null) {
@@ -3536,12 +3538,13 @@ function rollMonster(opts = {}, parts = { look: 1, stats: 1, attack: 1, name: 1 
   }
   d.seed = seed; return d;
 }
-function monSize(d) { const s = d.look.size || 1; return { r: Math.round(20 * s), h: Math.round(56 * s) }; }
+function monSize(d) { if (d.look.art) { const z = artMonSize(d); if (z) return z; } const s = d.look.size || 1; return { r: Math.round(20 * s), h: Math.round(56 * s) }; }
 /* ---------- procedural sprites ---------- */
 const MONF = new Map();
 function monFrames(type, d) {
   const key = type + ':' + JSON.stringify(d.look) + d.arch;
   let f = MONF.get(key); if (f) return f;
+  if (d.look.art) { const af = artMonFrames(d); if (af) { MONF.set(key, af); return af; } }
   const sz = d.look.size || 1, W_ = Math.round((d.arch === 'crawler' ? 90 : d.arch === 'floater' ? 60 : 48) * sz), H_ = Math.round((d.arch === 'crawler' ? 56 : 66) * sz);
   f = {}; const FR = 'ABCDEFGHIJKL';
   for (let i = 0; i < FR.length; i++) {
@@ -3613,6 +3616,7 @@ function drawMonster(g, w, h, d, pose) {
 /* ---------- registry ---------- */
 let MON_SIG = '';
 function syncMonsters() {
+  if (typeof artPreload === 'function') artPreload();
   const sig = JSON.stringify(M.mon || {}); if (sig === MON_SIG) return; MON_SIG = sig;
   for (const k in THINGS) if (THINGS[k].custom) delete THINGS[k];
   for (const [type, d] of Object.entries(M.mon || {})) {
@@ -3651,7 +3655,11 @@ function openMonsterGen(editType) {
     <div class="f"><label>Body type</label>${sel('mgArch', Object.fromEntries(Object.entries(ARCHETYPES).map(([k, v]) => [k, v.name])), d.arch)}</div>
     <div class="f"><label>Threat tier</label>${sel('mgTier', Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.n])), d.tier)}</div>
     <div class="h">Look</div>
-    <div class="row"><label>Body <input type="color" id="mgCB" value="${d.look.body}"></label><label>Accent <input type="color" id="mgCA" value="${d.look.accent}"></label><label>Eyes <input type="color" id="mgCE" value="${d.look.eyes}"></label><button id="mgPulse">Pulse red & white</button></div>
+    <div class="f"><label>Painted art</label>${sel('mgArt', artOptions('monsters'), d.look.art || '')}</div>
+    ${d.look.art ? `${num('mgHue', 'Color shift (hue)', d.look.hue || 0, -180, 180)}${num('mgSat', 'Color strength (saturation %)', d.look.sat != null ? d.look.sat : 100, 0, 200)}${num('mgBri', 'Brightness %', d.look.bri != null ? d.look.bri : 100, 40, 160)}
+    <div class="row"><label>Tint color <input type="color" id="mgTint" value="${d.look.tint || '#c4141c'}"></label><button id="mgTintRed">Pulse red</button></div>${num('mgTintA', 'Tint amount %', d.look.tintAmt || 0, 0, 100)}
+    ${num('mgASize', 'Size', d.look.size || 1, 0.5, 2.5, 0.05)}<label class="chk"><input type="checkbox" id="mgMirror" ${d.look.mirror ? 'checked' : ''}>Mirror (face the other way)</label>` : ''}
+    <p class="hint">${d.look.art ? 'The settings below only apply to the old code-drawn style.' : ''}</p><div class="row"><label>Body <input type="color" id="mgCB" value="${d.look.body}"></label><label>Accent <input type="color" id="mgCA" value="${d.look.accent}"></label><label>Eyes <input type="color" id="mgCE" value="${d.look.eyes}"></label><button id="mgPulse">Pulse red & white</button></div>
     ${num('mgSize', 'Size', d.look.size, 0.6, 2.5, 0.05)}${num('mgEyes', 'Eyes', d.look.eyesN, 1, 4)}
     <label class="chk"><input type="checkbox" id="mgHorns" ${d.look.horns ? 'checked' : ''}>Horns</label><label class="chk"><input type="checkbox" id="mgSpikes" ${d.look.spikes ? 'checked' : ''}>Spikes</label>
     <div class="h">Stats</div>
@@ -3672,6 +3680,10 @@ function openMonsterGen(editType) {
     bind('mgArch', e => { d = rollMonster({ arch: e.value, tier: d.tier, seed: d.seed }, { look: 1, stats: 0, attack: 1, name: 0 }, d); render(b); }, 'change');
     bind('mgTier', e => { d = rollMonster({ arch: d.arch, tier: e.value, seed: d.seed }, { look: 0, stats: 1, attack: 1, name: 0 }, d); render(b); }, 'change');
     bind('mgCB', e => d.look.body = e.value); bind('mgCA', e => d.look.accent = e.value); bind('mgCE', e => d.look.eyes = e.value);
+
+    bind('mgArt', e => { if (e.value) { const keep = d.look.art ? d.look : { hue: 0, sat: 100, bri: 100, tint: '#c4141c', tintAmt: 0, size: 1, mirror: false }; d.look = Object.assign({}, keep, { art: e.value }); } else { d = rollMonster({ arch: d.arch, tier: d.tier, art: '' }, { look: 1, stats: 0, attack: 0, name: 0 }, d); } render(b); }, 'change');
+    bind('mgHue', e => d.look.hue = +e.value); bind('mgSat', e => d.look.sat = +e.value); bind('mgBri', e => d.look.bri = +e.value); bind('mgTint', e => d.look.tint = e.value); bind('mgTintA', e => d.look.tintAmt = +e.value); bind('mgASize', e => d.look.size = +e.value); bind('mgMirror', e => d.look.mirror = e.checked, 'change');
+    { const tr = b.querySelector('#mgTintRed'); if (tr) tr.onclick = () => { d.look.tint = '#c4141c'; d.look.tintAmt = Math.max(d.look.tintAmt || 0, 45); render(b); }; }
     bind('mgSize', e => d.look.size = +e.value); bind('mgEyes', e => d.look.eyesN = +e.value);
     bind('mgHorns', e => d.look.horns = e.checked, 'change'); bind('mgSpikes', e => d.look.spikes = e.checked, 'change');
     bind('mgHp', e => d.hp = +e.value); bind('mgSpd', e => d.spd = +e.value); bind('mgPain', e => d.pain = +e.value); bind('mgAggro', e => d.aggro = +e.value);
@@ -3750,8 +3762,9 @@ const WPROJ = { rocket: 'Rocket (splash)', plasma: 'Plasma bolt', bfg: 'Big gree
 const WSND = { pistol: 'Pistol crack', shotgun: 'Shotgun boom', chain: 'Rapid rattle', rocket: 'Rocket whoosh', plasma: 'Energy zap' };
 function rollWeapon(opts = {}, parts = { name: 1, look: 1, stats: 1 }, base) {
   const seed = opts.seed != null ? opts.seed : (Math.random() * 2 ** 31) | 0, r = monRng(seed);
-  const cls = opts.cls && opts.cls !== 'random' ? opts.cls : mpick(r, Object.keys(WCLASS)), C = WCLASS[cls];
+  let cls = opts.cls && opts.cls !== 'random' ? opts.cls : mpick(r, Object.keys(WCLASS)), C = WCLASS[cls];
   const d = Object.assign({ v: 1 }, base || {}); d.cls = cls;
+  if ((parts.look || !d.look) && ARTL.man && ARTL.man.weapons.length && opts.art !== '') { const a = opts.art ? artWep(opts.art) : artPickFor('weapons', opts.cls && opts.cls !== 'random' ? cls : null); if (a) { const big = r() < .2; d.look = { art: a.id, seed: (r() * 1e9) | 0, hue: r() < .55 ? 0 : Math.round((r() - .5) * (big ? 300 : 70)), sat: Math.round(85 + r() * 40), bri: Math.round(90 + r() * 20), tint: '#c4141c', tintAmt: 0, size: 1, mirror: false, length: 1, power: 4 }; if (!opts.cls || opts.cls === 'random') { cls = a.cls; C = WCLASS[cls]; d.cls = cls; } parts = Object.assign({}, parts, { look: 0 }); } }
   if (parts.name || !d.name) d.name = mpick(r, WN1) + ' ' + mpick(r, WN2[cls]);
   if (parts.look || !d.look) { const pal = mpick(r, [['#555b66', '#2a2a2a', '#ffd060'], ['#444', '#7a4a20', '#ffb020'], ['#6a7a5a', '#333', '#ff7a20'], ['#4a5a7a', '#222', '#60c0ff'], ['#3a6a3a', '#1a1a1a', '#60ff60'], ['#8a0a12', '#ffffff', '#ffffff'], ['#777', '#a33', '#ff4040']]); d.look = { seed: (r() * 1e9) | 0, body: pal[0], accent: pal[1], glow: pal[2], barrels: cls === 'repeater' ? mpick(r, [3, 4, 6]) : cls === 'shotgun' ? mpick(r, [1, 2]) : 1, length: +(0.7 + r() * 0.6).toFixed(2), scope: r() < .3, drum: cls === 'repeater' || r() < .2, stock: r() < .5,
     style: opts.style && opts.style !== 'random' ? opts.style : mpick(r, WSTYLE_BY[cls] || ['classic']), power: cls === 'super' ? 9 : cls === 'railgun' ? 7 : 2 + Math.round(r() * 5), bulk: +(0.85 + r() * 0.3).toFixed(2), glowAmt: 40 + Math.round(r() * 50), coils: Math.round(1 + r() * 4), prongs: r() < .7 ? 1 : 0, strips: r() < .75 ? 1 : 0, panels: 1, hazard: r() < .4 ? 1 : 0 }; }
@@ -3885,6 +3898,7 @@ function drawGun(g, w, h, d, firing, side) { return side ? drawGunSide(g, w, h, 
 const WEPF = new Map();
 function weaponArt(id, d) {
   const key = id + JSON.stringify(d.look) + d.cls; let a = WEPF.get(key); if (a) return a;
+  if (d.look.art) { const af = artWepFrames(d); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
   const W_ = 160, H_ = 120;
   a = { idle: mkSprite('w' + id + 'a', W_, H_, (g, w, h) => drawGun(g, w, h, d, false)), fire: mkSprite('w' + id + 'b', W_, H_, (g, w, h) => drawGun(g, w, h, d, true)), pick: mkSprite('w' + id + 'p', Math.round(48 + 24 * d.look.length), 20, (g, w, h) => drawGun(g, w, h, d, false, true)) };
   ['w' + id + 'a', 'w' + id + 'b', 'w' + id + 'p'].forEach(k => delete SPR[k]);
@@ -3936,6 +3950,11 @@ function openWeaponGen(editId) {
     <div class="f"><label>Name</label><input id="wgName" maxlength="40" value="${esc(d.name)}"></div>
     <div class="f"><label>Class</label>${sel('wgCls', Object.fromEntries(Object.entries(WCLASS).map(([k, v]) => [k, v.n])), d.cls)}</div>
     <div class="h">Look</div>
+    <div class="f"><label>Painted art</label>${sel('wgArt', artOptions('weapons'), d.look.art || '')}</div>
+    ${d.look.art ? `${num('wgHue', 'Color shift (hue)', d.look.hue || 0, -180, 180)}${num('wgSat', 'Color strength (saturation %)', d.look.sat != null ? d.look.sat : 100, 0, 200)}${num('wgBri', 'Brightness %', d.look.bri != null ? d.look.bri : 100, 40, 160)}
+    <div class="row"><label>Tint color <input type="color" id="wgTint" value="${d.look.tint || '#c4141c'}"></label><button id="wgTintRed">Pulse red</button></div>${num('wgTintA', 'Tint amount %', d.look.tintAmt || 0, 0, 100)}
+    ${num('wgASize', 'Size', d.look.size || 1, 0.5, 2.5, 0.05)}<label class="chk"><input type="checkbox" id="wgMirror" ${d.look.mirror ? 'checked' : ''}>Mirror (face the other way)</label><label class="chk"><input type="checkbox" id="wgSkin" ${d.look.keepSkin !== false ? 'checked' : ''}>Keep hands their natural color</label>` : ''}
+    <p class="hint">${d.look.art ? 'The settings below only apply to the old code-drawn style.' : ''}</p>
     <div class="row"><label>Body <input type="color" id="wgCB" value="${d.look.body}"></label><label>Accent <input type="color" id="wgCA" value="${d.look.accent}"></label><label>Glow <input type="color" id="wgCG" value="${d.look.glow}"></label><button id="wgPulse">Pulse red & white</button></div>
     <div class="f"><label>Style</label>${sel('wgStyle', WSTYLE, L.style)}</div>
     ${num('wgPow', 'Power (1 = peashooter, 10 = doomsday)', L.power, 1, 10)}<label class="chk"><input type="checkbox" id="wgPowStats" ${d.powStats !== false ? 'checked' : ''}>Power changes the stats too (damage, splash, kick)</label>
@@ -3961,6 +3980,10 @@ function openWeaponGen(editId) {
     bind('wgName', e => d.name = e.value.slice(0, 40));
     bind('wgCls', e => { d = rollWeapon({ cls: e.value, seed: d.seed }, { name: 0, look: 1, stats: 1 }, d); render(b); }, 'change');
     bind('wgCB', e => d.look.body = e.value); bind('wgCA', e => d.look.accent = e.value); bind('wgCG', e => d.look.glow = e.value);
+
+    bind('wgArt', e => { if (e.value) { const keep = d.look.art ? d.look : { hue: 0, sat: 100, bri: 100, tint: '#c4141c', tintAmt: 0, size: 1, mirror: false }; d.look = Object.assign({}, keep, { art: e.value }); } else { d = rollWeapon({ cls: d.cls, art: '' }, { name: 0, look: 1, stats: 0 }, d); } render(b); }, 'change');
+    bind('wgHue', e => d.look.hue = +e.value); bind('wgSat', e => d.look.sat = +e.value); bind('wgBri', e => d.look.bri = +e.value); bind('wgTint', e => d.look.tint = e.value); bind('wgTintA', e => d.look.tintAmt = +e.value); bind('wgASize', e => d.look.size = +e.value); bind('wgMirror', e => d.look.mirror = e.checked, 'change'); bind('wgSkin', e => d.look.keepSkin = e.checked, 'change');
+    { const tr = b.querySelector('#wgTintRed'); if (tr) tr.onclick = () => { d.look.tint = '#c4141c'; d.look.tintAmt = Math.max(d.look.tintAmt || 0, 45); render(b); }; }
     bind('wgStyle', e => d.look.style = e.value, 'change'); bind('wgBulk', e => d.look.bulk = +e.value); bind('wgGlowA', e => d.look.glowAmt = +e.value); bind('wgCoils', e => d.look.coils = +e.value);
     bind('wgProngs', e => d.look.prongs = e.checked ? 1 : 0, 'change'); bind('wgStrips', e => d.look.strips = e.checked ? 1 : 0, 'change'); bind('wgPanels', e => d.look.panels = e.checked ? 1 : 0, 'change'); bind('wgHaz', e => d.look.hazard = e.checked ? 1 : 0, 'change');
     bind('wgPowStats', e => d.powStats = e.checked, 'change');
@@ -4262,6 +4285,161 @@ function glassExportPlan(lines) {
   });
   return { lumps, sideMid, lineMod };
 }
+
+/* ================= DOOM PALETTE CRUSH =================
+   Turns any picture (library art, recolors) into a sprite in the Doom palette (Freedoom PLAYPAL, BSD),
+   with light ordered dithering, so painted art sits in the game like it was always there. */
+const CLAY_PAL_B64 = 'AAAAHxcLFw8HS0tL////GxsbExMTCwsLBwcHLzcfIysPFx8HDxcATzsrRzMjPysb/7e396ur86Oj65eX54+P34eH23t703Nzy2trx2Njv1tbu1dXs09Pr0dHpz8/ozs7mzMzly8vjysriyMjgx8ffxsbdxcXcxMTaw8PZwsLXwcHWwcHUwcHTwAARwAAQwAA/+vf/+PT/9vH/9O7/8+z/8en/7+b/7uT/7OD96t776Nz55tr35Nj14tbz4NTy39Pv3tLs3NHq29Do2s/m2M7j183h1czf1Mvd08ra0cnX0MjUz8fSzcbPy8XMysTKyMP7+/v5+fn39/f29vb09PTy8vLx8fHv7+/t7e3s7Ozq6urp6enn5+fl5eXk5OTi4uLg4ODf39/d3d3b29va2trY2NjW1tbV1dXT09PR0dHQ0NDOzs7Nzc3Ly8vJycnIyMjd/9vb+9nZ99fX89XW79PU69HS58/Q5M3P4MvN3MrL2MjJ1MbH0MXFzMPEyMLCxcHv6ePt5+Hr5d/p493n4dvm39rk3tji3Nbg2tXe2NPd19Lb1dDZ1M/X0s3V0MzUz8vn4Njj3dTg2tLd18/Z1MzW0crTzsjQzMbe39jb3NXZ2tPW2NHU1c7R08zP0crNz8n//9z69tX17tDw5svr3sfm1sTh0MHcysA/////9vb/7u7/5ub/3t7/19f/z8//x8f/wAA7wAA4wAA1wAAywAAvwAAswAApwAAmwAAiwAAfwAAcwAAZwAAWwAATwAAQwAA5+f/x8f/q6v/j4//c3P/U1P/Nzf/Gxv/AAD/AADjAADLAACzAACbAACDAABrAABT/////+vb/9e7/8eb/7N7/6Nb/487/38b83MX628P32cP118Ly1cHw08At0cAr0MA///////X//+z//+P//9r//9H//8j//8Apz8AnzcAky8AhyMATzsnQy8bNyMTLxsLAABTAABHAAA7AAAvAAAjAAAXAAALAAAA/59D/+dL/3v//wD/zwDPnwCbbwBrp2tr';
+function clayPal() {
+  if (clayPal.p) return clayPal.p;
+  const b = atob(CLAY_PAL_B64), pal = []; for (let i = 0; i < 256; i++) pal.push([b.charCodeAt(i * 3), b.charCodeAt(i * 3 + 1), b.charCodeAt(i * 3 + 2)]);
+  const lut = new Uint8Array(32768);
+  for (let r = 0; r < 32; r++) for (let g = 0; g < 32; g++) for (let bl = 0; bl < 32; bl++) {
+    const R = r * 8 + 4, G_ = g * 8 + 4, B = bl * 8 + 4; let best = 0, bd = 1e9;
+    for (let i = 0; i < 256; i++) { if (i === 247) continue; const p = pal[i], dr = R - p[0], dg = G_ - p[1], db = B - p[2], dd = dr * dr * 3 + dg * dg * 4 + db * db * 2; if (dd < bd) { bd = dd; best = i; } }
+    lut[(r << 10) | (g << 5) | bl] = best;
+  }
+  clayPal.p = { pal, lut }; return clayPal.p;
+}
+function hexF(h) { const [r, g, b] = hexRGB(h); return [r / 255, g / 255, b / 255]; }
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+// crush into the Doom palette with light ordered dither; returns a sprite (texObj)
+function clayToSprite(img, ox, oy, opt = {}) {
+  const { pal, lut } = clayPal(), w = img.w, h = img.h, px = new Uint32Array(w * h), d = img.rgba, dith = opt.dither != null ? opt.dither : 10, con = opt.contrast || 1.12;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4; if (!d[i + 3]) continue;
+    const t = (BAYER[(y & 3) * 4 + (x & 3)] / 16 - 0.47) * dith;
+    const f = v => Math.max(0, Math.min(255, (v - 128) * con + 128 + t));
+    const r = f(d[i]), g = f(d[i + 1]), b = f(d[i + 2]); const p = pal[lut[((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3)]];
+    px[y * w + x] = rgb(p[0], p[1], p[2]);
+  }
+  // one-pixel dark rim where sprite meets nothing (Doom's photos had a dark edge from the backdrop)
+  if (opt.rim !== false) { const src = px.slice(); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const k = y * w + x; if (!src[k]) continue; const e = (x === 0 || !src[k - 1]) || (x === w - 1 || !src[k + 1]) || (y === 0 || !src[k - w]) || (y === h - 1 || !src[k + w]); if (e) { const c = src[k]; px[k] = (255 << 24) | ((((c >> 16) & 255) * .6) << 16) | ((((c >> 8) & 255) * .6) << 8) | ((c & 255) * .6); } } }
+  const o = texObj(w, h, px); o.ox = ox; o.oy = oy; return o;
+}
+function cropSprite(img) { // trim empty rows/cols, keep origin
+  let x0 = img.w, y0 = img.h, x1 = -1, y1 = -1; const d = img.rgba;
+  for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) if (d[(y * img.w + x) * 4 + 3]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (x1 < 0) return { img, x0: 0, y0: 0 };
+  const w = x1 - x0 + 1, h = y1 - y0 + 1, out = new Uint8ClampedArray(w * h * 4);
+  for (let y = 0; y < h; y++) out.set(d.subarray(((y + y0) * img.w + x0) * 4, ((y + y0) * img.w + x0 + w) * 4), y * w * 4);
+  return { img: { w, h, rgba: out }, x0, y0 };
+}
+
+/* ================= PULSE ART LIBRARY: painted Doom-style monsters and guns =================
+   Art lives in EOD/res/art (PNG sprites + manifest.json), loaded only when a map uses it.
+   The generators pick a painted body or gun, then vary it: hue, saturation, brightness, tint, size, mirror.
+   Monster motion (walk, attack, pain, death) is made from the one painting by leaning, squashing,
+   flashing and collapsing it, pixel-exact. */
+const ART_DIR = 'res/art/';
+const ARTL = { man: null, manP: null, img: new Map(), wait: new Map() };
+function artManifest() {
+  if (ARTL.man) return Promise.resolve(ARTL.man);
+  if (!ARTL.manP) ARTL.manP = fetch(ART_DIR + 'manifest.json').then(r => r.json()).then(j => (ARTL.man = j)).catch(() => (ARTL.man = { monsters: [], weapons: [] }));
+  return ARTL.manP;
+}
+function artMon(id) { return ARTL.man && ARTL.man.monsters.find(m => m.id === id); }
+function artWep(id) { return ARTL.man && ARTL.man.weapons.find(m => m.id === id); }
+// returns a loaded Image or null (and starts loading). Embedded copies (playable exports) win.
+function artImg(file) {
+  const have = ARTL.img.get(file); if (have) return have;
+  if (!ARTL.wait.has(file)) {
+    const src = (M && M.artData && M.artData[file]) || (window.NSDE_EMBED && NSDE_EMBED.map && NSDE_EMBED.map.artData && NSDE_EMBED.map.artData[file]) || ART_DIR + file;
+    const im = new Image(); const p = new Promise(res => { im.onload = () => { ARTL.img.set(file, im); res(im); artLoaded(); }; im.onerror = () => res(null); });
+    im.src = src; ARTL.wait.set(file, p);
+  }
+  return null;
+}
+function artLoadAll(files) { return Promise.all(files.map(f => { artImg(f); return ARTL.wait.get(f); })); }
+let ART_TICK = 0;
+function artLoaded() { ART_TICK++; if (typeof MONF !== 'undefined') MONF.clear(); if (typeof WEPF !== 'undefined') WEPF.clear(); if (typeof redraw === 'function') try { redraw(); } catch (e) { } }
+// files a map needs
+function artFilesFor(map) {
+  const f = [];
+  for (const d of Object.values(map.mon || {})) if (d.look && d.look.art) f.push('m_' + d.look.art + '.png');
+  for (const d of Object.values(map.wep || {})) if (d.look && d.look.art) ['idle', 'fire', 'pick'].forEach(k => f.push('w_' + d.look.art + '_' + k + '.png'));
+  return [...new Set(f)];
+}
+function artPreload() { const f = artFilesFor(M); if (f.length) artManifest().then(() => artLoadAll(f)); }
+/* ---------- recolor ---------- */
+function hueMatrix(deg) {
+  const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+  return [0.213 + c * 0.787 - s * 0.213, 0.715 - c * 0.715 - s * 0.715, 0.072 - c * 0.072 + s * 0.928,
+  0.213 - c * 0.213 + s * 0.143, 0.715 + c * 0.285 + s * 0.140, 0.072 - c * 0.072 - s * 0.283,
+  0.213 - c * 0.213 - s * 0.787, 0.715 - c * 0.715 + s * 0.715, 0.072 + c * 0.928 + s * 0.072];
+}
+function recolor(data, L) {
+  const hue = L.hue || 0, sat = (L.sat != null ? L.sat : 100) / 100, bri = (L.bri != null ? L.bri : 100) / 100, ta = (L.tintAmt || 0) / 100;
+  if (!hue && sat === 1 && bri === 1 && !ta) return;
+  const m = hueMatrix(hue), [tr, tg, tb] = hexRGB(L.tint || '#c4141c');
+  for (let i = 0; i < data.length; i += 4) {
+    if (!data[i + 3]) continue; let r = data[i], g = data[i + 1], b = data[i + 2];
+    if (L.keepSkin && r > g && g > b && r - b > 35 && (g - b) > (r - g) * 0.35 && r > 70) continue; // hands stay hands
+    if (hue) { const R = r * m[0] + g * m[1] + b * m[2], G_ = r * m[3] + g * m[4] + b * m[5], B = r * m[6] + g * m[7] + b * m[8]; r = R; g = G_; b = B; }
+    if (sat !== 1) { const l = r * 0.3 + g * 0.59 + b * 0.11; r = l + (r - l) * sat; g = l + (g - l) * sat; b = l + (b - l) * sat; }
+    if (ta) { const l = (r * 0.3 + g * 0.59 + b * 0.11) / 255; r = r * (1 - ta) + tr * l * 1.4 * ta; g = g * (1 - ta) + tg * l * 1.4 * ta; b = b * (1 - ta) + tb * l * 1.4 * ta; }
+    data[i] = r * bri; data[i + 1] = g * bri; data[i + 2] = b * bri;
+  }
+}
+// draw image -> recolored RGBA at scale (nearest for crisp pixels)
+function artPixels(im, L, scale, mirror) {
+  const w = Math.max(1, Math.round(im.width * scale)), h = Math.max(1, Math.round(im.height * scale));
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+  g.imageSmoothingEnabled = scale < 1; if (mirror) { g.translate(w, 0); g.scale(-1, 1); }
+  g.drawImage(im, 0, 0, w, h); const d = g.getImageData(0, 0, w, h);
+  for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] > 120 ? 255 : 0;
+  recolor(d.data, L); return { w, h, rgba: d.data };
+}
+/* ---------- monster frames from one painting ---------- */
+function poseFrame(src, kind, k) {
+  // kind: walk(0-3) attack(0-1) pain dead(0-4); returns {w,h,rgba} with feet at bottom-center
+  const { w, h, rgba } = src;
+  let shear = 0, sy = 1, sx = 1, lift = 0, flash = 0, red = 0, dark = 0, pool = 0;
+  if (kind === 'walk') { shear = [0, 2, 0, -2][k]; lift = [0, 1, 0, 1][k]; sy = [1, .98, 1, .98][k]; }
+  if (kind === 'attack') { shear = k ? 4 : -3; sx = k ? 1.04 : 1; sy = k ? 1.02 : .99; flash = k ? 45 : 15; }
+  if (kind === 'pain') { shear = -3; flash = 70; red = .25; }
+  if (kind === 'dead') { sy = [.82, .62, .44, .3, .2][k]; sx = [1.06, 1.14, 1.22, 1.3, 1.36][k]; red = .15 + k * .08; dark = k * .07; pool = k + 1; }
+  const W = Math.ceil(w * sx + Math.abs(shear) * 2 + 2 + (pool ? w * .2 : 0)), H = Math.ceil(h * sy + lift + 2);
+  const out = new Uint8ClampedArray(W * H * 4), cx = W / 2;
+  if (pool) { const pr = w * (.22 + pool * .05), py = H - 2; for (let y = Math.max(0, py - 3); y < H; y++) for (let x = 0; x < W; x++) { const dx = (x - cx) / pr, dy = (y - py) / 2.2; if (dx * dx + dy * dy < 1) { const o = (y * W + x) * 4; out[o] = 110 - ((x * 7 + y * 3) % 5) * 6; out[o + 1] = 8; out[o + 2] = 6; out[o + 3] = 255; } } }
+  const dh = Math.round(h * sy), dw = Math.round(w * sx);
+  for (let y = 0; y < dh; y++) {
+    const sy0 = Math.min(h - 1, Math.floor(y / sy)), t = 1 - y / dh, off = Math.round(shear * t);
+    const ty = H - 1 - lift - (dh - 1 - y); if (ty < 0 || ty >= H) continue;
+    for (let x = 0; x < dw; x++) {
+      const sx0 = Math.min(w - 1, Math.floor(x / sx)), i = (sy0 * w + sx0) * 4; if (!rgba[i + 3]) continue;
+      const tx = Math.round(cx - dw / 2 + x + off); if (tx < 0 || tx >= W) continue;
+      const o = (ty * W + tx) * 4; let r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+      if (flash) { r += flash; g += flash * .8; b += flash * .6; }
+      if (red) { r = r * (1 - red) + 150 * red; g *= 1 - red; b *= 1 - red; }
+      if (dark) { r *= 1 - dark; g *= 1 - dark; b *= 1 - dark; }
+      out[o] = r; out[o + 1] = g; out[o + 2] = b; out[o + 3] = 255;
+    }
+  }
+  return { w: W, h: H, rgba: out };
+}
+function artMonFrames(d) {
+  const L = d.look, a = artMon(L.art), im = a && artImg('m_' + L.art + '.png'); if (!im) return null;
+  const scale = (a.h / im.height) * (L.size || 1), src = artPixels(im, L, scale, L.mirror);
+  const f = {}, FR = 'ABCDEFGHIJKL';
+  const poses = [['walk', 0], ['walk', 1], ['walk', 2], ['walk', 3], ['attack', 0], ['attack', 1], ['pain', 0], ['dead', 0], ['dead', 1], ['dead', 2], ['dead', 3], ['dead', 4]];
+  poses.forEach(([kind, k], i) => { const p = poseFrame(src, kind, k); f[FR[i]] = clayToSprite(p, p.w >> 1, p.h, { dither: 5, rim: false, contrast: 1.04 }); });
+  f._art = true; f._h = src.h; f._w = src.w; return f;
+}
+function artWepFrames(d) {
+  const L = d.look, a = artWep(L.art); if (!a) return null;
+  const ims = ['idle', 'fire', 'pick'].map(k => artImg('w_' + L.art + '_' + k + '.png')); if (ims.some(x => !x)) return null;
+  const sc = (L.size || 1) * 0.66, L2 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk = (im, s) => { const p = artPixels(im, L2, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
+  return { idle: mk(ims[0], sc), fire: mk(ims[1], sc), pick: mk(ims[2], 1) };
+}
+// sizes for collision when a painted body is used
+function artMonSize(d) { const a = artMon(d.look.art); if (!a) return null; const s = d.look.size || 1, h = Math.round(a.h * s), w = Math.round((a.w || a.h * .8) * (a.h / (a.h)) * s); return { r: clamp(Math.round(w / 2.6), 12, 64), h }; }
+function artPickFor(kind, want) { // random library entry, preferring a matching archetype / class
+  const list = ARTL.man ? ARTL.man[kind] : []; if (!list.length) return null;
+  const key = kind === 'monsters' ? 'arch' : 'cls', match = want ? list.filter(x => x[key] === want) : [];
+  const pool = match.length ? match : list; return pool[Math.floor(Math.random() * pool.length)];
+}
+function artOptions(kind) { const list = ARTL.man ? ARTL.man[kind] : []; return Object.assign({ '': kind === 'monsters' ? 'Old style (drawn by code)' : 'Old style (drawn by code)' }, Object.fromEntries(list.map(x => [x.id, x.name]))); }
 
 try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }
 

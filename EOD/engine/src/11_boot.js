@@ -158,5 +158,5 @@ function boot() {
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) firstRun();
-  pullAccountBinds(); applyArtSetting(); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
+  pullAccountBinds(); applyArtSetting(); artManifest().then(artPreload); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
 }

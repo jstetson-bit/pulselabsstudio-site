@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.7 — 2026-11-18
+- EOD 0.4.0: painted art library (EOD/res/art) behind the monster and weapon generators.
+
 ## v0.7.6 — 2026-11-17
 - EOD 0.3.3: weapon art overhaul (space rifles, railguns, power slider).
 

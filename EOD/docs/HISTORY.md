@@ -42,3 +42,10 @@ The story of how EOD came to be, in the owner's words where possible.
 ## 2026-11-17 · Cooler guns
 - Asked: *"Are there sliders where I could have a super strong weapon and the way it looks? Like, are you making spacer rifles? Because that would be cool if you made really cool looking guns, all variations of it."*
 - Honest answer: the first gun art was plain blocks and there was no single "strength" slider. Built 0.3.3: six gun styles (space rifle, railgun, bio, heavy, raygun, classic) and a Power 1–10 slider that changes both the look and the stats.
+
+## 2026-11-17/18 · The art reckoning
+- James on the code-drawn art: *"It looks like a 3-year-old ate half of the crayon while he was using the other half to draw these"*, and asked for a side-by-side with real Doom art and an honest breakdown.
+- Claude compared against Freedoom: shapes made by code (boxes, ovals, gradients) can't match sculpted/photographed/hand-pixeled art.
+- James: *"I want you to gain inspiration from their monsters. And that is what the generator should do"*, and Halo-style idea: take inspiration, change barrels and grips, *"it will be ours. But it has to be in the same art, style, flavor, and taste."*
+- James showed GPT image sheets (*"GPT did this in about 50 seconds"*), then two more (20 monsters, 12 weapons). *"These are examples… Your art generator needs to follow this… These are our weapons."*
+- Built 0.4.0: those sheets became EOD's painted art library and both generators build from it. Next: a generator that makes NEW art in this style (see STATUS in CHANGELOG).

@@ -10,6 +10,17 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.4.0 (vc9) — 2026-11-18 — Pulse painted art library
+- The generators now build from **painted Doom-style art** (from the GPT sheets James supplied: 20 monsters, 12 guns with idle/firing/side frames). Stored in `res/art/` (PNG + manifest.json, ~1.1 MB, loaded only when a map uses it).
+- Monster generator: **Painted art** picker (20 bodies) plus color shift (hue), color strength, brightness, tint color and amount (Pulse red button), size, mirror. Rolls pick a body that fits the chosen body type and vary it. Motion is made from the one painting: walk lean/bob, attack lunge with flash, pain flash, 5-step death collapse with a blood pool.
+- Weapon generator: **Painted art** picker (12 guns) with the same color/size/mirror controls plus "Keep hands their natural color". Idle and firing frames, small floor pickup.
+- Every sprite is crushed into the Doom palette (Freedoom PLAYPAL, BSD) so it sits in the game like original art.
+- "Old style (drawn by code)" still selectable. The code-drawn art is no longer the default.
+- Playable HTML exports embed the painted art they use. GZDoom WAD exports include it as sprites.
+- `tools/cut_sheets.py`: the cutter that turns a sheet into transparent sprites (background removal, frame splitting, Doom sizing).
+- Known limits: one painted angle per monster (all 8 views show the front), motion is made by bending the painting, not drawn frames.
+- Removed: the unfinished 3D clay renderer (kept only the palette tools).
+
 ## v0.3.3 (vc8) — 2026-11-17 — weapon art overhaul (space rifles and more)
 - New gun art: shaded metal, glow, hands, and six **styles**: Classic military, **Space rifle** (emitter prongs, glow strips, energy coils, holo sight), **Railgun** (twin rails with glowing coils), Bio / hell-tech (organic shell, veins, glowing pods, teeth), Heavy industrial (rotary barrels, vents, hazard stripes), Retro raygun (rings, fins, emitter dish). Any class can wear any style.
 - **Power slider 1–10** (peashooter → doomsday): makes the gun bigger and brighter and, if "Power changes the stats too" is on, scales damage, splash and kick with it. Damage sliders now go to 1000/2000.

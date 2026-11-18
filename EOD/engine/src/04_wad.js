@@ -111,7 +111,8 @@ function fileBase() { return 'EOD-' + (M.name || 'MAP01') + '-' + new Date().toI
 function exportPlayable() {
   const issues = analyzeMap().filter(i => i.sev === 'error' && /Player 1/.test(i.msg));
   if (issues.length) return toast(issues[0].msg, 3500);
-  const json = JSON.stringify({ map: M, title: M.name }).replace(/</g, '\\u003c');
+  const artData = {}; for (const f of artFilesFor(M)) { const im = ARTL.img.get(f); if (im) { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); artData[f] = c.toDataURL('image/png'); } }
+  const json = JSON.stringify({ map: Object.assign({}, M, Object.keys(artData).length ? { artData } : {}), title: M.name }).replace(/</g, '\\u003c');
   const tag = '<script id="nsde-' + 'main">', etag = '<script id="nsde-' + 'embed">', close = '</' + 'script>';
   let html = ORIGINAL_HTML.replace(new RegExp(etag.replace(/[-]/g, '\\-') + '[\\s\\S]*?' + close + '\\n?'), '');
   const i2 = html.indexOf(tag);

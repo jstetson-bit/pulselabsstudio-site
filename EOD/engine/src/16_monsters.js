@@ -23,9 +23,10 @@ const mpick = (r, a) => a[Math.floor(r() * a.length)];
 const between = (r, [a, b]) => a + (b - a) * r();
 function rollMonster(opts = {}, parts = { look: 1, stats: 1, attack: 1, name: 1 }, base) {
   const seed = opts.seed != null ? opts.seed : (Math.random() * 2 ** 31) | 0, r = monRng(seed);
-  const arch = opts.arch && opts.arch !== 'random' ? opts.arch : mpick(r, Object.keys(ARCHETYPES)), A = ARCHETYPES[arch];
+  let arch = opts.arch && opts.arch !== 'random' ? opts.arch : mpick(r, Object.keys(ARCHETYPES)), A = ARCHETYPES[arch];
   const tier = opts.tier && opts.tier !== 'random' ? opts.tier : mpick(r, ['fodder', 'fodder', 'soldier', 'soldier', 'heavy', 'elite']), T = TIERS[tier];
   const d = Object.assign({ v: 1 }, base || {}); d.arch = arch; d.tier = tier;
+  if ((parts.look || !d.look) && ARTL.man && ARTL.man.monsters.length && opts.art !== '') { const a = opts.art ? artMon(opts.art) : (artPickFor('monsters', opts.arch && opts.arch !== 'random' ? arch : null)); if (a) { if (!opts.arch || opts.arch === 'random') { arch = a.arch; A = ARCHETYPES[arch]; d.arch = arch; } const big = r() < .25; d.look = { art: a.id, seed: (r() * 1e9) | 0, hue: r() < .5 ? 0 : Math.round((r() - .5) * (big ? 300 : 60)), sat: Math.round(80 + r() * 50), bri: Math.round(85 + r() * 30), tint: '#c4141c', tintAmt: 0, size: +(0.9 + r() * 0.3).toFixed(2), mirror: r() < .3 }; parts = Object.assign({}, parts, { look: 0 }); } }
   if (parts.name || !d.name) { const n2 = mpick(r, N2); d.name = mpick(r, N1) + ' ' + n2[0].toUpperCase() + n2.slice(1); }
   if (parts.look || !d.look) { const pal = mpick(r, PALETTES); d.look = { seed: (r() * 1e9) | 0, body: pal[0], accent: pal[1], eyes: pal[2], horns: r() < .6, spikes: r() < .5, eyesN: 1 + Math.floor(r() * 3), arms: arch === 'floater' || arch === 'crawler' ? 0 : 2, size: +between(r, A.size).toFixed(2), legs: arch === 'crawler' ? 4 : arch === 'floater' ? 0 : 2 }; }
   if (parts.stats || d.hp == null) {
@@ -45,12 +46,13 @@ function rollMonster(opts = {}, parts = { look: 1, stats: 1, attack: 1, name: 1 
   }
   d.seed = seed; return d;
 }
-function monSize(d) { const s = d.look.size || 1; return { r: Math.round(20 * s), h: Math.round(56 * s) }; }
+function monSize(d) { if (d.look.art) { const z = artMonSize(d); if (z) return z; } const s = d.look.size || 1; return { r: Math.round(20 * s), h: Math.round(56 * s) }; }
 /* ---------- procedural sprites ---------- */
 const MONF = new Map();
 function monFrames(type, d) {
   const key = type + ':' + JSON.stringify(d.look) + d.arch;
   let f = MONF.get(key); if (f) return f;
+  if (d.look.art) { const af = artMonFrames(d); if (af) { MONF.set(key, af); return af; } }
   const sz = d.look.size || 1, W_ = Math.round((d.arch === 'crawler' ? 90 : d.arch === 'floater' ? 60 : 48) * sz), H_ = Math.round((d.arch === 'crawler' ? 56 : 66) * sz);
   f = {}; const FR = 'ABCDEFGHIJKL';
   for (let i = 0; i < FR.length; i++) {
@@ -122,6 +124,7 @@ function drawMonster(g, w, h, d, pose) {
 /* ---------- registry ---------- */
 let MON_SIG = '';
 function syncMonsters() {
+  if (typeof artPreload === 'function') artPreload();
   const sig = JSON.stringify(M.mon || {}); if (sig === MON_SIG) return; MON_SIG = sig;
   for (const k in THINGS) if (THINGS[k].custom) delete THINGS[k];
   for (const [type, d] of Object.entries(M.mon || {})) {
@@ -160,7 +163,11 @@ function openMonsterGen(editType) {
     <div class="f"><label>Body type</label>${sel('mgArch', Object.fromEntries(Object.entries(ARCHETYPES).map(([k, v]) => [k, v.name])), d.arch)}</div>
     <div class="f"><label>Threat tier</label>${sel('mgTier', Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.n])), d.tier)}</div>
     <div class="h">Look</div>
-    <div class="row"><label>Body <input type="color" id="mgCB" value="${d.look.body}"></label><label>Accent <input type="color" id="mgCA" value="${d.look.accent}"></label><label>Eyes <input type="color" id="mgCE" value="${d.look.eyes}"></label><button id="mgPulse">Pulse red & white</button></div>
+    <div class="f"><label>Painted art</label>${sel('mgArt', artOptions('monsters'), d.look.art || '')}</div>
+    ${d.look.art ? `${num('mgHue', 'Color shift (hue)', d.look.hue || 0, -180, 180)}${num('mgSat', 'Color strength (saturation %)', d.look.sat != null ? d.look.sat : 100, 0, 200)}${num('mgBri', 'Brightness %', d.look.bri != null ? d.look.bri : 100, 40, 160)}
+    <div class="row"><label>Tint color <input type="color" id="mgTint" value="${d.look.tint || '#c4141c'}"></label><button id="mgTintRed">Pulse red</button></div>${num('mgTintA', 'Tint amount %', d.look.tintAmt || 0, 0, 100)}
+    ${num('mgASize', 'Size', d.look.size || 1, 0.5, 2.5, 0.05)}<label class="chk"><input type="checkbox" id="mgMirror" ${d.look.mirror ? 'checked' : ''}>Mirror (face the other way)</label>` : ''}
+    <p class="hint">${d.look.art ? 'The settings below only apply to the old code-drawn style.' : ''}</p><div class="row"><label>Body <input type="color" id="mgCB" value="${d.look.body}"></label><label>Accent <input type="color" id="mgCA" value="${d.look.accent}"></label><label>Eyes <input type="color" id="mgCE" value="${d.look.eyes}"></label><button id="mgPulse">Pulse red & white</button></div>
     ${num('mgSize', 'Size', d.look.size, 0.6, 2.5, 0.05)}${num('mgEyes', 'Eyes', d.look.eyesN, 1, 4)}
     <label class="chk"><input type="checkbox" id="mgHorns" ${d.look.horns ? 'checked' : ''}>Horns</label><label class="chk"><input type="checkbox" id="mgSpikes" ${d.look.spikes ? 'checked' : ''}>Spikes</label>
     <div class="h">Stats</div>
@@ -181,6 +188,10 @@ function openMonsterGen(editType) {
     bind('mgArch', e => { d = rollMonster({ arch: e.value, tier: d.tier, seed: d.seed }, { look: 1, stats: 0, attack: 1, name: 0 }, d); render(b); }, 'change');
     bind('mgTier', e => { d = rollMonster({ arch: d.arch, tier: e.value, seed: d.seed }, { look: 0, stats: 1, attack: 1, name: 0 }, d); render(b); }, 'change');
     bind('mgCB', e => d.look.body = e.value); bind('mgCA', e => d.look.accent = e.value); bind('mgCE', e => d.look.eyes = e.value);
+
+    bind('mgArt', e => { if (e.value) { const keep = d.look.art ? d.look : { hue: 0, sat: 100, bri: 100, tint: '#c4141c', tintAmt: 0, size: 1, mirror: false }; d.look = Object.assign({}, keep, { art: e.value }); } else { d = rollMonster({ arch: d.arch, tier: d.tier, art: '' }, { look: 1, stats: 0, attack: 0, name: 0 }, d); } render(b); }, 'change');
+    bind('mgHue', e => d.look.hue = +e.value); bind('mgSat', e => d.look.sat = +e.value); bind('mgBri', e => d.look.bri = +e.value); bind('mgTint', e => d.look.tint = e.value); bind('mgTintA', e => d.look.tintAmt = +e.value); bind('mgASize', e => d.look.size = +e.value); bind('mgMirror', e => d.look.mirror = e.checked, 'change');
+    { const tr = b.querySelector('#mgTintRed'); if (tr) tr.onclick = () => { d.look.tint = '#c4141c'; d.look.tintAmt = Math.max(d.look.tintAmt || 0, 45); render(b); }; }
     bind('mgSize', e => d.look.size = +e.value); bind('mgEyes', e => d.look.eyesN = +e.value);
     bind('mgHorns', e => d.look.horns = e.checked, 'change'); bind('mgSpikes', e => d.look.spikes = e.checked, 'change');
     bind('mgHp', e => d.hp = +e.value); bind('mgSpd', e => d.spd = +e.value); bind('mgPain', e => d.pain = +e.value); bind('mgAggro', e => d.aggro = +e.value);

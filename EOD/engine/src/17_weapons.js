@@ -19,8 +19,9 @@ const WPROJ = { rocket: 'Rocket (splash)', plasma: 'Plasma bolt', bfg: 'Big gree
 const WSND = { pistol: 'Pistol crack', shotgun: 'Shotgun boom', chain: 'Rapid rattle', rocket: 'Rocket whoosh', plasma: 'Energy zap' };
 function rollWeapon(opts = {}, parts = { name: 1, look: 1, stats: 1 }, base) {
   const seed = opts.seed != null ? opts.seed : (Math.random() * 2 ** 31) | 0, r = monRng(seed);
-  const cls = opts.cls && opts.cls !== 'random' ? opts.cls : mpick(r, Object.keys(WCLASS)), C = WCLASS[cls];
+  let cls = opts.cls && opts.cls !== 'random' ? opts.cls : mpick(r, Object.keys(WCLASS)), C = WCLASS[cls];
   const d = Object.assign({ v: 1 }, base || {}); d.cls = cls;
+  if ((parts.look || !d.look) && ARTL.man && ARTL.man.weapons.length && opts.art !== '') { const a = opts.art ? artWep(opts.art) : artPickFor('weapons', opts.cls && opts.cls !== 'random' ? cls : null); if (a) { const big = r() < .2; d.look = { art: a.id, seed: (r() * 1e9) | 0, hue: r() < .55 ? 0 : Math.round((r() - .5) * (big ? 300 : 70)), sat: Math.round(85 + r() * 40), bri: Math.round(90 + r() * 20), tint: '#c4141c', tintAmt: 0, size: 1, mirror: false, length: 1, power: 4 }; if (!opts.cls || opts.cls === 'random') { cls = a.cls; C = WCLASS[cls]; d.cls = cls; } parts = Object.assign({}, parts, { look: 0 }); } }
   if (parts.name || !d.name) d.name = mpick(r, WN1) + ' ' + mpick(r, WN2[cls]);
   if (parts.look || !d.look) { const pal = mpick(r, [['#555b66', '#2a2a2a', '#ffd060'], ['#444', '#7a4a20', '#ffb020'], ['#6a7a5a', '#333', '#ff7a20'], ['#4a5a7a', '#222', '#60c0ff'], ['#3a6a3a', '#1a1a1a', '#60ff60'], ['#8a0a12', '#ffffff', '#ffffff'], ['#777', '#a33', '#ff4040']]); d.look = { seed: (r() * 1e9) | 0, body: pal[0], accent: pal[1], glow: pal[2], barrels: cls === 'repeater' ? mpick(r, [3, 4, 6]) : cls === 'shotgun' ? mpick(r, [1, 2]) : 1, length: +(0.7 + r() * 0.6).toFixed(2), scope: r() < .3, drum: cls === 'repeater' || r() < .2, stock: r() < .5,
     style: opts.style && opts.style !== 'random' ? opts.style : mpick(r, WSTYLE_BY[cls] || ['classic']), power: cls === 'super' ? 9 : cls === 'railgun' ? 7 : 2 + Math.round(r() * 5), bulk: +(0.85 + r() * 0.3).toFixed(2), glowAmt: 40 + Math.round(r() * 50), coils: Math.round(1 + r() * 4), prongs: r() < .7 ? 1 : 0, strips: r() < .75 ? 1 : 0, panels: 1, hazard: r() < .4 ? 1 : 0 }; }
@@ -154,6 +155,7 @@ function drawGun(g, w, h, d, firing, side) { return side ? drawGunSide(g, w, h, 
 const WEPF = new Map();
 function weaponArt(id, d) {
   const key = id + JSON.stringify(d.look) + d.cls; let a = WEPF.get(key); if (a) return a;
+  if (d.look.art) { const af = artWepFrames(d); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
   const W_ = 160, H_ = 120;
   a = { idle: mkSprite('w' + id + 'a', W_, H_, (g, w, h) => drawGun(g, w, h, d, false)), fire: mkSprite('w' + id + 'b', W_, H_, (g, w, h) => drawGun(g, w, h, d, true)), pick: mkSprite('w' + id + 'p', Math.round(48 + 24 * d.look.length), 20, (g, w, h) => drawGun(g, w, h, d, false, true)) };
   ['w' + id + 'a', 'w' + id + 'b', 'w' + id + 'p'].forEach(k => delete SPR[k]);
@@ -205,6 +207,11 @@ function openWeaponGen(editId) {
     <div class="f"><label>Name</label><input id="wgName" maxlength="40" value="${esc(d.name)}"></div>
     <div class="f"><label>Class</label>${sel('wgCls', Object.fromEntries(Object.entries(WCLASS).map(([k, v]) => [k, v.n])), d.cls)}</div>
     <div class="h">Look</div>
+    <div class="f"><label>Painted art</label>${sel('wgArt', artOptions('weapons'), d.look.art || '')}</div>
+    ${d.look.art ? `${num('wgHue', 'Color shift (hue)', d.look.hue || 0, -180, 180)}${num('wgSat', 'Color strength (saturation %)', d.look.sat != null ? d.look.sat : 100, 0, 200)}${num('wgBri', 'Brightness %', d.look.bri != null ? d.look.bri : 100, 40, 160)}
+    <div class="row"><label>Tint color <input type="color" id="wgTint" value="${d.look.tint || '#c4141c'}"></label><button id="wgTintRed">Pulse red</button></div>${num('wgTintA', 'Tint amount %', d.look.tintAmt || 0, 0, 100)}
+    ${num('wgASize', 'Size', d.look.size || 1, 0.5, 2.5, 0.05)}<label class="chk"><input type="checkbox" id="wgMirror" ${d.look.mirror ? 'checked' : ''}>Mirror (face the other way)</label><label class="chk"><input type="checkbox" id="wgSkin" ${d.look.keepSkin !== false ? 'checked' : ''}>Keep hands their natural color</label>` : ''}
+    <p class="hint">${d.look.art ? 'The settings below only apply to the old code-drawn style.' : ''}</p>
     <div class="row"><label>Body <input type="color" id="wgCB" value="${d.look.body}"></label><label>Accent <input type="color" id="wgCA" value="${d.look.accent}"></label><label>Glow <input type="color" id="wgCG" value="${d.look.glow}"></label><button id="wgPulse">Pulse red & white</button></div>
     <div class="f"><label>Style</label>${sel('wgStyle', WSTYLE, L.style)}</div>
     ${num('wgPow', 'Power (1 = peashooter, 10 = doomsday)', L.power, 1, 10)}<label class="chk"><input type="checkbox" id="wgPowStats" ${d.powStats !== false ? 'checked' : ''}>Power changes the stats too (damage, splash, kick)</label>
@@ -230,6 +237,10 @@ function openWeaponGen(editId) {
     bind('wgName', e => d.name = e.value.slice(0, 40));
     bind('wgCls', e => { d = rollWeapon({ cls: e.value, seed: d.seed }, { name: 0, look: 1, stats: 1 }, d); render(b); }, 'change');
     bind('wgCB', e => d.look.body = e.value); bind('wgCA', e => d.look.accent = e.value); bind('wgCG', e => d.look.glow = e.value);
+
+    bind('wgArt', e => { if (e.value) { const keep = d.look.art ? d.look : { hue: 0, sat: 100, bri: 100, tint: '#c4141c', tintAmt: 0, size: 1, mirror: false }; d.look = Object.assign({}, keep, { art: e.value }); } else { d = rollWeapon({ cls: d.cls, art: '' }, { name: 0, look: 1, stats: 0 }, d); } render(b); }, 'change');
+    bind('wgHue', e => d.look.hue = +e.value); bind('wgSat', e => d.look.sat = +e.value); bind('wgBri', e => d.look.bri = +e.value); bind('wgTint', e => d.look.tint = e.value); bind('wgTintA', e => d.look.tintAmt = +e.value); bind('wgASize', e => d.look.size = +e.value); bind('wgMirror', e => d.look.mirror = e.checked, 'change'); bind('wgSkin', e => d.look.keepSkin = e.checked, 'change');
+    { const tr = b.querySelector('#wgTintRed'); if (tr) tr.onclick = () => { d.look.tint = '#c4141c'; d.look.tintAmt = Math.max(d.look.tintAmt || 0, 45); render(b); }; }
     bind('wgStyle', e => d.look.style = e.value, 'change'); bind('wgBulk', e => d.look.bulk = +e.value); bind('wgGlowA', e => d.look.glowAmt = +e.value); bind('wgCoils', e => d.look.coils = +e.value);
     bind('wgProngs', e => d.look.prongs = e.checked ? 1 : 0, 'change'); bind('wgStrips', e => d.look.strips = e.checked ? 1 : 0, 'change'); bind('wgPanels', e => d.look.panels = e.checked ? 1 : 0, 'change'); bind('wgHaz', e => d.look.hazard = e.checked ? 1 : 0, 'change');
     bind('wgPowStats', e => d.powStats = e.checked, 'change');

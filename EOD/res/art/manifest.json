@@ -1,0 +1,206 @@
+{
+ "monsters": [
+  {
+   "id": "husk_trooper",
+   "name": "Husk Trooper",
+   "arch": "soldier",
+   "h": 56,
+   "w": 61
+  },
+  {
+   "id": "iron_trooper",
+   "name": "Iron Trooper",
+   "arch": "soldier",
+   "h": 60,
+   "w": 44
+  },
+  {
+   "id": "gore_ape",
+   "name": "Gore Ape",
+   "arch": "beast",
+   "h": 62,
+   "w": 51
+  },
+  {
+   "id": "ash_fiend",
+   "name": "Ash Fiend",
+   "arch": "imp",
+   "h": 58,
+   "w": 72
+  },
+  {
+   "id": "siege_brute",
+   "name": "Siege Brute",
+   "arch": "cyber",
+   "h": 96,
+   "w": 103
+  },
+  {
+   "id": "mind_eye",
+   "name": "Mind Eye",
+   "arch": "floater",
+   "h": 56,
+   "w": 51
+  },
+  {
+   "id": "steel_widow",
+   "name": "Steel Widow",
+   "arch": "crawler",
+   "h": 58,
+   "w": 60
+  },
+  {
+   "id": "bile_hulk",
+   "name": "Bile Hulk",
+   "arch": "hulk",
+   "h": 72,
+   "w": 114
+  },
+  {
+   "id": "ember_monk",
+   "name": "Ember Monk",
+   "arch": "imp",
+   "h": 60,
+   "w": 75
+  },
+  {
+   "id": "gargant_bat",
+   "name": "Gargant Bat",
+   "arch": "floater",
+   "h": 52,
+   "w": 53
+  },
+  {
+   "id": "spine_hound",
+   "name": "Spine Hound",
+   "arch": "beast",
+   "h": 44,
+   "w": 62
+  },
+  {
+   "id": "bone_gunner",
+   "name": "Bone Gunner",
+   "arch": "soldier",
+   "h": 66,
+   "w": 61
+  },
+  {
+   "id": "bile_ooze",
+   "name": "Bile Ooze",
+   "arch": "beast",
+   "h": 40,
+   "w": 54
+  },
+  {
+   "id": "crowned_skull",
+   "name": "Crowned Skull",
+   "arch": "floater",
+   "h": 44,
+   "w": 57
+  },
+  {
+   "id": "stone_hulk",
+   "name": "Stone Hulk",
+   "arch": "hulk",
+   "h": 80,
+   "w": 110
+  },
+  {
+   "id": "plague_mite",
+   "name": "Plague Mite",
+   "arch": "crawler",
+   "h": 44,
+   "w": 50
+  },
+  {
+   "id": "blood_juggernaut",
+   "name": "Blood Juggernaut",
+   "arch": "cyber",
+   "h": 90,
+   "w": 101
+  },
+  {
+   "id": "maw_tangle",
+   "name": "Maw Tangle",
+   "arch": "floater",
+   "h": 56,
+   "w": 64
+  },
+  {
+   "id": "sentry_mech",
+   "name": "Sentry Mech",
+   "arch": "cyber",
+   "h": 84,
+   "w": 98
+  },
+  {
+   "id": "void_baron",
+   "name": "Void Baron",
+   "arch": "hulk",
+   "h": 88,
+   "w": 103
+  }
+ ],
+ "weapons": [
+  {
+   "id": "pump1",
+   "name": "Pump Shotgun Mk.I",
+   "cls": "shotgun"
+  },
+  {
+   "id": "pump2",
+   "name": "Pump Shotgun Mk.II",
+   "cls": "shotgun"
+  },
+  {
+   "id": "pump3",
+   "name": "Pump Shotgun Mk.III",
+   "cls": "shotgun"
+  },
+  {
+   "id": "dbl1",
+   "name": "Octagon Double Barrel",
+   "cls": "shotgun"
+  },
+  {
+   "id": "dbl2",
+   "name": "Tactical Octagon",
+   "cls": "shotgun"
+  },
+  {
+   "id": "mini1",
+   "name": "Rotary Minigun",
+   "cls": "repeater"
+  },
+  {
+   "id": "mini2",
+   "name": "Storm Minigun",
+   "cls": "repeater"
+  },
+  {
+   "id": "missile",
+   "name": "Missile Launcher",
+   "cls": "explosive"
+  },
+  {
+   "id": "particle",
+   "name": "Particle Cannon",
+   "cls": "energy"
+  },
+  {
+   "id": "grinder",
+   "name": "Angle Grinder",
+   "cls": "melee"
+  },
+  {
+   "id": "chainsaw",
+   "name": "Chain Ripper",
+   "cls": "melee"
+  },
+  {
+   "id": "runner",
+   "name": "Run-and-Gun Rifle",
+   "cls": "repeater"
+  }
+ ]
+}
