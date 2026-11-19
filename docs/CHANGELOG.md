@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.13 — 2026-11-18
+- **AI Toolbox** gets its product page at /ai-toolbox/ and a card in Products (Android, "In the works", no price). Kicked off
+  2026-11-18; in-house first. The deploy now copies the ai-toolbox folder.
+
 ## v0.7.12 — 2026-11-18
 - EOD 0.5.0: /EOD/ is now a no-login hub (play demo, create monster/weapon, edit map, demo maps); old page at /EOD/community.html.
 

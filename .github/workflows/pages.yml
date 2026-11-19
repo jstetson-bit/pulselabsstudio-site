@@ -30,6 +30,7 @@ jobs:
           cp *.html CNAME _site/
           [ -d pulse-meter ] && cp -r pulse-meter _site/
           [ -d pls-zip ] && cp -r pls-zip _site/
+          [ -d ai-toolbox ] && cp -r ai-toolbox _site/
           [ -d forge ] && cp -r forge _site/ && rm -rf _site/forge/src _site/forge/docs
           [ -d assets ] && cp -r assets _site/
           cp *.js _site/ 2>/dev/null || true
