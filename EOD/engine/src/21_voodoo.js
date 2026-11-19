@@ -16,7 +16,7 @@ function voodooInit() {
     const vx = l.ex / 32, vy = l.ey / 32;
     G.secs.forEach((s, i) => { if (s.tag !== l.tag) return; if (l.sp !== 251) { s.cvx = (s.cvx || 0) + vx; s.cvy = (s.cvy || 0) + vy; } if (l.sp !== 252) { s.sdx = (s.sdx || 0) + vx; s.sdy = (s.sdy || 0) + vy; } });
   }
-  G.secs.forEach(s => { s.sx = 0; s.sy = 0; });
+  G.secs.forEach(s => { s.sx = 0; s.sy = 0; if (s.flow) { s.sdx = s.flow[0]; s.sdy = s.flow[1]; } });
   if (G.mode !== 'play') return;
   const starts = playerStarts(G.map || M), real = G.start;
   for (const t of starts) {

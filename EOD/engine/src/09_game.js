@@ -52,7 +52,8 @@ function initGame(mode, start) {
   G.p = { x: start.x, y: start.y, a: start.a * Math.PI / 180, z: secs[s0].fh, vz: 0, viewz: secs[s0].fh + 41, sec: s0, vx: 0, vy: 0, r: 16, h: 56, hp: 100, armor: 0, at: 0, ammo: { bullets: 50, shells: 0, rockets: 0, cells: 0 }, max: { bullets: 200, shells: 50, rockets: 50, cells: 300 }, w: 2, has: new Set([2]), keys: new Set(), cool: 0, bob: 0, fireT: 0, dead: false, hurt: 0, noclip: mode === 'visual', pitch: 0 };
   if (mode === 'visual') { G.p.has = new Set([2, 3, 4, 5, 6, 7]); }
   if (mode === 'play' && M.start) { const ls = M.start; (ls.weapons || []).forEach(w => G.p.has.add(w)); Object.assign(G.p.max, ls.max || {}); Object.assign(G.p.ammo, ls.ammo || {}); if (ls.w) G.p.w = ls.w; if (ls.armor) { G.p.armor = ls.armor; G.p.at = ls.at || 1; } if (ls.hp) G.p.hp = ls.hp; }
-  if (G.waveQ) { G.waveQ.sort((a, b) => a.wave - b.wave); G.nextWave = 35 * 12; G.waveN = 0; }
+  if (G.waveQ) { G.waveQ.sort((a, b) => a.wave - b.wave); G.nextWave = 35 * ((M.start && M.start.waveFirst) || 12); G.waveN = 0; G.waveHold = !!(M.start && M.start.waveHold); }
+  if (M.triggers) M.triggers.forEach(t => delete t.done);
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
   G.start = start; voodooInit();
@@ -252,6 +253,7 @@ function damageMonster(e, dmg, src) {
   G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10, t0: 10, k: 'blood' });
   if (e.hp <= 0) {
     e.alive = false; e.state = 'dead'; e.diedAt = G.tic;
+    if (M.triggers) M.triggers.forEach(t => { if (t.kill === e.ti && !t.done) { t.done = 1; runTrigger(t); } });
     if (e.d.barrel) { explode(e.x, e.y, e.z + 20, 128, 128, src); return; }
     if (e.d.cat === 'monster') { G.kills++; sfx('die'); if (e.d.drop) G.ents.push({ id: 9000 + G.ents.length, x: e.x + 8, y: e.y, z: e.z, d: THINGS[e.d.drop], type: e.d.drop, r: 20, h: 16, alive: true, dropped: true, sec: e.sec }); }
     return;
@@ -272,8 +274,8 @@ function explode(x, y, z, radius, maxd, src) {
   for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; const d = Math.hypot(e.x - x, e.y - y) - e.r; if (d < radius && sight(x, y, z, e.x, e.y, e.z + e.h / 2) && !glassBetween(x, y, z, e.x, e.y, e.z + e.h / 2)) damageMonster(e, Math.max(1, Math.round(maxd * (1 - Math.max(0, d) / radius))), src); }
   if (G.p) { const d = Math.hypot(G.p.x - x, G.p.y - y) - G.p.r; if (d < radius && sight(x, y, z, G.p.x, G.p.y, G.p.z + 32) && !glassBetween(x, y, z, G.p.x, G.p.y, G.p.z + 32)) damagePlayer(Math.round(maxd * (1 - Math.max(0, d) / radius) * (src === 'player' ? 0.5 : 1))); }
 }
-function hitscan(a, dmg) {
-  const p = G.p, z = p.viewz - 8, w = wallDistAlong(p.x, p.y, z, a, 2048);
+function hitscan(a, dmg, range = 2048) {
+  const p = G.p, z = p.viewz - 8, w = wallDistAlong(p.x, p.y, z, a, range);
   const c = Math.cos(a), s = Math.sin(a); let best = null, bd = w.d;
   for (const e of G.ents) {
     if (!e.alive || !(e.hp > 0)) continue; const dx = e.x - p.x, dy = e.y - p.y, al = dx * c + dy * s; if (al <= 0 || al >= bd) continue;
@@ -284,9 +286,9 @@ function hitscan(a, dmg) {
   G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
   return false;
 }
-function autoAim(a) {
-  const p = G.p; let best = a, bd = 0.09;
-  for (const e of G.ents) { if (!e.alive || e.d.cat !== 'monster') continue; const ang = Math.atan2(e.y - p.y, e.x - p.x); let d = Math.abs(((ang - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI); const dist = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd && dist < 2000 && sight(p.x, p.y, p.viewz, e.x, e.y, e.z + e.h / 2)) { bd = d; best = ang; } }
+function autoAim(a, range = 2000) {
+  const p = G.p; let best = a, bd = range > 2400 ? 0.05 : 0.09; G.aimT = null;
+  for (const e of G.ents) { if (!e.alive || e.d.cat !== 'monster') continue; const ang = Math.atan2(e.y - p.y, e.x - p.x); let d = Math.abs(((ang - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI); const dist = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd && dist < range && sight(p.x, p.y, p.viewz, e.x, e.y, e.z + e.h / 2)) { bd = d; best = ang; G.aimT = e; } }
   return best;
 }
 function fireWeapon() {
@@ -295,10 +297,12 @@ function fireWeapon() {
   if (w.ammo && p.ammo[w.ammo] < w.use) { const order = [7, 6, 4, 5, 3, 2, 1]; const nw = order.find(i => p.has.has(i) && (!WEAPONS[i].ammo || p.ammo[WEAPONS[i].ammo] >= WEAPONS[i].use)); if (nw && nw !== p.w) { p.w = nw; msg(WEAPONS[nw].name); } else sfx('oof'); p.cool = 10; return; }
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   p.cool = w.rate; p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
-  const a = autoAim(p.a);
+  const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
+  // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
+  const aimVz = spd => { const t = G.aimT; if (t) { const dz = (t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
   if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); ww.hitMon = 1; break; } if (!ww.hitMon && glassLive(ww.l)) damageGlass(ww.l, rnd(...w.dmg), p.x + Math.cos(a) * ww.d, p.y + Math.sin(a) * ww.d, p.viewz - 8, 'player'); }
-  else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, 0); }
-  else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg));
+  else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, aimVz((PROJ[w.proj] || PROJ.rocket).spd)); }
+  else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg), longR || 2048);
   p.refire = true;
   // wake monsters by sound
   G.ents.forEach(e => { if (e.alive && e.d.cat === 'monster' && e.state === 'idle' && !e.ambush && Math.hypot(e.x - p.x, e.y - p.y) < 1400) e.state = 'chase'; });
@@ -327,9 +331,19 @@ function tickProjs() {
   }
   G.projs = G.projs.filter(p => !p.dead);
 }
+/* map triggers (demo maps): when a marked monster dies, change the world */
+function runTrigger(t) {
+  if (t.msg) { msg(t.msg); G.bonus = 10; }
+  if (t.flat) tagged(t.flat.tag).forEach(si => { const s = G.secs[si]; if (t.flat.ft) s.ft = t.flat.ft; if (t.flat.sp != null) s.sp = t.flat.sp; });
+  if (t.flow) tagged(t.flow.tag).forEach(si => { const s = G.secs[si]; s.sdx = t.flow.dx; s.sdy = t.flow.dy; });
+  if (t.light) tagged(t.light.tag).forEach(si => { G.secs[si].li = G.secs[si].base = t.light.li; });
+  if (t.open) tagged(t.open).forEach(si => doorOpen(si, { stay: true }));
+  if (t.waves) { G.waveHold = false; G.nextWave = 0; }
+  sfx('secret', .8);
+}
 /* waves: monsters marked with a wave number wait off-stage and storm in when the field thins out or the timer runs down */
 function tickWaves() {
-  if (!G.waveQ || !G.waveQ.length || G.p.dead) return;
+  if (!G.waveQ || !G.waveQ.length || G.p.dead || G.waveHold) return;
   const live = G.ents.reduce((n, e) => n + (e.alive && e.d.cat === 'monster' ? 1 : 0), 0);
   const ws = M.start || {};
   if (live > (ws.waveAt || 14) && G.tic < G.nextWave) return;

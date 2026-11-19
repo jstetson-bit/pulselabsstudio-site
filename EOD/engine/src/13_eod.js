@@ -4,6 +4,7 @@ function eodOnline() { return !!(window.EODB && window.EOD); }
 async function eodBoot() {
   const q = new URLSearchParams(location.search);
   // hub links: work with or without accounts
+  if (q.get('fd')) { loadFreedoomMap(q.get('fd').toUpperCase(), q.get('go') === 'play'); history.replaceState(null, '', 'editor.html'); return; }
   if (q.get('demo')) { loadDemo(q.get('demo'), q.get('go') === 'play'); history.replaceState(null, '', 'editor.html'); return; }
   if (q.get('gen') === 'monster') { setTimeout(() => openMonsterGen(), 300); history.replaceState(null, '', 'editor.html'); return; }
   if (q.get('gen') === 'weapon') { setTimeout(() => openWeaponGen(), 300); history.replaceState(null, '', 'editor.html'); return; }

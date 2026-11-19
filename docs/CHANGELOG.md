@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.16 — 2026-11-19
+- EOD 0.7.0: King of Shit Hill, Kev's Water Plant Concept, 68 Freedoom maps on the hub (res/freedoom-maps.wad.gz, 2.6 MB).
+
 ## v0.7.15 — 2026-11-19
 - EOD 0.6.1: LOOK stick, turn-around, look up/down; chainsaw, double barrel and rocket launcher in Chaingun Carnage.
 

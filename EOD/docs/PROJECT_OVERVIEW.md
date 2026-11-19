@@ -12,6 +12,8 @@ A free, open web home for classic Doom mapping: an editor that feels like Ultima
 - **Database** (`supabase/schema.sql`): profiles, maps (+ allow_remix, allow_download, preview, plays, score), map_versions (auto, last 20), votes (score trigger), forum_categories, threads, posts, reports. Row-level security: anyone reads public content; members write only their own; admins moderate. Posting and map creation are rate-limited in the database.
 - **Game HUD** (`23_statusbar.js`): the classic Doom status bar drawn from Freedoom's ST* lumps (in `res/freedoom-res.wad.gz`): numbers, arms, keys, ammo table and the marine face (STF*: 5 hurt levels × straight/left/right, ouch, evil grin, rampage, god, dead). `hudHeight()` tells the weapon sprite and automap where the bar starts. Settings: Classic / Compact / Slim.
 - **Demo maps** (`22_demomaps.js`): built in code. Horde options live on `M.start` (loadout, `hurt`, `power`, `waveAt`, `waveGap`); things with `wave: n` wait in `G.waveQ` and are released by `tickWaves()` in `09_game.js`.
+- **Freedoom maps** (`22_demomaps.js` FD_MAPS, `loadFreedoomMap`): `res/freedoom-maps.wad.gz` holds only THINGS/LINEDEFS/SIDEDEFS/VERTEXES/SECTORS of all 68 Freedoom maps (BSD). `editor.html?fd=MAP01&go=play`.
+- **Map triggers** (`M.triggers`, `runTrigger` in 09_game.js): `{kill: thingIndex, msg, flat:{tag,ft,sp}, flow:{tag,dx,dy}, light:{tag,li}, open: tag, waves: true}`. Sector `flow:[dx,dy]` scrolls from the start.
 - **Play flow:** library → `editor.html?play=<id>` → browser downloads the map JSON → game runs locally → exit returns to the library. Plays are counted with a server function.
 
 ## Map permissions
