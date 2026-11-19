@@ -35,7 +35,9 @@ jobs:
           [ -d assets ] && cp -r assets _site/
           cp *.js _site/ 2>/dev/null || true
           [ -d EOD ] && cp -r EOD _site/ && rm -rf _site/EOD/engine
-          [ -d eod ] && cp -r eod _site/
+          # Lowercase /eod/ redirect is generated here, not stored in the repo: a repo holding both EOD/ and eod/
+          # breaks every Windows clone (case-insensitive), which stopped the farm's site watcher on 2026-11-18.
+          mkdir -p _site/eod && printf '%s' '<!DOCTYPE html><html><head><meta charset="utf-8"><title>EOD</title><meta http-equiv="refresh" content="0;url=../EOD/"><link rel="canonical" href="../EOD/"></head><body><a href="../EOD/">EOD · Editor of Doom</a></body></html>' > _site/eod/index.html
           [ -d vault ] && cp -r vault _site/
           if gh release view vault --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release download vault --repo "$GITHUB_REPOSITORY" --pattern '*.bin' --dir _site/v

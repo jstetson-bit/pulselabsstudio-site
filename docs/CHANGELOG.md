@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.18 — 2026-11-19
+- Fix: the repo held both `EOD/` and a lowercase `eod/index.html` (the /eod redirect). Windows treats those as the same folder, so
+  every Windows clone (the farm's site watcher) broke on pull from 2026-11-18 ~9:44 PM and the downloads page stopped updating for
+  ~16 hours. The lowercase redirect is now generated at deploy time in `pages.yml` instead of stored in the repo; /eod still works.
+  Rule for every lane: no two paths in this repo may differ only by capital letters.
+
 ## v0.7.17 — 2026-11-19
 - Owner: "These need to say last updated with the time and the date stamp to the second … within the last 5 minutes … just now … within the last hour, 1 hour ago." Every time on the downloads pages now reads like `Nov 19, 2026 · 12:06:42 PM (just now)` in the viewer's own time zone: card "Last updated" (was "code touched"), Released, product page "Last updated" / "Last delivered", status "checked", the shelf header and the farm-problem bar. Ages: under 5 min "just now", under an hour "within the last hour", then "1 hour ago" / "N hours ago", "1 day ago" / "N days ago". Date-only values (Built on older builds) show just the date.
 
