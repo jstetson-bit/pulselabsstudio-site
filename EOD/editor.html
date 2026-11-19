@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.5.0', VC = 13;
+const VERSION = '0.6.0', VC = 14;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -1363,7 +1363,7 @@ function resSound(kind) {
 }
 /* ---------- pack management ---------- */
 function setPack(kind, pack) { RES.packs = RES.packs.filter(p => p.kind !== kind); if (pack) { const order = { custom: -1, map: 0, iwad: 1, freedoom: 2 }; RES.packs.push(pack); RES.packs.sort((a, b) => order[a.kind] - order[b.kind]); } resChanged(); }
-const FREEDOOM_URL = 'res/freedoom-res.wad.gz';
+const FREEDOOM_URL = 'res/freedoom-res.wad.gz?v=2';
 async function loadFreedoom(silent) {
   if (RES.packs.some(p => p.kind === 'freedoom')) return true;
   if (RES.loading) return RES.loading;
@@ -1371,7 +1371,7 @@ async function loadFreedoom(silent) {
     try {
       if (!silent) toast('Loading Freedoom art (about 7 MB, only the first time)…', 6000);
       let resp = null, cache = null;
-      try { cache = await caches.open('eod-res-v1'); resp = await cache.match(FREEDOOM_URL); } catch (e) { cache = null; }
+      try { cache = await caches.open('eod-res-v1'); cache.delete('res/freedoom-res.wad.gz'); resp = await cache.match(FREEDOOM_URL); } catch (e) { cache = null; }
       if (!resp) { resp = await fetch(FREEDOOM_URL); if (!resp.ok) throw new Error('HTTP ' + resp.status); if (cache) { try { await cache.put(FREEDOOM_URL, resp.clone()); } catch (e) { } } }
       const ds = new DecompressionStream('gzip'), buf = await new Response(resp.body.pipeThrough(ds)).arrayBuffer();
       setPack('freedoom', packFromWad(parseWad(buf), 'Freedoom', 'freedoom'));
@@ -2011,6 +2011,9 @@ function openSettings() {
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
+  <div class="h">Status bar (in the game)</div>
+  <p class="hint">Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
+  <div class="row">${[['classic', 'Classic'], ['compact', 'Compact'], ['slim', 'Slim']].map(([k, n]) => `<button data-sb="${k}" class="${(S.statusBar || 'classic') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <div class="h">Voodoo dolls</div>
   <p class="hint">Extra Player 1 Starts become voodoo dolls (you spawn at the last one). Show a message when a doll crosses a line or gets hurt?</p>
   <div class="row">${[[true, 'Show'], [false, 'Hide']].map(([k, n]) => `<button data-doll="${k}" class="${(S.dollMsg !== false) === k ? 'on' : ''}">${n}</button>`).join('')}</div>
@@ -2031,6 +2034,7 @@ function openSettings() {
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
+    b.querySelectorAll('[data-sb]').forEach(x => x.onclick = () => { S.statusBar = x.dataset.sb; saveSettings(); b.querySelectorAll('[data-sb]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-lim]').forEach(x => x.onclick = () => { S.limits = x.dataset.lim === 'true'; saveSettings(); b.querySelectorAll('[data-lim]').forEach(y => y.classList.toggle('on', y === x)); toast('Vanilla limits check ' + (S.limits ? 'on' : 'off')); });
     ch('#stLimHud', e => S.limHud = e.checked); ch('#stLimWarn', e => S.limWarn = e.checked);
@@ -2276,11 +2280,14 @@ function initGame(mode, start) {
     e.sec = sectorAt(e.x, e.y); e.z = e.sec >= 0 ? secs[e.sec].fh : 0; if (d.float) e.z += 24;
     if (d.cat === 'monster') G.totK++;
     if (['weapon', 'ammo', 'health', 'armor', 'key'].includes(d.cat)) G.totI++;
+    if (t.wave && mode === 'play') { e.wave = t.wave; (G.waveQ = G.waveQ || []).push(e); return; }
     G.ents.push(e);
   });
   const s0 = sectorAt(start.x, start.y);
   G.p = { x: start.x, y: start.y, a: start.a * Math.PI / 180, z: secs[s0].fh, vz: 0, viewz: secs[s0].fh + 41, sec: s0, vx: 0, vy: 0, r: 16, h: 56, hp: 100, armor: 0, at: 0, ammo: { bullets: 50, shells: 0, rockets: 0, cells: 0 }, max: { bullets: 200, shells: 50, rockets: 50, cells: 300 }, w: 2, has: new Set([2]), keys: new Set(), cool: 0, bob: 0, fireT: 0, dead: false, hurt: 0, noclip: mode === 'visual', pitch: 0 };
   if (mode === 'visual') { G.p.has = new Set([2, 3, 4, 5, 6, 7]); }
+  if (mode === 'play' && M.start) { const ls = M.start; (ls.weapons || []).forEach(w => G.p.has.add(w)); Object.assign(G.p.max, ls.max || {}); Object.assign(G.p.ammo, ls.ammo || {}); if (ls.w) G.p.w = ls.w; if (ls.armor) { G.p.armor = ls.armor; G.p.at = ls.at || 1; } if (ls.hp) G.p.hp = ls.hp; }
+  if (G.waveQ) { G.waveQ.sort((a, b) => a.wave - b.wave); G.nextWave = 35 * 12; G.waveN = 0; }
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
   G.start = start; voodooInit();
@@ -2475,6 +2482,7 @@ function lineSide2(l, x, y) { return l.ex * (y - l.ay) - l.ey * (x - l.ax); }
 /* ---------- combat ---------- */
 function damageMonster(e, dmg, src) {
   if (!e.alive) return;
+  if (src === 'player' && M.start && M.start.power) dmg = Math.round(dmg * M.start.power);
   e.hp -= dmg;
   G.fx.push({ x: e.x, y: e.y, z: e.z + e.h * 0.6, img: SPR.blood, t: 10, t0: 10, k: 'blood' });
   if (e.hp <= 0) {
@@ -2485,11 +2493,12 @@ function damageMonster(e, dmg, src) {
   }
   if (e.d.cat === 'monster') { e.state = 'chase'; if (Math.random() < e.d.pain) { e.pain = 8; e.atk = 0; sfx('pain', .5); } }
 }
-function damagePlayer(dmg) {
+function damagePlayer(dmg, src) {
   const p = G.p; if (p.dead || G.mode !== 'play') return;
   if (S.skill === 1) dmg = dmg >> 1;
+  if (M.start && M.start.hurt != null) dmg = Math.max(1, Math.round(dmg * M.start.hurt));
   let save = p.at === 2 ? (dmg >> 1) : p.at === 1 ? Math.floor(dmg / 3) : 0; if (save > p.armor) save = p.armor; p.armor -= save; if (!p.armor) p.at = 0;
-  p.hp -= dmg - save; p.hurt = Math.min(30, p.hurt + dmg); sfx('pain', .7); rumble(Math.min(1, 0.3 + dmg / 40), 140);
+  p.hp -= dmg - save; p.hurt = Math.min(30, p.hurt + dmg); faceHurt(dmg - save, src); sfx('pain', .7); rumble(Math.min(1, 0.3 + dmg / 40), 140);
   if (p.hp <= 0) { p.hp = 0; p.dead = true; G.over = { k: 'dead' }; showOver(); }
 }
 function explode(x, y, z, radius, maxd, src) {
@@ -2544,7 +2553,7 @@ function tickProjs() {
       const si = gSectorAt(nx, ny); if (si < 0 || nz < G.secs[si].fh || nz > G.secs[si].ch) hitWall = true;
       if (!hitWall) {
         if (pr.owner === 'player') { for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; if (Math.hypot(e.x - nx, e.y - ny) < e.r + 8 && nz > e.z - 8 && nz < e.z + e.h + 8) { damageMonster(e, rnd(...P.dmg), 'player'); hitWall = true; break; } } }
-        else { const p = G.p; if (Math.hypot(p.x - nx, p.y - ny) < p.r + 8 && nz > p.z - 8 && nz < p.z + p.h + 8) { damagePlayer(rnd(...P.dmg)); hitWall = true; } }
+        else { const p = G.p; if (Math.hypot(p.x - nx, p.y - ny) < p.r + 8 && nz > p.z - 8 && nz < p.z + p.h + 8) { damagePlayer(rnd(...P.dmg), pr); hitWall = true; } }
       }
       if (hitWall) { pr.dead = true; if (P.splash) explode(pr.x, pr.y, pr.z, P.splash, P.splash, pr.owner); else G.fx.push({ x: pr.x, y: pr.y, z: pr.z - 8, img: pr.img, t: 6, bright: 1 }); break; }
       pr.x = nx; pr.y = ny; pr.z = nz;
@@ -2552,6 +2561,18 @@ function tickProjs() {
     if (pr.t > 400) pr.dead = true;
   }
   G.projs = G.projs.filter(p => !p.dead);
+}
+/* waves: monsters marked with a wave number wait off-stage and storm in when the field thins out or the timer runs down */
+function tickWaves() {
+  if (!G.waveQ || !G.waveQ.length || G.p.dead) return;
+  const live = G.ents.reduce((n, e) => n + (e.alive && e.d.cat === 'monster' ? 1 : 0), 0);
+  const ws = M.start || {};
+  if (live > (ws.waveAt || 14) && G.tic < G.nextWave) return;
+  const w = G.waveQ[0].wave; let n = 0;
+  while (G.waveQ.length && G.waveQ[0].wave === w) { const e = G.waveQ.shift(); e.state = 'chase'; e.cool = 30 + rnd(0, 40); G.ents.push(e); n++; }
+  G.waveN++; G.nextWave = G.tic + 35 * (ws.waveGap || 18);
+  msg('WAVE ' + (G.waveN + 1) + ' — ' + n + ' more incoming' + (G.waveQ.length ? '' : ' (last wave!)'));
+  sfx('telept', .6);
 }
 function tickMonsters() {
   const p = G.p;
@@ -2582,13 +2603,13 @@ function tickMonsters() {
 }
 function monsterAttack(e, dist) {
   const p = G.p, d = e.d;
-  if (d.melee && dist < e.r + p.r + 30) { damagePlayer(rnd(...d.melee)); sfx('oof', .6); return; }
+  if (d.melee && dist < e.r + p.r + 30) { damagePlayer(rnd(...d.melee), e); sfx('oof', .6); return; }
   if (d.atk === 'melee') return;
   if (!sight(e.x, e.y, e.z + 41, p.x, p.y, p.viewz)) return;
   e.flash = 4;
   const gb = d.atk === 'hit' ? glassBetween(e.x, e.y, e.z + 41, p.x, p.y, p.viewz) : null;
   if (gb) { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
-  else if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg)); } }
+  else if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg), e); } }
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
   if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
@@ -2603,7 +2624,7 @@ function tickPickups(actor) {
     if (g.armor !== undefined) { if (p.armor < (g.amax || 200)) { p.armor = Math.min(g.amax || 200, p.armor + g.armor); p.at = Math.max(p.at, g.at || 1); if (g.armor >= 100) p.at = g.at; took = true; } }
     if (g.backpack && !p.backpack) { p.backpack = 1; for (const k in p.max) p.max[k] *= 2; took = true; }
     for (const k of ['bullets', 'shells', 'rockets', 'cells']) if (g[k]) { const amt = e.dropped ? Math.ceil(g[k] / 2) : g[k]; if (p.ammo[k] < p.max[k]) { p.ammo[k] = Math.min(p.max[k], p.ammo[k] + amt); took = true; } }
-    if (g.w) { if (!p.has.has(g.w)) { p.has.add(g.w); p.w = g.w; took = true; sfx('weapon'); } }
+    if (g.w) { if (!p.has.has(g.w)) { p.has.add(g.w); p.w = g.w; took = true; sfx('weapon'); faceGrin(); } }
     if (!took) continue;
     e.alive = false; if (!e.dropped) G.items++; G.bonus = 6; msg('Picked up ' + (e.d.name.match(/^[AEIOU]/) ? 'an ' : 'a ') + e.d.name.toLowerCase() + '.'); if (!g.w) sfx('pickup');
   }
@@ -2641,7 +2662,7 @@ function gameTic() {
     if (p.cool > 0) p.cool--; if (p.fireT > 0) p.fireT--;
     if ((IN.fire || IN.firePad) && !p.dead) fireWeapon(); else p.refire = false;
     if (IN.use) { IN.use = false; playerUse(); }
-    tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls();
+    tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls(); faceTick(); tickWaves();
     // sector damage / secrets
     if (p.z <= S0.fh + 1) {
       const dmg = { 5: 10, 7: 5, 16: 20, 4: 20, 11: 20 }[S0.sp];
@@ -2796,7 +2817,7 @@ function drawWeaponRes(g, W, H, u, bx, by) {
   const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
   const firing = p.fireT > 0, fr = firing ? ws[2][Math.min(ws[2].length - 1, Math.floor((6 - p.fireT) / 2))] : ws[1][Math.floor(G.tic / 4) % ws[1].length];
   const main = getSpriteFrame(ws[0], fr, 0); if (!main) return false;
-  const s = Math.min(W / 320, (H - 20 * u) / 168), viewBottom = H - 20 * u;
+  const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168), viewBottom = H - hh;
   const put = f => { if (!f) return; const img = f.img; g.drawImage(spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
   put(main); if (firing && p.fireT > 2 && ws[3]) put(getSpriteFrame(ws[3], ws[4][Math.min(ws[4].length - 1, Math.floor((6 - p.fireT) / 2))], 0));
   return true;
@@ -2817,6 +2838,7 @@ function drawWeapon(g, W, H, u) {
   else { g.fillRect(cx - 9 * u, base - 34 * u, 18 * u, 34 * u); g.fillStyle = '#222'; g.fillRect(cx - 4 * u, base - 34 * u, 8 * u, 6 * u); }
 }
 function drawHud(g, W, H, u) {
+  if (drawStatusBar(g, W, H)) return;
   const p = G.p, h = 20 * u, y = H - h;
   g.fillStyle = 'rgba(40,36,32,.92)'; g.fillRect(0, y, W, h); g.fillStyle = '#5a5248'; g.fillRect(0, y, W, u);
   const num = (txt, x, lab) => { g.font = `bold ${12 * u}px "Courier New",monospace`; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText(txt, x + u, y + 13 * u + u); g.fillStyle = '#d02020'; g.fillText(txt, x, y + 13 * u); g.font = `${5 * u}px monospace`; g.fillStyle = '#ddd'; g.fillText(lab, x, y + 18.5 * u); };
@@ -2824,10 +2846,13 @@ function drawHud(g, W, H, u) {
   num(wd.ammo ? String(p.ammo[wd.ammo]) : '--', W * 0.1, 'AMMO');
   num(p.hp + '%', W * 0.28, 'HEALTH');
   // face
+  const fp = sbReady() ? sbPic(faceName()) : null;
+  if (fp) { const fh = (H - y) * 0.94, fw = fh * fp.c.width / fp.c.height; g.imageSmoothingEnabled = false; g.drawImage(fp.c, W * 0.5 - fw / 2, H - fh, fw, fh); } else {
   const fx = W * 0.5, fy = y + 10 * u; g.fillStyle = p.hp > 60 ? '#c8916a' : p.hp > 25 ? '#b8705a' : '#9a4a3a'; g.beginPath(); g.arc(fx, fy, 8 * u, 0, 7); g.fill();
   g.fillStyle = '#000'; g.fillRect(fx - 4 * u, fy - 2 * u, 2 * u, 2 * u); g.fillRect(fx + 2 * u, fy - 2 * u, 2 * u, 2 * u);
   g.fillStyle = p.hurt > 0 ? '#600' : '#000'; g.fillRect(fx - 3 * u, fy + 3 * u, 6 * u, (p.fireT > 0 ? 2 : 1) * u);
   if (p.hp < 50) { g.fillStyle = '#a00'; g.fillRect(fx - 6 * u, fy - 6 * u, 2 * u, 4 * u); }
+  }
   num(p.armor + '%', W * 0.72, 'ARMOR');
   const keys = ['b', 'y', 'r']; keys.forEach((k, i) => { g.fillStyle = p.keys.has(k) ? { b: '#25f', y: '#fd2', r: '#e22' }[k] : '#222'; g.fillRect(W * 0.86, y + (2 + i * 6) * u, 6 * u, 5 * u); });
   g.font = `${5 * u}px monospace`; g.fillStyle = '#ddd'; g.textAlign = 'left'; g.fillText(wd.name.toUpperCase(), W * 0.9, y + 6 * u);
@@ -2835,7 +2860,7 @@ function drawHud(g, W, H, u) {
 }
 function drawAutomap(g, W, H) {
   const p = G.p, z = Math.min(W, H) / 900;
-  g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(0, 0, W, H - 20 * Math.max(1, Math.round(W / 320)));
+  g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(0, 0, W, H - hudHeight(W, H));
   const tx = (x, y) => [W / 2 + (x - p.x) * z, H / 2 - (y - p.y) * z];
   g.lineWidth = 1;
   for (const l of G.sc.lines) {
@@ -3931,8 +3956,8 @@ function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
 function drawCustomWeapon(g, W, H, u, bx, by) {
   const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
   if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
-  const s = Math.min(W / 320, (H - 20 * u) / 168) * 0.95, c = spriteCanvas(img);
-  g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - 20 * u - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
+  const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, c = spriteCanvas(img);
+  g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - hh - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
 }
 /* ---------- registry ---------- */
 let WEP_SIG = '';
@@ -4569,6 +4594,7 @@ const DEMO_MAPS = {
   hangar: { name: 'Hangar of Shit', blurb: 'The classic test map: doors, a lift, nukage, a secret, a glass pane to shoot out.', build: () => buildSampleMap() },
   voodoo: { name: 'Voodoo Express', blurb: 'A voodoo doll on a conveyor opens the monster cages and the exit for you. Flip the switch and watch.', build: () => buildVoodooMap() },
   glass: { name: 'Glass Gallery', blurb: 'Six glass panes: clear, mirror, frosted, stained, bulletproof and Pulse red, with painted monsters behind them.', build: () => buildGlassMap() },
+  chaingun: { name: 'Chaingun Carnage', blurb: 'You start at the far end with a chaingun and a mountain of bullets. Over 100 of them come for you. Burn it all down.', build: () => buildChaingunMap() },
   arena: { name: 'Bestiary Arena', blurb: 'An open-sky arena full of painted monsters from the art library, and painted guns to pick up.', build: () => buildArenaMap() }
 };
 function demoRect(x0, y0, x1, y1, props) { const s = drawShape(rectPts(x0, y0, x1, y1), true); if (props) Object.assign(M.sec[s], props); return s; }
@@ -4652,6 +4678,30 @@ function buildArenaMap() {
   T(1, 512, 64, 90);
   compact();
 }
+function buildChaingunMap() {
+  M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
+  M.hint = 'Hold FIRE. Six waves are coming. Spare ammo and health are behind you.';
+  M.start = { weapons: [5], ammo: { bullets: 999 }, max: { bullets: 999 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
+  const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
+  const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
+  const Yard = demoRect(64, 2304, 960, 2816, { fh: 0, ch: 320, li: 144, ft: 'RROCK19', ct: 'F_SKY1' });
+  const Ex = demoRect(448, -16, 576, 0, { fh: 24, ch: 160, li: 208 });
+  demoWalls({ [Deck]: 'METAL2', [Can]: 'ROCK4', [Yard]: 'ROCK4', [Ex]: 'METAL2' });
+  sectorLines(Deck).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0) M.sd[sd].lo = 'METAL2'; });
+  const k = demoLine(448, -16, 576, -16); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
+  const T = (type, x, y, a = 90, f = 7, wave = 0) => M.t.push(wave ? { x, y, a, type, f, wave } : { x, y, a, type, f });
+  const row = (type, cnt, y, wave, x0 = 96, x1 = 928) => { for (let i = 0; i < cnt; i++) T(type, x0 + (i + 0.5) * ((x1 - x0) / cnt) + ((y * 7 + i * 53) % 36) - 18, y, 270, 7, wave); };
+  // first wave: already standing in the canyon
+  row(3004, 8, 1200, 0); row(3001, 6, 1360, 0); row(3004, 8, 1520, 0); row(3001, 6, 1700, 0); row(3002, 3, 1850, 0);
+  // the rest storm out of the yard in waves
+  const W = [[[3004, 10], [3001, 6]], [[3001, 8], [3002, 5], [9, 4]], [[3004, 12], [9, 6], [65, 2]], [[3002, 8], [3001, 10]], [[9, 8], [65, 4], [3001, 8]], [[3002, 10], [3001, 10], [65, 4], [3004, 10]]];
+  W.forEach((g, wi) => { let y = 2400; g.forEach(([type, cnt]) => { for (let o = 0; o < cnt; o += 10) { row(type, Math.min(10, cnt - o), y, wi + 1, 120, 900); y += 70; } }); });
+  for (let i = 0; i < 8; i++) T(2048, 96 + i * 120, 36);
+  T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 512, 220);
+  T(1, 512, 140, 90);
+  compact();
+}
 function loadDemo(id, play) {
   const d = DEMO_MAPS[id]; if (!d) return toast('No demo map called ' + id);
   return artManifest().then(() => { pushUndo(); d.build(); clearSel(); mapChanged(); zoomFit(); return artLoadAll(artFilesFor(M)); }).then(() => { if (typeof MONF !== 'undefined') MONF.clear(); if (play) startDemo(); else toast(d.name + ' loaded'); });
@@ -4659,6 +4709,82 @@ function loadDemo(id, play) {
 function openDemoMaps() {
   modal('Demo maps', `<p class="hint">Built into EOD. Play one, or open it in the editor to see how it is made.</p>${Object.entries(DEMO_MAPS).map(([id, d]) => `<div class="row" style="align-items:center"><div style="flex:3"><b>${esc(d.name)}</b><div class="hint">${esc(d.blurb)}</div></div><button class="demo" data-dp="${id}">▶ Play</button><button data-de="${id}">✎ Edit</button></div>`).join('')}`, [{ cancel: 1 }]);
   setTimeout(() => { document.querySelectorAll('[data-dp]').forEach(b => b.onclick = () => { closeModal(); loadDemo(b.dataset.dp, true); }); document.querySelectorAll('[data-de]').forEach(b => b.onclick = () => { closeModal(); loadDemo(b.dataset.de, false); }); }, 0);
+}
+
+/* ================= CLASSIC STATUS BAR + MARINE FACE =================
+   Uses Freedoom's own status bar art (BSD): STBAR, big red numbers, weapon numbers, keys, and the
+   marine face that gets bloodier in 5 stages, looks around, turns toward whoever hurt you,
+   grimaces on big hits, grins when you grab a weapon, rages when you hold the trigger, and dies.
+   Falls back to the simple bar when the art pack is off. */
+const SBPIC = new Map();
+function sbPic(name) {
+  if (SBPIC.has(name)) return SBPIC.get(name);
+  let pic = null; if (resPal()) { const b = findPatch(name, 0); if (b) { const t = decodePicture(b); if (t) pic = { img: t, c: spriteCanvas(t) }; } }
+  if (pic || resPal()) SBPIC.set(name, pic); return pic;
+}
+function sbReady() { return !!(RES.packs.length && resPal() && sbPic('STBAR') && sbPic('STFST00')); }
+// height of the status bar on screen; weapons and the automap sit above it
+function hudHeight(W, H) {
+  const u = Math.max(1, Math.round(W / 320));
+  if (S.statusBar !== 'slim' && G && G.mode === 'play' && sbReady()) return Math.round(32 * sbScale(W, H));
+  return 20 * u;
+}
+function sbScale(W, H) { const big = { classic: 0.2, compact: 0.13 }[S.statusBar || 'classic'] || 0.2; return Math.min(W / 320, H * big / 32); }
+/* ---- face brain (runs every tic) ---- */
+function faceLevel(p) { return clamp(Math.floor((100 - clamp(p.hp, 0, 100)) * 5 / 101), 0, 4); }
+function faceHurt(dmg, src) {
+  if (!G || !G.p) return; const p = G.p, f = G.face || (G.face = {});
+  if (dmg >= 20) { f.kind = 'OUCH'; f.until = G.tic + 35; return; }
+  if (src && src.x != null) {
+    let d = Math.atan2(src.y - p.y, src.x - p.x) - p.a; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    f.kind = Math.abs(d) < 0.5 ? 'KILL' : d > 0 ? 'TL' : 'TR';
+  } else f.kind = 'KILL';
+  f.until = G.tic + 35;
+}
+function faceGrin() { if (!G || !G.p) return; const f = G.face || (G.face = {}); f.kind = 'EVL'; f.until = G.tic + 70; }
+function faceTick() {
+  const p = G.p, f = G.face || (G.face = { look: 0, next: 0 });
+  p.fireHeld = IN.fire && !p.dead ? (p.fireHeld || 0) + 1 : 0;
+  if (G.tic >= (f.next || 0)) { f.look = Math.floor(Math.random() * 3); f.next = G.tic + 17 + Math.floor(Math.random() * 18); }
+}
+function faceName() {
+  const p = G.p, f = G.face || {}, l = faceLevel(p);
+  if (p.dead) return 'STFDEAD0';
+  if (p.god) return 'STFGOD0';
+  if (f.until > G.tic) { if (f.kind === 'OUCH') return 'STFOUCH' + l; if (f.kind === 'EVL') return 'STFEVL' + l; if (f.kind === 'KILL') return 'STFKILL' + l; if (f.kind === 'TL') return 'STFTL' + l + '0'; if (f.kind === 'TR') return 'STFTR' + l + '0'; }
+  if ((p.fireHeld || 0) > 70) return 'STFKILL' + l;
+  return 'STFST' + l + (f.look || 0);
+}
+/* ---- drawing ---- */
+function drawStatusBar(g, W, H) {
+  if (S.statusBar === 'slim' || !sbReady()) return false;
+  const s = sbScale(W, H), bw = 320 * s, bh = 32 * s, x0 = Math.round((W - bw) / 2), y0 = Math.round(H - bh), p = G.p, wd = WEAPONS[p.w];
+  g.imageSmoothingEnabled = false;
+  if (x0 > 0) { g.fillStyle = '#1e1c1a'; g.fillRect(0, y0, W, bh); g.fillStyle = '#3a3632'; g.fillRect(0, y0, W, Math.max(1, s)); }
+  const put = (name, x, y, useOff) => { const pc = sbPic(name); if (!pc) return 0; const ox = useOff ? pc.img.ox || 0 : 0, oy = useOff ? pc.img.oy || 0 : 0; g.drawImage(pc.c, x0 + (x - ox) * s, y0 + (y - oy) * s, pc.img.w * s, pc.img.h * s); return pc.img.w; };
+  put('STBAR', 0, 0);
+  const big = (n, rx, y, pct) => { // right-aligned big red number
+    let x = rx; if (pct) put('STTPRCNT', rx, y);
+    const str = String(Math.max(0, n | 0)); for (let i = str.length - 1; i >= 0; i--) { const pc = sbPic('STTNUM' + str[i]); const w = pc ? pc.img.w : 14; x -= w; put('STTNUM' + str[i], x, y); }
+  };
+  const small = (n, rx, y, pre) => { const str = String(Math.max(0, n | 0)); let x = rx; for (let i = str.length - 1; i >= 0; i--) { const pc = sbPic(pre + str[i]); const w = pc ? pc.img.w : 4; x -= w; put(pre + str[i], x, y); } };
+  if (wd && wd.ammo) big(p.ammo[wd.ammo], 44, 3);
+  big(p.hp, 90, 3, true);
+  // weapon numbers 2-7: yellow = you have it
+  if (sbPic('STARMS')) put('STARMS', 104, 0);
+  for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((p.has.has(i) || (i === 3 && p.has.has(8)) ? 'STYSNUM' : 'STGNUM') + i, x, y); }
+  put(faceName(), 143, 0, true);
+  big(p.armor, 221, 3, true);
+  [['b', 0], ['y', 1], ['r', 2]].forEach(([k, i]) => { if (p.keys.has(k)) put('STKEYS' + i, 239, 3 + i * 10); });
+  [['bullets', 5], ['shells', 11], ['cells', 23], ['rockets', 17]].forEach(([a, y]) => { small(p.ammo[a], 288, y, 'STYSNUM'); small(p.max[a], 314, y, 'STYSNUM'); });
+  // EOD extras on the side bars: weapon name, kills / items
+  if (x0 > 60) {
+    const lines = [(wd ? wd.name : '').toUpperCase(), 'KILLS ' + G.kills + '/' + G.totK, 'ITEMS ' + G.items + '/' + G.totI];
+    let fs = Math.min(bh / 4, 7 * s); g.font = `bold ${fs}px monospace`;
+    const mw = Math.max(...lines.map(t => g.measureText(t).width)); if (mw > x0 - 16) fs *= (x0 - 16) / mw;
+    if (fs >= 8) { g.font = `bold ${fs}px monospace`; g.textAlign = 'left'; g.fillStyle = '#fff'; lines.forEach((t, i) => g.fillText(t, 8, y0 + bh * (0.3 + i * 0.28))); }
+  }
+  return true;
 }
 
 try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }

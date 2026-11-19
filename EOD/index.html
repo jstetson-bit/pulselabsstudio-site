@@ -40,7 +40,7 @@ h2{font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--red2);
  <a class="tile" href="#maps"><div class="ic">🗺</div><b>See the maps</b><span>The demo maps below: play them or open them to see how they work.</span></a>
  <a class="tile" href="../forge/"><div class="ic">⚒</div><b>Pulse Forge</b><span>Design new creatures and guns, have them painted, cut them into sprites.</span></a>
 </div>
-<h2 id="maps">Demo maps (4)</h2>
+<h2 id="maps">Demo maps (5)</h2>
 <div class="maps" id="mapList"></div>
 <p class="foot">EOD v<span id="ver2"></span> · a <a href="../">Pulse Labs Studio</a> project. Accounts, the shared map library and forums are switched off for now: <a href="community.html">community pages</a>.<br>Unofficial fan project, not affiliated with id Software, Bethesda or ZeniMax. DOOM is a trademark of id Software LLC. EOD uses its own art and the free Freedoom art set.</p>
 </main>
@@ -48,7 +48,7 @@ h2{font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--red2);
 <script src="assets/config.js"></script>
 <script>
 const V=(window.EOD_CONFIG||{}).VERSION||'';document.getElementById('ver').textContent='v'+V;document.getElementById('ver2').textContent=V;
-const MAPS=[['hangar','Hangar of Shit','The classic test map: doors, a lift, nukage, a secret, and a glass pane to shoot out.'],['voodoo','Voodoo Express','Flip the switch and a voodoo doll rides a conveyor next door, opening the monster cages and then the exit.'],['glass','Glass Gallery','Six kinds of glass (clear, mirror, frosted, stained, bulletproof, Pulse red) with painted monsters behind them.'],['arena','Bestiary Arena','An open-sky arena full of painted monsters, with painted guns on the floor to grab.']];
+const MAPS=[['hangar','Hangar of Shit','The classic test map: doors, a lift, nukage, a secret, and a glass pane to shoot out.'],['voodoo','Voodoo Express','Flip the switch and a voodoo doll rides a conveyor next door, opening the monster cages and then the exit.'],['glass','Glass Gallery','Six kinds of glass (clear, mirror, frosted, stained, bulletproof, Pulse red) with painted monsters behind them.'],['chaingun','Chaingun Carnage','Start at the far end with a chaingun and 600 bullets. Over 100 of them charge at you. Hold fire and burn it all down.'],['arena','Bestiary Arena','An open-sky arena full of painted monsters, with painted guns on the floor to grab.']];
 document.getElementById('mapList').innerHTML=MAPS.map(([id,n,d])=>`<div class="map"><b>${n}</b><p>${d}</p><div class="row"><a class="play" href="editor.html?demo=${id}&go=play">▶ Play</a><a href="editor.html?demo=${id}">✎ Open in editor</a></div></div>`).join('');
 const inv=()=>{document.documentElement.classList.toggle('inv');try{localStorage.setItem('eod.hubInv',document.documentElement.classList.contains('inv')?'1':'')}catch(e){}};
 try{if(localStorage.getItem('eod.hubInv'))document.documentElement.classList.add('inv')}catch(e){}

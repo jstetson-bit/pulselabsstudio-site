@@ -10,6 +10,8 @@ A free, open web home for classic Doom mapping: an editor that feels like Ultima
 - **Engine** (`engine/src`, from No Shit Doom Editor v1.0.0): map model, UDB-style modes, WAD import/export, procedural art, column raycaster renderer, game logic, touch UI. EOD additions: `12_input.js` (keyboard/mouse/controller + remapping), `13_eod.js` (publish, library, play/remix/wad links), `99_start.js` (boot last).
 - **Backend** (`assets/backend.js`): one API (`EODB.*`) with two implementations, Supabase (live) and Local (localStorage). Pages never talk to Supabase directly.
 - **Database** (`supabase/schema.sql`): profiles, maps (+ allow_remix, allow_download, preview, plays, score), map_versions (auto, last 20), votes (score trigger), forum_categories, threads, posts, reports. Row-level security: anyone reads public content; members write only their own; admins moderate. Posting and map creation are rate-limited in the database.
+- **Game HUD** (`23_statusbar.js`): the classic Doom status bar drawn from Freedoom's ST* lumps (in `res/freedoom-res.wad.gz`): numbers, arms, keys, ammo table and the marine face (STF*: 5 hurt levels × straight/left/right, ouch, evil grin, rampage, god, dead). `hudHeight()` tells the weapon sprite and automap where the bar starts. Settings: Classic / Compact / Slim.
+- **Demo maps** (`22_demomaps.js`): built in code. Horde options live on `M.start` (loadout, `hurt`, `power`, `waveAt`, `waveGap`); things with `wave: n` wait in `G.waveQ` and are released by `tickWaves()` in `09_game.js`.
 - **Play flow:** library → `editor.html?play=<id>` → browser downloads the map JSON → game runs locally → exit returns to the library. Plays are counted with a server function.
 
 ## Map permissions

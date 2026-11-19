@@ -140,7 +140,7 @@ function resSound(kind) {
 }
 /* ---------- pack management ---------- */
 function setPack(kind, pack) { RES.packs = RES.packs.filter(p => p.kind !== kind); if (pack) { const order = { custom: -1, map: 0, iwad: 1, freedoom: 2 }; RES.packs.push(pack); RES.packs.sort((a, b) => order[a.kind] - order[b.kind]); } resChanged(); }
-const FREEDOOM_URL = 'res/freedoom-res.wad.gz';
+const FREEDOOM_URL = 'res/freedoom-res.wad.gz?v=2';
 async function loadFreedoom(silent) {
   if (RES.packs.some(p => p.kind === 'freedoom')) return true;
   if (RES.loading) return RES.loading;
@@ -148,7 +148,7 @@ async function loadFreedoom(silent) {
     try {
       if (!silent) toast('Loading Freedoom art (about 7 MB, only the first time)…', 6000);
       let resp = null, cache = null;
-      try { cache = await caches.open('eod-res-v1'); resp = await cache.match(FREEDOOM_URL); } catch (e) { cache = null; }
+      try { cache = await caches.open('eod-res-v1'); cache.delete('res/freedoom-res.wad.gz'); resp = await cache.match(FREEDOOM_URL); } catch (e) { cache = null; }
       if (!resp) { resp = await fetch(FREEDOOM_URL); if (!resp.ok) throw new Error('HTTP ' + resp.status); if (cache) { try { await cache.put(FREEDOOM_URL, resp.clone()); } catch (e) { } } }
       const ds = new DecompressionStream('gzip'), buf = await new Response(resp.body.pipeThrough(ds)).arrayBuffer();
       setPack('freedoom', packFromWad(parseWad(buf), 'Freedoom', 'freedoom'));

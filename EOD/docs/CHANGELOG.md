@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.6.0 (vc14) — 2026-11-18 — the marine's face, Chaingun Carnage
+- **Doom status bar**: the smiley is gone everywhere (the Slim bar uses the marine face too). The bottom bar is now the classic Doom bar (Freedoom art): ammo, health %, arms 2–7, armor %, keys, and all four ammo counts. Weapon name and kills/items show at the sides on wide screens.
+- **The marine's face**: five levels of hurt from healthy to nearly dead (gets bloodier as health drops), looks toward whoever just shot you, the "ouch" face on a big hit, the evil grin when you grab a new gun, the rampage face when you hold fire, glowing eyes in god mode, and the dead face.
+- Settings ▸ Status bar: **Classic** (full size), **Compact** (smaller), **Slim** (thin bar). Classic/Compact need the Freedoom art pack; without it the slim bar is used.
+- **Demo map 5: Chaingun Carnage** — start on a firing deck at the far end with a chaingun, 999 bullets, 200 health and blue armor. 31 monsters stand in the canyon and **six waves (156 total)** pour in from the staging yard: zombiemen, imps, pinkies, shotgun guys, chaingunners. Spare bullets, two soulspheres and medikits behind you.
+- New map options for horde maps (used by Chaingun Carnage, code-side for now): starting loadout (weapons, ammo, max ammo, health, armor), **waves** (things tagged with a wave number wait off-stage and come in when 14 or fewer are left or after 16 s), `hurt` (scales damage you take) and `power` (scales your damage).
+- Tested: a bot that only holds fire and never picks anything up kills 134 of 156 and dies in the last wave, so a real player who grabs the soulspheres wins with it close.
+- Fix: monster hitscan now passes who shot you (needed for the face to look at them).
+
 ## v0.5.0 (vc13) — 2026-11-18 — no-login hub, 4 demo maps, voodoo dolls, conveyors
 - **New front page** (pulselabsstudio.com/EOD/): no sign-in. Big buttons: Play a quick demo, Create a monster, Create a weapon, Edit a map, See the maps, Pulse Forge; the four demo maps with ▶ Play / ✎ Open in editor. Ghost manual and invert on the page. The old account/community page moved to community.html.
 - Editor links: `?demo=<id>` (open), `&go=play` (play), `?gen=monster`, `?gen=weapon`, `?new=1`, `?maps=1`. Straight-to-play links ask the light/dark question after the game instead of over it.

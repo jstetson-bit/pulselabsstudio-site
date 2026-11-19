@@ -3,6 +3,7 @@ const DEMO_MAPS = {
   hangar: { name: 'Hangar of Shit', blurb: 'The classic test map: doors, a lift, nukage, a secret, a glass pane to shoot out.', build: () => buildSampleMap() },
   voodoo: { name: 'Voodoo Express', blurb: 'A voodoo doll on a conveyor opens the monster cages and the exit for you. Flip the switch and watch.', build: () => buildVoodooMap() },
   glass: { name: 'Glass Gallery', blurb: 'Six glass panes: clear, mirror, frosted, stained, bulletproof and Pulse red, with painted monsters behind them.', build: () => buildGlassMap() },
+  chaingun: { name: 'Chaingun Carnage', blurb: 'You start at the far end with a chaingun and a mountain of bullets. Over 100 of them come for you. Burn it all down.', build: () => buildChaingunMap() },
   arena: { name: 'Bestiary Arena', blurb: 'An open-sky arena full of painted monsters from the art library, and painted guns to pick up.', build: () => buildArenaMap() }
 };
 function demoRect(x0, y0, x1, y1, props) { const s = drawShape(rectPts(x0, y0, x1, y1), true); if (props) Object.assign(M.sec[s], props); return s; }
@@ -84,6 +85,30 @@ function buildArenaMap() {
   mons.forEach((m, i) => { const ang = i / mons.length * Math.PI * 2, r = 300; T(demoMonster(m, 900 + i, i % 3 === 0 ? 'heavy' : 'soldier'), 512 + Math.cos(ang) * r, 660 + Math.sin(ang) * r * 0.8, 270, 15); });
   T(2048, 300, 120); T(2048, 724, 120); T(2018, 512, 120); T(2047, 512, 160); T(2012, 512, 512); T(2014, 470, 470); T(2014, 554, 554); T(2018, 200, 200); T(2019, 824, 824);
   T(1, 512, 64, 90);
+  compact();
+}
+function buildChaingunMap() {
+  M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
+  M.hint = 'Hold FIRE. Six waves are coming. Spare ammo and health are behind you.';
+  M.start = { weapons: [5], ammo: { bullets: 999 }, max: { bullets: 999 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
+  const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
+  const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
+  const Yard = demoRect(64, 2304, 960, 2816, { fh: 0, ch: 320, li: 144, ft: 'RROCK19', ct: 'F_SKY1' });
+  const Ex = demoRect(448, -16, 576, 0, { fh: 24, ch: 160, li: 208 });
+  demoWalls({ [Deck]: 'METAL2', [Can]: 'ROCK4', [Yard]: 'ROCK4', [Ex]: 'METAL2' });
+  sectorLines(Deck).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0) M.sd[sd].lo = 'METAL2'; });
+  const k = demoLine(448, -16, 576, -16); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
+  const T = (type, x, y, a = 90, f = 7, wave = 0) => M.t.push(wave ? { x, y, a, type, f, wave } : { x, y, a, type, f });
+  const row = (type, cnt, y, wave, x0 = 96, x1 = 928) => { for (let i = 0; i < cnt; i++) T(type, x0 + (i + 0.5) * ((x1 - x0) / cnt) + ((y * 7 + i * 53) % 36) - 18, y, 270, 7, wave); };
+  // first wave: already standing in the canyon
+  row(3004, 8, 1200, 0); row(3001, 6, 1360, 0); row(3004, 8, 1520, 0); row(3001, 6, 1700, 0); row(3002, 3, 1850, 0);
+  // the rest storm out of the yard in waves
+  const W = [[[3004, 10], [3001, 6]], [[3001, 8], [3002, 5], [9, 4]], [[3004, 12], [9, 6], [65, 2]], [[3002, 8], [3001, 10]], [[9, 8], [65, 4], [3001, 8]], [[3002, 10], [3001, 10], [65, 4], [3004, 10]]];
+  W.forEach((g, wi) => { let y = 2400; g.forEach(([type, cnt]) => { for (let o = 0; o < cnt; o += 10) { row(type, Math.min(10, cnt - o), y, wi + 1, 120, 900); y += 70; } }); });
+  for (let i = 0; i < 8; i++) T(2048, 96 + i * 120, 36);
+  T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 512, 220);
+  T(1, 512, 140, 90);
   compact();
 }
 function loadDemo(id, play) {

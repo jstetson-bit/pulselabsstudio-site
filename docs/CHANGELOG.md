@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.14 — 2026-11-18
+- EOD 0.6.0: Doom status bar with the marine's face; demo map 5 Chaingun Carnage (6 waves, 156 monsters).
+
 ## v0.7.13 — 2026-11-18
 - **AI Toolbox** gets its product page at /ai-toolbox/ and a card in Products (Android, "In the works", no price). Kicked off
   2026-11-18; in-house first. The deploy now copies the ai-toolbox folder.

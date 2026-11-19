@@ -227,6 +227,9 @@ function openSettings() {
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
+  <div class="h">Status bar (in the game)</div>
+  <p class="hint">Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
+  <div class="row">${[['classic', 'Classic'], ['compact', 'Compact'], ['slim', 'Slim']].map(([k, n]) => `<button data-sb="${k}" class="${(S.statusBar || 'classic') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <div class="h">Voodoo dolls</div>
   <p class="hint">Extra Player 1 Starts become voodoo dolls (you spawn at the last one). Show a message when a doll crosses a line or gets hurt?</p>
   <div class="row">${[[true, 'Show'], [false, 'Hide']].map(([k, n]) => `<button data-doll="${k}" class="${(S.dollMsg !== false) === k ? 'on' : ''}">${n}</button>`).join('')}</div>
@@ -247,6 +250,7 @@ function openSettings() {
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
+    b.querySelectorAll('[data-sb]').forEach(x => x.onclick = () => { S.statusBar = x.dataset.sb; saveSettings(); b.querySelectorAll('[data-sb]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-lim]').forEach(x => x.onclick = () => { S.limits = x.dataset.lim === 'true'; saveSettings(); b.querySelectorAll('[data-lim]').forEach(y => y.classList.toggle('on', y === x)); toast('Vanilla limits check ' + (S.limits ? 'on' : 'off')); });
     ch('#stLimHud', e => S.limHud = e.checked); ch('#stLimWarn', e => S.limWarn = e.checked);

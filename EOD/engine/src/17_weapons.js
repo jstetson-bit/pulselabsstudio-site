@@ -167,8 +167,8 @@ function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
 function drawCustomWeapon(g, W, H, u, bx, by) {
   const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
   if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
-  const s = Math.min(W / 320, (H - 20 * u) / 168) * 0.95, c = spriteCanvas(img);
-  g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - 20 * u - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
+  const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, c = spriteCanvas(img);
+  g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - hh - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
 }
 /* ---------- registry ---------- */
 let WEP_SIG = '';

@@ -127,7 +127,7 @@ function drawWeaponRes(g, W, H, u, bx, by) {
   const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
   const firing = p.fireT > 0, fr = firing ? ws[2][Math.min(ws[2].length - 1, Math.floor((6 - p.fireT) / 2))] : ws[1][Math.floor(G.tic / 4) % ws[1].length];
   const main = getSpriteFrame(ws[0], fr, 0); if (!main) return false;
-  const s = Math.min(W / 320, (H - 20 * u) / 168), viewBottom = H - 20 * u;
+  const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168), viewBottom = H - hh;
   const put = f => { if (!f) return; const img = f.img; g.drawImage(spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
   put(main); if (firing && p.fireT > 2 && ws[3]) put(getSpriteFrame(ws[3], ws[4][Math.min(ws[4].length - 1, Math.floor((6 - p.fireT) / 2))], 0));
   return true;
@@ -148,6 +148,7 @@ function drawWeapon(g, W, H, u) {
   else { g.fillRect(cx - 9 * u, base - 34 * u, 18 * u, 34 * u); g.fillStyle = '#222'; g.fillRect(cx - 4 * u, base - 34 * u, 8 * u, 6 * u); }
 }
 function drawHud(g, W, H, u) {
+  if (drawStatusBar(g, W, H)) return;
   const p = G.p, h = 20 * u, y = H - h;
   g.fillStyle = 'rgba(40,36,32,.92)'; g.fillRect(0, y, W, h); g.fillStyle = '#5a5248'; g.fillRect(0, y, W, u);
   const num = (txt, x, lab) => { g.font = `bold ${12 * u}px "Courier New",monospace`; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText(txt, x + u, y + 13 * u + u); g.fillStyle = '#d02020'; g.fillText(txt, x, y + 13 * u); g.font = `${5 * u}px monospace`; g.fillStyle = '#ddd'; g.fillText(lab, x, y + 18.5 * u); };
@@ -155,10 +156,13 @@ function drawHud(g, W, H, u) {
   num(wd.ammo ? String(p.ammo[wd.ammo]) : '--', W * 0.1, 'AMMO');
   num(p.hp + '%', W * 0.28, 'HEALTH');
   // face
+  const fp = sbReady() ? sbPic(faceName()) : null;
+  if (fp) { const fh = (H - y) * 0.94, fw = fh * fp.c.width / fp.c.height; g.imageSmoothingEnabled = false; g.drawImage(fp.c, W * 0.5 - fw / 2, H - fh, fw, fh); } else {
   const fx = W * 0.5, fy = y + 10 * u; g.fillStyle = p.hp > 60 ? '#c8916a' : p.hp > 25 ? '#b8705a' : '#9a4a3a'; g.beginPath(); g.arc(fx, fy, 8 * u, 0, 7); g.fill();
   g.fillStyle = '#000'; g.fillRect(fx - 4 * u, fy - 2 * u, 2 * u, 2 * u); g.fillRect(fx + 2 * u, fy - 2 * u, 2 * u, 2 * u);
   g.fillStyle = p.hurt > 0 ? '#600' : '#000'; g.fillRect(fx - 3 * u, fy + 3 * u, 6 * u, (p.fireT > 0 ? 2 : 1) * u);
   if (p.hp < 50) { g.fillStyle = '#a00'; g.fillRect(fx - 6 * u, fy - 6 * u, 2 * u, 4 * u); }
+  }
   num(p.armor + '%', W * 0.72, 'ARMOR');
   const keys = ['b', 'y', 'r']; keys.forEach((k, i) => { g.fillStyle = p.keys.has(k) ? { b: '#25f', y: '#fd2', r: '#e22' }[k] : '#222'; g.fillRect(W * 0.86, y + (2 + i * 6) * u, 6 * u, 5 * u); });
   g.font = `${5 * u}px monospace`; g.fillStyle = '#ddd'; g.textAlign = 'left'; g.fillText(wd.name.toUpperCase(), W * 0.9, y + 6 * u);
@@ -166,7 +170,7 @@ function drawHud(g, W, H, u) {
 }
 function drawAutomap(g, W, H) {
   const p = G.p, z = Math.min(W, H) / 900;
-  g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(0, 0, W, H - 20 * Math.max(1, Math.round(W / 320)));
+  g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(0, 0, W, H - hudHeight(W, H));
   const tx = (x, y) => [W / 2 + (x - p.x) * z, H / 2 - (y - p.y) * z];
   g.lineWidth = 1;
   for (const l of G.sc.lines) {

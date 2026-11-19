@@ -6,5 +6,5 @@ window.EOD_CONFIG = {
   SUPABASE_URL: '',
   SUPABASE_ANON_KEY: '',
   SITE_NAME: 'EOD · Editor of Doom',
-  VERSION: '0.5.0'
+  VERSION: '0.6.0'
 };

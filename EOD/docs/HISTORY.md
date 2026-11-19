@@ -59,3 +59,8 @@ The story of how EOD came to be, in the owner's words where possible.
 - James: *"I don't want a login screen or anything at the moment. I want it to just be able to be all the options available the second I go to the website… choose play a quick demo or create a monster, create a weapon, or edit a map or see a map. How many maps do we have? We should definitely have a demo map. We should have a few demo maps."*
 - On Kevin's idea: *"Kevin was talking about something about a voodoo doll… some type of placeholder put on a elevator or escalator. It moves down the channel and holds a placement and presses a button… getting to it ends the level immediately."*
 - Built 0.5.0: no-login hub page, four demo maps (Hangar, Voodoo Express, Glass Gallery, Bestiary Arena), voodoo dolls and conveyors working the classic Doom way.
+
+## 2026-11-18 · The marine and the chaingun
+- James: *"We have a smiley face guy at the bottom. He needs to be more Doom-ish. So some kind of soldier guy, you know, with the face when he gets hurt. He goes through the various degrees of being hurt."*
+- And: *"I would love a chain gun. Let's do one where you start off on the other side and you're just mowing down a whole bunch of fucking dudes with a whole bunch of full chain gun ammo. And just a fun way to just burn everything down with a chain gun and just see what happens."*
+- Built 0.6.0: the real Doom status bar with the marine's face (5 hurt levels, looks at the shooter, ouch, grin, rampage, god, dead) and demo map 5, Chaingun Carnage: 156 monsters in six waves, you with a chaingun and 999 bullets. Tuned so you deal 2.5× damage and take 0.2×, because at plain Doom numbers 100+ monsters killed the player in 10 seconds.
