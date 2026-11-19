@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.17 — 2026-11-19
+- Owner: "These need to say last updated with the time and the date stamp to the second … within the last 5 minutes … just now … within the last hour, 1 hour ago." Every time on the downloads pages now reads like `Nov 19, 2026 · 12:06:42 PM (just now)` in the viewer's own time zone: card "Last updated" (was "code touched"), Released, product page "Last updated" / "Last delivered", status "checked", the shelf header and the farm-problem bar. Ages: under 5 min "just now", under an hour "within the last hour", then "1 hour ago" / "N hours ago", "1 day ago" / "N days ago". Date-only values (Built on older builds) show just the date.
+
 ## v0.7.16 — 2026-11-19
 - EOD 0.7.0: King of Shit Hill, Kev's Water Plant Concept, 68 Freedoom maps on the hub (res/freedoom-maps.wad.gz, 2.6 MB).
 

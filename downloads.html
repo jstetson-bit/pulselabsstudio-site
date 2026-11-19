@@ -258,6 +258,9 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function size(b) { if (!b) return '—'; var u = ['B','KB','MB','GB'], i = 0; while (b >= 1024 && i < 3) { b /= 1024; i++; } return b.toFixed(i ? 1 : 0) + ' ' + u[i]; }
   function day(d) { if (!d) return '—'; var t = new Date(String(d).slice(0, 10) + 'T12:00:00'); return isNaN(t) ? d : t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+  function stamp(iso) { if (!iso) return '—'; if (/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return day(iso); var t = new Date(iso); if (isNaN(t)) return day(iso); return t.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) + ' · ' + t.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit' }); }
+  function rel(iso) { var m = (Date.now() - new Date(iso)) / 60000; if (isNaN(m)) return ''; if (m < 5) return 'just now'; if (m < 60) return 'within the last hour'; var h = Math.floor(m / 60); if (h < 24) return h === 1 ? '1 hour ago' : h + ' hours ago'; var dd = Math.floor(h / 24); return dd === 1 ? '1 day ago' : dd + ' days ago'; }
+  function when(iso) { if (!iso) return '—'; if (/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return day(iso); var r = rel(iso); return stamp(iso) + (r ? ' (' + r + ')' : ''); }
   function ago(iso) { if (!iso) return '—'; var m = Math.round((Date.now() - new Date(iso)) / 60000); return m < 2 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : m < 10080 ? Math.round(m / 1440) + ' days ago' : day(iso); }
   function onShelf(p, s) { return (p.downloads || []).some(function (d) { return d.platform === s; }); }
   function dlFor(p, s) { return (p.downloads || []).filter(function (d) { return d.platform === s && d.b; })[0] || (p.downloads || []).filter(function (d) { return d.platform === s; })[0] || {}; }
@@ -274,7 +277,7 @@
   function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600); }
   function alertBar() {
     var w = manifest.watcher;
-    return w && w.error ? '<div class="alert"><b>Farm watcher problem</b> (' + ago(w.at) + '): ' + esc(w.error) + '<br><span class="count">New builds may not be showing until this clears.</span></div>' : '';
+    return w && w.error ? '<div class="alert"><b>Farm watcher problem</b> (' + when(w.at) + '): ' + esc(w.error) + '<br><span class="count">New builds may not be showing until this clears.</span></div>' : '';
   }
 
   // ---------- views ----------
@@ -294,7 +297,7 @@
 
   function viewShelves() {
     var w = manifest.watcher;
-    app.innerHTML = alertBar() + '<h1>Downloads</h1><p class="sub">Pick a shelf. Last change ' + (w && w.ok ? ago(w.ok) : day(manifest.updated)) + '.</p><div class="grid jumpin">' +
+    app.innerHTML = alertBar() + '<h1>Downloads</h1><p class="sub">Pick a shelf. Last updated ' + (w && w.ok ? when(w.ok) : when(manifest.updated)) + '.</p><div class="grid jumpin">' +
       SHELVES.map(function (s) {
         var n = products(s.id).length;
         return '<button class="card shelf" data-go="' + s.id + '"><div class="art">' + s.art + '</div><div class="body"><div class="name">' + s.title +
@@ -312,9 +315,9 @@
           '<div class="body"><div class="row"><div class="icon"' + (p.icon ? ' data-img="' + handle(p.icon) + '"' : '') + '></div><div><div class="name">' + esc(p.name) + '</div>' +
           '<div class="sys">' + sysBadges(p) + signerBadge(d) + '</div></div></div>' +
           (p.purpose ? '<div class="purpose">' + esc(p.purpose) + '</div>' : '') +
-          (p.status && p.status.lastCommitAt ? '<div class="touched">● code touched ' + ago(p.status.lastCommitAt) + '</div>' : '') +
-          '<div class="meta" style="margin-top:8px"><span>Version</span><b>' + esc(d.version || '—') + '</b><span>Built</span><b>' + day(d.buildDate) +
-          '</b><span>Released</span><b>' + day(d.releaseDate) + '</b><span>Size</span><b>' + size(d.size) + '</b></div></div></div>' +
+          (p.status && p.status.lastCommitAt ? '<div class="touched">● Last updated ' + when(p.status.lastCommitAt) + '</div>' : '') +
+          '<div class="meta" style="margin-top:8px"><span>Version</span><b>' + esc(d.version || '—') + '</b><span>Built</span><b>' + when(d.builtAt || d.buildDate) +
+          '</b><span>Released</span><b>' + when(d.releasedAt || d.published || d.releaseDate) + '</b><span>Size</span><b>' + size(d.size) + '</b></div></div></div>' +
           '<div class="quick"><button class="qbtn" data-dl="' + handle(d) + '">Download</button><button class="qbtn share" data-share="' + handle(d) + '" data-pname="' + esc(p.name) + '">Share</button></div></div>';
       }).join('') : '<div class="empty">Nothing on this shelf yet.</div>') + '</div>';
     fillImages(app); restoreScroll(s.id);
@@ -326,10 +329,10 @@
     if (!t && !nb.version) return '';
     return '<div class="stand"><h3>Where it stands</h3>' +
       (t && t.state ? '<div><span class="k">State</span>' + esc(t.state) + '</div>' : '') +
-      (t && t.lastCommitAt ? '<div><span class="k">Last touched</span>' + ago(t.lastCommitAt) + ' · ' + (t.commitUrl ? '<a href="' + esc(t.commitUrl) + '" target="_blank" rel="noopener">' + esc(t.lastCommit) + '</a>' : esc(t.lastCommit)) + '</div>' : '') +
-      (nb.version ? '<div><span class="k">Last delivered</span>v' + esc(nb.version) + ' · ' + ago(nb.releasedAt || nb.published || nb.releaseDate) + (nb.signer === 'debug' ? ' · test build' : '') + '</div>' : '') +
+      (t && t.lastCommitAt ? '<div><span class="k">Last updated</span>' + when(t.lastCommitAt) + ' · ' + (t.commitUrl ? '<a href="' + esc(t.commitUrl) + '" target="_blank" rel="noopener">' + esc(t.lastCommit) + '</a>' : esc(t.lastCommit)) + '</div>' : '') +
+      (nb.version ? '<div><span class="k">Last delivered</span>v' + esc(nb.version) + ' · ' + when(nb.releasedAt || nb.published || nb.releaseDate) + (nb.signer === 'debug' ? ' · test build' : '') + '</div>' : '') +
       (t && t.branch ? '<div><span class="k">Where the code is</span><a href="' + esc(t.branchUrl) + '" target="_blank" rel="noopener">' + esc(t.repo.split('/')[1] + ' · ' + t.branch) + '</a></div>' : '') +
-      (t && t.summary ? '<div style="margin-top:6px"><a href="#" data-stand="1">Status notes ▾</a> <span class="count">(' + esc(t.summaryFrom || 'STATUS') + ', checked ' + ago(t.checkedAt) + ')</span></div><pre>' + esc(t.summary) + '</pre>' : '') +
+      (t && t.summary ? '<div style="margin-top:6px"><a href="#" data-stand="1">Status notes ▾</a> <span class="count">(' + esc(t.summaryFrom || 'STATUS') + ', checked ' + when(t.checkedAt) + ')</span></div><pre>' + esc(t.summary) + '</pre>' : '') +
       '</div>';
   }
   function latestOf(p) { var seen = {}, out = []; (p.downloads || []).forEach(function (d) { if (!seen[d.platform]) { seen[d.platform] = 1; out.push(d); } }); return out; }
@@ -355,8 +358,8 @@
       '<button class="report" data-report="' + esc(p.id) + '">⚠ Report a problem with ' + esc(p.name) + '</button>' +
       '<div id="tkList"></div>' +
       (p.description ? '<p>' + esc(p.description) + '</p>' : '') +
-      '<div class="jmeta"><div>Version<b>' + esc(d.version || '—') + '</b></div><div>Built<b>' + day(d.buildDate) + '</b></div>' +
-      '<div>Released<b>' + day(d.releaseDate) + '</b></div><div>Size<b>' + size(d.size) + '</b></div></div>' +
+      '<div class="jmeta"><div>Version<b>' + esc(d.version || '—') + '</b></div><div>Built<b>' + when(d.builtAt || d.buildDate) + '</b></div>' +
+      '<div>Released<b>' + when(d.releasedAt || d.published || d.releaseDate) + '</b></div><div>Size<b>' + size(d.size) + '</b></div></div>' +
       plats.map(function (pl) {
         var list = (p.downloads || []).filter(function (x) { return x.platform === pl; });
         return '<h3>Every build · ' + esc((shelfOf(pl) || {}).sys || pl) + ' <span class="count">(' + list.length + ')</span></h3><div class="hist">' +
