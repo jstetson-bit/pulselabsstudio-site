@@ -92,6 +92,7 @@ function Invoke-PlsPublish {
           $new += [pscustomobject]@{
             platform = $f.platform; version = $f.version; file = $f.fileName; size = [long]$f.assetSize; signer = 'n/a'; sha256 = ''
             buildDate = $f.releaseDate; releaseDate = $f.releaseDate; published = (Get-Date).ToString('o'); releasedAt = [string]$f.releasedAt
+            builtAt = $(if ($f.builtAt) { [string]$f.builtAt } else { [string]$f.releasedAt })
             notes = [string]$f.notes; source = [string]$f.source; sourceUrl = [string]$f.sourceUrl; archived = $true; b = $null; k = $null }
           $changes++; continue
         }
@@ -103,7 +104,9 @@ function Invoke-PlsPublish {
         $new += [pscustomobject]@{
           platform = $f.platform; version = $f.version; file = $fi.Name; size = $fi.Length; signer = $signer
           sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $fi.FullName).Hash.ToLower()
-          buildDate = $(if ($f.buildDate) { $f.buildDate } else { $fi.LastWriteTime.ToString('yyyy-MM-dd') })
+          # builtAt: full time to the second. Watcher files carry their Release upload time; hand publishes use the file's own time.
+          builtAt = $(if ($f.builtAt) { [string]$f.builtAt } else { $fi.LastWriteTime.ToUniversalTime().ToString('o') })
+          buildDate = $(if ($f.buildDate) { $f.buildDate } elseif ($f.builtAt) { ([datetime]$f.builtAt).ToString('yyyy-MM-dd') } else { $fi.LastWriteTime.ToString('yyyy-MM-dd') })
           releaseDate = $(if ($f.releaseDate) { $f.releaseDate } else { $today })
           published = (Get-Date).ToString('o'); releasedAt = $(if ($f.releasedAt) { [string]$f.releasedAt } else { (Get-Date).ToUniversalTime().ToString('o') }); notes = [string]$f.notes; source = [string]$f.source
           sourceUrl = [string]$f.sourceUrl; archived = $false; b = $sealed.b; k = $sealed.k
