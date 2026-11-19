@@ -242,13 +242,13 @@
       return passwordKey(pw, b64(u.salt), vault.iter).then(function (kek) { return open(kek, b64(u.wrap)); });
     }).then(function (mk) {
       mk = new Uint8Array(mk);
-      return unlockWith(mk).then(function () { try { sessionStorage.setItem('pls.vk', toB64(mk)); } catch (e2) {} });
-    }).then(function () { document.getElementById('pw').value = ''; try { sessionStorage.setItem('pls.who', name.trim()); } catch (e3) {} showApp(); })
+      return unlockWith(mk).then(function () { try { localStorage.setItem('pls.vk', toB64(mk)); } catch (e2) {} });
+    }).then(function () { document.getElementById('pw').value = ''; try { localStorage.setItem('pls.who', name.trim()); } catch (e3) {} showApp(); })
     .catch(function (x) { err.textContent = x && x.message === 'novault' ? 'The vault isn\'t set up yet.' : 'That name or password didn\'t work.'; })
     .then(function () { goBtn.disabled = false; goBtn.textContent = '✔'; });
   });
   document.getElementById('outBtn').onclick = function () {
-    try { sessionStorage.removeItem('pls.vk'); } catch (e) {}
+    try { localStorage.removeItem('pls.vk'); localStorage.removeItem('pls.who'); sessionStorage.removeItem('pls.vk'); } catch (e) {}
     MK = null; manifest = null; blobCache = {}; imgUrls = {}; refs = {}; app.innerHTML = '';
     app.classList.add('hidden'); lockView.classList.remove('hidden'); this.classList.add('hidden');
     history.replaceState(null, '', location.pathname);
@@ -433,7 +433,7 @@
     var x = (p.downloads || [])[+document.getElementById('tkVer').value] || {};
     var now = new Date(), pad = function (n) { return ('0' + n).slice(-2); };
     var id = 'T-' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + '-' + Math.random().toString(36).slice(2, 6);
-    var who = ''; try { who = sessionStorage.getItem('pls.who') || ''; } catch (e) {}
+    var who = ''; try { who = localStorage.getItem('pls.who') || sessionStorage.getItem('pls.who') || ''; } catch (e) {}
     var t = { id: id, product: p.id, productName: p.name, version: x.version || '', platform: x.platform || '', source: x.source || '', who: who,
               when: now.toISOString(), title: text.split('\n')[0].slice(0, 120), text: text, hasLog: !!log.trim(), hasShot: !!tkShot,
               device: navigator.userAgent, status: 'new' };
@@ -500,8 +500,8 @@
   try { inv(localStorage.getItem('pls.invert') === '1'); } catch (e) {}
   document.getElementById('invBtn').onclick = function () { inv(!document.documentElement.classList.contains('inv')); };
 
-  var saved = null; try { saved = sessionStorage.getItem('pls.vk'); } catch (e) {}
-  if (saved) loadVault().then(function (v) { vault = v; return unlockWith(b64(saved)); }).then(showApp).catch(function () { try { sessionStorage.removeItem('pls.vk'); } catch (e) {} });
+  var saved = null; try { saved = localStorage.getItem('pls.vk') || sessionStorage.getItem('pls.vk'); } catch (e) {}
+  if (saved) loadVault().then(function (v) { vault = v; return unlockWith(b64(saved)); }).then(showApp).catch(function () { try { localStorage.removeItem('pls.vk'); sessionStorage.removeItem('pls.vk'); } catch (e) {} });
 
   // ---------- shelf art ----------
   function artPC() {

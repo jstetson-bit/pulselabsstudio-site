@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.19 — 2026-11-19
+- Owner: "I don't want my downloads, once I've logged in … to log me out … I don't have to keep typing that shit … Once I'm in, I
+  don't need to re-sign in." Sign-in now stays on that device until **Sign out** (⏻) is pressed: the unlock is kept in the
+  browser's local storage instead of per-tab session storage (which forgot it whenever the tab or browser closed). Applies to every
+  sign-in (ElFuego, KatieCakes). Sign out clears it. If the vault's lock is ever changed, the page asks once more.
+
 ## v0.7.18 — 2026-11-19
 - Fix: the repo held both `EOD/` and a lowercase `eod/index.html` (the /eod redirect). Windows treats those as the same folder, so
   every Windows clone (the farm's site watcher) broke on pull from 2026-11-18 ~9:44 PM and the downloads page stopped updating for
