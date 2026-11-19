@@ -190,7 +190,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.4.3', VC = 12;
+const VERSION = '0.5.0', VC = 13;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -743,7 +743,7 @@ function analyzeMap() {
     if (THINGS[t.type] && THINGS[t.type].cat !== 'player' && sectorAt(t.x, t.y) < 0) out.push({ sev: 'warn', msg: 'Thing ' + i + ' (' + thingName(t.type) + ') is outside the map.', kind: 't', i });
     if (!THINGS[t.type]) out.push({ sev: 'warn', msg: 'Thing ' + i + ' has unknown type ' + t.type + ' (kept, but the Demo will not show it).', kind: 't', i });
   });
-  const p1 = M.t.find(t => t.type === 1); if (p1 && sectorAt(p1.x, p1.y) < 0) out.push({ sev: 'error', msg: 'Player 1 Start is outside the map.', kind: 't', i: M.t.indexOf(p1) });
+  const p1 = realStart(); if (p1 && sectorAt(p1.x, p1.y) < 0) out.push({ sev: 'error', msg: 'Player 1 Start is outside the map.', kind: 't', i: M.t.indexOf(p1) });
   return out;
 }
 
@@ -830,6 +830,7 @@ const LINE_SPECIALS = [
   [18, 'S1 Floor raise to next higher'], [23, 'S1 Floor lower to lowest'], [38, 'W1 Floor lower to lowest'], [82, 'WR Floor lower to lowest'], [5, 'W1 Floor raise to lowest ceiling'], [101, 'S1 Floor raise to lowest ceiling'], [19, 'W1 Floor lower to highest neighbor'], [102, 'S1 Floor lower to highest neighbor'],
   [97, 'WR Teleport'], [39, 'W1 Teleport'],
   [35, 'W1 Light to 35'], [13, 'W1 Light to 255'],
+  [252, 'Conveyor: carries things on tagged floors (direction and speed = this line)'], [253, 'Conveyor: carries things + scrolls tagged floors'], [251, 'Scroll tagged floor texture (direction = this line)'],
   [11, 'S1 Exit level'], [52, 'W1 Exit level'], [51, 'S1 Secret exit'], [124, 'W1 Secret exit'],
   [48, 'Scrolling wall (left)']
 ];
@@ -1015,7 +1016,7 @@ function importWads(list, fname, extraPack, notes = []) {
     if ((S.artPack || 'freedoom') === 'freedoom') loadFreedoom(true);
     const kept = keepImportedArt(false);
     const rep = recognizeReport(r.note, notes, mapPack, iwad) + (kept ? `<p class="hint">Kept ${kept} of this map's own textures inside the map so they survive saving (File → My textures).</p>` : '');
-    if (play) { const p1 = M.t.find(t => t.type === 1); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
+    if (play) { const p1 = realStart(); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
     else modal('Imported ' + label + ' from ' + fname, rep, [{ label: '▶ Play it', cls: 'demo', fn: () => setTimeout(() => startDemo(), 50) }, { cancel: 1 }]);
   };
   if (maps.length === 1) { open(0, false); return; }
@@ -1956,6 +1957,7 @@ function openFileMenu() {
   modal('File', `<div class="list">
   <button id="fAbout">About EOD · version ${VERSION}</button>
   <button id="fUpd">Check for updates</button>
+  <button id="fDemo" class="demo">▶ Demo maps (Hangar, Voodoo Express, Glass Gallery, Bestiary Arena)</button>
   <button id="fPub" class="demo">Publish to EOD (share it)</button>
   <button id="fTex">My textures (add your own walls and floors)</button>
   <button id="fMon">🎲 Monster generator / my monsters</button>
@@ -1972,6 +1974,7 @@ function openFileMenu() {
     b.querySelector('#fUpd').onclick = () => { closeModal(); checkUpdates(); };
     b.querySelector('#fTex').onclick = () => { closeModal(); openMyTextures(); };
     b.querySelector('#fMon').onclick = () => { closeModal(); openBestiary(); };
+    b.querySelector('#fDemo').onclick = () => { closeModal(); openDemoMaps(); };
     b.querySelector('#fWep').onclick = () => { closeModal(); openArmory(); };
     b.querySelector('#fPub').onclick = () => { closeModal(); eodPublish(); };
     b.querySelector('#fLib').onclick = () => { closeModal(); eodLibrary(); };
@@ -2008,6 +2011,9 @@ function openSettings() {
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
+  <div class="h">Voodoo dolls</div>
+  <p class="hint">Extra Player 1 Starts become voodoo dolls (you spawn at the last one). Show a message when a doll crosses a line or gets hurt?</p>
+  <div class="row">${[[true, 'Show'], [false, 'Hide']].map(([k, n]) => `<button data-doll="${k}" class="${(S.dollMsg !== false) === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <div class="h">Vanilla limits check</div>
   <p class="hint">Original Doom (and Chocolate Doom) crash on busy views: "visplane overflow", too many drawsegs or sprites. EOD and GZDoom have no such limits. Turn this on if your map is meant for vanilla.</p>
   <div class="row">${[[false, 'Off'], [true, 'On']].map(([k, n]) => `<button data-lim="${k}" class="${!!S.limits === k ? 'on' : ''}">${n}</button>`).join('')}</div>
@@ -2025,6 +2031,7 @@ function openSettings() {
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
+    b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-lim]').forEach(x => x.onclick = () => { S.limits = x.dataset.lim === 'true'; saveSettings(); b.querySelectorAll('[data-lim]').forEach(y => y.classList.toggle('on', y === x)); toast('Vanilla limits check ' + (S.limits ? 'on' : 'off')); });
     ch('#stLimHud', e => S.limHud = e.checked); ch('#stLimWarn', e => S.limWarn = e.checked);
     b.querySelector('#stLimScan').onclick = () => { closeModal(); scanVanillaLimits(); };
@@ -2171,9 +2178,10 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
   const tp = tex.px; let lastL = -1, sp = null;
+  const so = !ceil && typeof G !== 'undefined' && G && G.secs && G.secs[si], scx = so ? so.sx || 0 : 0, scy = so ? so.sy || 0 : 0;
   for (let y = ya; y <= yb; y++) {
     const dy = ceil ? (hz - (y + 0.5)) : ((y + 0.5) - hz); if (dy <= 0) continue;
-    const d = dz * proj / dy; const wx = cam.x + rdx * d, wy = cam.y + rdy * d;
+    const d = dz * proj / dy; const wx = cam.x + rdx * d - scx, wy = cam.y + rdy * d - scy;
     const l = shadeLvl(li, d); if (l !== lastL) { sp = tex.shade(l); lastL = l; }
     const o = y * W + x; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
     void tp;
@@ -2238,7 +2246,7 @@ const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const KEYNAME = { b: 'blue', y: 'yellow', r: 'red' };
 
 function startDemo(opts = {}) {
-  const p1 = M.t.find(t => t.type === 1);
+  const p1 = realStart();
   if (!p1 && !opts.at) { toast('Place a Player 1 Start first (Things mode, double-tap, pick Player 1 Start)', 4000); return; }
   const start = opts.at || { x: p1.x, y: p1.y, a: p1.a };
   if (sectorAt(start.x, start.y) < 0) { toast('Player start is outside the map. Run Map Analysis.', 3500); return; }
@@ -2246,7 +2254,7 @@ function startDemo(opts = {}) {
   if (opts.arrange) enterArrange();
 }
 function startVisual() {
-  const p1 = M.t.find(t => t.type === 1);
+  const p1 = realStart();
   let at = null;
   if (sectorAt(E.view.x, E.view.y) >= 0) at = { x: E.view.x, y: E.view.y, a: p1 ? p1.a : 90 };
   else if (p1) at = { x: p1.x, y: p1.y, a: p1.a };
@@ -2275,6 +2283,8 @@ function initGame(mode, start) {
   if (mode === 'visual') { G.p.has = new Set([2, 3, 4, 5, 6, 7]); }
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
+  G.start = start; voodooInit();
+  if (M.hint && mode === 'play') msg(M.hint);
   msg(mode === 'visual' ? '3D Visual mode: aim the crosshair at a surface, then use the buttons' : (M.name + ' — find the exit'));
   requestAnimationFrame(gameFrame);
 }
@@ -2433,7 +2443,7 @@ function activate(l, how, fromFront) {
   else if ([23, 38, 82].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjFloor(s)));
   else if ([5, 101].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjCeil(s)));
   else if ([19, 102].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, highestAdjFloor(s)));
-  else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { G.p.x = dst.x; G.p.y = dst.y; G.p.a = dst.a * Math.PI / 180; G.p.vx = G.p.vy = 0; G.flash = 8; sfx('tele'); } else did = false; }
+  else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { const who = G.actor || G.p; who.x = dst.x; who.y = dst.y; who.a = dst.a * Math.PI / 180; who.vx = who.vy = 0; if (!G.actor) { G.flash = 8; sfx('tele'); } else who.sec = gSectorAt(who.x, who.y); } else did = false; }
   else if (sp === 35) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 35);
   else if (sp === 13) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 255);
   else if ([11, 52, 51, 124].includes(sp)) { endLevel([51, 124].includes(sp)); }
@@ -2582,11 +2592,11 @@ function monsterAttack(e, dist) {
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
   if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
-function tickPickups() {
-  const p = G.p;
+function tickPickups(actor) {
+  const p = G.p, q = actor || G.p;
   for (const e of G.ents) {
     if (!e.alive || !e.d.give && e.d.cat !== 'key') continue;
-    if (Math.hypot(e.x - p.x, e.y - p.y) > 32 || Math.abs(e.z - p.z) > 24) continue;
+    if (Math.hypot(e.x - q.x, e.y - q.y) > 32 || Math.abs(e.z - q.z) > 24) continue;
     const g = e.d.give || {}; let took = false;
     if (e.d.cat === 'key') { p.keys.add(e.d.key); took = true; }
     if (g.hp) { if (p.hp < g.max) { p.hp = Math.min(g.max, p.hp + g.hp); took = true; } }
@@ -2614,6 +2624,7 @@ function gameTic() {
   p.vx += (mx - p.vx) * 0.35; p.vy += (my - p.vy) * 0.35;
   const ox = p.x, oy = p.y;
   if (!p.dead && (Math.abs(p.vx) > 0.01 || Math.abs(p.vy) > 0.01)) tryMove(p, p.vx, p.vy, true);
+  { const cs = G.mode === 'play' && G.secs[p.sec]; if (cs && (cs.cvx || cs.cvy) && p.z <= cs.fh + 1 && !p.dead) tryMove(p, cs.cvx, cs.cvy, true); }
   const ns = gSectorAt(p.x, p.y);
   if (ns < 0 && !p.noclip) { p.x = ox; p.y = oy; } else if (ns >= 0) p.sec = ns;
   const S0 = G.secs[p.sec];
@@ -2630,7 +2641,7 @@ function gameTic() {
     if (p.cool > 0) p.cool--; if (p.fireT > 0) p.fireT--;
     if ((IN.fire || IN.firePad) && !p.dead) fireWeapon(); else p.refire = false;
     if (IN.use) { IN.use = false; playerUse(); }
-    tickMonsters(); tickProjs(); tickPickups();
+    tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls();
     // sector damage / secrets
     if (p.z <= S0.fh + 1) {
       const dmg = { 5: 10, 7: 5, 16: 20, 4: 20, 11: 20 }[S0.sp];
@@ -2689,6 +2700,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  if (window.__firstRunLater) { window.__firstRunLater = 0; setTimeout(firstRun, 300); }
   LIM.on = false;
   if (EODP.playOnly) { eodLeavePlay(); return; }
   if (GL.arrange) exitArrange(false);
@@ -2703,7 +2715,7 @@ function showOver() {
   const pct = (a, b) => b ? Math.round(a * 100 / b) + '%' : '—';
   if (g.k === 'dead') o.innerHTML = `<div class="box"><h1>YOU DIED</h1><p>Tap the green check to try again.</p><div class="row"><button class="okbtn" id="ovOk"></button><button class="cancelbtn" id="ovX"></button></div></div>`;
   else o.innerHTML = `<div class="box"><h1>${g.secret ? 'SECRET EXIT!' : 'LEVEL COMPLETE'}</h1><div>${esc(M.name)}</div><div class="stats">KILLS&nbsp;&nbsp; ${pct(G.kills, G.totK)}<br>ITEMS&nbsp;&nbsp; ${pct(G.items, G.totI)}<br>SECRET&nbsp; ${pct(G.secrets, G.totS)}<br>TIME&nbsp;&nbsp;&nbsp; ${Math.floor(g.time / 60)}:${String(Math.floor(g.time % 60)).padStart(2, '0')}</div><div class="row"><button class="okbtn" id="ovOk" title="Play again"></button><button class="cancelbtn" id="ovX" title="Back to editor"></button></div></div>`;
-  $('#ovOk').onclick = () => { const p1 = M.t.find(t => t.type === 1); o.hidden = true; initGame('play', { x: p1.x, y: p1.y, a: p1.a }); };
+  $('#ovOk').onclick = () => { const p1 = realStart(); o.hidden = true; initGame('play', { x: p1.x, y: p1.y, a: p1.a }); };
   $('#ovX').onclick = () => exitGame();
 }
 
@@ -2711,6 +2723,7 @@ function showOver() {
 const frameOf = (seq, t, sp) => seq[Math.floor(t / sp) % seq.length];
 function gameSprites() {
   const out = [], cam = G.p, useRes = RES.packs.length > 0 && !!resPal();
+  dollSprites(out);
   const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
     if (e.d.cw) { if (e.alive) out.push({ x: e.x, y: e.y, z: e.z, img: weaponPickupImg(e.type, e.d.cw), light: lightAt(e), id: e.ti }); continue; }
@@ -2994,6 +3007,7 @@ function openManual() {
 <li><b>Outdoors:</b> select a sector and press <b>Make ceiling sky</b>.</li>
 <li><b>Tagged actions:</b> give a line an action and a tag (<b>New tag</b>), then give the target sector the same tag. The <b>Tags</b> explorer shows every pair.</li>
 <li><b>Secret:</b> set a sector's Effect to <i>Secret area</i>.</li>
+<li><b>Voodoo doll:</b> place more than one Player 1 Start. You spawn at the <i>last</i> one; every other one is a voodoo doll. Whatever happens to the doll happens to you: walk-over lines it crosses fire as if you crossed them, items it touches are yours, damage hurts you, and if it gets crushed you die. Put a doll on a <b>conveyor</b> (line action 252 or 253 on any line, tagged to the floor; the line's direction and length set the direction and speed) and it rides into walk-over lines to open doors, release monsters or end the level, all without scripting. The demo map <b>Voodoo Express</b> shows it.</li>
 <li><b>Glass:</b> select a line between two areas (Linedefs mode) and press <b>🪟 Make glass</b>. Every part is a switch: see-through (and how much), tint color, stained-glass pattern from the middle texture, real reflection (strength, side-angle shine, distance), shine streaks, breakable (strength, cracks, flying shards, shards left on the floor, sounds, monsters can break it), blocks walking, stops bullets, monsters can see through. Quick looks: Clear window, Mirror, Frosted, Stained, Bulletproof, Pulse red, Ghost pane. Glass lines show light blue on the map. The test map has a pane between the corridor and the yard: shoot it out.</li></ul>
 <h3>Demo controls</h3>
 <ul><li>Left stick moves and strafes. Drag anywhere else (or drag across FIRE) to turn. <b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap.</li>
@@ -3067,7 +3081,7 @@ function boot() {
   addEventListener('keyup', e => gameKey(e, false));
   $('#btnFile').onclick = openFileMenu; $('#btnInfo').onclick = openManual; $('#btnInvert').onclick = toggleInvert; $('#btnSettings').onclick = openSettings;
   $('#gInfo').innerHTML = $('#btnInfo').innerHTML; $('#gInvert').innerHTML = $('#btnInvert').innerHTML;
-  $('#gInfo').onclick = openManual; $('#gInvert').onclick = toggleInvert; $('#gExit').onclick = () => { if (window.NSDE_EMBED) { const p1 = M.t.find(t => t.type === 1); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return; } exitGame(); };
+  $('#gInfo').onclick = openManual; $('#gInvert').onclick = toggleInvert; $('#gExit').onclick = () => { if (window.NSDE_EMBED) { const p1 = realStart(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return; } exitGame(); };
   $('#gArrange').onclick = () => GL.arrange ? exitArrange(true) : enterArrange();
   $('#arrOk').onclick = () => exitArrange(true); $('#arrCancel').onclick = () => exitArrange(false);
   $('#drawOk').onclick = () => finishDraw(E.draw.length >= 3); $('#drawCancel').onclick = () => { E.draw = []; E.drawPreview = null; edRedraw(); toast('Drawing cancelled'); };
@@ -3086,7 +3100,7 @@ function boot() {
     M = window.NSDE_EMBED.map; document.title = (M.name || 'Map') + ' · made with EOD · Editor of Doom';
     $('#app').style.display = 'none'; $('#props').style.display = 'none'; $('#gExit').title = 'Restart';
     E.mode = 'sectors'; buildBars(); edResize();
-    const p1 = M.t.find(t => t.type === 1);
+    const p1 = realStart();
     if (S.theme == null) { S.theme = 'device'; LS.set('settings', S); }
     applyArtSetting(); syncCustomTex(true); syncMonsters(); syncWeapons(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
   }
@@ -3094,7 +3108,7 @@ function boot() {
   if (saved && saved.l && saved.l.length) M = saved; else buildSampleMap();
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
-  if (S.theme == null) firstRun();
+  if (S.theme == null) { if (/go=play/.test(location.search)) window.__firstRunLater = 1; else firstRun(); } // straight-to-play links ask after the game
   pullAccountBinds(); applyArtSetting(); artManifest().then(artPreload); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
 }
 
@@ -3245,8 +3259,15 @@ function openControls() {
 const EODP = { cloudId: null, remixOf: null, title: '', description: '', published: true, allowRemix: true, allowDownload: true, playOnly: null };
 function eodOnline() { return !!(window.EODB && window.EOD); }
 async function eodBoot() {
+  const q = new URLSearchParams(location.search);
+  // hub links: work with or without accounts
+  if (q.get('demo')) { loadDemo(q.get('demo'), q.get('go') === 'play'); history.replaceState(null, '', 'editor.html'); return; }
+  if (q.get('gen') === 'monster') { setTimeout(() => openMonsterGen(), 300); history.replaceState(null, '', 'editor.html'); return; }
+  if (q.get('gen') === 'weapon') { setTimeout(() => openWeaponGen(), 300); history.replaceState(null, '', 'editor.html'); return; }
+  if (q.get('new')) { pushUndo(); M = emptyMap(); M.mon = {}; M.wep = {}; clearSel(); mapChanged(); zoomFit(); history.replaceState(null, '', 'editor.html'); toast('Blank map. Start drawing with Draw.'); return; }
+  if (q.get('maps')) { setTimeout(openDemoMaps, 300); history.replaceState(null, '', 'editor.html'); return; }
   if (!eodOnline()) return;
-  const p = new URLSearchParams(location.search);
+  const p = q;
   const play = p.get('play'), edit = p.get('map'), remix = p.get('remix'), wad = p.get('wad'), id = play || edit || remix || wad;
   if (!id) return;
   let m; try { m = await EODB.getMap(id); } catch (e) { toast('Could not load that map: ' + e.message, 5000); return; }
@@ -3254,7 +3275,7 @@ async function eodBoot() {
   if (play) {
     EODP.playOnly = { id, title: m.title, author: m.author };
     const keep = M; M = m.data; compact(); syncCustomTex(true); syncMonsters(); syncWeapons();
-    const p1 = M.t.find(t => t.type === 1);
+    const p1 = realStart();
     if (!p1) { M = keep; return toast('That map has no Player 1 Start', 4000); }
     initGame('play', { x: p1.x, y: p1.y, a: p1.a });
     $('#gTitle').textContent = '▶ ' + m.title + ' · by ' + m.author;
@@ -3544,7 +3565,7 @@ const MONF = new Map();
 function monFrames(type, d, rot) {
   const key = type + ':' + JSON.stringify(d.look) + d.arch + (rot ? ':' + rot : '');
   let f = MONF.get(key); if (f) return f;
-  if (d.look.art) { const af = artMonFrames(d, rot); if (af) { MONF.set(key, af); return af; } }
+  if (d.look.art) { const af = artMonFrames(d, rot); if (af) { MONF.set(key, af); return af; } artPreload(); const ph = SPR.artWait || (SPR.artWait = mkSprite('artWait', 1, 1, () => { })); const o = {}; 'ABCDEFGHIJKL'.split('').forEach(k => o[k] = ph); return o; }
   const sz = d.look.size || 1, W_ = Math.round((d.arch === 'crawler' ? 90 : d.arch === 'floater' ? 60 : 48) * sz), H_ = Math.round((d.arch === 'crawler' ? 56 : 66) * sz);
   f = {}; const FR = 'ABCDEFGHIJKL';
   for (let i = 0; i < FR.length; i++) {
@@ -3899,6 +3920,7 @@ function drawGun(g, w, h, d, firing, side) { return side ? drawGunSide(g, w, h, 
 const WEPF = new Map();
 function weaponArt(id, d) {
   const key = id + JSON.stringify(d.look) + d.cls; let a = WEPF.get(key); if (a) return a;
+  if (d.look.art && !artWep(d.look.art)) { const ph = SPR.artWait || (SPR.artWait = mkSprite('artWait', 1, 1, () => { })); return { idle: ph, fire: ph, pick: ph }; }
   if (d.look.art) { const af = artWepFrames(d, id); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
   const W_ = 160, H_ = 120;
   a = { idle: mkSprite('w' + id + 'a', W_, H_, (g, w, h) => drawGun(g, w, h, d, false)), fire: mkSprite('w' + id + 'b', W_, H_, (g, w, h) => drawGun(g, w, h, d, true)), pick: mkSprite('w' + id + 'p', Math.round(48 + 24 * d.look.length), 20, (g, w, h) => drawGun(g, w, h, d, false, true)) };
@@ -4472,6 +4494,172 @@ function artPickFor(kind, want) { // random library entry, preferring a matching
   const pool = match.length ? match : list; return pool[Math.floor(Math.random() * pool.length)];
 }
 function artOptions(kind) { const list = ARTL.man ? ARTL.man[kind].filter(x => !x.hide) : []; return Object.assign({ '': kind === 'monsters' ? 'Old style (drawn by code)' : 'Old style (drawn by code)' }, Object.fromEntries(list.map(x => [x.id, x.name]))); }
+
+/* ================= CONVEYORS + VOODOO DOLLS =================
+   Conveyors (Boom line actions, work in GZDoom too):
+     251 scroll the tagged floors' texture, 252 carry things on the tagged floors, 253 both.
+     Direction and speed come from the line itself: its length / 32 = units per tic.
+   Voodoo dolls (classic Doom trick): a map with more than one Player 1 Start spawns you at the LAST one;
+   every other Player 1 Start becomes a doll. Anything that happens to a doll happens to you: walk-over lines
+   it crosses fire as if you crossed them, items it touches are yours, damage it takes is yours, and if it is
+   crushed you die. Mappers ride dolls on conveyors to run scripted events with no scripting language. */
+function playerStarts(map) { return (map || M).t.filter(t => t.type === 1); }
+function realStart(map) { const s = playerStarts(map); return s.length ? s[s.length - 1] : null; }
+function voodooInit() {
+  G.dolls = [];
+  // conveyors
+  for (const l of G.sc.lines) {
+    if (![251, 252, 253].includes(l.sp) || !l.tag) continue;
+    const vx = l.ex / 32, vy = l.ey / 32;
+    G.secs.forEach((s, i) => { if (s.tag !== l.tag) return; if (l.sp !== 251) { s.cvx = (s.cvx || 0) + vx; s.cvy = (s.cvy || 0) + vy; } if (l.sp !== 252) { s.sdx = (s.sdx || 0) + vx; s.sdy = (s.sdy || 0) + vy; } });
+  }
+  G.secs.forEach(s => { s.sx = 0; s.sy = 0; });
+  if (G.mode !== 'play') return;
+  const starts = playerStarts(G.map || M), real = G.start;
+  for (const t of starts) {
+    if (real && t.x === real.x && t.y === real.y) continue;
+    const sec = gSectorAt(t.x, t.y); if (sec < 0) continue;
+    G.dolls.push({ x: t.x, y: t.y, z: G.secs[sec].fh, a: t.a * Math.PI / 180, r: 16, h: 56, sec, vx: 0, vy: 0, alive: true });
+  }
+  if (G.dolls.length && S.dollMsg !== false) msg(G.dolls.length + ' voodoo doll' + (G.dolls.length > 1 ? 's' : '') + ' in this map');
+}
+function onConveyor(ent) { const s = ent.sec >= 0 ? G.secs[ent.sec] : null; return s && (s.cvx || s.cvy) && ent.z <= s.fh + 1 ? s : null; }
+function tickConveyors() {
+  for (const s of G.secs) if (s.sdx || s.sdy) { s.sx += s.sdx; s.sy += s.sdy; }
+  for (const e of G.ents) { if (!e.alive || e.d.float) continue; const s = onConveyor(e); if (s) { tryMove(e, s.cvx, s.cvy, false); const ns = gSectorAt(e.x, e.y); if (ns >= 0) e.sec = ns; } }
+}
+function tickDolls() {
+  if (!G.dolls || !G.dolls.length) return;
+  for (const d of G.dolls) {
+    if (!d.alive) continue;
+    const ox = d.x, oy = d.y, s0 = G.secs[d.sec];
+    // conveyors push; the push carries on (with friction) across short gaps such as door tracks
+    if (s0 && (s0.cvx || s0.cvy) && d.z <= s0.fh + 1) { d.vx = s0.cvx; d.vy = s0.cvy; } else { d.vx *= 0.92; d.vy *= 0.92; if (Math.abs(d.vx) < 0.05 && Math.abs(d.vy) < 0.05) d.vx = d.vy = 0; }
+    if (d.vx || d.vy) { if (!tryMove(d, d.vx, d.vy, true)) { d.vx = d.vy = 0; } }
+    const ns = gSectorAt(d.x, d.y); if (ns < 0) { d.x = ox; d.y = oy; } else d.sec = ns;
+    const S0 = G.secs[d.sec];
+    // walk-over lines fire as if the player crossed them
+    if (ox !== d.x || oy !== d.y) {
+      const crossed = []; gridEach(ox, oy, d.x, d.y, l => { if (l.sp && lineCross(ox, oy, d.x, d.y, l)) crossed.push(l); });
+      crossed.forEach(l => { G.actor = d; const did = activate(l, 'walk', lineSide2(l, ox, oy) < 0); G.actor = null; if (did && S.dollMsg !== false) msg('Voodoo doll crossed: ' + specialName(l.sp)); });
+    }
+    // gravity
+    if (d.z > S0.fh) { d.z = Math.max(S0.fh, d.z - 8); } else d.z = S0.fh;
+    // items it touches are yours
+    tickPickups(d);
+    // floor damage and crushing hurt you
+    if (d.z <= S0.fh + 1) { const dmg = { 5: 10, 7: 5, 16: 20, 4: 20, 11: 20 }[S0.sp]; if (dmg && G.tic % 32 === 0) { damagePlayer(dmg); if (S.dollMsg !== false) msg('Your voodoo doll is being hurt'); } }
+    if (S0.ch - S0.fh < d.h - 2 && G.tic % 4 === 0) { damagePlayer(10); if (G.p.hp <= 0 && S.dollMsg !== false) msg('Your voodoo doll was crushed'); }
+  }
+}
+function specialName(sp) { const e = LINE_SPECIALS.find(x => x[0] === sp); return e ? e[1] : 'action ' + sp; }
+function dollSprites(out) {
+  if (!G.dolls) return;
+  for (const d of G.dolls) {
+    if (!d.alive) continue;
+    let img = null, flip = false;
+    if (RES.packs.length && resPal()) { const r = getSpriteFrame('PLAY', 'A', spriteRot(d.a, d.x, d.y, G.p.x, G.p.y)); if (r) { img = r.img; flip = r.flip; } }
+    if (!img) img = SPR.doll || (SPR.doll = mkSprite('doll', 28, 56, (c, w, h) => { c.fillStyle = '#2e7d32'; c.fillRect(8, 14, 12, 24); c.fillStyle = '#c99a7a'; c.fillRect(10, 4, 8, 10); c.fillStyle = '#1b5e20'; c.fillRect(8, 38, 5, 18); c.fillRect(15, 38, 5, 18); c.fillStyle = '#2e7d32'; c.fillRect(3, 16, 5, 16); c.fillRect(20, 16, 5, 16); c.fillStyle = '#c4141c'; c.fillRect(6, 0, 16, 3); }));
+    out.push({ x: d.x, y: d.y, z: d.z, img, flip, light: G.secs[d.sec] ? G.secs[d.sec].li : 160 });
+  }
+}
+
+/* ================= DEMO MAPS (built in code, always available) ================= */
+const DEMO_MAPS = {
+  hangar: { name: 'Hangar of Shit', blurb: 'The classic test map: doors, a lift, nukage, a secret, a glass pane to shoot out.', build: () => buildSampleMap() },
+  voodoo: { name: 'Voodoo Express', blurb: 'A voodoo doll on a conveyor opens the monster cages and the exit for you. Flip the switch and watch.', build: () => buildVoodooMap() },
+  glass: { name: 'Glass Gallery', blurb: 'Six glass panes: clear, mirror, frosted, stained, bulletproof and Pulse red, with painted monsters behind them.', build: () => buildGlassMap() },
+  arena: { name: 'Bestiary Arena', blurb: 'An open-sky arena full of painted monsters from the art library, and painted guns to pick up.', build: () => buildArenaMap() }
+};
+function demoRect(x0, y0, x1, y1, props) { const s = drawShape(rectPts(x0, y0, x1, y1), true); if (props) Object.assign(M.sec[s], props); return s; }
+function demoLine(x0, y0, x1, y1) { return findLine(findVertex(x0, y0), findVertex(x1, y1)); }
+function demoWalls(map) { M.l.forEach(L => { if (L.s1 >= 0 && L.s2 < 0) { const d = M.sd[L.s1], w = map[d.sec]; if (w && d.mid !== 'DOORTRAK' && !/^SW/.test(d.mid)) d.mid = w; } }); }
+// a closed door sector that only a tag can open (no hand-opening)
+function tagDoor(si, tag) { makeDoor(si); M.sec[si].tag = tag; for (const li of sectorLines(si)) { const L = M.l[li]; if (L.s2 >= 0) { L.sp = 0; L.tag = 0; } } }
+function demoMonster(art, seed, tier) { const d = rollMonster({ art, tier: tier || 'soldier', seed }); if (art && artMon(art)) { d.look.art = art; d.look.hue = 0; d.look.sat = 100; d.look.bri = 100; d.look.size = 1; d.look.mirror = false; } const t = nextMonType(); M.mon = M.mon || {}; M.mon[t] = d; return t; }
+function demoWeapon(art, seed) { const d = rollWeapon({ art, seed }); if (art && artWep(art)) { d.look.art = art; d.look.hue = 0; d.look.sat = 100; d.look.bri = 100; } const id = nextWepId(); M.wep = M.wep || {}; M.wep[id] = d; return id; }
+
+function buildVoodooMap() {
+  M = emptyMap(); M.name = 'MAP02'; M.mon = {}; M.wep = {};
+  M.hint = 'Hit the switch on the south wall. A voodoo doll rides a conveyor next door and opens things for you.';
+  const S0 = demoRect(0, 0, 512, 384, { fh: 0, ch: 128, li: 192, ft: 'FLOOR5_2', ct: 'CEIL3_5' });
+  const Nic = demoRect(224, -16, 288, 0, { fh: 0, ch: 72, li: 192 });
+  const D1 = demoRect(224, 384, 288, 400, { fh: 0, ch: 128, li: 160 });
+  const Ar = demoRect(0, 400, 576, 960, { fh: 0, ch: 192, li: 176, ft: 'FLOOR7_1', ct: 'F_SKY1' });
+  const C1 = demoRect(0, 720, 96, 880, { fh: 0, ch: 128, li: 120 }), P1 = demoRect(96, 720, 112, 880, { fh: 128, ch: 128, li: 120, tag: 3 });
+  const C2 = demoRect(480, 720, 576, 880, { fh: 0, ch: 128, li: 120 }), P2 = demoRect(464, 720, 480, 880, { fh: 128, ch: 128, li: 120, tag: 3 });
+  const X = demoRect(224, 960, 352, 976, { fh: 0, ch: 128, li: 160 });
+  const E = demoRect(224, 976, 352, 1104, { fh: 0, ch: 128, li: 224, ft: 'FLAT14' });
+  // the doll's track (sealed off from the player)
+  const T0 = demoRect(640, 0, 704, 96, { fh: 0, ch: 128, li: 200, tag: 10, ft: 'FLAT5_4' });
+  const Gt = demoRect(640, 96, 704, 112, { fh: 0, ch: 128, li: 200 });
+  const T1 = demoRect(640, 112, 704, 400, { fh: 0, ch: 128, li: 200, tag: 10, ft: 'FLAT5_4' });
+  const T2 = demoRect(640, 400, 704, 800, { fh: 0, ch: 128, li: 200, tag: 10, ft: 'FLAT5_4' });
+  const T3 = demoRect(640, 800, 704, 1024, { fh: 0, ch: 128, li: 200, tag: 10, ft: 'FLAT5_4' });
+  const K = demoRect(760, 0, 776, 96, { fh: 0, ch: 64, li: 120 }); // conveyor control line lives here
+  makeDoor(D1); tagDoor(Gt, 2); tagDoor(X, 4);
+  demoWalls({ [S0]: 'STARTAN3', [Nic]: 'STARTAN3', [Ar]: 'STONE2', [C1]: 'STONE2', [C2]: 'STONE2', [E]: 'STARTAN3', [T0]: 'SUPPORT3', [T1]: 'SUPPORT3', [T2]: 'SUPPORT3', [T3]: 'SUPPORT3', [K]: 'SUPPORT3' });
+  [P1, P2].forEach(si => sectorLines(si).forEach(li => { const L = M.l[li]; for (const s of [L.s1, L.s2]) if (s >= 0) { M.sd[s].lo = 'STONE2'; M.sd[s].up = 'STONE2'; } }));
+  // switch opens the doll's gate
+  let li = demoLine(224, -16, 288, -16); if (li >= 0) { M.l[li].sp = 103; M.l[li].tag = 2; M.sd[M.l[li].s1].mid = 'SW1COMP'; }
+  // doll lines: lower the cage walls, then open the exit door
+  li = demoLine(640, 400, 704, 400); if (li >= 0) { M.l[li].sp = 38; M.l[li].tag = 3; }
+  li = demoLine(640, 800, 704, 800); if (li >= 0) { M.l[li].sp = 2; M.l[li].tag = 4; }
+  // conveyor: a 96-long line pointing north, 3 units per tic
+  for (const [a, b] of [[[760, 0], [760, 96]], [[776, 0], [776, 96]]]) { const k = demoLine(a[0], a[1], b[0], b[1]); if (k < 0) continue; const L = M.l[k], v1 = M.v[L.v1], v2 = M.v[L.v2]; if (v2.y > v1.y) { L.sp = 252; L.tag = 10; break; } }
+  if (!M.l.some(L => L.sp === 252)) { const k = demoLine(760, 0, 760, 96); if (k >= 0) { const L = M.l[k]; if (M.v[L.v2].y < M.v[L.v1].y) flipLine(L); L.sp = 252; L.tag = 10; } }
+  li = demoLine(224, 1104, 352, 1104); if (li >= 0) { M.l[li].sp = 11; M.sd[M.l[li].s1].mid = 'SW1EXIT'; }
+  const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
+  T(1, 672, 48, 90);            // the voodoo doll (any Player 1 Start that is not the last one)
+  T(2001, 256, 200); T(2008, 200, 200); T(2008, 312, 200); T(2011, 64, 64); T(2048, 448, 64);
+  T(3001, 40, 760, 0); T(3001, 40, 840, 0); T(3001, 536, 760, 180); T(3001, 536, 840, 180);
+  T(3004, 200, 900, 270); T(3004, 380, 900, 270); T(2012, 288, 1040);
+  T(1, 256, 64, 90);            // YOU: the last Player 1 Start
+  compact();
+}
+function buildGlassMap() {
+  M = emptyMap(); M.name = 'MAP03'; M.mon = {}; M.wep = {};
+  M.hint = 'Six kinds of glass. Shoot them, look at them from the side, try the mirror.';
+  const H = demoRect(0, 0, 768, 512, { fh: 0, ch: 160, li: 192, ft: 'FLOOR4_8', ct: 'CEIL5_2' });
+  const looks = ['Clear window', 'Mirror', 'Frosted', 'Stained (middle texture)', 'Bulletproof', 'Pulse red'];
+  const arts = ['gore_eye', 'crimson_crusader', 'jade_wraith', 'void_sorcerer', 'war_mech', 'blood_gargoyle'];
+  const al = [];
+  for (let i = 0; i < 6; i++) { const x0 = 16 + i * 128; al.push(demoRect(x0, 512, x0 + 112, 640, { fh: 0, ch: 160, li: 160 + (i % 2) * 32, ft: 'FLAT5_3' })); }
+  const ex = demoRect(768, 224, 784, 288, { fh: 0, ch: 96, li: 192 });
+  demoWalls({ [H]: 'STARTAN2', [ex]: 'STARTAN2', ...Object.fromEntries(al.map(s => [s, 'MARBLE1'])) });
+  for (let i = 0; i < 6; i++) { const x0 = 16 + i * 128, k = demoLine(x0, 512, x0 + 112, 512); if (k < 0) continue; const P = GLASS_PRESETS[looks[i]]; M.l[k].glass = Object.assign({}, P); if (looks[i].startsWith('Stained')) for (const s of [M.l[k].s1, M.l[k].s2]) if (s >= 0) M.sd[s].mid = 'MARBFAC3'; }
+  const k = demoLine(784, 224, 784, 288); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
+  const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
+  arts.forEach((a, i) => T(demoMonster(a, 700 + i, 'soldier'), 72 + i * 128, 590, 270, 15));
+  T(2001, 300, 120); T(2008, 340, 120); T(2008, 420, 120); T(2002, 460, 120); T(2048, 500, 120); T(2012, 700, 80);
+  T(1, 384, 64, 90);
+  compact();
+}
+function buildArenaMap() {
+  M = emptyMap(); M.name = 'MAP04'; M.mon = {}; M.wep = {};
+  M.hint = 'Painted guns are on the floor ahead. Grab one and clear the arena.';
+  const A = demoRect(0, 0, 1024, 1024, { fh: 0, ch: 320, li: 208, ft: 'RROCK09', ct: 'F_SKY1' });
+  const C = demoRect(416, 416, 608, 608, { fh: 24, ch: 320, li: 224, ft: 'FLAT1_1', ct: 'F_SKY1' });
+  const N = demoRect(480, 1024, 544, 1040, { fh: 0, ch: 96, li: 192 });
+  demoWalls({ [A]: 'ROCK3', [C]: 'ROCK3', [N]: 'ROCK3' });
+  sectorLines(C).forEach(li => { const L = M.l[li]; for (const s of [L.s1, L.s2]) if (s >= 0) M.sd[s].lo = 'ROCK3'; });
+  const k = demoLine(480, 1040, 544, 1040); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
+  const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
+  ['storm_minigun', 'void_cannon', 'octagon_shotgun', 'spear'].forEach((w, i) => T(demoWeapon(w, 40 + i), 380 + i * 88, 220));
+  const mons = ['spine_baron', 'magma_brute', 'fallen_seraph', 'mecha_crab', 'azure_skull', 'goblin_gunner', 'bone_templar', 'storm_golem', 'wing_fiend', 'brain_maw'];
+  mons.forEach((m, i) => { const ang = i / mons.length * Math.PI * 2, r = 300; T(demoMonster(m, 900 + i, i % 3 === 0 ? 'heavy' : 'soldier'), 512 + Math.cos(ang) * r, 660 + Math.sin(ang) * r * 0.8, 270, 15); });
+  T(2048, 300, 120); T(2048, 724, 120); T(2018, 512, 120); T(2047, 512, 160); T(2012, 512, 512); T(2014, 470, 470); T(2014, 554, 554); T(2018, 200, 200); T(2019, 824, 824);
+  T(1, 512, 64, 90);
+  compact();
+}
+function loadDemo(id, play) {
+  const d = DEMO_MAPS[id]; if (!d) return toast('No demo map called ' + id);
+  return artManifest().then(() => { pushUndo(); d.build(); clearSel(); mapChanged(); zoomFit(); return artLoadAll(artFilesFor(M)); }).then(() => { if (typeof MONF !== 'undefined') MONF.clear(); if (play) startDemo(); else toast(d.name + ' loaded'); });
+}
+function openDemoMaps() {
+  modal('Demo maps', `<p class="hint">Built into EOD. Play one, or open it in the editor to see how it is made.</p>${Object.entries(DEMO_MAPS).map(([id, d]) => `<div class="row" style="align-items:center"><div style="flex:3"><b>${esc(d.name)}</b><div class="hint">${esc(d.blurb)}</div></div><button class="demo" data-dp="${id}">▶ Play</button><button data-de="${id}">✎ Edit</button></div>`).join('')}`, [{ cancel: 1 }]);
+  setTimeout(() => { document.querySelectorAll('[data-dp]').forEach(b => b.onclick = () => { closeModal(); loadDemo(b.dataset.dp, true); }); document.querySelectorAll('[data-de]').forEach(b => b.onclick = () => { closeModal(); loadDemo(b.dataset.de, false); }); }, 0);
+}
 
 try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }
 

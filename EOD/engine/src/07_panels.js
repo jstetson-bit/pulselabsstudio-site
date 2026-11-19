@@ -173,6 +173,7 @@ function openFileMenu() {
   modal('File', `<div class="list">
   <button id="fAbout">About EOD · version ${VERSION}</button>
   <button id="fUpd">Check for updates</button>
+  <button id="fDemo" class="demo">▶ Demo maps (Hangar, Voodoo Express, Glass Gallery, Bestiary Arena)</button>
   <button id="fPub" class="demo">Publish to EOD (share it)</button>
   <button id="fTex">My textures (add your own walls and floors)</button>
   <button id="fMon">🎲 Monster generator / my monsters</button>
@@ -189,6 +190,7 @@ function openFileMenu() {
     b.querySelector('#fUpd').onclick = () => { closeModal(); checkUpdates(); };
     b.querySelector('#fTex').onclick = () => { closeModal(); openMyTextures(); };
     b.querySelector('#fMon').onclick = () => { closeModal(); openBestiary(); };
+    b.querySelector('#fDemo').onclick = () => { closeModal(); openDemoMaps(); };
     b.querySelector('#fWep').onclick = () => { closeModal(); openArmory(); };
     b.querySelector('#fPub').onclick = () => { closeModal(); eodPublish(); };
     b.querySelector('#fLib').onclick = () => { closeModal(); eodLibrary(); };
@@ -225,6 +227,9 @@ function openSettings() {
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
+  <div class="h">Voodoo dolls</div>
+  <p class="hint">Extra Player 1 Starts become voodoo dolls (you spawn at the last one). Show a message when a doll crosses a line or gets hurt?</p>
+  <div class="row">${[[true, 'Show'], [false, 'Hide']].map(([k, n]) => `<button data-doll="${k}" class="${(S.dollMsg !== false) === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <div class="h">Vanilla limits check</div>
   <p class="hint">Original Doom (and Chocolate Doom) crash on busy views: "visplane overflow", too many drawsegs or sprites. EOD and GZDoom have no such limits. Turn this on if your map is meant for vanilla.</p>
   <div class="row">${[[false, 'Off'], [true, 'On']].map(([k, n]) => `<button data-lim="${k}" class="${!!S.limits === k ? 'on' : ''}">${n}</button>`).join('')}</div>
@@ -242,6 +247,7 @@ function openSettings() {
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
+    b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-lim]').forEach(x => x.onclick = () => { S.limits = x.dataset.lim === 'true'; saveSettings(); b.querySelectorAll('[data-lim]').forEach(y => y.classList.toggle('on', y === x)); toast('Vanilla limits check ' + (S.limits ? 'on' : 'off')); });
     ch('#stLimHud', e => S.limHud = e.checked); ch('#stLimWarn', e => S.limWarn = e.checked);
     b.querySelector('#stLimScan').onclick = () => { closeModal(); scanVanillaLimits(); };

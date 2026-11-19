@@ -37,7 +37,7 @@
 
   function chrome(active) {
     const h = document.createElement('header'); h.className = 'eod-top';
-    h.innerHTML = `<a class="logo" href="index.html">E<span class="doom">O</span>D <small>EDITOR OF DOOM</small></a>
+    h.innerHTML = `<a class="logo" href="community.html">E<span class="doom">O</span>D <small>EDITOR OF DOOM</small></a>
       <nav class="eod-nav"><a href="editor.html" data-p="editor">Editor</a><a href="maps.html" data-p="maps">Maps</a><a href="forums.html" data-p="forums">Forums</a><a href="account.html" data-p="account">Account</a></nav>
       <div class="grow"></div><span class="userchip" id="eodUser"></span>
       <button class="icon ghost" id="eodInfo" title="Manual">${GHOST}</button><button class="icon" id="eodInv" title="Invert colors">${INV}</button><button class="icon" id="eodSet" title="Settings">${COG}</button>`;

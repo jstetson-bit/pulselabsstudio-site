@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d"><link rel="stylesheet" href="assets/site.css">
+<title>EOD · Editor of Doom — build, play and share Doom maps in your browser</title><meta name="description" content="Free web Doom map editor laid out like Ultimate Doom Builder. Build maps, play them with one tap on phone, PC or controller, and share them with the community."></head><body>
+<main>
+<section class="hero"><h1>E<span class="doom">O</span>D · EDITOR OF <span class="doom">DOOM</span></h1>
+<p>Build Doom maps right in your browser, laid out like Ultimate Doom Builder. Play them with one tap on your phone, PC or controller, and share them with everyone. Free.</p>
+<div class="row" style="justify-content:center"><a class="btn primary" href="editor.html">Open the editor</a><a class="btn" href="maps.html">Browse maps</a><a class="btn" href="forums.html">Forums</a><button id="join">Join free</button></div></section>
+<div class="steps"><div class="card"><h3>1 · Build</h3><p class="muted">Draw rooms, doors, lifts, stairs and secrets. Drop in monsters, weapons and keys. A 3D view lets you fix it up from inside.</p></div><div class="card"><h3>2 · Play</h3><p class="muted">▶ DEMO drops you straight into your map. Touch controls for portrait, landscape and the Z Fold, plus keyboard, mouse and controller.</p></div><div class="card"><h3>3 · Share</h3><p class="muted">Publish to EOD, collect votes, let people remix it, and talk shop in the forums. Export a real Doom WAD for GZDoom any time.</p></div></div>
+<h2>Newest maps</h2><div class="grid" id="newest"></div>
+<h2 style="margin-top:22px">Top rated</h2><div class="grid" id="top"></div>
+</main>
+<script src="assets/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/backend.js"></script><script src="assets/site.js"></script>
+<script>
+EOD.chrome('home');
+document.getElementById('join').onclick=()=>EOD.auth(null,'up');
+(async()=>{const me=await EODB.user().catch(()=>null);
+for(const [id,sort] of [['newest','new'],['top','top']]){const el=document.getElementById(id);try{const list=await EODB.listMaps({sort,limit:6});if(!list.length)el.innerHTML='<div class="empty card">No maps yet. <a href="editor.html">Be the first.</a></div>';list.forEach(m=>el.appendChild(EOD.mapCard(m,me)));}catch(e){el.innerHTML='<div class="empty card">Could not load maps: '+EOD.esc(e.message)+'</div>';}}})();
+</script></body></html>

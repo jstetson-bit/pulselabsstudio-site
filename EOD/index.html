@@ -1,18 +1,58 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d"><link rel="stylesheet" href="assets/site.css">
-<title>EOD · Editor of Doom — build, play and share Doom maps in your browser</title><meta name="description" content="Free web Doom map editor laid out like Ultimate Doom Builder. Build maps, play them with one tap on phone, PC or controller, and share them with the community."></head><body>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d">
+<title>EOD · Editor of Doom</title><meta name="description" content="Play a demo, build Doom maps, make monsters and weapons. Free, in your browser, no sign-in.">
+<style>
+:root{--bg:#0b0b0d;--pan:#16161b;--line:#2c2c35;--tx:#fff;--mut:#d6d6de;--red:#c4141c;--red2:#ff3b3b}
+*{box-sizing:border-box}html.inv{filter:invert(1) hue-rotate(180deg)}
+body{margin:0;background:radial-gradient(1200px 500px at 50% -10%,#3a0608 0,var(--bg) 60%);color:var(--tx);font:16px/1.45 system-ui,Segoe UI,Arial;min-height:100vh}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.logo{font:900 22px/1 system-ui;letter-spacing:2px;flex:1}.logo b{color:var(--red2)}.logo small{font:600 12px system-ui;color:var(--mut);margin-left:6px}
+.ib{background:none;border:1px solid var(--line);color:var(--tx);border-radius:10px;width:42px;height:42px;font-size:19px;cursor:pointer}
+main{max-width:1100px;margin:auto;padding:6px 14px 30px}
+h1{font:900 clamp(28px,6vw,52px)/1.05 system-ui;margin:14px 0 6px;letter-spacing:1px}h1 span{color:var(--red2)}
+.sub{color:var(--mut);margin:0 0 18px}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+a.tile{display:block;text-decoration:none;color:var(--tx);background:var(--pan);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;transition:transform .08s,border-color .08s}
+a.tile:hover,a.tile:focus{border-color:var(--red2);transform:translateY(-2px)}
+a.tile .ic{font-size:34px}a.tile b{display:block;font-size:20px;margin:6px 0 4px}a.tile span{color:var(--mut);font-size:14px}
+a.tile.hot{background:linear-gradient(135deg,#7a0a10,#c4141c);border-color:#ff5a5a}a.tile.hot span{color:#ffe1e1}
+h2{font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--red2);margin:26px 0 10px}
+.maps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.map{background:var(--pan);border:1px solid var(--line);border-radius:14px;padding:14px}
+.map b{font-size:18px}.map p{color:var(--mut);font-size:14px;margin:6px 0 12px}
+.row{display:flex;gap:8px}.row a{flex:1;text-align:center;text-decoration:none;color:#fff;background:#24242c;border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:700}
+.row a.play{background:var(--red);border-color:var(--red2)}
+.foot{color:var(--mut);font-size:13px;margin-top:28px;line-height:1.6}.foot a{color:var(--red2)}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:14px;z-index:9}.modal.show{display:flex}
+.box{background:var(--pan);border:1px solid var(--red);border-radius:14px;max-width:620px;max-height:86vh;overflow:auto;padding:18px}
+.ok{background:#1db954;border:0;color:#fff;font-size:22px;width:64px;height:44px;border-radius:10px;float:right;cursor:pointer}
+</style></head><body>
+<header><div class="logo">E<b>O</b>D <small>EDITOR OF DOOM · <span id="ver"></span></small></div>
+<button class="ib" id="bInfo" title="How this works">👻</button><button class="ib" id="bInv" title="Invert colors">◐</button></header>
 <main>
-<section class="hero"><h1>E<span class="doom">O</span>D · EDITOR OF <span class="doom">DOOM</span></h1>
-<p>Build Doom maps right in your browser, laid out like Ultimate Doom Builder. Play them with one tap on your phone, PC or controller, and share them with everyone. Free.</p>
-<div class="row" style="justify-content:center"><a class="btn primary" href="editor.html">Open the editor</a><a class="btn" href="maps.html">Browse maps</a><a class="btn" href="forums.html">Forums</a><button id="join">Join free</button></div></section>
-<div class="steps"><div class="card"><h3>1 · Build</h3><p class="muted">Draw rooms, doors, lifts, stairs and secrets. Drop in monsters, weapons and keys. A 3D view lets you fix it up from inside.</p></div><div class="card"><h3>2 · Play</h3><p class="muted">▶ DEMO drops you straight into your map. Touch controls for portrait, landscape and the Z Fold, plus keyboard, mouse and controller.</p></div><div class="card"><h3>3 · Share</h3><p class="muted">Publish to EOD, collect votes, let people remix it, and talk shop in the forums. Export a real Doom WAD for GZDoom any time.</p></div></div>
-<h2>Newest maps</h2><div class="grid" id="newest"></div>
-<h2 style="margin-top:22px">Top rated</h2><div class="grid" id="top"></div>
+<h1>Pick what you want to <span>do</span>.</h1>
+<p class="sub">Everything is open. No sign-in, no install. Works on your phone, PC and with a controller.</p>
+<div class="big">
+ <a class="tile hot" href="editor.html?demo=hangar&go=play"><div class="ic">▶</div><b>Play a quick demo</b><span>Jump straight into the test map. Shoot, open doors, find the exit.</span></a>
+ <a class="tile" href="editor.html?gen=monster"><div class="ic">👹</div><b>Create a monster</b><span>Pick a painted creature, recolor it, set its health and attacks.</span></a>
+ <a class="tile" href="editor.html?gen=weapon"><div class="ic">🔫</div><b>Create a weapon</b><span>Pick a painted gun or blade and set damage, fire rate and power.</span></a>
+ <a class="tile" href="editor.html?new=1"><div class="ic">✎</div><b>Edit a map</b><span>Start a blank map in the editor, laid out like Ultimate Doom Builder.</span></a>
+ <a class="tile" href="#maps"><div class="ic">🗺</div><b>See the maps</b><span>The demo maps below: play them or open them to see how they work.</span></a>
+ <a class="tile" href="../forge/"><div class="ic">⚒</div><b>Pulse Forge</b><span>Design new creatures and guns, have them painted, cut them into sprites.</span></a>
+</div>
+<h2 id="maps">Demo maps (4)</h2>
+<div class="maps" id="mapList"></div>
+<p class="foot">EOD v<span id="ver2"></span> · a <a href="../">Pulse Labs Studio</a> project. Accounts, the shared map library and forums are switched off for now: <a href="community.html">community pages</a>.<br>Unofficial fan project, not affiliated with id Software, Bethesda or ZeniMax. DOOM is a trademark of id Software LLC. EOD uses its own art and the free Freedoom art set.</p>
 </main>
-<script src="assets/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/backend.js"></script><script src="assets/site.js"></script>
+<div class="modal" id="m"><div class="box"><div id="mb"></div><button class="ok" id="mok">✔</button></div></div>
+<script src="assets/config.js"></script>
 <script>
-EOD.chrome('home');
-document.getElementById('join').onclick=()=>EOD.auth(null,'up');
-(async()=>{const me=await EODB.user().catch(()=>null);
-for(const [id,sort] of [['newest','new'],['top','top']]){const el=document.getElementById(id);try{const list=await EODB.listMaps({sort,limit:6});if(!list.length)el.innerHTML='<div class="empty card">No maps yet. <a href="editor.html">Be the first.</a></div>';list.forEach(m=>el.appendChild(EOD.mapCard(m,me)));}catch(e){el.innerHTML='<div class="empty card">Could not load maps: '+EOD.esc(e.message)+'</div>';}}})();
+const V=(window.EOD_CONFIG||{}).VERSION||'';document.getElementById('ver').textContent='v'+V;document.getElementById('ver2').textContent=V;
+const MAPS=[['hangar','Hangar of Shit','The classic test map: doors, a lift, nukage, a secret, and a glass pane to shoot out.'],['voodoo','Voodoo Express','Flip the switch and a voodoo doll rides a conveyor next door, opening the monster cages and then the exit.'],['glass','Glass Gallery','Six kinds of glass (clear, mirror, frosted, stained, bulletproof, Pulse red) with painted monsters behind them.'],['arena','Bestiary Arena','An open-sky arena full of painted monsters, with painted guns on the floor to grab.']];
+document.getElementById('mapList').innerHTML=MAPS.map(([id,n,d])=>`<div class="map"><b>${n}</b><p>${d}</p><div class="row"><a class="play" href="editor.html?demo=${id}&go=play">▶ Play</a><a href="editor.html?demo=${id}">✎ Open in editor</a></div></div>`).join('');
+const inv=()=>{document.documentElement.classList.toggle('inv');try{localStorage.setItem('eod.hubInv',document.documentElement.classList.contains('inv')?'1':'')}catch(e){}};
+try{if(localStorage.getItem('eod.hubInv'))document.documentElement.classList.add('inv')}catch(e){}
+document.getElementById('bInv').onclick=inv;
+document.getElementById('bInfo').onclick=()=>{document.getElementById('mb').innerHTML=`<h3>How EOD works</h3><p><b>Play a quick demo</b> drops you into a map. On a phone use the on-screen stick and buttons; on a PC use WASD and the mouse; a controller works too (set it under Controls in the game).</p><p><b>Create a monster / weapon</b> opens the generator in the editor. Save it, place it in a map, press ▶ DEMO to fight it.</p><p><b>Edit a map</b> opens a blank map. The ghost 👻 button inside the editor has the full manual and a guided tutorial.</p><p><b>Voodoo dolls</b> (Voodoo Express): put more than one Player 1 Start in a map. You start at the last one; the others are dolls. Whatever happens to a doll happens to you, so a doll riding a conveyor across trigger lines can open doors, release monsters or end the level for you.</p><p><b>About:</b> EOD v${V}, Pulse Labs Studio. Check for updates and the crash log live in the editor's ⚙ Settings.</p>`;document.getElementById('m').classList.add('show')};
+document.getElementById('mok').onclick=()=>document.getElementById('m').classList.remove('show');
 </script></body></html>

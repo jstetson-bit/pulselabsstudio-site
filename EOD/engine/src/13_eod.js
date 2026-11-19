@@ -2,8 +2,15 @@
 const EODP = { cloudId: null, remixOf: null, title: '', description: '', published: true, allowRemix: true, allowDownload: true, playOnly: null };
 function eodOnline() { return !!(window.EODB && window.EOD); }
 async function eodBoot() {
+  const q = new URLSearchParams(location.search);
+  // hub links: work with or without accounts
+  if (q.get('demo')) { loadDemo(q.get('demo'), q.get('go') === 'play'); history.replaceState(null, '', 'editor.html'); return; }
+  if (q.get('gen') === 'monster') { setTimeout(() => openMonsterGen(), 300); history.replaceState(null, '', 'editor.html'); return; }
+  if (q.get('gen') === 'weapon') { setTimeout(() => openWeaponGen(), 300); history.replaceState(null, '', 'editor.html'); return; }
+  if (q.get('new')) { pushUndo(); M = emptyMap(); M.mon = {}; M.wep = {}; clearSel(); mapChanged(); zoomFit(); history.replaceState(null, '', 'editor.html'); toast('Blank map. Start drawing with Draw.'); return; }
+  if (q.get('maps')) { setTimeout(openDemoMaps, 300); history.replaceState(null, '', 'editor.html'); return; }
   if (!eodOnline()) return;
-  const p = new URLSearchParams(location.search);
+  const p = q;
   const play = p.get('play'), edit = p.get('map'), remix = p.get('remix'), wad = p.get('wad'), id = play || edit || remix || wad;
   if (!id) return;
   let m; try { m = await EODB.getMap(id); } catch (e) { toast('Could not load that map: ' + e.message, 5000); return; }
@@ -11,7 +18,7 @@ async function eodBoot() {
   if (play) {
     EODP.playOnly = { id, title: m.title, author: m.author };
     const keep = M; M = m.data; compact(); syncCustomTex(true); syncMonsters(); syncWeapons();
-    const p1 = M.t.find(t => t.type === 1);
+    const p1 = realStart();
     if (!p1) { M = keep; return toast('That map has no Player 1 Start', 4000); }
     initGame('play', { x: p1.x, y: p1.y, a: p1.a });
     $('#gTitle').textContent = '▶ ' + m.title + ' · by ' + m.author;

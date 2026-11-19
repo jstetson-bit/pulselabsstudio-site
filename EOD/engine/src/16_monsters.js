@@ -52,7 +52,7 @@ const MONF = new Map();
 function monFrames(type, d, rot) {
   const key = type + ':' + JSON.stringify(d.look) + d.arch + (rot ? ':' + rot : '');
   let f = MONF.get(key); if (f) return f;
-  if (d.look.art) { const af = artMonFrames(d, rot); if (af) { MONF.set(key, af); return af; } }
+  if (d.look.art) { const af = artMonFrames(d, rot); if (af) { MONF.set(key, af); return af; } artPreload(); const ph = SPR.artWait || (SPR.artWait = mkSprite('artWait', 1, 1, () => { })); const o = {}; 'ABCDEFGHIJKL'.split('').forEach(k => o[k] = ph); return o; }
   const sz = d.look.size || 1, W_ = Math.round((d.arch === 'crawler' ? 90 : d.arch === 'floater' ? 60 : 48) * sz), H_ = Math.round((d.arch === 'crawler' ? 56 : 66) * sz);
   f = {}; const FR = 'ABCDEFGHIJKL';
   for (let i = 0; i < FR.length; i++) {

@@ -31,6 +31,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  if (window.__firstRunLater) { window.__firstRunLater = 0; setTimeout(firstRun, 300); }
   LIM.on = false;
   if (EODP.playOnly) { eodLeavePlay(); return; }
   if (GL.arrange) exitArrange(false);
@@ -45,7 +46,7 @@ function showOver() {
   const pct = (a, b) => b ? Math.round(a * 100 / b) + '%' : '—';
   if (g.k === 'dead') o.innerHTML = `<div class="box"><h1>YOU DIED</h1><p>Tap the green check to try again.</p><div class="row"><button class="okbtn" id="ovOk"></button><button class="cancelbtn" id="ovX"></button></div></div>`;
   else o.innerHTML = `<div class="box"><h1>${g.secret ? 'SECRET EXIT!' : 'LEVEL COMPLETE'}</h1><div>${esc(M.name)}</div><div class="stats">KILLS&nbsp;&nbsp; ${pct(G.kills, G.totK)}<br>ITEMS&nbsp;&nbsp; ${pct(G.items, G.totI)}<br>SECRET&nbsp; ${pct(G.secrets, G.totS)}<br>TIME&nbsp;&nbsp;&nbsp; ${Math.floor(g.time / 60)}:${String(Math.floor(g.time % 60)).padStart(2, '0')}</div><div class="row"><button class="okbtn" id="ovOk" title="Play again"></button><button class="cancelbtn" id="ovX" title="Back to editor"></button></div></div>`;
-  $('#ovOk').onclick = () => { const p1 = M.t.find(t => t.type === 1); o.hidden = true; initGame('play', { x: p1.x, y: p1.y, a: p1.a }); };
+  $('#ovOk').onclick = () => { const p1 = realStart(); o.hidden = true; initGame('play', { x: p1.x, y: p1.y, a: p1.a }); };
   $('#ovX').onclick = () => exitGame();
 }
 
@@ -53,6 +54,7 @@ function showOver() {
 const frameOf = (seq, t, sp) => seq[Math.floor(t / sp) % seq.length];
 function gameSprites() {
   const out = [], cam = G.p, useRes = RES.packs.length > 0 && !!resPal();
+  dollSprites(out);
   const lightAt = e => G.secs[Math.max(0, e.sec)] ? G.secs[Math.max(0, e.sec)].li : 160;
   for (const e of G.ents) {
     if (e.d.cw) { if (e.alive) out.push({ x: e.x, y: e.y, z: e.z, img: weaponPickupImg(e.type, e.d.cw), light: lightAt(e), id: e.ti }); continue; }

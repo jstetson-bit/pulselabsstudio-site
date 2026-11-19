@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.5.0 (vc13) — 2026-11-18 — no-login hub, 4 demo maps, voodoo dolls, conveyors
+- **New front page** (pulselabsstudio.com/EOD/): no sign-in. Big buttons: Play a quick demo, Create a monster, Create a weapon, Edit a map, See the maps, Pulse Forge; the four demo maps with ▶ Play / ✎ Open in editor. Ghost manual and invert on the page. The old account/community page moved to community.html.
+- Editor links: `?demo=<id>` (open), `&go=play` (play), `?gen=monster`, `?gen=weapon`, `?new=1`, `?maps=1`. Straight-to-play links ask the light/dark question after the game instead of over it.
+- **Demo maps** (built in code, File ▸ ▶ Demo maps): Hangar of Shit, **Voodoo Express**, **Glass Gallery**, **Bestiary Arena** (painted monsters and guns).
+- **Voodoo dolls** (vanilla Doom rule): you spawn at the LAST Player 1 Start; every other one is a doll. Lines the doll walks over fire as if you did (doors, floors, teleports move the doll, exits end the level), items it touches are yours, damage floors hurt you, a crushed doll kills you. Optional messages ("Voodoo doll crossed: …"), Settings ▸ Voodoo dolls.
+- **Conveyors** (Boom line actions, also work in GZDoom): 252 carry things on tagged floors, 253 carry + scroll the floor texture, 251 scroll only. The line's direction and length/32 set direction and speed. Player, monsters, items and dolls ride them; dolls keep sliding a little off the belt so they cross door tracks.
+- Painted monsters/guns show nothing (instead of crashing) for the split second their art is still loading; demo maps wait for their art before starting.
+- Manual: Voodoo doll entry.
+
 ## v0.4.3 (vc12) — 2026-11-18 — library grows to 74 monsters, 61 guns
 - From four more GPT sheets: **28 new monsters, every one with 5 painted angles (turns in all 8 directions) and a painted death** (Gore Eye, Azure Skull, Dawn Cleric, Magma Brute, Crimson Crusader, Blood Gargoyle, Jade Wraith, Void Sorcerer, Goblin Gunner, Flesh Brute, Iron Horn, Furnace Widow, Brain Maw, Bone Templar, Blue Specter, Crowned Void Skull, Blood Warlock, Fallen Seraph, Mist Wraith, War Crab, War Mech, Ember Golem, Red Paladin, Mecha Crab, Steel Trooper, Wing Fiend, Mecha Eye, Storm Golem).
 - **39 new guns/blades** with painted firing frames. 8 whose frames came out glued together are hidden from the pickers until recut (marked `hide` in the manifest).

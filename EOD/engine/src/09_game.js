@@ -15,7 +15,7 @@ const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const KEYNAME = { b: 'blue', y: 'yellow', r: 'red' };
 
 function startDemo(opts = {}) {
-  const p1 = M.t.find(t => t.type === 1);
+  const p1 = realStart();
   if (!p1 && !opts.at) { toast('Place a Player 1 Start first (Things mode, double-tap, pick Player 1 Start)', 4000); return; }
   const start = opts.at || { x: p1.x, y: p1.y, a: p1.a };
   if (sectorAt(start.x, start.y) < 0) { toast('Player start is outside the map. Run Map Analysis.', 3500); return; }
@@ -23,7 +23,7 @@ function startDemo(opts = {}) {
   if (opts.arrange) enterArrange();
 }
 function startVisual() {
-  const p1 = M.t.find(t => t.type === 1);
+  const p1 = realStart();
   let at = null;
   if (sectorAt(E.view.x, E.view.y) >= 0) at = { x: E.view.x, y: E.view.y, a: p1 ? p1.a : 90 };
   else if (p1) at = { x: p1.x, y: p1.y, a: p1.a };
@@ -52,6 +52,8 @@ function initGame(mode, start) {
   if (mode === 'visual') { G.p.has = new Set([2, 3, 4, 5, 6, 7]); }
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
+  G.start = start; voodooInit();
+  if (M.hint && mode === 'play') msg(M.hint);
   msg(mode === 'visual' ? '3D Visual mode: aim the crosshair at a surface, then use the buttons' : (M.name + ' — find the exit'));
   requestAnimationFrame(gameFrame);
 }
@@ -210,7 +212,7 @@ function activate(l, how, fromFront) {
   else if ([23, 38, 82].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjFloor(s)));
   else if ([5, 101].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjCeil(s)));
   else if ([19, 102].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, highestAdjFloor(s)));
-  else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { G.p.x = dst.x; G.p.y = dst.y; G.p.a = dst.a * Math.PI / 180; G.p.vx = G.p.vy = 0; G.flash = 8; sfx('tele'); } else did = false; }
+  else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { const who = G.actor || G.p; who.x = dst.x; who.y = dst.y; who.a = dst.a * Math.PI / 180; who.vx = who.vy = 0; if (!G.actor) { G.flash = 8; sfx('tele'); } else who.sec = gSectorAt(who.x, who.y); } else did = false; }
   else if (sp === 35) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 35);
   else if (sp === 13) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 255);
   else if ([11, 52, 51, 124].includes(sp)) { endLevel([51, 124].includes(sp)); }
@@ -359,11 +361,11 @@ function monsterAttack(e, dist) {
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
   if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
-function tickPickups() {
-  const p = G.p;
+function tickPickups(actor) {
+  const p = G.p, q = actor || G.p;
   for (const e of G.ents) {
     if (!e.alive || !e.d.give && e.d.cat !== 'key') continue;
-    if (Math.hypot(e.x - p.x, e.y - p.y) > 32 || Math.abs(e.z - p.z) > 24) continue;
+    if (Math.hypot(e.x - q.x, e.y - q.y) > 32 || Math.abs(e.z - q.z) > 24) continue;
     const g = e.d.give || {}; let took = false;
     if (e.d.cat === 'key') { p.keys.add(e.d.key); took = true; }
     if (g.hp) { if (p.hp < g.max) { p.hp = Math.min(g.max, p.hp + g.hp); took = true; } }
@@ -391,6 +393,7 @@ function gameTic() {
   p.vx += (mx - p.vx) * 0.35; p.vy += (my - p.vy) * 0.35;
   const ox = p.x, oy = p.y;
   if (!p.dead && (Math.abs(p.vx) > 0.01 || Math.abs(p.vy) > 0.01)) tryMove(p, p.vx, p.vy, true);
+  { const cs = G.mode === 'play' && G.secs[p.sec]; if (cs && (cs.cvx || cs.cvy) && p.z <= cs.fh + 1 && !p.dead) tryMove(p, cs.cvx, cs.cvy, true); }
   const ns = gSectorAt(p.x, p.y);
   if (ns < 0 && !p.noclip) { p.x = ox; p.y = oy; } else if (ns >= 0) p.sec = ns;
   const S0 = G.secs[p.sec];
@@ -407,7 +410,7 @@ function gameTic() {
     if (p.cool > 0) p.cool--; if (p.fireT > 0) p.fireT--;
     if ((IN.fire || IN.firePad) && !p.dead) fireWeapon(); else p.refire = false;
     if (IN.use) { IN.use = false; playerUse(); }
-    tickMonsters(); tickProjs(); tickPickups();
+    tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls();
     // sector damage / secrets
     if (p.z <= S0.fh + 1) {
       const dmg = { 5: 10, 7: 5, 16: 20, 4: 20, 11: 20 }[S0.sp];

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.12 — 2026-11-18
+- EOD 0.5.0: /EOD/ is now a no-login hub (play demo, create monster/weapon, edit map, demo maps); old page at /EOD/community.html.
+
 ## v0.7.11 — 2026-11-18
 - EOD 0.4.3: art library 74 monsters / 61 weapons (EOD/res/art ~7 MB, loaded per map).
 

@@ -126,9 +126,10 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
   const tp = tex.px; let lastL = -1, sp = null;
+  const so = !ceil && typeof G !== 'undefined' && G && G.secs && G.secs[si], scx = so ? so.sx || 0 : 0, scy = so ? so.sy || 0 : 0;
   for (let y = ya; y <= yb; y++) {
     const dy = ceil ? (hz - (y + 0.5)) : ((y + 0.5) - hz); if (dy <= 0) continue;
-    const d = dz * proj / dy; const wx = cam.x + rdx * d, wy = cam.y + rdy * d;
+    const d = dz * proj / dy; const wx = cam.x + rdx * d - scx, wy = cam.y + rdy * d - scy;
     const l = shadeLvl(li, d); if (l !== lastL) { sp = tex.shade(l); lastL = l; }
     const o = y * W + x; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
     void tp;

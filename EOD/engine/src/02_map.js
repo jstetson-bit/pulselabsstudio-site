@@ -407,6 +407,6 @@ function analyzeMap() {
     if (THINGS[t.type] && THINGS[t.type].cat !== 'player' && sectorAt(t.x, t.y) < 0) out.push({ sev: 'warn', msg: 'Thing ' + i + ' (' + thingName(t.type) + ') is outside the map.', kind: 't', i });
     if (!THINGS[t.type]) out.push({ sev: 'warn', msg: 'Thing ' + i + ' has unknown type ' + t.type + ' (kept, but the Demo will not show it).', kind: 't', i });
   });
-  const p1 = M.t.find(t => t.type === 1); if (p1 && sectorAt(p1.x, p1.y) < 0) out.push({ sev: 'error', msg: 'Player 1 Start is outside the map.', kind: 't', i: M.t.indexOf(p1) });
+  const p1 = realStart(); if (p1 && sectorAt(p1.x, p1.y) < 0) out.push({ sev: 'error', msg: 'Player 1 Start is outside the map.', kind: 't', i: M.t.indexOf(p1) });
   return out;
 }

@@ -172,7 +172,7 @@ function importWads(list, fname, extraPack, notes = []) {
     if ((S.artPack || 'freedoom') === 'freedoom') loadFreedoom(true);
     const kept = keepImportedArt(false);
     const rep = recognizeReport(r.note, notes, mapPack, iwad) + (kept ? `<p class="hint">Kept ${kept} of this map's own textures inside the map so they survive saving (File → My textures).</p>` : '');
-    if (play) { const p1 = M.t.find(t => t.type === 1); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
+    if (play) { const p1 = realStart(); if (!p1) return toast('That map has no Player 1 Start', 4000); setTimeout(() => startDemo(), 50); }
     else modal('Imported ' + label + ' from ' + fname, rep, [{ label: '▶ Play it', cls: 'demo', fn: () => setTimeout(() => startDemo(), 50) }, { cancel: 1 }]);
   };
   if (maps.length === 1) { open(0, false); return; }

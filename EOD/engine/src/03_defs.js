@@ -81,6 +81,7 @@ const LINE_SPECIALS = [
   [18, 'S1 Floor raise to next higher'], [23, 'S1 Floor lower to lowest'], [38, 'W1 Floor lower to lowest'], [82, 'WR Floor lower to lowest'], [5, 'W1 Floor raise to lowest ceiling'], [101, 'S1 Floor raise to lowest ceiling'], [19, 'W1 Floor lower to highest neighbor'], [102, 'S1 Floor lower to highest neighbor'],
   [97, 'WR Teleport'], [39, 'W1 Teleport'],
   [35, 'W1 Light to 35'], [13, 'W1 Light to 255'],
+  [252, 'Conveyor: carries things on tagged floors (direction and speed = this line)'], [253, 'Conveyor: carries things + scrolls tagged floors'], [251, 'Scroll tagged floor texture (direction = this line)'],
   [11, 'S1 Exit level'], [52, 'W1 Exit level'], [51, 'S1 Secret exit'], [124, 'W1 Secret exit'],
   [48, 'Scrolling wall (left)']
 ];

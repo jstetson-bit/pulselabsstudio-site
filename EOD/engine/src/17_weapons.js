@@ -156,6 +156,7 @@ function drawGun(g, w, h, d, firing, side) { return side ? drawGunSide(g, w, h, 
 const WEPF = new Map();
 function weaponArt(id, d) {
   const key = id + JSON.stringify(d.look) + d.cls; let a = WEPF.get(key); if (a) return a;
+  if (d.look.art && !artWep(d.look.art)) { const ph = SPR.artWait || (SPR.artWait = mkSprite('artWait', 1, 1, () => { })); return { idle: ph, fire: ph, pick: ph }; }
   if (d.look.art) { const af = artWepFrames(d, id); if (af) { af.pick.ox = af.pick.w >> 1; af.pick.oy = af.pick.h; WEPF.set(key, af); return af; } }
   const W_ = 160, H_ = 120;
   a = { idle: mkSprite('w' + id + 'a', W_, H_, (g, w, h) => drawGun(g, w, h, d, false)), fire: mkSprite('w' + id + 'b', W_, H_, (g, w, h) => drawGun(g, w, h, d, true)), pick: mkSprite('w' + id + 'p', Math.round(48 + 24 * d.look.length), 20, (g, w, h) => drawGun(g, w, h, d, false, true)) };

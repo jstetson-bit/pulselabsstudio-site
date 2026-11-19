@@ -57,6 +57,7 @@ function openManual() {
 <li><b>Outdoors:</b> select a sector and press <b>Make ceiling sky</b>.</li>
 <li><b>Tagged actions:</b> give a line an action and a tag (<b>New tag</b>), then give the target sector the same tag. The <b>Tags</b> explorer shows every pair.</li>
 <li><b>Secret:</b> set a sector's Effect to <i>Secret area</i>.</li>
+<li><b>Voodoo doll:</b> place more than one Player 1 Start. You spawn at the <i>last</i> one; every other one is a voodoo doll. Whatever happens to the doll happens to you: walk-over lines it crosses fire as if you crossed them, items it touches are yours, damage hurts you, and if it gets crushed you die. Put a doll on a <b>conveyor</b> (line action 252 or 253 on any line, tagged to the floor; the line's direction and length set the direction and speed) and it rides into walk-over lines to open doors, release monsters or end the level, all without scripting. The demo map <b>Voodoo Express</b> shows it.</li>
 <li><b>Glass:</b> select a line between two areas (Linedefs mode) and press <b>🪟 Make glass</b>. Every part is a switch: see-through (and how much), tint color, stained-glass pattern from the middle texture, real reflection (strength, side-angle shine, distance), shine streaks, breakable (strength, cracks, flying shards, shards left on the floor, sounds, monsters can break it), blocks walking, stops bullets, monsters can see through. Quick looks: Clear window, Mirror, Frosted, Stained, Bulletproof, Pulse red, Ghost pane. Glass lines show light blue on the map. The test map has a pane between the corridor and the yard: shoot it out.</li></ul>
 <h3>Demo controls</h3>
 <ul><li>Left stick moves and strafes. Drag anywhere else (or drag across FIRE) to turn. <b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap.</li>
@@ -130,7 +131,7 @@ function boot() {
   addEventListener('keyup', e => gameKey(e, false));
   $('#btnFile').onclick = openFileMenu; $('#btnInfo').onclick = openManual; $('#btnInvert').onclick = toggleInvert; $('#btnSettings').onclick = openSettings;
   $('#gInfo').innerHTML = $('#btnInfo').innerHTML; $('#gInvert').innerHTML = $('#btnInvert').innerHTML;
-  $('#gInfo').onclick = openManual; $('#gInvert').onclick = toggleInvert; $('#gExit').onclick = () => { if (window.NSDE_EMBED) { const p1 = M.t.find(t => t.type === 1); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return; } exitGame(); };
+  $('#gInfo').onclick = openManual; $('#gInvert').onclick = toggleInvert; $('#gExit').onclick = () => { if (window.NSDE_EMBED) { const p1 = realStart(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return; } exitGame(); };
   $('#gArrange').onclick = () => GL.arrange ? exitArrange(true) : enterArrange();
   $('#arrOk').onclick = () => exitArrange(true); $('#arrCancel').onclick = () => exitArrange(false);
   $('#drawOk').onclick = () => finishDraw(E.draw.length >= 3); $('#drawCancel').onclick = () => { E.draw = []; E.drawPreview = null; edRedraw(); toast('Drawing cancelled'); };
@@ -149,7 +150,7 @@ function boot() {
     M = window.NSDE_EMBED.map; document.title = (M.name || 'Map') + ' · made with EOD · Editor of Doom';
     $('#app').style.display = 'none'; $('#props').style.display = 'none'; $('#gExit').title = 'Restart';
     E.mode = 'sectors'; buildBars(); edResize();
-    const p1 = M.t.find(t => t.type === 1);
+    const p1 = realStart();
     if (S.theme == null) { S.theme = 'device'; LS.set('settings', S); }
     applyArtSetting(); syncCustomTex(true); syncMonsters(); syncWeapons(); initGame('play', { x: p1.x, y: p1.y, a: p1.a }); return;
   }
@@ -157,6 +158,6 @@ function boot() {
   if (saved && saved.l && saved.l.length) M = saved; else buildSampleMap();
   E.mode = S.lastMode && SELKEY[S.lastMode] ? S.lastMode : 'sectors';
   buildBars(); edResize(); zoomFit(); refreshProps();
-  if (S.theme == null) firstRun();
+  if (S.theme == null) { if (/go=play/.test(location.search)) window.__firstRunLater = 1; else firstRun(); } // straight-to-play links ask after the game
   pullAccountBinds(); applyArtSetting(); artManifest().then(artPreload); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
 }
