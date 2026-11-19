@@ -1,12 +1,14 @@
 /* ================= INPUT: keyboard, mouse (pointer lock), controller (Gamepad API), remapping ================= */
-const ACTIONS = [['fwd', 'Move forward'], ['back', 'Move back'], ['left', 'Strafe left'], ['right', 'Strafe right'], ['tl', 'Turn left'], ['tr', 'Turn right'], ['fire', 'Fire'], ['use', 'Use / open doors'], ['wnext', 'Next weapon'], ['wprev', 'Previous weapon'], ['map', 'Automap'], ['menu', 'Release mouse / back to editor']];
+const ACTIONS = [['fwd', 'Move forward'], ['back', 'Move back'], ['left', 'Strafe left'], ['right', 'Strafe right'], ['tl', 'Turn left'], ['tr', 'Turn right'], ['lu', 'Look up'], ['ld', 'Look down'], ['lc', 'Look straight ahead'], ['uturn', 'Turn around (180°)'], ['fire', 'Fire'], ['use', 'Use / open doors'], ['wnext', 'Next weapon'], ['wprev', 'Previous weapon'], ['map', 'Automap'], ['menu', 'Release mouse / back to editor']];
 const DEF_BINDS = {
-  key: { fwd: ['w', 'arrowup'], back: ['s', 'arrowdown'], left: ['a'], right: ['d'], tl: ['arrowleft'], tr: ['arrowright'], fire: ['mouse0', 'control'], use: ['e', 'space'], wnext: ['q', 'wheeldown'], wprev: ['wheelup'], map: ['tab'], menu: ['escape'] },
-  pad: { fwd: [12], back: [13], tl: [14], tr: [15], fire: [7], use: [0], wnext: [5, 3], wprev: [4], map: [8], menu: [9] },
-  mouseSens: 1, padDead: 0.2, padTurn: 1, padInvertTurn: false
+  key: { fwd: ['w', 'arrowup'], back: ['s', 'arrowdown'], left: ['a'], right: ['d'], tl: ['arrowleft'], tr: ['arrowright'], lu: ['pageup'], ld: ['pagedown'], lc: ['home'], uturn: ['x'], fire: ['mouse0', 'control'], use: ['e', 'space'], wnext: ['q', 'wheeldown'], wprev: ['wheelup'], map: ['tab'], menu: ['escape'] },
+  pad: { fwd: [12], back: [13], tl: [14], tr: [15], uturn: [11], lc: [10], fire: [7], use: [0], wnext: [5, 3], wprev: [4], map: [8], menu: [9] },
+  mouseSens: 1, padDead: 0.2, padTurn: 1, padInvertTurn: false,
+  // looking up/down + touch screen layout
+  mouseLook: true, lookInvert: false, lookSpeed: 1, lookSpring: false, touchStickX: 'strafe', touchLookStick: true, touchDragLook: true, touchUturn: true
 };
 const PAD_NAMES = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'View', 'Menu', 'Left stick click', 'Right stick click', 'D-pad up', 'D-pad down', 'D-pad left', 'D-pad right', 'Xbox button'];
-function loadBinds() { const s = LS.get('binds', null); const b = JSON.parse(JSON.stringify(DEF_BINDS)); if (s) { Object.assign(b.key, s.key || {}); Object.assign(b.pad, s.pad || {}); ['mouseSens', 'padDead', 'padTurn', 'padInvertTurn'].forEach(k => { if (s[k] !== undefined) b[k] = s[k]; }); } return b; }
+function loadBinds() { const s = LS.get('binds', null); const b = JSON.parse(JSON.stringify(DEF_BINDS)); if (s) { Object.assign(b.key, s.key || {}); Object.assign(b.pad, s.pad || {}); ['mouseSens', 'padDead', 'padTurn', 'padInvertTurn', 'mouseLook', 'lookInvert', 'lookSpeed', 'lookSpring', 'touchStickX', 'touchLookStick', 'touchDragLook', 'touchUturn'].forEach(k => { if (s[k] !== undefined) b[k] = s[k]; }); } return b; }
 let BINDS = loadBinds();
 let bindSaveT = 0;
 function saveBinds() {
@@ -43,19 +45,26 @@ function pollInput() {
   const pad = readPad();
   if (pad && (pad.buttons.some(b => b.pressed) || pad.axes.some(a => Math.abs(a) > 0.5))) setInputMode('pad');
   const A = n => actOn(n, pad);
-  let fwd = IN.fwd, str = IN.str, turn = 0;
+  let fwd = IN.fwd, str = IN.str, turn = 0, look = 0;
+  const lk = BINDS.lookSpeed * (BINDS.lookInvert ? -1 : 1);
   if (A('fwd')) fwd = 1; if (A('back')) fwd = -1; if (A('left')) str = -1; if (A('right')) str = 1;
   if (A('tl')) turn += 0.065; if (A('tr')) turn -= 0.065;
+  if (A('lu')) look += 0.04 * BINDS.lookSpeed; if (A('ld')) look -= 0.04 * BINDS.lookSpeed;
+  // touch: left stick sideways can turn instead of strafe; the LOOK stick turns and looks
+  if (IN.stickTurn) turn -= IN.stickTurn * Math.abs(IN.stickTurn) * 0.075 * S.sens;
+  if (IN.lookX) turn -= IN.lookX * Math.abs(IN.lookX) * 0.085 * S.sens;
+  if (IN.lookY) look -= IN.lookY * Math.abs(IN.lookY) * 0.045 * lk;
   if (pad) {
     const dz = BINDS.padDead, lx = pad.axes[0] || 0, ly = pad.axes[1] || 0, rx = pad.axes[2] || 0;
     const sh = v => Math.abs(v) < dz ? 0 : Math.sign(v) * (Math.abs(v) - dz) / (1 - dz);
     if (sh(ly)) fwd = clamp(-sh(ly) * 1.15, -1, 1); if (sh(lx)) str = clamp(sh(lx) * 1.15, -1, 1);
     const t = sh(rx); if (t) turn -= t * Math.abs(t) * 0.12 * BINDS.padTurn * (BINDS.padInvertTurn ? -1 : 1);
+    const ry = sh(pad.axes[3] || 0); if (ry) look -= ry * Math.abs(ry) * 0.05 * lk;
   }
   IN.firePad = A('fire');
-  for (const n of ['use', 'wnext', 'wprev', 'map', 'menu']) { const on = A(n); if (on && !IN.prev[n]) inputEdge(n); IN.prev[n] = on; }
+  for (const n of ['use', 'wnext', 'wprev', 'map', 'menu', 'uturn', 'lc']) { const on = A(n); if (on && !IN.prev[n]) inputEdge(n); IN.prev[n] = on; }
   IN.tapped.clear();
-  return { fwd, str, turn };
+  return { fwd, str, turn, look };
 }
 function inputEdge(n) {
   if (!G) return;
@@ -64,6 +73,8 @@ function inputEdge(n) {
   else if (n === 'wnext') cycleWeapon(1);
   else if (n === 'wprev') cycleWeapon(-1);
   else if (n === 'map') G.automap = !G.automap;
+  else if (n === 'uturn') IN.uturn = true;
+  else if (n === 'lc') { if (G.p) G.p.look = 0; }
   else if (n === 'menu') { if (document.pointerLockElement) document.exitPointerLock(); else setTimeout(() => $('#gExit').click(), 0); }
 }
 function rumble(strength, ms) { const g = readPad(); try { if (g && g.vibrationActuator) g.vibrationActuator.playEffect('dual-rumble', { duration: ms, strongMagnitude: strength, weakMagnitude: strength * 0.6 }); } catch (e) { } }
@@ -79,7 +90,7 @@ function gameMouseDown(e) {
   IN.keys.add('mouse' + e.button); IN.tapped.add('mouse' + e.button); return true;
 }
 function gameMouseUp(e) { if (e.pointerType !== 'mouse') return false; IN.keys.delete('mouse' + e.button); return true; }
-function gameMouseMove(e) { if (!document.pointerLockElement) return false; IN.turn -= (e.movementX || 0) * 0.0028 * BINDS.mouseSens; return true; }
+function gameMouseMove(e) { if (!document.pointerLockElement) return false; IN.turn -= (e.movementX || 0) * 0.0028 * BINDS.mouseSens; if (BINDS.mouseLook) IN.look -= (e.movementY || 0) * 0.0035 * BINDS.mouseSens * BINDS.lookSpeed * (BINDS.lookInvert ? -1 : 1); return true; }
 document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement) { [0, 1, 2, 3, 4].forEach(b => IN.keys.delete('mouse' + b)); } });
 
 /* ---------- Controls screen (remapping) ---------- */
@@ -124,7 +135,19 @@ function openControls() {
   window.__modalClose = stop;
   const pad = readPad();
   modal('Controls', `<p class="hint">${pad ? '🎮 Controller found: ' + esc(pad.id.replace(/\(.*\)/, '').trim()) : 'No controller found yet. Plug one in (or pair an Xbox controller over Bluetooth) and press any button.'}</p>
-    <p class="hint">Tap a slot, then press the key, mouse button, wheel or controller button you want. Sticks: left stick moves, right stick turns.</p>
+    <p class="hint">Tap a slot, then press the key, mouse button, wheel or controller button you want. Sticks: left stick moves, right stick turns and looks up/down.</p>
+    <div class="h">Touch screen (phone and tablet)</div>
+    <p class="hint">Left stick sideways:</p>
+    <div class="row"><button data-tsx="strafe" class="${draft.touchStickX === 'strafe' ? 'on' : ''}">Strafe (side-step)</button><button data-tsx="turn" class="${draft.touchStickX === 'turn' ? 'on' : ''}">Turn (classic arcade)</button></div>
+    <label class="chk"><input type="checkbox" id="tls" ${draft.touchLookStick ? 'checked' : ''}>Show the LOOK stick (right thumb: turn and look up/down)</label>
+    <label class="chk"><input type="checkbox" id="tdl" ${draft.touchDragLook ? 'checked' : ''}>Dragging on the screen (or on FIRE) also looks up/down</label>
+    <label class="chk"><input type="checkbox" id="tut2" ${draft.touchUturn ? 'checked' : ''}>Show the turn-around button ⟲</label>
+    <div class="h">Looking up and down</div>
+    <div class="f"><label>Look speed <b id="lsV">${draft.lookSpeed}</b></label><input type="range" id="lsp" min="0.3" max="3" step="0.1" value="${draft.lookSpeed}"></div>
+    <label class="chk"><input type="checkbox" id="lin" ${draft.lookInvert ? 'checked' : ''}>Invert up/down (push up to look down, like a flight stick)</label>
+    <label class="chk"><input type="checkbox" id="lml" ${draft.mouseLook ? 'checked' : ''}>Mouse moves the view up and down too</label>
+    <label class="chk"><input type="checkbox" id="lsg" ${draft.lookSpring ? 'checked' : ''}>View drifts back to straight ahead when you let go</label>
+    <div class="h">Keys, mouse and controller buttons</div>
     <div id="ctlStatus" class="hint" style="color:var(--yellow);min-height:1.4em"></div><div id="ctlRows"></div>
     <div class="f"><label>Mouse turn speed <b id="msV">${draft.mouseSens}</b></label><input type="range" id="ms" min="0.2" max="4" step="0.1" value="${draft.mouseSens}"></div>
     <div class="f"><label>Stick turn speed <b id="ptV">${draft.padTurn}</b></label><input type="range" id="pt" min="0.3" max="3" step="0.1" value="${draft.padTurn}"></div>
@@ -132,11 +155,14 @@ function openControls() {
     <label class="chk"><input type="checkbox" id="pi" ${draft.padInvertTurn ? 'checked' : ''}>Invert right-stick turning</label>
     <div class="row"><button id="ctlReset">Reset to defaults</button></div>
     <p class="hint">Saved on this device${window.EODB ? ', and to your EOD account when you are signed in' : ''}.</p>`,
-    [{ ok: 1, fn: () => { stop(); BINDS = draft; saveBinds(); toast('Controls saved'); } }, { cancel: 1, fn: () => stop() }], b => {
+    [{ ok: 1, fn: () => { stop(); BINDS = draft; saveBinds(); if (G) layoutGame(); toast('Controls saved'); } }, { cancel: 1, fn: () => stop() }], b => {
       render(b);
       const sl = (id, key, lab) => { const e = b.querySelector('#' + id); e.oninput = () => { draft[key] = +e.value; b.querySelector('#' + lab).textContent = e.value; }; };
       sl('ms', 'mouseSens', 'msV'); sl('pt', 'padTurn', 'ptV'); sl('pd', 'padDead', 'pdV');
       b.querySelector('#pi').onchange = e => draft.padInvertTurn = e.target.checked;
+      sl('lsp', 'lookSpeed', 'lsV');
+      [['lin', 'lookInvert'], ['lml', 'mouseLook'], ['lsg', 'lookSpring'], ['tls', 'touchLookStick'], ['tdl', 'touchDragLook'], ['tut2', 'touchUturn']].forEach(([id, k]) => b.querySelector('#' + id).onchange = e => draft[k] = e.target.checked);
+      b.querySelectorAll('[data-tsx]').forEach(x => x.onclick = () => { draft.touchStickX = x.dataset.tsx; b.querySelectorAll('[data-tsx]').forEach(y => y.classList.toggle('on', y === x)); });
       b.querySelector('#ctlReset').onclick = () => { const d = JSON.parse(JSON.stringify(DEF_BINDS)); Object.keys(draft).forEach(k => delete draft[k]); Object.assign(draft, d); render(b); b.querySelector('#ctlStatus').textContent = 'Defaults restored. Press the green check to keep them.'; };
     });
 }

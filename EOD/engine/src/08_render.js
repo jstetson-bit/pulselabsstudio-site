@@ -121,7 +121,7 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
   const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
-    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.6) * sth / sh) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
+    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
     return;
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;

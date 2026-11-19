@@ -64,3 +64,9 @@ The story of how EOD came to be, in the owner's words where possible.
 - James: *"We have a smiley face guy at the bottom. He needs to be more Doom-ish. So some kind of soldier guy, you know, with the face when he gets hurt. He goes through the various degrees of being hurt."*
 - And: *"I would love a chain gun. Let's do one where you start off on the other side and you're just mowing down a whole bunch of fucking dudes with a whole bunch of full chain gun ammo. And just a fun way to just burn everything down with a chain gun and just see what happens."*
 - Built 0.6.0: the real Doom status bar with the marine's face (5 hurt levels, looks at the shooter, ouch, grin, rampage, god, dead) and demo map 5, Chaingun Carnage: 156 monsters in six waves, you with a chaingun and 999 bullets. Tuned so you deal 2.5× damage and take 0.2×, because at plain Doom numbers 100+ monsters killed the player in 10 seconds.
+
+## 2026-11-19 · Turning, looking, and the classic guns
+- James after Chaingun Carnage: *"Okay, that was fun. Now, I would like a double barrel shotgun. And I would like a 240 saw, a rocket launcher, and how do I turn? I can strafe left and right, but I don't know how to turn. Can I look up? Can I look down?"*
+- On the screen controls: *"adapt the screen controls to include a look down, a look up, and U-turn maybe… If you press up, that's forward. If you press back, that's going reverse… I don't know how to turn around. I don't have a mouse to do it."*
+- Found: turning on touch was a hidden drag-on-empty-screen, and nobody could look up/down on any input. The double barrel, chainsaw and rocket launcher already existed in the engine, just not in the demo.
+- Built 0.6.1: a LOOK stick + ⟲ turn-around button, look up/down on every input, a choice of strafe or classic-arcade turning on the left stick, tap-the-status-bar gun picking, and those three guns (with ammo) in Chaingun Carnage.

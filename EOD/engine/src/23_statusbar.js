@@ -16,7 +16,7 @@ function hudHeight(W, H) {
   if (S.statusBar !== 'slim' && G && G.mode === 'play' && sbReady()) return Math.round(32 * sbScale(W, H));
   return 20 * u;
 }
-function sbScale(W, H) { const big = { classic: 0.2, compact: 0.13 }[S.statusBar || 'classic'] || 0.2; return Math.min(W / 320, H * big / 32); }
+function sbScale(W, H) { const mode = !S.statusBar || S.statusBar === 'auto' ? (innerHeight < 560 ? 'compact' : 'classic') : S.statusBar; const big = { classic: 0.2, compact: 0.13 }[mode] || 0.2; return Math.min(W / 320, H * big / 32); }
 /* ---- face brain (runs every tic) ---- */
 function faceLevel(p) { return clamp(Math.floor((100 - clamp(p.hp, 0, 100)) * 5 / 101), 0, 4); }
 function faceHurt(dmg, src) {
@@ -44,6 +44,7 @@ function faceName() {
 }
 /* ---- drawing ---- */
 function drawStatusBar(g, W, H) {
+  if (G) G.armsRect = null;
   if (S.statusBar === 'slim' || !sbReady()) return false;
   const s = sbScale(W, H), bw = 320 * s, bh = 32 * s, x0 = Math.round((W - bw) / 2), y0 = Math.round(H - bh), p = G.p, wd = WEAPONS[p.w];
   g.imageSmoothingEnabled = false;
@@ -59,6 +60,7 @@ function drawStatusBar(g, W, H) {
   big(p.hp, 90, 3, true);
   // weapon numbers 2-7: yellow = you have it
   if (sbPic('STARMS')) put('STARMS', 104, 0);
+  G.armsRect = { x: x0 + 104 * s, y: y0, w: 40 * s, h: 32 * s };
   for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((p.has.has(i) || (i === 3 && p.has.has(8)) ? 'STYSNUM' : 'STGNUM') + i, x, y); }
   put(faceName(), 143, 0, true);
   big(p.armor, 221, 3, true);

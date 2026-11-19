@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.15 — 2026-11-19
+- EOD 0.6.1: LOOK stick, turn-around, look up/down; chainsaw, double barrel and rocket launcher in Chaingun Carnage.
+
 ## v0.7.14 — 2026-11-18
 - EOD 0.6.0: Doom status bar with the marine's face; demo map 5 Chaingun Carnage (6 waves, 156 monsters).
 

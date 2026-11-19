@@ -98,6 +98,10 @@ button.demo{background:var(--accent);border-color:#ff5a5a;color:#fff;font-weight
 #ctls .ctl{position:absolute;transform:translate(-50%,-50%);color:#fff;font-weight:900;letter-spacing:1px;user-select:none;touch-action:none}
 .ctl.round{width:78px;height:78px;border-radius:50%;background:rgba(40,40,48,.75);border:2px solid rgba(255,255,255,.55);padding:0}
 #c-fire{width:96px;height:96px;background:rgba(190,20,30,.78);border-color:#ff7a7a;font-size:1.05em}
+#c-look{width:150px;height:150px;border-radius:50%;background:rgba(40,40,48,.45);border:2px solid rgba(255,255,255,.45)}
+#c-look .knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid #fff}
+#c-look .lbl{position:absolute;left:0;right:0;top:-22px;text-align:center;font:700 12px sans-serif;color:#fff;opacity:.8;pointer-events:none}
+#c-uturn{font-size:28px}
 #c-stick{width:150px;height:150px;border-radius:50%;background:rgba(40,40,48,.45);border:2px solid rgba(255,255,255,.45)}
 #c-stick .knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:rgba(255,255,255,.55);border:2px solid #fff}
 .ctl .mover{position:absolute;left:50%;top:-14px;transform:translateX(-50%);background:#000;font-size:12px;z-index:3}
@@ -170,6 +174,8 @@ a.brand{color:var(--text);text-decoration:none}
   </div>
   <div id="ctls">
     <div class="ctl" id="c-stick" data-c="stick"><div class="knob"></div></div>
+    <div class="ctl" id="c-look" data-c="look"><div class="knob"></div><span class="lbl">LOOK</span></div>
+    <button class="ctl round" id="c-uturn" data-c="uturn" title="Turn around">⟲</button>
     <button class="ctl round" id="c-fire" data-c="fire">FIRE</button>
     <button class="ctl round" id="c-use" data-c="use">USE</button>
     <button class="ctl round" id="c-wpn" data-c="wpn">WPN</button>
@@ -190,7 +196,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.6.0', VC = 14;
+const VERSION = '0.6.1', VC = 15;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2012,8 +2018,8 @@ function openSettings() {
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
   <div class="h">Status bar (in the game)</div>
-  <p class="hint">Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
-  <div class="row">${[['classic', 'Classic'], ['compact', 'Compact'], ['slim', 'Slim']].map(([k, n]) => `<button data-sb="${k}" class="${(S.statusBar || 'classic') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+  <p class="hint">Auto picks Compact on short screens (phones sideways) and Classic otherwise. Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
+  <div class="row">${[['auto', 'Auto'], ['classic', 'Classic'], ['compact', 'Compact'], ['slim', 'Slim']].map(([k, n]) => `<button data-sb="${k}" class="${(S.statusBar || 'auto') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <div class="h">Voodoo dolls</div>
   <p class="hint">Extra Player 1 Starts become voodoo dolls (you spawn at the last one). Show a message when a doll crosses a line or gets hurt?</p>
   <div class="row">${[[true, 'Show'], [false, 'Hide']].map(([k, n]) => `<button data-doll="${k}" class="${(S.dollMsg !== false) === k ? 'on' : ''}">${n}</button>`).join('')}</div>
@@ -2177,7 +2183,7 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
   const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
-    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.6) * sth / sh) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
+    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
     return;
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
@@ -2632,7 +2638,7 @@ function tickPickups(actor) {
 function endLevel(secret) { if (G.over) return; G.over = { k: 'exit', secret, time: (performance.now() - G.t0) / 1000 }; showOver(); }
 
 /* ---------- per-tic ---------- */
-const IN = { fwd: 0, str: 0, turn: 0, fire: false, use: false, keys: new Set(), up: 0 };
+const IN = { fwd: 0, str: 0, turn: 0, look: 0, lookX: 0, lookY: 0, stickTurn: 0, uturn: false, fire: false, use: false, keys: new Set(), up: 0 };
 function gameTic() {
   if (GL.arrange) return;
   if (G.over) { pollInput(); return; }
@@ -2640,6 +2646,12 @@ function gameTic() {
   // input
   const pin = pollInput(); if (!G) return; const fwd = pin.fwd, str = pin.str, turn = pin.turn;
   p.a += turn + IN.turn; IN.turn = 0;
+  // look up/down (-1 .. 1) and the 180° turn
+  const lookIn = (pin.look || 0) + IN.look; IN.look = 0;
+  p.look = clamp((p.look || 0) + lookIn, -1, 1);
+  if (BINDS.lookSpring && !lookIn && !IN.lookY && !TP.size) p.look *= 0.9;
+  if (IN.uturn) { IN.uturn = false; if (!p.uturnT) { p.uturnT = 9; sfx('switch', .3); } }
+  if (p.uturnT > 0) { p.a += Math.PI / 9; p.uturnT--; }
   const speed = G.mode === 'visual' ? 14 : 9, ca = Math.cos(p.a), sa = Math.sin(p.a);
   const mx = (ca * fwd + sa * str) * speed, my = (sa * fwd - ca * str) * speed;
   p.vx += (mx - p.vx) * 0.35; p.vy += (my - p.vy) * 0.35;
@@ -2690,9 +2702,9 @@ function gameFrame(now) {
 
 /* ================= GAME SCREEN, HUD, TOUCH CONTROLS ================= */
 const CTL_DEF = {
-  landscape: { stick: { x: 13, y: 62, s: 1 }, fire: { x: 89, y: 58, s: 1 }, use: { x: 77, y: 76, s: 0.9 }, wpn: { x: 92, y: 32, s: 0.8 }, map: { x: 79, y: 42, s: 0.8 } },
-  portrait: { stick: { x: 25, y: 79, s: 1 }, fire: { x: 78, y: 77, s: 1 }, use: { x: 58, y: 91, s: 0.9 }, wpn: { x: 88, y: 91, s: 0.85 }, map: { x: 60, y: 66, s: 0.8 } },
-  fold: { stick: { x: 14, y: 72, s: 1.1 }, fire: { x: 87, y: 68, s: 1.1 }, use: { x: 74, y: 82, s: 1 }, wpn: { x: 90, y: 50, s: 0.9 }, map: { x: 76, y: 58, s: 0.9 } }
+  landscape: { stick: { x: 13, y: 58, s: 1 }, look: { x: 73, y: 57, s: 0.8 }, fire: { x: 90, y: 50, s: 0.95 }, use: { x: 90, y: 75, s: 0.72 }, wpn: { x: 92, y: 25, s: 0.75 }, map: { x: 79, y: 25, s: 0.7 }, uturn: { x: 59, y: 76, s: 0.7 } },
+  portrait: { stick: { x: 22, y: 80, s: 1 }, look: { x: 63, y: 81, s: 0.85 }, fire: { x: 87, y: 73, s: 0.9 }, use: { x: 87, y: 91, s: 0.75 }, wpn: { x: 44, y: 93, s: 0.7 }, map: { x: 44, y: 66, s: 0.7 }, uturn: { x: 66, y: 65, s: 0.7 } },
+  fold: { stick: { x: 14, y: 72, s: 1.1 }, look: { x: 73, y: 72, s: 0.95 }, fire: { x: 90, y: 62, s: 1 }, use: { x: 90, y: 85, s: 0.85 }, wpn: { x: 90, y: 40, s: 0.8 }, map: { x: 76, y: 46, s: 0.75 }, uturn: { x: 58, y: 87, s: 0.75 } }
 };
 const GL = { key: 'landscape', vw: 0, vh: 0, vx: 0, vy: 0, arrange: false, arrBackup: null };
 function layoutKey() { if (S.layout !== 'auto') return S.layout; const W = innerWidth, H = innerHeight; return H / W > 1.25 ? 'portrait' : W / H > 1.35 ? 'landscape' : 'fold'; }
@@ -2708,7 +2720,7 @@ function layoutGame() {
   const pos = ctlPos();
   document.querySelectorAll('#ctls .ctl').forEach(el => {
     const p = pos[el.dataset.c]; el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.transform = `translate(-50%,-50%) scale(${p.s})`;
-    el.style.opacity = GL.arrange ? 1 : S.ctlOpacity; el.style.display = (G && G.mode === 'visual' && el.dataset.c !== 'stick') ? 'none' : '';
+    el.style.opacity = GL.arrange ? 1 : S.ctlOpacity; const c = el.dataset.c; el.style.display = (G && G.mode === 'visual' && c !== 'stick' && c !== 'look') || (c === 'look' && !BINDS.touchLookStick) || (c === 'uturn' && !BINDS.touchUturn) ? 'none' : '';
   });
   if (G && G.mode === 'visual') { const st = $('#c-stick'); st.style.top = Math.min(pos.stick.y, 62) + '%'; }
   $('#game').style.background = GL.key === 'portrait' ? '#0b0b0e' : '#000';
@@ -2789,7 +2801,7 @@ function gameSprites() {
 }
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
-  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: -(G.kick || 0) }, G.sc, gameSprites());
+  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) }, G.sc, gameSprites());
   R.ctx.putImageData(R.img, 0, 0);
   const cv = $('#gv'), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
   g.drawImage(R.cv, 0, 0);
@@ -2913,25 +2925,41 @@ function gameDown(e) {
   try { $('#game').setPointerCapture(id); } catch (er) { }
   if (c) {
     const k = c.dataset.c;
-    if (k === 'stick') { const r = c.getBoundingClientRect(); TP.set(id, { k, cx: r.left + r.width / 2, cy: r.top + r.height / 2, rad: r.width / 2 }); stickMove(e); return; }
-    if (k === 'fire') { IN.fire = true; TP.set(id, { k, lx: e.clientX }); return; }
+    if (k === 'stick' || k === 'look') { const r = c.getBoundingClientRect(); TP.set(id, { k, cx: r.left + r.width / 2, cy: r.top + r.height / 2, rad: r.width / 2 }); stickMove(e); return; }
+    if (k === 'fire') { IN.fire = true; TP.set(id, { k, lx: e.clientX, ly: e.clientY }); return; }
+    if (k === 'uturn') { IN.uturn = true; TP.set(id, { k }); return; }
     if (k === 'use') { IN.use = true; TP.set(id, { k }); return; }
     if (k === 'wpn') { cycleWeapon(); TP.set(id, { k }); return; }
     if (k === 'map') { G.automap = !G.automap; TP.set(id, { k }); return; }
   }
+  if (!c && armsTap(e)) { TP.set(id, { k: 'tap' }); return; }
   TP.set(id, { k: 'turn', lx: e.clientX, ly: e.clientY });
 }
-function stickMove(e) { const t = TP.get(e.pointerId); let dx = e.clientX - t.cx, dy = e.clientY - t.cy; const m = Math.hypot(dx, dy), max = t.rad * 0.7; if (m > max) { dx *= max / m; dy *= max / m; } IN.str = clamp(dx / max, -1, 1); IN.fwd = clamp(-dy / max, -1, 1); if (Math.abs(IN.str) < 0.15) IN.str = 0; if (Math.abs(IN.fwd) < 0.12) IN.fwd = 0; $('#c-stick .knob').style.transform = `translate(${dx}px,${dy}px)`; }
+/* tap a number on the status bar's ARMS panel to pick that gun (2 = chainsaw, tap again for the pistol) */
+function armsTap(e) {
+  const a = G && G.armsRect; if (!a) return false; const cv = $('#gv'), r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
+  if (x < a.x || y < a.y || x > a.x + a.w || y > a.y + a.h) return false;
+  const col = clamp(Math.floor((x - a.x) / (a.w / 3)), 0, 2), row = clamp(Math.floor((y - a.y) / (a.h / 2)), 0, 1), slot = 2 + row * 3 + col, p = G.p;
+  let w = slot; if (slot === 2 && p.has.has(1) && p.w !== 1) w = 1;
+  if (slot === 3 && p.has.has(4) && (p.w === 3 || !p.has.has(3))) w = 4;
+  if (p.has.has(w) && w !== p.w) { p.w = w; msg(WEAPONS[w].name); sfx('switch'); }
+  return true;
+}
+function stickMove(e) { const t = TP.get(e.pointerId); let dx = e.clientX - t.cx, dy = e.clientY - t.cy; const m = Math.hypot(dx, dy), max = t.rad * 0.7; if (m > max) { dx *= max / m; dy *= max / m; }
+  if (t.k === 'look') { IN.lookX = clamp(dx / max, -1, 1); IN.lookY = clamp(dy / max, -1, 1); if (Math.abs(IN.lookX) < 0.12) IN.lookX = 0; if (Math.abs(IN.lookY) < 0.2) IN.lookY = 0; $('#c-look .knob').style.transform = `translate(${dx}px,${dy}px)`; return; }
+  const sx = clamp(dx / max, -1, 1); if (BINDS.touchStickX === 'turn') { IN.str = 0; IN.stickTurn = Math.abs(sx) < 0.15 ? 0 : sx; } else { IN.str = sx; IN.stickTurn = 0; } IN.fwd = clamp(-dy / max, -1, 1); if (Math.abs(IN.str) < 0.15) IN.str = 0; if (Math.abs(IN.fwd) < 0.12) IN.fwd = 0; $('#c-stick .knob').style.transform = `translate(${dx}px,${dy}px)`; }
 function gameMove(e) {
   if (gameMouseMove(e)) return;
   const t = TP.get(e.pointerId); if (!t) return; e.preventDefault();
-  if (t.k === 'stick') stickMove(e);
-  else if (t.k === 'turn' || t.k === 'fire') { const dx = e.clientX - t.lx; t.lx = e.clientX; IN.turn -= dx * 0.0065 * S.sens; }
+  if (t.k === 'stick' || t.k === 'look') stickMove(e);
+  else if (t.k === 'turn' || t.k === 'fire') { const dx = e.clientX - t.lx, dy = e.clientY - (t.ly == null ? e.clientY : t.ly); t.lx = e.clientX; t.ly = e.clientY; IN.turn -= dx * 0.0065 * S.sens; if (BINDS.touchDragLook) IN.look -= dy * 0.006 * BINDS.lookSpeed * (BINDS.lookInvert ? -1 : 1); }
 }
 function gameUp(e) {
   gameMouseUp(e);
   const t = TP.get(e.pointerId); if (!t) return; TP.delete(e.pointerId);
-  if (t.k === 'stick') { IN.fwd = IN.str = 0; $('#c-stick .knob').style.transform = ''; }
+  if (t.k === 'stick') { IN.fwd = IN.str = IN.stickTurn = 0; $('#c-stick .knob').style.transform = ''; }
+  if (t.k === 'look') { IN.lookX = IN.lookY = 0; $('#c-look .knob').style.transform = ''; }
   if (t.k === 'fire') IN.fire = false;
 }
 function cycleWeapon(dir = 1) { const p = G.p; const list = [...p.has].sort((a, b) => a - b); const i = list.indexOf(p.w); p.w = list[(i + dir + list.length) % list.length]; msg(WEAPONS[p.w].name); sfx('switch'); }
@@ -3035,9 +3063,9 @@ function openManual() {
 <li><b>Voodoo doll:</b> place more than one Player 1 Start. You spawn at the <i>last</i> one; every other one is a voodoo doll. Whatever happens to the doll happens to you: walk-over lines it crosses fire as if you crossed them, items it touches are yours, damage hurts you, and if it gets crushed you die. Put a doll on a <b>conveyor</b> (line action 252 or 253 on any line, tagged to the floor; the line's direction and length set the direction and speed) and it rides into walk-over lines to open doors, release monsters or end the level, all without scripting. The demo map <b>Voodoo Express</b> shows it.</li>
 <li><b>Glass:</b> select a line between two areas (Linedefs mode) and press <b>🪟 Make glass</b>. Every part is a switch: see-through (and how much), tint color, stained-glass pattern from the middle texture, real reflection (strength, side-angle shine, distance), shine streaks, breakable (strength, cracks, flying shards, shards left on the floor, sounds, monsters can break it), blocks walking, stops bullets, monsters can see through. Quick looks: Clear window, Mirror, Frosted, Stained, Bulletproof, Pulse red, Ghost pane. Glass lines show light blue on the map. The test map has a pane between the corridor and the yard: shoot it out.</li></ul>
 <h3>Demo controls</h3>
-<ul><li>Left stick moves and strafes. Drag anywhere else (or drag across FIRE) to turn. <b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap.</li>
+<ul><li><b>Left stick</b> moves: up = forward, down = back, sideways = side-step (or turn, if you pick the classic arcade style in <b>Controls</b>).</li><li><b>LOOK stick</b> (right thumb) turns you left/right and looks up/down. Dragging anywhere on the screen, or sliding your thumb on <b>FIRE</b>, does the same.</li><li><b>⟲</b> spins you around 180° in a blink.</li><li><b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap. Tap a number on the status bar's ARMS panel to grab that gun (2 = chainsaw, tap again for the pistol).</li><li>Move or resize any button with <b>Arrange</b>; change it all in <b>Controls</b>.</li>
 <li>Layouts for portrait 9:16, landscape 16:9 and Z Fold unfolded are picked automatically. Change them in Settings. <b>Arrange</b> lets you move and resize every button with the yellow words, saved separately for each layout.</li>
-<li>PC: WASD moves, arrow keys turn, Ctrl or F fires, Space or E uses, Tab shows the map, 1-8 picks a weapon, Esc exits.</li></ul>
+<li>PC: WASD moves, mouse (or arrow keys) turns, mouse up/down or PageUp/PageDown looks up/down, Home looks straight, X turns around, Ctrl or F fires, Space or E uses, Tab shows the map, 1-8 picks a weapon, Esc exits.</li></ul>
 <h3>Export</h3>
 <ul><li><b>Export Doom WAD:</b> a real Doom-format PWAD. Play it in <b>GZDoom</b> (PC) or <b>Delta Touch</b> (Android) with Doom II or the free <b>Freedoom</b> IWAD. GZDoom builds the nodes itself.</li>
 <li><b>Export playable game:</b> one .html file with your map baked in. It opens straight into the game on any phone or PC browser. It's your shareable "executable".</li>
@@ -3138,14 +3166,16 @@ function boot() {
 }
 
 /* ================= INPUT: keyboard, mouse (pointer lock), controller (Gamepad API), remapping ================= */
-const ACTIONS = [['fwd', 'Move forward'], ['back', 'Move back'], ['left', 'Strafe left'], ['right', 'Strafe right'], ['tl', 'Turn left'], ['tr', 'Turn right'], ['fire', 'Fire'], ['use', 'Use / open doors'], ['wnext', 'Next weapon'], ['wprev', 'Previous weapon'], ['map', 'Automap'], ['menu', 'Release mouse / back to editor']];
+const ACTIONS = [['fwd', 'Move forward'], ['back', 'Move back'], ['left', 'Strafe left'], ['right', 'Strafe right'], ['tl', 'Turn left'], ['tr', 'Turn right'], ['lu', 'Look up'], ['ld', 'Look down'], ['lc', 'Look straight ahead'], ['uturn', 'Turn around (180°)'], ['fire', 'Fire'], ['use', 'Use / open doors'], ['wnext', 'Next weapon'], ['wprev', 'Previous weapon'], ['map', 'Automap'], ['menu', 'Release mouse / back to editor']];
 const DEF_BINDS = {
-  key: { fwd: ['w', 'arrowup'], back: ['s', 'arrowdown'], left: ['a'], right: ['d'], tl: ['arrowleft'], tr: ['arrowright'], fire: ['mouse0', 'control'], use: ['e', 'space'], wnext: ['q', 'wheeldown'], wprev: ['wheelup'], map: ['tab'], menu: ['escape'] },
-  pad: { fwd: [12], back: [13], tl: [14], tr: [15], fire: [7], use: [0], wnext: [5, 3], wprev: [4], map: [8], menu: [9] },
-  mouseSens: 1, padDead: 0.2, padTurn: 1, padInvertTurn: false
+  key: { fwd: ['w', 'arrowup'], back: ['s', 'arrowdown'], left: ['a'], right: ['d'], tl: ['arrowleft'], tr: ['arrowright'], lu: ['pageup'], ld: ['pagedown'], lc: ['home'], uturn: ['x'], fire: ['mouse0', 'control'], use: ['e', 'space'], wnext: ['q', 'wheeldown'], wprev: ['wheelup'], map: ['tab'], menu: ['escape'] },
+  pad: { fwd: [12], back: [13], tl: [14], tr: [15], uturn: [11], lc: [10], fire: [7], use: [0], wnext: [5, 3], wprev: [4], map: [8], menu: [9] },
+  mouseSens: 1, padDead: 0.2, padTurn: 1, padInvertTurn: false,
+  // looking up/down + touch screen layout
+  mouseLook: true, lookInvert: false, lookSpeed: 1, lookSpring: false, touchStickX: 'strafe', touchLookStick: true, touchDragLook: true, touchUturn: true
 };
 const PAD_NAMES = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'View', 'Menu', 'Left stick click', 'Right stick click', 'D-pad up', 'D-pad down', 'D-pad left', 'D-pad right', 'Xbox button'];
-function loadBinds() { const s = LS.get('binds', null); const b = JSON.parse(JSON.stringify(DEF_BINDS)); if (s) { Object.assign(b.key, s.key || {}); Object.assign(b.pad, s.pad || {}); ['mouseSens', 'padDead', 'padTurn', 'padInvertTurn'].forEach(k => { if (s[k] !== undefined) b[k] = s[k]; }); } return b; }
+function loadBinds() { const s = LS.get('binds', null); const b = JSON.parse(JSON.stringify(DEF_BINDS)); if (s) { Object.assign(b.key, s.key || {}); Object.assign(b.pad, s.pad || {}); ['mouseSens', 'padDead', 'padTurn', 'padInvertTurn', 'mouseLook', 'lookInvert', 'lookSpeed', 'lookSpring', 'touchStickX', 'touchLookStick', 'touchDragLook', 'touchUturn'].forEach(k => { if (s[k] !== undefined) b[k] = s[k]; }); } return b; }
 let BINDS = loadBinds();
 let bindSaveT = 0;
 function saveBinds() {
@@ -3182,19 +3212,26 @@ function pollInput() {
   const pad = readPad();
   if (pad && (pad.buttons.some(b => b.pressed) || pad.axes.some(a => Math.abs(a) > 0.5))) setInputMode('pad');
   const A = n => actOn(n, pad);
-  let fwd = IN.fwd, str = IN.str, turn = 0;
+  let fwd = IN.fwd, str = IN.str, turn = 0, look = 0;
+  const lk = BINDS.lookSpeed * (BINDS.lookInvert ? -1 : 1);
   if (A('fwd')) fwd = 1; if (A('back')) fwd = -1; if (A('left')) str = -1; if (A('right')) str = 1;
   if (A('tl')) turn += 0.065; if (A('tr')) turn -= 0.065;
+  if (A('lu')) look += 0.04 * BINDS.lookSpeed; if (A('ld')) look -= 0.04 * BINDS.lookSpeed;
+  // touch: left stick sideways can turn instead of strafe; the LOOK stick turns and looks
+  if (IN.stickTurn) turn -= IN.stickTurn * Math.abs(IN.stickTurn) * 0.075 * S.sens;
+  if (IN.lookX) turn -= IN.lookX * Math.abs(IN.lookX) * 0.085 * S.sens;
+  if (IN.lookY) look -= IN.lookY * Math.abs(IN.lookY) * 0.045 * lk;
   if (pad) {
     const dz = BINDS.padDead, lx = pad.axes[0] || 0, ly = pad.axes[1] || 0, rx = pad.axes[2] || 0;
     const sh = v => Math.abs(v) < dz ? 0 : Math.sign(v) * (Math.abs(v) - dz) / (1 - dz);
     if (sh(ly)) fwd = clamp(-sh(ly) * 1.15, -1, 1); if (sh(lx)) str = clamp(sh(lx) * 1.15, -1, 1);
     const t = sh(rx); if (t) turn -= t * Math.abs(t) * 0.12 * BINDS.padTurn * (BINDS.padInvertTurn ? -1 : 1);
+    const ry = sh(pad.axes[3] || 0); if (ry) look -= ry * Math.abs(ry) * 0.05 * lk;
   }
   IN.firePad = A('fire');
-  for (const n of ['use', 'wnext', 'wprev', 'map', 'menu']) { const on = A(n); if (on && !IN.prev[n]) inputEdge(n); IN.prev[n] = on; }
+  for (const n of ['use', 'wnext', 'wprev', 'map', 'menu', 'uturn', 'lc']) { const on = A(n); if (on && !IN.prev[n]) inputEdge(n); IN.prev[n] = on; }
   IN.tapped.clear();
-  return { fwd, str, turn };
+  return { fwd, str, turn, look };
 }
 function inputEdge(n) {
   if (!G) return;
@@ -3203,6 +3240,8 @@ function inputEdge(n) {
   else if (n === 'wnext') cycleWeapon(1);
   else if (n === 'wprev') cycleWeapon(-1);
   else if (n === 'map') G.automap = !G.automap;
+  else if (n === 'uturn') IN.uturn = true;
+  else if (n === 'lc') { if (G.p) G.p.look = 0; }
   else if (n === 'menu') { if (document.pointerLockElement) document.exitPointerLock(); else setTimeout(() => $('#gExit').click(), 0); }
 }
 function rumble(strength, ms) { const g = readPad(); try { if (g && g.vibrationActuator) g.vibrationActuator.playEffect('dual-rumble', { duration: ms, strongMagnitude: strength, weakMagnitude: strength * 0.6 }); } catch (e) { } }
@@ -3218,7 +3257,7 @@ function gameMouseDown(e) {
   IN.keys.add('mouse' + e.button); IN.tapped.add('mouse' + e.button); return true;
 }
 function gameMouseUp(e) { if (e.pointerType !== 'mouse') return false; IN.keys.delete('mouse' + e.button); return true; }
-function gameMouseMove(e) { if (!document.pointerLockElement) return false; IN.turn -= (e.movementX || 0) * 0.0028 * BINDS.mouseSens; return true; }
+function gameMouseMove(e) { if (!document.pointerLockElement) return false; IN.turn -= (e.movementX || 0) * 0.0028 * BINDS.mouseSens; if (BINDS.mouseLook) IN.look -= (e.movementY || 0) * 0.0035 * BINDS.mouseSens * BINDS.lookSpeed * (BINDS.lookInvert ? -1 : 1); return true; }
 document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement) { [0, 1, 2, 3, 4].forEach(b => IN.keys.delete('mouse' + b)); } });
 
 /* ---------- Controls screen (remapping) ---------- */
@@ -3263,7 +3302,19 @@ function openControls() {
   window.__modalClose = stop;
   const pad = readPad();
   modal('Controls', `<p class="hint">${pad ? '🎮 Controller found: ' + esc(pad.id.replace(/\(.*\)/, '').trim()) : 'No controller found yet. Plug one in (or pair an Xbox controller over Bluetooth) and press any button.'}</p>
-    <p class="hint">Tap a slot, then press the key, mouse button, wheel or controller button you want. Sticks: left stick moves, right stick turns.</p>
+    <p class="hint">Tap a slot, then press the key, mouse button, wheel or controller button you want. Sticks: left stick moves, right stick turns and looks up/down.</p>
+    <div class="h">Touch screen (phone and tablet)</div>
+    <p class="hint">Left stick sideways:</p>
+    <div class="row"><button data-tsx="strafe" class="${draft.touchStickX === 'strafe' ? 'on' : ''}">Strafe (side-step)</button><button data-tsx="turn" class="${draft.touchStickX === 'turn' ? 'on' : ''}">Turn (classic arcade)</button></div>
+    <label class="chk"><input type="checkbox" id="tls" ${draft.touchLookStick ? 'checked' : ''}>Show the LOOK stick (right thumb: turn and look up/down)</label>
+    <label class="chk"><input type="checkbox" id="tdl" ${draft.touchDragLook ? 'checked' : ''}>Dragging on the screen (or on FIRE) also looks up/down</label>
+    <label class="chk"><input type="checkbox" id="tut2" ${draft.touchUturn ? 'checked' : ''}>Show the turn-around button ⟲</label>
+    <div class="h">Looking up and down</div>
+    <div class="f"><label>Look speed <b id="lsV">${draft.lookSpeed}</b></label><input type="range" id="lsp" min="0.3" max="3" step="0.1" value="${draft.lookSpeed}"></div>
+    <label class="chk"><input type="checkbox" id="lin" ${draft.lookInvert ? 'checked' : ''}>Invert up/down (push up to look down, like a flight stick)</label>
+    <label class="chk"><input type="checkbox" id="lml" ${draft.mouseLook ? 'checked' : ''}>Mouse moves the view up and down too</label>
+    <label class="chk"><input type="checkbox" id="lsg" ${draft.lookSpring ? 'checked' : ''}>View drifts back to straight ahead when you let go</label>
+    <div class="h">Keys, mouse and controller buttons</div>
     <div id="ctlStatus" class="hint" style="color:var(--yellow);min-height:1.4em"></div><div id="ctlRows"></div>
     <div class="f"><label>Mouse turn speed <b id="msV">${draft.mouseSens}</b></label><input type="range" id="ms" min="0.2" max="4" step="0.1" value="${draft.mouseSens}"></div>
     <div class="f"><label>Stick turn speed <b id="ptV">${draft.padTurn}</b></label><input type="range" id="pt" min="0.3" max="3" step="0.1" value="${draft.padTurn}"></div>
@@ -3271,11 +3322,14 @@ function openControls() {
     <label class="chk"><input type="checkbox" id="pi" ${draft.padInvertTurn ? 'checked' : ''}>Invert right-stick turning</label>
     <div class="row"><button id="ctlReset">Reset to defaults</button></div>
     <p class="hint">Saved on this device${window.EODB ? ', and to your EOD account when you are signed in' : ''}.</p>`,
-    [{ ok: 1, fn: () => { stop(); BINDS = draft; saveBinds(); toast('Controls saved'); } }, { cancel: 1, fn: () => stop() }], b => {
+    [{ ok: 1, fn: () => { stop(); BINDS = draft; saveBinds(); if (G) layoutGame(); toast('Controls saved'); } }, { cancel: 1, fn: () => stop() }], b => {
       render(b);
       const sl = (id, key, lab) => { const e = b.querySelector('#' + id); e.oninput = () => { draft[key] = +e.value; b.querySelector('#' + lab).textContent = e.value; }; };
       sl('ms', 'mouseSens', 'msV'); sl('pt', 'padTurn', 'ptV'); sl('pd', 'padDead', 'pdV');
       b.querySelector('#pi').onchange = e => draft.padInvertTurn = e.target.checked;
+      sl('lsp', 'lookSpeed', 'lsV');
+      [['lin', 'lookInvert'], ['lml', 'mouseLook'], ['lsg', 'lookSpring'], ['tls', 'touchLookStick'], ['tdl', 'touchDragLook'], ['tut2', 'touchUturn']].forEach(([id, k]) => b.querySelector('#' + id).onchange = e => draft[k] = e.target.checked);
+      b.querySelectorAll('[data-tsx]').forEach(x => x.onclick = () => { draft.touchStickX = x.dataset.tsx; b.querySelectorAll('[data-tsx]').forEach(y => y.classList.toggle('on', y === x)); });
       b.querySelector('#ctlReset').onclick = () => { const d = JSON.parse(JSON.stringify(DEF_BINDS)); Object.keys(draft).forEach(k => delete draft[k]); Object.assign(draft, d); render(b); b.querySelector('#ctlStatus').textContent = 'Defaults restored. Press the green check to keep them.'; };
     });
 }
@@ -4680,8 +4734,8 @@ function buildArenaMap() {
 }
 function buildChaingunMap() {
   M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
-  M.hint = 'Hold FIRE. Six waves are coming. Spare ammo and health are behind you.';
-  M.start = { weapons: [5], ammo: { bullets: 999 }, max: { bullets: 999 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  M.hint = 'Hold FIRE. Six waves are coming. Tap the numbers on the bar to switch guns: 2 = chainsaw (again = pistol), 4 = double barrel, 5 = chaingun, 6 = rockets.';
+  M.start = { weapons: [1, 4, 5, 6], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
   // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
   const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
   const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
@@ -4698,7 +4752,8 @@ function buildChaingunMap() {
   const W = [[[3004, 10], [3001, 6]], [[3001, 8], [3002, 5], [9, 4]], [[3004, 12], [9, 6], [65, 2]], [[3002, 8], [3001, 10]], [[9, 8], [65, 4], [3001, 8]], [[3002, 10], [3001, 10], [65, 4], [3004, 10]]];
   W.forEach((g, wi) => { let y = 2400; g.forEach(([type, cnt]) => { for (let o = 0; o < cnt; o += 10) { row(type, Math.min(10, cnt - o), y, wi + 1, 120, 900); y += 70; } }); });
   for (let i = 0; i < 8; i++) T(2048, 96 + i * 120, 36);
-  T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 512, 220);
+  for (let i = 0; i < 4; i++) { T(2049, 150 + i * 240, 96); T(2046, 270 + i * 240, 96); }
+  T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 940, 220);
   T(1, 512, 140, 90);
   compact();
 }
@@ -4729,7 +4784,7 @@ function hudHeight(W, H) {
   if (S.statusBar !== 'slim' && G && G.mode === 'play' && sbReady()) return Math.round(32 * sbScale(W, H));
   return 20 * u;
 }
-function sbScale(W, H) { const big = { classic: 0.2, compact: 0.13 }[S.statusBar || 'classic'] || 0.2; return Math.min(W / 320, H * big / 32); }
+function sbScale(W, H) { const mode = !S.statusBar || S.statusBar === 'auto' ? (innerHeight < 560 ? 'compact' : 'classic') : S.statusBar; const big = { classic: 0.2, compact: 0.13 }[mode] || 0.2; return Math.min(W / 320, H * big / 32); }
 /* ---- face brain (runs every tic) ---- */
 function faceLevel(p) { return clamp(Math.floor((100 - clamp(p.hp, 0, 100)) * 5 / 101), 0, 4); }
 function faceHurt(dmg, src) {
@@ -4757,6 +4812,7 @@ function faceName() {
 }
 /* ---- drawing ---- */
 function drawStatusBar(g, W, H) {
+  if (G) G.armsRect = null;
   if (S.statusBar === 'slim' || !sbReady()) return false;
   const s = sbScale(W, H), bw = 320 * s, bh = 32 * s, x0 = Math.round((W - bw) / 2), y0 = Math.round(H - bh), p = G.p, wd = WEAPONS[p.w];
   g.imageSmoothingEnabled = false;
@@ -4772,6 +4828,7 @@ function drawStatusBar(g, W, H) {
   big(p.hp, 90, 3, true);
   // weapon numbers 2-7: yellow = you have it
   if (sbPic('STARMS')) put('STARMS', 104, 0);
+  G.armsRect = { x: x0 + 104 * s, y: y0, w: 40 * s, h: 32 * s };
   for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((p.has.has(i) || (i === 3 && p.has.has(8)) ? 'STYSNUM' : 'STGNUM') + i, x, y); }
   put(faceName(), 143, 0, true);
   big(p.armor, 221, 3, true);

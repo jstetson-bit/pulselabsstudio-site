@@ -89,8 +89,8 @@ function buildArenaMap() {
 }
 function buildChaingunMap() {
   M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
-  M.hint = 'Hold FIRE. Six waves are coming. Spare ammo and health are behind you.';
-  M.start = { weapons: [5], ammo: { bullets: 999 }, max: { bullets: 999 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  M.hint = 'Hold FIRE. Six waves are coming. Tap the numbers on the bar to switch guns: 2 = chainsaw (again = pistol), 4 = double barrel, 5 = chaingun, 6 = rockets.';
+  M.start = { weapons: [1, 4, 5, 6], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
   // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
   const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
   const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
@@ -107,7 +107,8 @@ function buildChaingunMap() {
   const W = [[[3004, 10], [3001, 6]], [[3001, 8], [3002, 5], [9, 4]], [[3004, 12], [9, 6], [65, 2]], [[3002, 8], [3001, 10]], [[9, 8], [65, 4], [3001, 8]], [[3002, 10], [3001, 10], [65, 4], [3004, 10]]];
   W.forEach((g, wi) => { let y = 2400; g.forEach(([type, cnt]) => { for (let o = 0; o < cnt; o += 10) { row(type, Math.min(10, cnt - o), y, wi + 1, 120, 900); y += 70; } }); });
   for (let i = 0; i < 8; i++) T(2048, 96 + i * 120, 36);
-  T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 512, 220);
+  for (let i = 0; i < 4; i++) { T(2049, 150 + i * 240, 96); T(2046, 270 + i * 240, 96); }
+  T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 940, 220);
   T(1, 512, 140, 90);
   compact();
 }

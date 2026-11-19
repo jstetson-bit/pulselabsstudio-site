@@ -10,6 +10,16 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.6.1 (vc15) — 2026-11-19 — look up/down, LOOK stick, turn-around, more guns in Carnage
+- **Turning and looking on a phone**: new **LOOK stick** for the right thumb (sideways turns, up/down looks up and down), a **⟲ turn-around** button (180° in a blink), and dragging on the screen or sliding on FIRE now looks up/down as well as turning. Before, turning was a hidden "drag on empty screen" and there was no way to look up or down at all.
+- **Look up/down everywhere**: controller right stick up/down, mouse up/down (can turn off), PageUp/PageDown, Home = look straight, X = turn around (controller: right-stick click = turn around, left-stick click = look straight). All rebindable.
+- **Controls panel**: a Touch screen section at the top: left stick sideways = **Strafe** or **Turn (classic arcade)**, show/hide the LOOK stick and ⟲, drag-to-look on/off, look speed, invert up/down, view springs back to center.
+- **Pick a gun by tapping the status bar**: tap a number on the ARMS panel (2 = chainsaw, tap again for the pistol; 3 = shotgun / double barrel).
+- **Chaingun Carnage** now also hands you the **chainsaw, double-barrel (super) shotgun and rocket launcher**, with 100 shells and 60 rockets, plus shell and rocket boxes behind you.
+- Status bar **Auto** size (new default): Compact on short screens like a phone held sideways, Classic otherwise. Phone-sideways buttons moved up so they don't sit on the bar.
+- The sky no longer smears into stripes when you look up.
+- Manual: the touch controls section rewritten.
+
 ## v0.6.0 (vc14) — 2026-11-18 — the marine's face, Chaingun Carnage
 - **Doom status bar**: the smiley is gone everywhere (the Slim bar uses the marine face too). The bottom bar is now the classic Doom bar (Freedoom art): ammo, health %, arms 2–7, armor %, keys, and all four ammo counts. Weapon name and kills/items show at the sides on wide screens.
 - **The marine's face**: five levels of hurt from healthy to nearly dead (gets bloodier as health drops), looks toward whoever just shot you, the "ouch" face on a big hit, the evil grin when you grab a new gun, the rampage face when you hold fire, glowing eyes in god mode, and the dead face.

@@ -228,8 +228,8 @@ function openSettings() {
   <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
   <div class="h">Status bar (in the game)</div>
-  <p class="hint">Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
-  <div class="row">${[['classic', 'Classic'], ['compact', 'Compact'], ['slim', 'Slim']].map(([k, n]) => `<button data-sb="${k}" class="${(S.statusBar || 'classic') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+  <p class="hint">Auto picks Compact on short screens (phones sideways) and Classic otherwise. Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
+  <div class="row">${[['auto', 'Auto'], ['classic', 'Classic'], ['compact', 'Compact'], ['slim', 'Slim']].map(([k, n]) => `<button data-sb="${k}" class="${(S.statusBar || 'auto') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <div class="h">Voodoo dolls</div>
   <p class="hint">Extra Player 1 Starts become voodoo dolls (you spawn at the last one). Show a message when a doll crosses a line or gets hurt?</p>
   <div class="row">${[[true, 'Show'], [false, 'Hide']].map(([k, n]) => `<button data-doll="${k}" class="${(S.dollMsg !== false) === k ? 'on' : ''}">${n}</button>`).join('')}</div>

@@ -22,11 +22,16 @@ Each map has: public/draft, remix allowed, WAD download allowed. These are enfor
 |---|---|---|
 | Move / strafe | WASD, ↑↓ | Left stick, D-pad up/down |
 | Turn | Mouse (locked), ←→ | Right stick, D-pad left/right |
+| Look up / down | Mouse up/down, PageUp/PageDown, Home = straight | Right stick up/down, left-stick click = straight |
+| Turn around 180° | X | Right-stick click |
 | Fire | Left click, Ctrl | RT |
 | Use / open | E, Space | A |
 | Next / previous weapon | Q or wheel down / wheel up | RB or Y / LB |
 | Automap | Tab | View |
 | Release mouse / exit | Esc | Menu |
+
+## Touch controls
+Left stick (moves; sideways = strafe or turn, set in Controls), LOOK stick (turn + look up/down), ⟲ turn-around, FIRE (slide on it to aim), USE, WPN, MAP. Dragging on empty screen turns and looks. Tap the status bar ARMS numbers to pick a gun. Positions per layout (landscape / portrait / fold) in `CTL_DEF`, movable with Arrange. Look is `G.p.look` (−1..1) → render pitch = look × 0.42 × render height.
 
 ## Pulse Labs standards
 Ghost "i" manual, invert beside it, settings cog (look on first visit, font, size, crash log), green check confirm / red undo arrow cancel (always last), US spelling, white text in dark menus.

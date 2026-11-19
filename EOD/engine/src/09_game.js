@@ -397,7 +397,7 @@ function tickPickups(actor) {
 function endLevel(secret) { if (G.over) return; G.over = { k: 'exit', secret, time: (performance.now() - G.t0) / 1000 }; showOver(); }
 
 /* ---------- per-tic ---------- */
-const IN = { fwd: 0, str: 0, turn: 0, fire: false, use: false, keys: new Set(), up: 0 };
+const IN = { fwd: 0, str: 0, turn: 0, look: 0, lookX: 0, lookY: 0, stickTurn: 0, uturn: false, fire: false, use: false, keys: new Set(), up: 0 };
 function gameTic() {
   if (GL.arrange) return;
   if (G.over) { pollInput(); return; }
@@ -405,6 +405,12 @@ function gameTic() {
   // input
   const pin = pollInput(); if (!G) return; const fwd = pin.fwd, str = pin.str, turn = pin.turn;
   p.a += turn + IN.turn; IN.turn = 0;
+  // look up/down (-1 .. 1) and the 180° turn
+  const lookIn = (pin.look || 0) + IN.look; IN.look = 0;
+  p.look = clamp((p.look || 0) + lookIn, -1, 1);
+  if (BINDS.lookSpring && !lookIn && !IN.lookY && !TP.size) p.look *= 0.9;
+  if (IN.uturn) { IN.uturn = false; if (!p.uturnT) { p.uturnT = 9; sfx('switch', .3); } }
+  if (p.uturnT > 0) { p.a += Math.PI / 9; p.uturnT--; }
   const speed = G.mode === 'visual' ? 14 : 9, ca = Math.cos(p.a), sa = Math.sin(p.a);
   const mx = (ca * fwd + sa * str) * speed, my = (sa * fwd - ca * str) * speed;
   p.vx += (mx - p.vx) * 0.35; p.vy += (my - p.vy) * 0.35;

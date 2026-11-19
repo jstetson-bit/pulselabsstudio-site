@@ -1,8 +1,8 @@
 /* ================= GAME SCREEN, HUD, TOUCH CONTROLS ================= */
 const CTL_DEF = {
-  landscape: { stick: { x: 13, y: 62, s: 1 }, fire: { x: 89, y: 58, s: 1 }, use: { x: 77, y: 76, s: 0.9 }, wpn: { x: 92, y: 32, s: 0.8 }, map: { x: 79, y: 42, s: 0.8 } },
-  portrait: { stick: { x: 25, y: 79, s: 1 }, fire: { x: 78, y: 77, s: 1 }, use: { x: 58, y: 91, s: 0.9 }, wpn: { x: 88, y: 91, s: 0.85 }, map: { x: 60, y: 66, s: 0.8 } },
-  fold: { stick: { x: 14, y: 72, s: 1.1 }, fire: { x: 87, y: 68, s: 1.1 }, use: { x: 74, y: 82, s: 1 }, wpn: { x: 90, y: 50, s: 0.9 }, map: { x: 76, y: 58, s: 0.9 } }
+  landscape: { stick: { x: 13, y: 58, s: 1 }, look: { x: 73, y: 57, s: 0.8 }, fire: { x: 90, y: 50, s: 0.95 }, use: { x: 90, y: 75, s: 0.72 }, wpn: { x: 92, y: 25, s: 0.75 }, map: { x: 79, y: 25, s: 0.7 }, uturn: { x: 59, y: 76, s: 0.7 } },
+  portrait: { stick: { x: 22, y: 80, s: 1 }, look: { x: 63, y: 81, s: 0.85 }, fire: { x: 87, y: 73, s: 0.9 }, use: { x: 87, y: 91, s: 0.75 }, wpn: { x: 44, y: 93, s: 0.7 }, map: { x: 44, y: 66, s: 0.7 }, uturn: { x: 66, y: 65, s: 0.7 } },
+  fold: { stick: { x: 14, y: 72, s: 1.1 }, look: { x: 73, y: 72, s: 0.95 }, fire: { x: 90, y: 62, s: 1 }, use: { x: 90, y: 85, s: 0.85 }, wpn: { x: 90, y: 40, s: 0.8 }, map: { x: 76, y: 46, s: 0.75 }, uturn: { x: 58, y: 87, s: 0.75 } }
 };
 const GL = { key: 'landscape', vw: 0, vh: 0, vx: 0, vy: 0, arrange: false, arrBackup: null };
 function layoutKey() { if (S.layout !== 'auto') return S.layout; const W = innerWidth, H = innerHeight; return H / W > 1.25 ? 'portrait' : W / H > 1.35 ? 'landscape' : 'fold'; }
@@ -18,7 +18,7 @@ function layoutGame() {
   const pos = ctlPos();
   document.querySelectorAll('#ctls .ctl').forEach(el => {
     const p = pos[el.dataset.c]; el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.transform = `translate(-50%,-50%) scale(${p.s})`;
-    el.style.opacity = GL.arrange ? 1 : S.ctlOpacity; el.style.display = (G && G.mode === 'visual' && el.dataset.c !== 'stick') ? 'none' : '';
+    el.style.opacity = GL.arrange ? 1 : S.ctlOpacity; const c = el.dataset.c; el.style.display = (G && G.mode === 'visual' && c !== 'stick' && c !== 'look') || (c === 'look' && !BINDS.touchLookStick) || (c === 'uturn' && !BINDS.touchUturn) ? 'none' : '';
   });
   if (G && G.mode === 'visual') { const st = $('#c-stick'); st.style.top = Math.min(pos.stick.y, 62) + '%'; }
   $('#game').style.background = GL.key === 'portrait' ? '#0b0b0e' : '#000';
@@ -99,7 +99,7 @@ function gameSprites() {
 }
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
-  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: -(G.kick || 0) }, G.sc, gameSprites());
+  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) }, G.sc, gameSprites());
   R.ctx.putImageData(R.img, 0, 0);
   const cv = $('#gv'), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
   g.drawImage(R.cv, 0, 0);
@@ -223,25 +223,41 @@ function gameDown(e) {
   try { $('#game').setPointerCapture(id); } catch (er) { }
   if (c) {
     const k = c.dataset.c;
-    if (k === 'stick') { const r = c.getBoundingClientRect(); TP.set(id, { k, cx: r.left + r.width / 2, cy: r.top + r.height / 2, rad: r.width / 2 }); stickMove(e); return; }
-    if (k === 'fire') { IN.fire = true; TP.set(id, { k, lx: e.clientX }); return; }
+    if (k === 'stick' || k === 'look') { const r = c.getBoundingClientRect(); TP.set(id, { k, cx: r.left + r.width / 2, cy: r.top + r.height / 2, rad: r.width / 2 }); stickMove(e); return; }
+    if (k === 'fire') { IN.fire = true; TP.set(id, { k, lx: e.clientX, ly: e.clientY }); return; }
+    if (k === 'uturn') { IN.uturn = true; TP.set(id, { k }); return; }
     if (k === 'use') { IN.use = true; TP.set(id, { k }); return; }
     if (k === 'wpn') { cycleWeapon(); TP.set(id, { k }); return; }
     if (k === 'map') { G.automap = !G.automap; TP.set(id, { k }); return; }
   }
+  if (!c && armsTap(e)) { TP.set(id, { k: 'tap' }); return; }
   TP.set(id, { k: 'turn', lx: e.clientX, ly: e.clientY });
 }
-function stickMove(e) { const t = TP.get(e.pointerId); let dx = e.clientX - t.cx, dy = e.clientY - t.cy; const m = Math.hypot(dx, dy), max = t.rad * 0.7; if (m > max) { dx *= max / m; dy *= max / m; } IN.str = clamp(dx / max, -1, 1); IN.fwd = clamp(-dy / max, -1, 1); if (Math.abs(IN.str) < 0.15) IN.str = 0; if (Math.abs(IN.fwd) < 0.12) IN.fwd = 0; $('#c-stick .knob').style.transform = `translate(${dx}px,${dy}px)`; }
+/* tap a number on the status bar's ARMS panel to pick that gun (2 = chainsaw, tap again for the pistol) */
+function armsTap(e) {
+  const a = G && G.armsRect; if (!a) return false; const cv = $('#gv'), r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
+  if (x < a.x || y < a.y || x > a.x + a.w || y > a.y + a.h) return false;
+  const col = clamp(Math.floor((x - a.x) / (a.w / 3)), 0, 2), row = clamp(Math.floor((y - a.y) / (a.h / 2)), 0, 1), slot = 2 + row * 3 + col, p = G.p;
+  let w = slot; if (slot === 2 && p.has.has(1) && p.w !== 1) w = 1;
+  if (slot === 3 && p.has.has(4) && (p.w === 3 || !p.has.has(3))) w = 4;
+  if (p.has.has(w) && w !== p.w) { p.w = w; msg(WEAPONS[w].name); sfx('switch'); }
+  return true;
+}
+function stickMove(e) { const t = TP.get(e.pointerId); let dx = e.clientX - t.cx, dy = e.clientY - t.cy; const m = Math.hypot(dx, dy), max = t.rad * 0.7; if (m > max) { dx *= max / m; dy *= max / m; }
+  if (t.k === 'look') { IN.lookX = clamp(dx / max, -1, 1); IN.lookY = clamp(dy / max, -1, 1); if (Math.abs(IN.lookX) < 0.12) IN.lookX = 0; if (Math.abs(IN.lookY) < 0.2) IN.lookY = 0; $('#c-look .knob').style.transform = `translate(${dx}px,${dy}px)`; return; }
+  const sx = clamp(dx / max, -1, 1); if (BINDS.touchStickX === 'turn') { IN.str = 0; IN.stickTurn = Math.abs(sx) < 0.15 ? 0 : sx; } else { IN.str = sx; IN.stickTurn = 0; } IN.fwd = clamp(-dy / max, -1, 1); if (Math.abs(IN.str) < 0.15) IN.str = 0; if (Math.abs(IN.fwd) < 0.12) IN.fwd = 0; $('#c-stick .knob').style.transform = `translate(${dx}px,${dy}px)`; }
 function gameMove(e) {
   if (gameMouseMove(e)) return;
   const t = TP.get(e.pointerId); if (!t) return; e.preventDefault();
-  if (t.k === 'stick') stickMove(e);
-  else if (t.k === 'turn' || t.k === 'fire') { const dx = e.clientX - t.lx; t.lx = e.clientX; IN.turn -= dx * 0.0065 * S.sens; }
+  if (t.k === 'stick' || t.k === 'look') stickMove(e);
+  else if (t.k === 'turn' || t.k === 'fire') { const dx = e.clientX - t.lx, dy = e.clientY - (t.ly == null ? e.clientY : t.ly); t.lx = e.clientX; t.ly = e.clientY; IN.turn -= dx * 0.0065 * S.sens; if (BINDS.touchDragLook) IN.look -= dy * 0.006 * BINDS.lookSpeed * (BINDS.lookInvert ? -1 : 1); }
 }
 function gameUp(e) {
   gameMouseUp(e);
   const t = TP.get(e.pointerId); if (!t) return; TP.delete(e.pointerId);
-  if (t.k === 'stick') { IN.fwd = IN.str = 0; $('#c-stick .knob').style.transform = ''; }
+  if (t.k === 'stick') { IN.fwd = IN.str = IN.stickTurn = 0; $('#c-stick .knob').style.transform = ''; }
+  if (t.k === 'look') { IN.lookX = IN.lookY = 0; $('#c-look .knob').style.transform = ''; }
   if (t.k === 'fire') IN.fire = false;
 }
 function cycleWeapon(dir = 1) { const p = G.p; const list = [...p.has].sort((a, b) => a - b); const i = list.indexOf(p.w); p.w = list[(i + dir + list.length) % list.length]; msg(WEAPONS[p.w].name); sfx('switch'); }
