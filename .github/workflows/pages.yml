@@ -33,6 +33,8 @@ jobs:
           [ -d ai-toolbox ] && cp -r ai-toolbox _site/
           [ -d forge ] && cp -r forge _site/ && rm -rf _site/forge/src _site/forge/docs
           [ -d assets ] && cp -r assets _site/
+          # Product pages with proofs (Overview · What it does · Proofs · Demo): any folder holding a proofs.json ships.
+          for d in */; do [ -f "${d}proofs.json" ] && cp -r "$d" _site/; done
           cp *.js _site/ 2>/dev/null || true
           [ -d EOD ] && cp -r EOD _site/ && rm -rf _site/EOD/engine
           # Lowercase /eod/ redirect is generated here, not stored in the repo: a repo holding both EOD/ and eod/

@@ -4,6 +4,7 @@
 - New shared `assets/proofs.js`: every product page shows Overview · What it does · Proofs · Demo from its own `proofs.json`. Each capability gets real bench pictures/clips stamped with version and capture date; one with no proof yet says "Proof coming" so gaps stay visible.
 - First page: `/pls-clock-hud/` (18 capabilities, 6 proven with Release pictures and the v2.17.0 hologram clip). Pictures that show saved home cities were left out on purpose.
 - Products: PLS Clock HUD card, linking to its page.
+- Deploy: any folder with a `proofs.json` now ships automatically (the deploy only copied folders it named, so /pls-clock-hud/ wasn't going out).
 
 ## v0.7.19 — 2026-11-19
 - Owner: "I don't want my downloads, once I've logged in … to log me out … I don't have to keep typing that shit … Once I'm in, I
