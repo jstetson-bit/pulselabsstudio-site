@@ -1,0 +1,197 @@
+{
+ "name": "PLS Clock HUD",
+ "overview": "PLS Clock HUD turns your phone into an always-on heads-up display: a big clock and date, weather, a status bar that mirrors your phone, and an email ticker, all in a hologram look you control. Everything on the screen can be moved, resized, restyled and re-formatted by touch, and it runs offline except for the weather and the update check.",
+ "capabilities": [
+  {
+   "id": "clock",
+   "title": "Big clock and date",
+   "text": "An always-on clock and date in the font, size and color you pick, with a FORMAT list for 12/24 hour, seconds, and short or long dates.",
+   "proofs": [
+    {
+     "file": "proofs/date-1-v2.16.6.png",
+     "kind": "image",
+     "caption": "Day only: THU (hologram glitch mid-burst)",
+     "version": "2.16.6",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/date-2-v2.16.6.png",
+     "kind": "image",
+     "caption": "Short: THU, NOV 19",
+     "version": "2.16.6",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/date-3-v2.16.6.png",
+     "kind": "image",
+     "caption": "Long: Thursday, November 19, 2026",
+     "version": "2.16.6",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "hologram",
+   "title": "Hologram effects",
+   "text": "Glitch bursts, scan lines, flicker, drift, a slow spin and more, each on its own switch with its own strength and timing.",
+   "proofs": [
+    {
+     "file": "proofs/holographic-v2.17.0.png",
+     "kind": "image",
+     "caption": "Hologram glitch caught mid-burst",
+     "version": "2.17.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/hologram-v2.17.0.mp4",
+     "kind": "video",
+     "caption": "10 seconds of the hologram running",
+     "version": "2.17.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "weather",
+   "title": "Weather cards",
+   "text": "Live weather for where you are plus saved places: temperature, high and low, and a sky icon, in small or BIG looks.",
+   "proofs": [
+    {
+     "file": "proofs/weather-1-v2.16.6.png",
+     "kind": "image",
+     "caption": "Live location card (bench has no GPS fix, so it shows Finding you)",
+     "version": "2.16.6",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/weather-2-v2.16.6.png",
+     "kind": "image",
+     "caption": "Weather card, second look",
+     "version": "2.16.6",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "buttons",
+   "title": "Buttons always in reach",
+   "text": "Info, Invert, Themes, Color, Dim and Edit sit in a row of red pills at the top; hide them and the first tap brings them back.",
+   "proofs": [
+    {
+     "file": "proofs/buttons-v2.17.0.png",
+     "kind": "image",
+     "caption": "The pill row: INFO · INVERT · THEMES · COLOR · DIM · EDIT",
+     "version": "2.17.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "dim",
+   "title": "Dim for night driving",
+   "text": "One tap steps the whole screen down (100%, 75%, 50%, 25%) so it never blinds you at night.",
+   "proofs": [
+    {
+     "file": "proofs/dim-v2.17.0.png",
+     "kind": "image",
+     "caption": "Dimmed to 25%",
+     "version": "2.17.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "edit",
+   "title": "Move and resize anything",
+   "text": "Edit mode puts the yellow MOVE handle on every item: drag it, tap for RESIZE, magnets line things up, green check keeps it, red undo takes it back.",
+   "proofs": [
+    {
+     "file": "proofs/edit-v2.17.0.png",
+     "kind": "image",
+     "caption": "Edit mode with the undo, check and handle buttons",
+     "version": "2.17.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "status",
+   "title": "Status bar that mirrors your phone",
+   "text": "Battery, signal, 5G/LTE, Wi-Fi, Bluetooth, volume and alarm, drawn in your HUD colors.",
+   "proofs": []
+  },
+  {
+   "id": "mail",
+   "title": "Email and message ticker",
+   "text": "Counts and the newest subjects from your email, messages and Discord, from the phone's own notifications.",
+   "proofs": []
+  },
+  {
+   "id": "themes",
+   "title": "Themes",
+   "text": "Eight one-tap looks, from Pulse Red and All White to Blood Brass with chopped frames and label tabs.",
+   "proofs": []
+  },
+  {
+   "id": "windshield",
+   "title": "Windshield mode",
+   "text": "Flips the whole screen in a mirror so it reads right when reflected in the windshield at night.",
+   "proofs": []
+  },
+  {
+   "id": "glass",
+   "title": "Glass reflection",
+   "text": "A faint second image under the first, like real windshield glass, with its own distance and strength.",
+   "proofs": []
+  },
+  {
+   "id": "media",
+   "title": "Now playing, video and music",
+   "text": "Shows what's playing and can place a video or song player right in the layout.",
+   "proofs": []
+  },
+  {
+   "id": "launch",
+   "title": "Launch pad",
+   "text": "A grid of up to 50 tiles that open apps, websites, files or quick actions.",
+   "proofs": []
+  },
+  {
+   "id": "reminders",
+   "title": "Reminders",
+   "text": "Set reminders that ring full screen, even with the HUD running.",
+   "proofs": []
+  },
+  {
+   "id": "background",
+   "title": "Backgrounds",
+   "text": "A color, a picture, or a slideshow behind the HUD.",
+   "proofs": []
+  },
+  {
+   "id": "profiles",
+   "title": "Saved setups",
+   "text": "Save whole layouts and switch between them, separately for portrait and landscape.",
+   "proofs": []
+  },
+  {
+   "id": "screensaver",
+   "title": "Screensaver and live wallpaper",
+   "text": "The same HUD as the phone's screensaver while charging, or as a live wallpaper.",
+   "proofs": []
+  },
+  {
+   "id": "fold",
+   "title": "Built for the Fold",
+   "text": "Separate layouts for folded, open and landscape, centered automatically when the screen changes.",
+   "proofs": []
+  }
+ ],
+ "demo": {
+  "file": "proofs/hologram-v2.17.0.mp4",
+  "caption": "The HUD running on our Fold-sized test bench with the hologram effects on.",
+  "version": "2.17.0",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Every picture carries the app version and the day it was taken."
+}
