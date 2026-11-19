@@ -56,7 +56,10 @@ try {
   $newState = @{}
   foreach ($r in $repos) {
     if ($r -eq $SiteRepo) { continue }
-    $rels = gh release list --repo $r --limit $FirstScan --json tagName,publishedAt,isDraft,name | ConvertFrom-Json
+    # FirstScan caps only a repo's very first scan. After that, look back far enough that a busy repo (dozens of
+    # Releases while the watcher was stalled) can't push unseen builds past the cap; they'd be skipped for good.
+    $lim = $(if ($state[$r]) { [Math]::Max($FirstScan, 300) } else { $FirstScan })
+    $rels = gh release list --repo $r --limit $lim --json tagName,publishedAt,isDraft,name | ConvertFrom-Json
     if (-not $rels) { continue }
     $seen = $(if ($state[$r]) { [datetime]$state[$r] } else { [datetime]'2000-01-01' })
     $newest = $seen
@@ -74,7 +77,9 @@ try {
         $k = Get-PlsProductKey $a.name; if (-not $k) { Log "skip $($a.name): no Name-vX.Y in the file name"; continue }
         if ($a.size -ge 1.5GB) { Log "skip $($a.name): over 1.5 GB"; continue }
         $relIds += $k.id
-        $c = [pscustomobject]@{ id = $k.id; name = $k.name; version = $k.version; platform = $plat; repo = $r; tag = $rel.tagName; asset = $a.name; size = [long]$a.size; pub = $pub; body = [string]$v.body }
+        $c = [pscustomobject]@{ id = $k.id; name = $k.name; version = $k.version; platform = $plat; repo = $r; tag = $rel.tagName; asset = $a.name; size = [long]$a.size; pub = $pub; body = [string]$v.body
+          # when the build file was uploaded to its farm Release (closest record of the build time); PS 5.1 gives a string, PS 7 a DateTime
+          built = $(if ($a.createdAt) { ([datetime]$a.createdAt).ToUniversalTime().ToString('o') } else { '' }) }
         $key = "$($k.id)|$plat"
         if (-not $cands[$key]) { $cands[$key] = New-Object Collections.ArrayList }
         [void]$cands[$key].Add($c)
@@ -130,7 +135,7 @@ try {
     if (-not ($have.Keys | Where-Object { $_ -like "$($c.id)|*" })) { $byId[$c.id].name = $c.name }
     $byId[$c.id].files += @{ path = (Join-Path $dir $c.asset); platform = $c.platform; version = $c.version; archivedOnly = [bool]$c.archivedOnly; assetSize = $c.size; fileName = $c.asset
       source = "$($c.repo)@$($c.tag)/$($c.asset)"; sourceUrl = "https://github.com/$($c.repo)/releases/tag/$($c.tag)"
-      releasedAt = $c.pub.ToUniversalTime().ToString('o'); releaseDate = $c.pub.ToString('yyyy-MM-dd')
+      releasedAt = $c.pub.ToUniversalTime().ToString('o'); releaseDate = $c.pub.ToString('yyyy-MM-dd'); builtAt = [string]$c.built
       notes = $(if ($c.body.Trim()) { $c.body.Trim().Substring(0, [Math]::Min(6000, $c.body.Trim().Length)) } else { "No changelog in release $($c.tag) on $($c.repo)." }) }
   }
   foreach ($id in $extraIds) {
