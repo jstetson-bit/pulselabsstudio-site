@@ -15,12 +15,34 @@ function Get-PlsPlatform([string]$FileName) {
   return $null
 }
 
+# Renamed products: tools\renames.json maps an old file-name prefix to the new one, e.g. { "PulseAIDA64": "Pulse64" }.
+# Applied before grouping, so builds under the old name fold into the new product's card and history.
+$PlsRenamesPath = Join-Path $PSScriptRoot 'renames.json'
+function ConvertTo-PlsId([string]$Raw) { ($Raw.ToLowerInvariant() -replace '[^a-z0-9]+', '-').Trim('-') }
+function Get-PlsRenames {
+  $map = @{}   # old id -> new raw name
+  if ($PlsRenamesPath -and (Test-Path $PlsRenamesPath)) {
+    $j = Get-Content $PlsRenamesPath -Raw | ConvertFrom-Json
+    foreach ($p in $j.PSObject.Properties) { if ($p.Name -notlike '_*' -and $p.Value) { $map[(ConvertTo-PlsId $p.Name)] = [string]$p.Value } }
+  }
+  return $map
+}
+function Resolve-PlsRename([string]$Raw) {
+  $map = Get-PlsRenames
+  for ($i = 0; $i -lt 10; $i++) {   # follows chains (A -> B -> C); the cap stops a loop in a bad map
+    $to = $map[(ConvertTo-PlsId $Raw)]
+    if (-not $to -or (ConvertTo-PlsId $to) -eq (ConvertTo-PlsId $Raw)) { break }
+    $Raw = $to
+  }
+  return $Raw
+}
+
 # "KeyboardStudio-v1.24.138-vc242-Android-APK.apk" -> id keyboardstudio, name "Keyboard Studio", version 1.24.138-vc242
 function Get-PlsProductKey([string]$FileName) {
   $base = [IO.Path]::GetFileNameWithoutExtension($FileName)
   $m = [regex]::Match($base, '^(?<name>.+?)[-_ ]+v?(?<ver>\d+(?:\.\d+)+(?:[-_.]?vc\d+)?)', 'IgnoreCase')
   if (-not $m.Success) { return $null }
-  $raw = $m.Groups['name'].Value
+  $raw = Resolve-PlsRename $m.Groups['name'].Value
   $id = ($raw.ToLowerInvariant() -replace '[^a-z0-9]+', '-').Trim('-')
   $nice = ($raw -replace '[-_]+', ' ') -creplace '(?<=[a-z])(?=[A-Z])', ' '
   return [pscustomobject]@{ id = $id; name = $nice.Trim(); version = $m.Groups['ver'].Value }
