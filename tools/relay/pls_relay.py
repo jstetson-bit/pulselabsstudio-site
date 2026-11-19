@@ -14,7 +14,7 @@ Light by rule (HR-LIGHT): one process, no disk writes, rooms forgotten after 90 
 """
 import asyncio, time, sys, socket
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 PORT = 41400
 STATUS_PORT = 41401
 IDLE = 90.0             # seconds before a silent room is forgotten
@@ -91,7 +91,7 @@ async def main():
         us = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); us.bind(("0.0.0.0", PORT)); host = "0.0.0.0"
     us.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 4 << 20); us.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 4 << 20)
     await loop.create_datagram_endpoint(Relay, sock=us)
-    srv = await asyncio.start_server(status, host, STATUS_PORT)
+    srv = await asyncio.start_server(status, None, STATUS_PORT)   # None = every address, IPv4 and IPv6 (a "::" server listens on IPv6 only)
     print(f"PLS Relay {VERSION} on UDP {PORT}, status on TCP {STATUS_PORT}", flush=True)
     asyncio.create_task(sweep())
     async with srv: await srv.serve_forever()
