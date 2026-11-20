@@ -1,0 +1,442 @@
+{
+    "name":  "PLS Stream",
+    "systems":  [
+                    "Android",
+                    "Windows PC"
+                ],
+    "tagline":  "Your home PCs on your phone or tablet.",
+    "overview":  "PLS Stream puts your own PCs on your phone or tablet: their screen, sound and controls, fast enough to play games, using the PC\u0027s own graphics card. Touch works like a phone, the keyboard is a real PC keyboard, and files, screenshots and copy-paste go both ways. Your account lives on your own PC, not on a company server.",
+    "capabilities":  [
+                         {
+                             "id":  "sign-in",
+                             "title":  "Add this device: sign in to your own network",
+                             "text":  "Sign in with the name and password you made in PLS Stream on your own PC; every PC on your account appears by itself. The account lives on your PC, not on a company server.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/sign-in-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Add this device, with a demo name typed (no real sign-in on the bench)",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "add-by-hand",
+                             "title":  "Add a PC by hand",
+                             "text":  "For a PC that isn\u0027t on your account: name, address and pairing code. The code is checked before anything is saved.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/add-by-hand-1-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Demo PC, a documentation-only address and a demo code",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/add-by-hand-2-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Save this PC: the app explains why the code isn\u0027t complete",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "stream",
+                             "title":  "Your PC on this screen",
+                             "text":  "The PC\u0027s live screen, sound and controls on your phone or tablet, up to 60 frames a second, made by the PC\u0027s own graphics card so the PC barely notices.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "my-pcs",
+                             "title":  "My PCs",
+                             "text":  "One card per PC: a green dot when it\u0027s on, the PC program\u0027s version, one tap to stream.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "touch-modes",
+                             "title":  "Touch like a phone",
+                             "text":  "Like a phone (tap clicks, one finger scrolls, hold and drag selects), Touchpad, or Direct for drawing and games.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/touch-modes-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings: Touch and connection",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "taps",
+                             "title":  "Taps you choose",
+                             "text":  "What one, two or three quick taps do, and what two- and three-finger taps do (keyboard, right-click, the stream menu).",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/taps-1-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Quick taps",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/taps-2-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Two-finger and three-finger taps",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "scrolling",
+                             "title":  "Scrolling that feels right",
+                             "text":  "Scrolling speed, speed that follows your finger, and a glide after a flick like a phone.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/scroll-speed-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Scrolling speed and glide",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "pinch-zoom",
+                             "title":  "Pinch to zoom",
+                             "text":  "Zoom the whole PC screen toward your first finger or the middle of two; choose what one finger does when zoomed in.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/pinch-zoom-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Pinch to zoom settings",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "pc-keyboard",
+                             "title":  "A real PC keyboard",
+                             "text":  "65%, 75% or 96% keyboard with real key presses, so shortcuts and games work; it can come up by itself when you tap a text box.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/pc-keyboard-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "PC keyboard settings",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "keyboard-looks",
+                             "title":  "Keyboard looks",
+                             "text":  "Pulse Pro, Metal, or Keyboard Studio looks on the PC keyboard, or import your own key kit.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/keyboard-looks-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Keyboard look and Import your keyboard",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "quick-keys",
+                             "title":  "Quick keys",
+                             "text":  "The buttons you get when you hold the picture: Ctrl+Alt+Del, Paste, Copy, Lock the PC and more, and you pick which ones show.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "hold-connection",
+                             "title":  "Stays connected when you switch apps",
+                             "text":  "Keep the PC connected with the picture paused for 1 minute up to until you hang up; a notification lets you come back or hang up.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/hold-when-switching-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "When you switch apps",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "picture-quality",
+                             "title":  "Picture quality",
+                             "text":  "Picture size, 30 or 60 frames a second, and how much of your network it uses.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/picture-quality-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Picture quality",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "streaming-options",
+                             "title":  "Streaming options",
+                             "text":  "Constant frames for the smoothest picture, a sharper H.265 option, and a status line that says smooth or choppy and the delay.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-3-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Display and Streaming",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/settings-4-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Constant frames, H.265, Status line",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "power",
+                             "title":  "Power: Performance or Conservation",
+                             "text":  "Full speed always, or a new frame only when the PC\u0027s screen changes on battery; full speed whenever it\u0027s charging. The phone measures its own draw.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-5-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Power",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "files-settings",
+                             "title":  "Where files land",
+                             "text":  "Files arrive in Downloads/PLS Stream (or a folder you pick), at a speed you set so games don\u0027t stutter; the PC\u0027s sound on or off.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-2-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Files and screenshots, and the PC\u0027s sound",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "file-transfer",
+                             "title":  "Files and screenshots both ways",
+                             "text":  "Send a file to the PC, bring files back, take a full-quality picture of the PC\u0027s screen, Share to PLS Stream from any app, and right-click any file on the PC to send it to your phone.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "clipboard",
+                             "title":  "Copy and paste both ways",
+                             "text":  "Copy on the PC and it\u0027s on your phone; copy on the phone and paste on the PC, or have it typed in.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "stream-menu",
+                             "title":  "The stream menu",
+                             "text":  "Drop-downs in the house style: Quick keys, Keyboard, Paste, Display, Files, PC tools, Help; Disconnect is its own button.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "monitors",
+                             "title":  "Every monitor, one at a time",
+                             "text":  "Monitor 1, 2, 3, turned (portrait) monitors, and bring every window to the monitor you\u0027re watching.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "web-pages",
+                             "title":  "Web pages on the PC",
+                             "text":  "Open pages that run on the PC, like ComfyUI, in your phone\u0027s browser through PLS Stream\u0027s locked connection.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "guests",
+                             "title":  "Guests",
+                             "text":  "Let someone in as Watch only, Regular or Full, with their own code, removable any time.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "from-the-road",
+                             "title":  "From the road",
+                             "text":  "Works away from home: tries home and away at once, with a Pulse meet-up and relay when a direct line can\u0027t be made.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "pc-host",
+                             "title":  "PLS Stream on the PC",
+                             "text":  "The Windows side: create your account or sign in, Add this PC, runs as a service and starts with Windows.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "menu-pills",
+                             "title":  "Filled menu pills",
+                             "text":  "Drop-down choices filled red instead of red-rimmed, your choice.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-4-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings: Filled menu pills",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "look-and-text",
+                             "title":  "Look and text size",
+                             "text":  "Appearance, text size and font.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-3-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings: Display",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "updates",
+                             "title":  "Updates itself",
+                             "text":  "Check for updates downloads and installs the newest PLS Stream over the one you have.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-1-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings: About and Check for updates",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "manual",
+                             "title":  "Manual",
+                             "text":  "Every part explained in plain words, with Show me buttons that take you there.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/manual-1-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Manual: how it works",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/manual-3-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Every gesture",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/manual-7-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Copy and paste, Snap the PC, files",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/manual-10-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Monitors, sound, the ghost button",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "invert",
+                             "title":  "Light and dark",
+                             "text":  "The eye at the top flips the colors from any screen.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/invert-light-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "The Manual flipped to light",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "history",
+                             "title":  "History",
+                             "text":  "Everything you changed, newest at the bottom, kept on this device.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/history-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "History",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "report",
+                             "title":  "Report a Problem",
+                             "text":  "Tell us in your own words; your email app opens with the details filled in, or send it to your PC.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/report-a-problem-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Report a Problem with demo text",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "crash-log",
+                             "title":  "Crash log",
+                             "text":  "Kept on this device and sent only if you add it to a report.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/crash-log-v0.10.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Crash log",
+                                                "version":  "0.10.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         }
+                     ],
+    "demo":  {
+                 "file":  "proofs/demo-v0.10.24.mp4",
+                 "caption":  "A 28-second walk through the phone app on the bench: Settings, Picture quality, the Manual, and the eye flipping light and dark (no PC attached).",
+                 "version":  "0.10.24",
+                 "captured":  "Nov 19, 2026"
+             },
+    "note":  "Pictures are the phone app on our test bench with demo values only. Anything that needs a live PC connection shows Proof coming: we don\u0027t show a real PC\u0027s desktop, names or addresses."
+}
