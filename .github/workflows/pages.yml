@@ -1,11 +1,13 @@
 # Builds the live site: the pages from this repo + the encrypted files from the "vault" release,
 # served from the same address so the browser can unlock them. Runs on every push.
 name: Deploy site
+# Push to main only. The farm watcher uploads the new files to the vault release FIRST and pushes the list
+# after, so the push deploy already has everything. A "release" trigger used to start extra runs from the
+# old vault tag: they cancelled the good push deploy and then failed themselves (the Pages environment only
+# takes main), so new versions sat off the site until an unrelated push. Removed 2026-11-20.
 on:
   push:
     branches: [main]
-  release:
-    types: [published, edited]
   workflow_dispatch:
 permissions:
   contents: read

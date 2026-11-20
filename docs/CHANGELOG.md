@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.22 — 2026-11-20 — new builds reach the site within minutes again (owner)
+- Owner: "It should be immediate the second they're built… There's easily 20 different versions in the last hour."
+- Cause: every farm update started three deploys. The good one, from the push, was cancelled by two extra runs that
+  the vault release's "edited" event started from the old `vault` tag. Those runs then failed, because the Pages
+  environment only deploys main. So most farm updates since this morning never went live. The site only caught up
+  when an unrelated push (a "where it stands" status update) deployed.
+- Fix: the deploy runs on pushes to main only. The watcher uploads files before it pushes, so nothing is lost.
+
 ## v0.7.21 — 2026-11-19 — proof pages live for 11 products (owner)
 - HQ picture check of every proof PR (338 pictures: text read off every screen, every sheet looked at). Covered two spots: a real person's name and home town on one EOD screen, and the retired $9.99 price on one PLS PDF screen.
 - Merged: Keyboard Studio, PLS Authenticator, PulseMark, PLS Zip, EOD, PLS PDF, PLS Launcher, Pulse Meds, Pulse Dark, Clock HUD (now 17 of 18), PLS File Explorer.
