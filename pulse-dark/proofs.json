@@ -1,0 +1,616 @@
+{
+ "name": "Pulse Dark",
+ "systems": [
+  "Chrome extension"
+ ],
+ "tagline": "Dark mode for every website. Free, unlimited, private.",
+ "overview": "Pulse Dark is a Chrome extension that turns every website dark the moment it loads, in a way that looks right instead of just inverted: photos keep their colors, buttons and prices stay readable, and already-dark sites are left alone. Sliders, themes and one-tap loadouts set the look; Fix this site, Try another way and Pick a part and recolor it handle the pages that break. Free, unlimited websites, no account, and your settings never leave your browser.",
+ "capabilities": [
+  {
+   "id": "dark-on-load",
+   "title": "Every website goes dark as it loads",
+   "text": "Bright pages turn dark the moment they load, with no white flash. Buttons, prices and links keep their own colors.",
+   "proofs": [
+    {
+     "file": "proofs/dark-on-load-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Before: a bright store page, Pulse Dark off",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/dark-on-load-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "After: the same page with Pulse Dark on",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/dark-on-load-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "Before: a long article on white",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/dark-on-load-4-v1.0.27.png",
+     "kind": "image",
+     "caption": "After: the article, dark and easy to read",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "power-switch",
+   "title": "One big ON/OFF switch",
+   "text": "The big switch turns dark on or off on every site at once.",
+   "proofs": [
+    {
+     "file": "proofs/power-switch-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup: Dark is on",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/power-switch-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Tap the switch: Dark is off everywhere",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/power-switch-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "The page is back to its own light look",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "adjust",
+   "title": "Dim it or brighten it",
+   "text": "Six sliders (Brightness, Contrast, Color, Warmth, Dim, Gray) change the page live, for every site or only this one.",
+   "proofs": [
+    {
+     "file": "proofs/adjust-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Adjust: six sliders and Only for this site",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/adjust-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Brightness down to 70%, Warmth up to 45%",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/adjust-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "The page follows right away: dimmer and warmer",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "themes",
+   "title": "Themes",
+   "text": "Pulse Dark, True Black for OLED screens, Midnight Blue, Sepia Paper, Darkroom Red, High Contrast, Grayscale and Light. One tap switches every site.",
+   "proofs": [
+    {
+     "file": "proofs/themes-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Theme list in the popup",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/themes-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "True Black",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/themes-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "Sepia Paper",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/themes-4-v1.0.27.png",
+     "kind": "image",
+     "caption": "Midnight Blue",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "theme-creator",
+   "title": "Make your own theme",
+   "text": "Pick your own background, text, link and border colors and save them as a theme of your own.",
+   "proofs": [
+    {
+     "file": "proofs/theme-creator-v1.0.27.png",
+     "kind": "image",
+     "caption": "Options: Make your own theme, with a live preview",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "loadouts",
+   "title": "Loadouts: a whole look in one tap",
+   "text": "Named looks (theme plus sliders): Day Desk, Night Shift, Deep Night, Reading, True Black, or save your own.",
+   "proofs": [
+    {
+     "file": "proofs/loadouts-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Loadouts in the popup, with a box to save your own",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/loadouts-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Deep Night: pure black, warm and dimmed",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "engines",
+   "title": "Try another way",
+   "text": "If a site looks wrong, one tap switches that site to the next engine: Smart, Invert+, Invert, Simple. Other sites stay as they are.",
+   "proofs": [
+    {
+     "file": "proofs/engines-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Smart (the default)",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/engines-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Invert+",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/engines-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "Invert",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/engines-4-v1.0.27.png",
+     "kind": "image",
+     "caption": "Simple",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/engines-5-v1.0.27.png",
+     "kind": "image",
+     "caption": "The popup says which engine this site uses, with Back to Smart",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "icons-flip",
+   "title": "Dark icons stay visible",
+   "text": "Dark icons that would vanish on a dark background are flipped light.",
+   "proofs": [
+    {
+     "file": "proofs/icons-flip-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Before: dark icons on a white pill",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/icons-flip-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "After: the pill is dark and the icons are light",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pictures-true",
+   "title": "Pictures stay true",
+   "text": "Product photos and pictures keep their real colors; only the page around them goes dark.",
+   "proofs": [
+    {
+     "file": "proofs/pictures-true-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Before: product cards on white",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/pictures-true-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "After: same photos, same colors, dark cards",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "already-dark",
+   "title": "Already-dark sites are left alone",
+   "text": "A site designed dark is noticed and left exactly as it is.",
+   "proofs": [
+    {
+     "file": "proofs/already-dark-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "A site that is dark by design, untouched",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/already-dark-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup: \"Already dark on its own\", with Darken it anyway",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "own-dark",
+   "title": "Uses a site's own dark theme",
+   "text": "When a site ships its own dark design, one tap switches the site to it.",
+   "proofs": [
+    {
+     "file": "proofs/own-dark-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Before: a light site that has a dark design built in",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/own-dark-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Pulse Dark's own dark version",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/own-dark-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup: Use this site's own dark theme",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/own-dark-4-v1.0.27.png",
+     "kind": "image",
+     "caption": "After the tap: the site's own purple dark design",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "dark-maps",
+   "title": "Dark street maps",
+   "text": "Street maps (Mapbox, Leaflet, OpenLayers, Google road tiles) go dark too; water and parks keep their colors.",
+   "proofs": []
+  },
+  {
+   "id": "uniform",
+   "title": "Uniform: one color for a whole site",
+   "text": "Paints a whole site one calm color, colored headers and bars included. Pictures stay untouched.",
+   "proofs": [
+    {
+     "file": "proofs/uniform-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup: Uniform is on here",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/uniform-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "The blue header bar joins the one dark color",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "flatten",
+   "title": "Flatten this site",
+   "text": "Colored headers, panels and buttons go dark too, for a fully dark look.",
+   "proofs": [
+    {
+     "file": "proofs/flatten-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup: the Unflatten button shows it is on",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/flatten-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Flattened: header, buttons and cards all dark",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pick-recolor",
+   "title": "Pick a part and recolor it",
+   "text": "Point at any part of a page, pick Background, Words or Icons, choose a color and see it live. Save it for that one part or every part like it.",
+   "proofs": [
+    {
+     "file": "proofs/pick-recolor-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Pointing at a price: yellow frame and label",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/pick-recolor-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "The recolor panel: what, color, where",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/pick-recolor-4-v1.0.27.png",
+     "kind": "image",
+     "caption": "Words in yellow, All like it, saved: every price is yellow after a reload",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "site-modes",
+   "title": "Dark, Filtered or Normal per site",
+   "text": "Choose how each site looks, for the whole site, one address or one page.",
+   "proofs": [
+    {
+     "file": "proofs/site-modes-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup: Filtered for this site",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/site-modes-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Filtered: the site's own colors, only your sliders apply",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/site-modes-3-v1.0.27.png",
+     "kind": "image",
+     "caption": "Normal: this site is left alone",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "fix-site",
+   "title": "Fix this site",
+   "text": "A three-step helper for a page that looks wrong: try another engine, nudge brightness and contrast, then keep it or put it back.",
+   "proofs": [
+    {
+     "file": "proofs/fix-site-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "The Fix this site steps",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pause-tab",
+   "title": "Pause dark on one tab",
+   "text": "When colors matter (shopping, photos), pause dark on this tab for 15 minutes, an hour or until tomorrow. It comes back by itself.",
+   "proofs": [
+    {
+     "file": "proofs/pause-tab-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Paused on this tab, with the time it comes back and Resume now",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/pause-tab-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "The tab shows the site's real colors meanwhile",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "undo",
+   "title": "Undo",
+   "text": "Walks back your last change, up to 50 of them.",
+   "proofs": [
+    {
+     "file": "proofs/undo-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "A change: this site set to Normal",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/undo-2-v1.0.27.png",
+     "kind": "image",
+     "caption": "Tap Undo: back to Dark",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "help",
+   "title": "Plain-words help",
+   "text": "The ghost \"i\" explains every button in plain words.",
+   "proofs": [
+    {
+     "file": "proofs/help-1-v1.0.27.png",
+     "kind": "image",
+     "caption": "Popup help panel",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "screen-shader",
+   "title": "Screen shader",
+   "text": "A see-through tint over every page (warm amber, night red or plain dim), on top of any engine.",
+   "proofs": [
+    {
+     "file": "proofs/shader-v1.0.27.png",
+     "kind": "image",
+     "caption": "Warm amber tint over a dark article",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "font",
+   "title": "Easier-to-read font",
+   "text": "Swap every site's text to a font that's easier for you to read, and make thin text thicker.",
+   "proofs": [
+    {
+     "file": "proofs/font-v1.0.27.png",
+     "kind": "image",
+     "caption": "Verdana with thicker text on the same article",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "schedule",
+   "title": "Schedule, evening warmth, shortcuts",
+   "text": "Dark always, following the computer, at set times or sunset to sunrise; evening warmth on its own timer; keyboard shortcuts (Alt+Shift+D, Alt+Shift+S) and a right-click menu.",
+   "proofs": [
+    {
+     "file": "proofs/schedule-v1.0.27.png",
+     "kind": "image",
+     "caption": "Options: When is dark on, Evening warmth, Shortcuts and right-click menu",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "print-light",
+   "title": "Printing stays light",
+   "text": "Printing always uses the page's original light look, so no ink is wasted.",
+   "proofs": [
+    {
+     "file": "proofs/print-light-v1.0.27.png",
+     "kind": "image",
+     "caption": "The print view of a darkened article: light, as the site made it",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "custom-css",
+   "title": "Custom CSS and recipes",
+   "text": "Your own style fix for one site, and site-fix files you can share or bring in.",
+   "proofs": [
+    {
+     "file": "proofs/custom-css-v1.0.27.png",
+     "kind": "image",
+     "caption": "Options: Custom CSS for one site, Recipes",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "settings-file",
+   "title": "All settings in one file",
+   "text": "Save every setting to one file and bring it back on another browser.",
+   "proofs": [
+    {
+     "file": "proofs/settings-file-v1.0.27.png",
+     "kind": "image",
+     "caption": "Options: Save settings file, Bring settings back",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "community-fixes",
+   "title": "Community site fixes built in",
+   "text": "Small fixes for 2,839 sites (from the Dark Reader project, MIT License) ship inside every update. Nothing is downloaded.",
+   "proofs": []
+  },
+  {
+   "id": "pdf-dark",
+   "title": "Dark PDFs",
+   "text": "PDFs that open in the browser go dark too.",
+   "proofs": []
+  },
+  {
+   "id": "private",
+   "title": "Private by design",
+   "text": "No account, no sign-in, no ads, no tracking. Settings stay in this browser; the About page lists every permission and why.",
+   "proofs": [
+    {
+     "file": "proofs/about-v1.0.27.png",
+     "kind": "image",
+     "caption": "Options: About, what it is allowed to do and why, and your change history",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "welcome",
+   "title": "Dark in seconds after install",
+   "text": "The welcome page says what just happened and where the switch lives. No account, nothing to fill in.",
+   "proofs": [
+    {
+     "file": "proofs/welcome-v1.0.27.png",
+     "kind": "image",
+     "caption": "Welcome page shown right after install",
+     "version": "1.0.27",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  }
+ ],
+ "demo": {
+  "file": "proofs/demo-v1.0.27.mp4",
+  "caption": "28 seconds on the test bench: switch on, dim with Brightness, True Black, Sepia and Midnight Blue themes, Uniform, Normal for one site, pause on this tab and resume. The real popup is on the right.",
+  "version": "1.0.27",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Captured in Chrome on a Windows PC, on demo pages made for testing (no real stores or people)."
+}
