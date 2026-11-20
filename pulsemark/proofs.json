@@ -1,0 +1,30 @@
+{
+ "name": "PlsMark",
+ "systems": ["Windows PC"],
+ "tagline": "Snip it, mark it up, paste it.",
+ "overview": "PlsMark replaces the Screenshot, Paint, save, post loop with one small tool that is already running when you need it. Press Print Screen, drag a box over what you want, mark it up with a full set of drawing tools, and the finished picture lands on your clipboard. It is about 1 MB, works offline, needs no account, and makes no network calls.",
+ "capabilities": [
+  { "id": "snip-bar", "title": "The snip screen", "text": "The screen freezes and one big bar offers Photo, Video and GIF; Box, Window, Screen, Freeform, Scroll and Last area; Pick color, Grab text and Ruler.", "proofs": [ { "file": "proofs/snip-bar-v2.10.0.png", "kind": "image", "caption": "The snip bar over a frozen demo screen", "version": "2.10.0", "captured": "Nov 19, 2026" } ] },
+  { "id": "adjustable-box", "title": "A snip box you can fix", "text": "Draw the box roughly, then drag a corner or side to resize it, drag inside to move it, or drag outside for a new one. The size shows under the box.", "proofs": [ { "file": "proofs/adjustable-box-1-v2.10.0.png", "kind": "image", "caption": "Box drawn around the chart, 706 x 640", "version": "2.10.0", "captured": "Nov 19, 2026" }, { "file": "proofs/adjustable-box-2-v2.10.0.png", "kind": "image", "caption": "Corner dragged out: now 1400 x 654", "version": "2.10.0", "captured": "Nov 19, 2026" } ] },
+  { "id": "finish-choices", "title": "Mark it up, Bypass or Cancel", "text": "After the snip, three equal buttons say what each one does: open the editor, copy the original picture, or throw the snip away.", "proofs": [ { "file": "proofs/finish-choices-v2.10.0.png", "kind": "image", "caption": "The three choices, each with a plain-words line", "version": "2.10.0", "captured": "Nov 19, 2026" } ] },
+  { "id": "guides", "title": "Guides and Measure", "text": "Full cross, Pointer cross (short or long), X, Y read-out and Measure, to line an edge up with something across the screen or measure a distance in px, mm and inches.", "proofs": [ { "file": "proofs/guides-v2.10.0.png", "kind": "image", "caption": "Full cross, X, Y and Measure ticked: 629 px, 167 mm, 6.56 in", "version": "2.10.0", "captured": "Nov 19, 2026" } ] },
+  { "id": "print-screen", "title": "Print Screen takes you there", "text": "PlsMark sits by the clock and takes over Print Screen (or your own key), with an option to start with Windows.", "proofs": [] },
+  { "id": "snip-kinds", "title": "Window, Screen, Freeform, Last area", "text": "Snip a whole window, a whole screen, a freehand shape, or the same area as last time.", "proofs": [] },
+  { "id": "scroll-capture", "title": "Scrolling capture", "text": "Snip a page taller than the screen: PlsMark scrolls and stitches it into one picture.", "proofs": [] },
+  { "id": "video-gif", "title": "Video and GIF", "text": "Record an area as an MP4 video with sound, or as a looping GIF.", "proofs": [] },
+  { "id": "color-text-ruler", "title": "Pick color, Grab text, Ruler", "text": "Read the color under the pointer, copy the text in a picture, or measure on screen.", "proofs": [] },
+  { "id": "editor", "title": "The markup editor", "text": "Menu bar, capture bar, options row, labeled tool column, colors and layers, status bar, in light or dark.", "proofs": [] },
+  { "id": "draw-tools", "title": "Pens, shapes and text", "text": "Pen, highlighter, lines, arrows, boxes, ovals, shapes including ones you draw yourself, and text.", "proofs": [] },
+  { "id": "steps-stamps", "title": "Steps and stamps", "text": "Numbered steps with looks and pointer lines, and a stamps library that remembers what you use.", "proofs": [] },
+  { "id": "blur-redact", "title": "Blur and redact", "text": "Blur or black out anything private before you share it.", "proofs": [] },
+  { "id": "magnifier", "title": "Magnifier callouts", "text": "Zoom bubbles that call out a small detail.", "proofs": [] },
+  { "id": "layers-effects", "title": "Layers, effects and adjustments", "text": "Every mark is a layer; selections, crop, clone, fill, gradient, erase to see-through, effects, brightness and color adjustments, undo history.", "proofs": [] },
+  { "id": "grid-units", "title": "Grid, rulers and units", "text": "Grid, rulers and px / in / mm units for exact work.", "proofs": [] },
+  { "id": "tabs-projects", "title": "Tabs, projects and search", "text": "Several snips in tabs, .pmark projects that keep every layer, and a search box for any command.", "proofs": [] },
+  { "id": "auto-shutter", "title": "Auto shutter", "text": "Timed captures every few seconds, with limits on count and folder.", "proofs": [] },
+  { "id": "copy-out", "title": "Finish to the clipboard", "text": "The green check puts the finished picture on your clipboard, ready to paste; saving a file is optional.", "proofs": [] },
+  { "id": "offline", "title": "Small, offline, private", "text": "About 1 MB. No network calls, no account, no ads, no telemetry.", "proofs": [] }
+ ],
+ "demo": null,
+ "note": "Captured on a Windows 11 desktop at 2560 x 1440, shown at 1920 x 1080, over a demo screen (Sample Doc.pdf). No demo clip yet."
+}
