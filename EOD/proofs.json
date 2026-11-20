@@ -1,0 +1,276 @@
+{
+ "name": "EOD · Editor of Doom",
+ "systems": [
+  "Web"
+ ],
+ "tagline": "Build classic Doom maps in the browser and play them with one tap.",
+ "overview": "EOD (Editor of Doom) is a free website for building classic Doom maps in the browser and playing them with one tap on a phone, a PC (keyboard and mouse) or a controller. It has a Doom Builder-style editor with a 3D view, monster and weapon generators built on painted Doom-style art, seven demo maps, all 68 free Freedoom maps, and a community map library with forums. Everything runs in your own browser. Unofficial fan project, not affiliated with id Software, Bethesda or ZeniMax.",
+ "capabilities": [
+  {
+   "id": "home-hub",
+   "title": "No-sign-in front page",
+   "text": "One page to play a quick demo, create a monster or weapon, edit a map, see the maps or open Pulse Forge. No sign-in, no install.",
+   "proofs": [
+    {
+     "file": "proofs/home-1-v0.7.0.png",
+     "kind": "image",
+     "caption": "Front page: six big buttons and the seven demo maps",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "demo-maps",
+   "title": "Seven demo maps",
+   "text": "Hangar of Shit, Voodoo Express, Glass Gallery, King of Shit Hill, Kev's Water Plant Concept, Chaingun Carnage and Bestiary Arena, each with ▶ Play or ✎ Open in editor.",
+   "proofs": [
+    {
+     "file": "proofs/demo-maps-1-v0.7.0.png",
+     "kind": "image",
+     "caption": "▶ Play Hangar of Shit: straight into the game",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/demo-maps-2-v0.7.0.png",
+     "kind": "image",
+     "caption": "King of Shit Hill: the summit over the valley",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/demo-maps-3-v0.7.0.png",
+     "kind": "image",
+     "caption": "Kev's Water Plant Concept: the green sludge intake",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "freedoom",
+   "title": "68 free Freedoom maps",
+   "text": "The complete Freedoom Phase 1 and Phase 2 campaigns (BSD licence), each with ▶ Play and ✎ Open.",
+   "proofs": [
+    {
+     "file": "proofs/freedoom-1-v0.7.0.png",
+     "kind": "image",
+     "caption": "The Freedoom list on the front page (Phase 2 and Phase 1)",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/freedoom-2-v0.7.0.png",
+     "kind": "image",
+     "caption": "▶ Play MAP01: the map runs in the browser",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "editor",
+   "title": "Map editor with 3D Visual mode",
+   "text": "An editor laid out like Ultimate Doom Builder: Vertices, Linedefs, Sectors, Things modes, drawing tools, doors, lifts, stairs, prefabs, Map Analysis, and a 3D Visual mode where you aim at a surface and change it.",
+   "proofs": [
+    {
+     "file": "proofs/editor-1-v0.7.0.png",
+     "kind": "image",
+     "caption": "Glass Gallery open in the editor (2D)",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/editor-2-v0.7.0.png",
+     "kind": "image",
+     "caption": "3D Visual mode on the same map, with the surface buttons along the bottom",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "monster-gen",
+   "title": "Monster generator",
+   "text": "Pick a painted creature (74 in the library), recolor it, size it and set its health, speed and attacks; every part has its own reroll.",
+   "proofs": [
+    {
+     "file": "proofs/monster-gen-v0.7.0.png",
+     "kind": "image",
+     "caption": "Monster generator with a painted creature and its full animation sequence",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "weapon-gen",
+   "title": "Weapon generator",
+   "text": "Pick a painted gun or blade (61 in the library), recolor it and set damage, fire rate and power.",
+   "proofs": [
+    {
+     "file": "proofs/weapon-gen-v0.7.0.png",
+     "kind": "image",
+     "caption": "Weapon generator with a painted heavy repeater and its muzzle flash",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "forge-art",
+   "title": "Pulse Forge art",
+   "text": "Creatures cut in Pulse Forge on the same device show up in the generators' Painted art list, marked ⚒.",
+   "proofs": [
+    {
+     "file": "proofs/forge-art-v0.7.0.png",
+     "kind": "image",
+     "caption": "A demo creature made in Pulse Forge, picked as ⚒ Demo Baron in the monster generator",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "glass",
+   "title": "Glass panes",
+   "text": "Any two-sided line can be glass: see-through, tinted, reflective, breakable, with quick looks like Mirror, Frosted, Stained and Bulletproof.",
+   "proofs": [
+    {
+     "file": "proofs/glass-v0.7.0.png",
+     "kind": "image",
+     "caption": "Glass Gallery: painted monsters behind clear, frosted and stained glass",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "horde",
+   "title": "Horde maps with waves",
+   "text": "Maps can hand you a starting loadout and send monsters in waves (Chaingun Carnage: six waves, 156 monsters).",
+   "proofs": [
+    {
+     "file": "proofs/horde-v0.7.0.png",
+     "kind": "image",
+     "caption": "Chaingun Carnage: 999 bullets and the first horde coming up the canyon",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "status-bar",
+   "title": "Classic Doom status bar and the marine's face",
+   "text": "The full Doom bar (ammo, health, arms, armor, keys, ammo table) with the marine's face that bleeds, looks toward whoever shot you and grins at a new gun. Classic, Compact or Slim.",
+   "proofs": [
+    {
+     "file": "proofs/status-bar-v0.7.0.png",
+     "kind": "image",
+     "caption": "The classic bar with the marine face at full health",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "touch-controls",
+   "title": "Touch controls",
+   "text": "Move stick, LOOK stick, ⟲ turn-around, FIRE, USE, WPN and MAP, movable with Arrange; they hide when a keyboard, mouse or controller is used.",
+   "proofs": [
+    {
+     "file": "proofs/touch-controls-v0.7.0.png",
+     "kind": "image",
+     "caption": "In game: move stick (left), LOOK stick, ⟲, FIRE, USE, WPN, MAP",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "forums",
+   "title": "Forums",
+   "text": "Five categories (Announcements, Show Off Your Maps, Mapping Help, Bugs & Feedback, General) with threads, replies, pin/lock for admins and Report.",
+   "proofs": [
+    {
+     "file": "proofs/forums-v0.7.0.png",
+     "kind": "image",
+     "caption": "The forum categories (reading needs no account; posting does)",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "first-look",
+   "title": "Pulse standards: look picker, manual, invert, settings",
+   "text": "First visit asks for a look (Light, Dark, Follow device); 👻 manual, ◐ invert and the ⚙ settings on every page.",
+   "proofs": [
+    {
+     "file": "proofs/first-look-v0.7.0.png",
+     "kind": "image",
+     "caption": "First visit: pick your look",
+     "version": "0.7.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "keyboard-controller",
+   "title": "Keyboard, mouse and controller with remapping",
+   "text": "Keyboard + mouse with pointer lock, Xbox/standard controllers with rumble, and a full remapping screen saved on the device.",
+   "proofs": []
+  },
+  {
+   "id": "voodoo-conveyors",
+   "title": "Voodoo dolls and conveyors",
+   "text": "Vanilla voodoo-doll rules and Boom conveyor lines (251–253), shown in Voodoo Express.",
+   "proofs": []
+  },
+  {
+   "id": "triggers",
+   "title": "Kill triggers",
+   "text": "When a marked monster dies, floors change, water starts or stops flowing, lights change, doors open and waves are released (Kev's Water Plant).",
+   "proofs": []
+  },
+  {
+   "id": "open-any-map",
+   "title": "Open any map",
+   "text": "Open a .wad, an /idgames .zip or a .pk3 and play or edit any map in it, with an import report; your own IWAD stays in your browser.",
+   "proofs": []
+  },
+  {
+   "id": "export",
+   "title": "WAD and playable exports",
+   "text": "Export a WAD (custom textures, generated monsters and weapons included for GZDoom) or a playable HTML file.",
+   "proofs": []
+  },
+  {
+   "id": "my-textures",
+   "title": "Your own walls and floors",
+   "text": "Add your own pictures as wall or floor textures; they are saved inside the map and exported with it.",
+   "proofs": []
+  },
+  {
+   "id": "vanilla-limits",
+   "title": "Vanilla limits check",
+   "text": "Optional live counters for visplanes, drawsegs and sprites, plus a whole-map scan that finds where original Doom would crash.",
+   "proofs": []
+  },
+  {
+   "id": "map-library",
+   "title": "Map library: publish, versions, play, remix, votes",
+   "text": "Publish maps with permissions (remix allowed, WAD download allowed, draft), keep the last 20 versions, play from the library, remix with credit, vote and report.",
+   "proofs": []
+  },
+  {
+   "id": "accounts",
+   "title": "Accounts and admin tools",
+   "text": "Free sign-up, profile, My maps, and an admin reports queue.",
+   "proofs": []
+  }
+ ],
+ "demo": null,
+ "note": "Captured in headless Chrome at 1920×1080 on a local copy of the site, in Local test mode (no live server, nothing sent anywhere). Proofs that need an account, a WAD file or real gameplay input are still coming."
+}
