@@ -1,0 +1,313 @@
+{
+ "name": "Pulse Forge",
+ "systems": [
+  "Web"
+ ],
+ "tagline": "Design a Doom-style monster or gun, get an exact art order, cut the painting into game-ready sprites.",
+ "overview": "Pulse Forge is a free web app (phone, PC, any browser, no account) that builds Doom-style monsters and weapons for EOD. You design the creature or gun with a DNA builder, copy an exact art order for a painter, then drop the finished picture back in: the cutter removes the background, finds every frame, labels it, sizes it for Doom and crushes it into the Doom palette. One tap sends it to EOD's painted-art library on the same device.",
+ "capabilities": [
+  {
+   "id": "monster-dna",
+   "title": "Monster DNA builder",
+   "text": "26 monster types, size, colors, art style, behavior and 20 parts, each Yes, No or 🎲 (maybe).",
+   "proofs": [
+    {
+     "file": "proofs/monster-dna-v0.1.1.png",
+     "kind": "image",
+     "caption": "Spiked demon dog, Large, Hellfire orange: Claws and Fangs Yes, Glowing eyes 🎲",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "weapons",
+   "title": "Weapon DNA builder",
+   "text": "21 weapon types and 20 gun parts, plus how many firing frames, floor pickup and projectile frames to draw.",
+   "proofs": [
+    {
+     "file": "proofs/weapons-v0.1.1.png",
+     "kind": "image",
+     "caption": "Weapons tab: Electric minigun with rotating barrels, drum magazine, glowing vents and 6 firing frames",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "art-order",
+   "title": "Art order for the painter",
+   "text": "Plain text the painter follows: style, parts in and out, colors and a fixed sheet layout on solid magenta so a program can cut it. Copy art order puts it on the clipboard, or selects it when the browser blocks copying.",
+   "proofs": [
+    {
+     "file": "proofs/art-order-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Turn Horns and Spikes to Yes: the order's PARTS line updates at once",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/art-order-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "Copy art order: this browser blocked the clipboard, so Forge selected the text instead (the fallback added in 0.1.1)",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "locks-randomize",
+   "title": "🔒 Locks and 🎲 Randomize",
+   "text": "Lock any part and Randomize rolls a new seed, type, size, colors and parts but keeps what you locked.",
+   "proofs": [
+    {
+     "file": "proofs/locks-randomize-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Before: Horns and Claws locked (gold padlocks)",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/locks-randomize-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "After 🎲 Randomize: new seed and type, Horns and Claws still Yes",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "families",
+   "title": "Families (variants)",
+   "text": "Standard, Armored, Elite, Elemental or Boss with the same DNA makes a family of one creature.",
+   "proofs": [
+    {
+     "file": "proofs/families-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Standard variant",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/families-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "Boss variant, same DNA: Armor and Pauldrons join the parts list",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "dna-save-load",
+   "title": "Save and load DNA",
+   "text": "Save DNA downloads the design as a small file; Load DNA brings it back exactly.",
+   "proofs": [
+    {
+     "file": "proofs/dna-save-load-v0.1.1.png",
+     "kind": "image",
+     "caption": "A sample DNA file loaded: Floating skull, Ice blue, Elemental, DNA 777",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "cutter",
+   "title": "Cutter: background out, frames found",
+   "text": "Drop or paste the painting. Forge finds the background color from the edges and floods it away, ignores thin lines and specks, joins nearby pieces and puts the drawings in reading order.",
+   "proofs": [
+    {
+     "file": "proofs/cutter-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "A demo sheet (5 angles + 5 death frames on magenta) dropped in, original shown above the cut frames",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/cutter-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "10 frames found and labeled from the order's layout: Front, Angle 2–5, Death 1–4, Corpse",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "labels",
+   "title": "Change any label",
+   "text": "Every frame has a label picker (Front, Walk 1, Death 1, Firing 1, Pickup, Ignore…) you can change.",
+   "proofs": [
+    {
+     "file": "proofs/labels-v0.1.1.png",
+     "kind": "image",
+     "caption": "Second frame relabeled to Ignore by hand",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "doom-size",
+   "title": "Doom size and Doom colors",
+   "text": "Frames are scaled to game height (a Doom imp is 56) and crushed into the Doom palette; both can be changed.",
+   "proofs": [
+    {
+     "file": "proofs/doom-size-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Game height 100 with Doom colors off: frames grow to about 100 tall",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/doom-size-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "Back to 56 with Doom colors on: 52×56 front frame",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "grid-mode",
+   "title": "Grid mode",
+   "text": "For busy backgrounds, cut by a grid of columns × rows instead.",
+   "proofs": [
+    {
+     "file": "proofs/grid-mode-v0.1.1.png",
+     "kind": "image",
+     "caption": "By grid, 5 columns × 2 rows: ten cells cut and labeled",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "send-to-eod",
+   "title": "Send to EOD",
+   "text": "One tap saves the creature in the Forge library on this device; EOD's generator lists it under Painted art, marked ⚒.",
+   "proofs": [
+    {
+     "file": "proofs/send-to-eod-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Send to EOD library: \"Demo Baron is in your Forge library\"",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/send-to-eod-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "Same browser, EOD's monster generator: Painted art shows ⚒ Demo Baron",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "library",
+   "title": "My Forge art library",
+   "text": "Cards for everything you made, with Export, Load DNA and Delete (Delete asks first; maps that use it keep their copy).",
+   "proofs": [
+    {
+     "file": "proofs/library-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Delete asks with ✔ / ↶ (cancelled here)",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/library-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "Load DNA from the card puts the creature's design back in the builder",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "export",
+   "title": "Export a creature",
+   "text": "Export on a card (or Export every creature) makes one zip per creature: named PNG frames, DNA.json and the art order.",
+   "proofs": [
+    {
+     "file": "proofs/export-v0.1.1.png",
+     "kind": "image",
+     "caption": "Export: Demo_Baron zip made (on the bench it held angle-1…5, death-1…5, DNA.json, art-order.txt, README.txt)",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "manual",
+   "title": "Ghost manual",
+   "text": "👻 opens a plain-words guide to the four steps.",
+   "proofs": [
+    {
+     "file": "proofs/manual-v0.1.1.png",
+     "kind": "image",
+     "caption": "The 👻 manual",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "settings",
+   "title": "Settings, About and Check for updates",
+   "text": "⚙ has the look (Dark, Light, Follow the device), text size, the crash log, About and Check for updates. The look is asked once on the first visit.",
+   "proofs": [
+    {
+     "file": "proofs/first-look-v0.1.1.png",
+     "kind": "image",
+     "caption": "First visit: pick a look",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/settings-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "⚙ Settings",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/settings-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "Check for updates: \"You have the newest Pulse Forge (0.1.1)\"",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/settings-3-v0.1.1.png",
+     "kind": "image",
+     "caption": "Light look",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "invert",
+   "title": "Invert colors",
+   "text": "◐ flips every color on the page.",
+   "proofs": [
+    {
+     "file": "proofs/invert-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "Before",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/invert-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "After ◐",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  }
+ ],
+ "demo": null,
+ "note": "Captured in headless Chrome at 1920×1080 on a local copy of the site, with demo data only. The cut sheet is a demo made from EOD's own painted Spine Baron on magenta."
+}
