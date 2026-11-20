@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse Dark — dark mode for every website · Pulse Labs Studio</title>
+<meta name="description" content="Pulse Dark: a free Chrome extension that turns every website dark, with photos and buttons kept right. Real screens from the extension, every capability shown.">
+<link rel="stylesheet" href="../assets/pls.css">
+<script src="../store-config.js"></script>
+<script src="../assets/pls-store.js"></script>
+<script src="../assets/proofs.js"></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="../index.html"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Pulse Labs Studio</span></a>
+  <nav>
+    <a class="nav on" href="../products.html">Products</a>
+    <a class="nav" href="../cart.html">Cart<span class="badge-n" id="cartN" style="display:none">0</span></a>
+    <a class="nav" href="../account.html" id="acctLink">Sign in</a>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
+    <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <h1 style="margin-bottom:4px;color:#e63329">Pulse Dark</h1>
+  <div class="sys"><span class="badge">Chrome extension</span></div>
+  <p class="sub" style="margin-top:12px"><b>Dark mode for every website. Free, unlimited, private.</b> Pages go dark as they load,
+  photos and buttons keep their colors, and nothing about you ever leaves your browser.</p>
+  <div class="soon" style="margin:14px 0">Free. Version 1.0.27 is on our <a href="../downloads.html">downloads page</a>; the Chrome Web Store listing is coming.</div>
+  <div id="pf"></div>
+</div>
+
+<div id="manual" role="dialog" aria-modal="true"><div class="box">
+  <button class="ok-x" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">About this page</h2>
+  <p><b>Overview</b> says what the extension is. <b>What it does</b> lists every capability. <b>Proofs</b> shows each one with real
+  screens from the extension, stamped with the version and the day they were taken. <b>Demo</b> is a short recording of it running.</p>
+  <p>Tap any picture to see it full size. Back to every product: <a href="../products.html">Products</a>.</p>
+  <p>◐ flips the colors.</p>
+</div></div>
+<footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="../privacy.html">Privacy Policy</a></footer>
+<script>PLS.header(); PLSProofs.render();</script>
+</body>
+</html>
