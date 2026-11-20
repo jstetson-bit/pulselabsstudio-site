@@ -1,0 +1,18 @@
+{
+ "name": "PLS Zip",
+ "systems": ["Windows PC", "Android (inside PLS Explorer)"],
+ "tagline": "Open any zip or archive, old or new.",
+ "overview": "PLS Zip is Pulse Labs' own archive engine. It opens zip, 7z, RAR (old and new), tar, gz and bz2 archives, including password and split archives, and makes zips with or without an AES-256 password. It works offline and never touches the original. The Windows app is still being built, so the proofs below will come from it once it exists.",
+ "capabilities": [
+  { "id": "open-zip", "title": "Opens zip and password zips", "text": "Classic zips and AES password zips; a wrong password gets a plain-words message.", "proofs": [] },
+  { "id": "open-7z", "title": "Opens 7z", "text": "Every common 7z packing method (LZMA, LZMA2, PPMd, BZip2, Deflate), including locked 7z with hidden file names.", "proofs": [] },
+  { "id": "open-rar", "title": "Opens RAR, old and new", "text": "RAR 2.9 up to RAR 5, solid or not, with or without a password.", "proofs": [] },
+  { "id": "open-tar-gz", "title": "Opens tar, gz and bz2", "text": "tar, tar.gz / tgz, tar.bz2, and single .gz and .bz2 files.", "proofs": [] },
+  { "id": "split-archives", "title": "Archives in parts", "text": "Opens archives split into parts (.7z.001, .part1.rar, .rar + .r00) and says which part to open first.", "proofs": [] },
+  { "id": "make-zip", "title": "Makes zips, with an optional password", "text": "Zip files and folders, with an AES-256 password if you want one.", "proofs": [] },
+  { "id": "never-touches", "title": "Never touches your original", "text": "Extracting always makes a new folder next to the archive. Nothing is overwritten or deleted.", "proofs": [] },
+  { "id": "offline", "title": "Offline, no strings", "text": "No internet, no ads, no account, no subscription. Opening archives is free forever.", "proofs": [] }
+ ],
+ "demo": null,
+ "note": "The Windows app isn't built yet, so nothing is shown here. Proofs come from the Windows app once it exists."
+}
