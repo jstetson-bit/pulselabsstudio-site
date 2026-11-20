@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.21 — 2026-11-19 — proof pages live for 11 products (owner)
+- HQ picture check of every proof PR (338 pictures: text read off every screen, every sheet looked at). Covered two spots: a real person's name and home town on one EOD screen, and the retired $9.99 price on one PLS PDF screen.
+- Merged: Keyboard Studio, PLS Authenticator, PulseMark, PLS Zip, EOD, PLS PDF, PLS Launcher, Pulse Meds, Pulse Dark, Clock HUD (now 17 of 18), PLS File Explorer.
+- Held for the owner: Pulse Forge (its screens say "Copy this into ChatGPT") and Pulse Meter (it is a claude.ai usage meter) — both name an AI, against the house rule.
+- Products: every card with a page links to it with "See every feature, with proofs (N of M shown)"; new PLS File Explorer card.
+
 ## v0.7.20 — 2026-11-19 — product pages with proofs (owner)
 - New shared `assets/proofs.js`: every product page shows Overview · What it does · Proofs · Demo from its own `proofs.json`. Each capability gets real bench pictures/clips stamped with version and capture date; one with no proof yet says "Proof coming" so gaps stay visible.
 - First page: `/pls-clock-hud/` (18 capabilities, 6 proven with Release pictures and the v2.17.0 hologram clip). Pictures that show saved home cities were left out on purpose.
