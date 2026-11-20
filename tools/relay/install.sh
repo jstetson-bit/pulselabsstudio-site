@@ -24,11 +24,13 @@ MemoryMax=128M
 WantedBy=multi-user.target
 UNIT
 systemctl daemon-reload
-systemctl enable --now pls-relay
+systemctl enable pls-relay
+systemctl restart pls-relay   # an update takes effect right away
 # firewall: SSH, relay UDP, status TCP; everything else closed
 ufw allow 22/tcp >/dev/null
 ufw allow 41400/udp >/dev/null
 ufw allow 41401/tcp >/dev/null
+ufw allow 41402/tcp >/dev/null   # v0.2.0: the PLS Board
 ufw --force enable >/dev/null
 # security updates install themselves
 apt-get -qq update >/dev/null 2>&1 && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y unattended-upgrades >/dev/null 2>&1 || true
