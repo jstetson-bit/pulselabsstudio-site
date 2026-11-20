@@ -118,7 +118,15 @@
    "id": "status",
    "title": "Status bar that mirrors your phone",
    "text": "Battery, signal, 5G/LTE, Wi-Fi, Bluetooth, volume and alarm, drawn in your HUD colors.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/status-v2.17.15.png",
+     "kind": "image",
+     "caption": "The status row drawn in HUD colors: signal, Wi-Fi, Bluetooth, volume, alarm, calendar, mail and message counts, battery 100%. Two demo texts give the message count of 2.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "mail",
@@ -129,68 +137,204 @@
   {
    "id": "themes",
    "title": "Themes",
-   "text": "Eight one-tap looks, from Pulse Red and All White to Blood Brass with chopped frames and label tabs.",
-   "proofs": []
+   "text": "Nine one-tap looks, from Pulse Red and All White to Blood Brass with chopped frames and label tabs.",
+   "proofs": [
+    {
+     "file": "proofs/themes-1-v2.17.15.png",
+     "kind": "image",
+     "caption": "The Themes sheet: all nine looks, each one tap.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/themes-2-v2.17.15.png",
+     "kind": "image",
+     "caption": "Blood Brass.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/themes-3-v2.17.15.png",
+     "kind": "image",
+     "caption": "Corvette HUD.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "windshield",
    "title": "Windshield mode",
    "text": "Flips the whole screen in a mirror so it reads right when reflected in the windshield at night.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/windshield-v2.17.15.png",
+     "kind": "image",
+     "caption": "Windshield mode on: the whole HUD flipped so it reads right as a reflection.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "glass",
    "title": "Glass reflection",
    "text": "A faint second image under the first, like real windshield glass, with its own distance and strength.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/glass-v2.17.15.png",
+     "kind": "image",
+     "caption": "The same clock without and with the glass reflection effect: a faint second image under the first.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "media",
    "title": "Now playing, video and music",
    "text": "Shows what's playing and can place a video or song player right in the layout.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/media-v2.17.15.png",
+     "kind": "image",
+     "caption": "A video player placed in the layout, playing a demo test-pattern clip.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "launch",
    "title": "Launch pad",
    "text": "A grid of up to 50 tiles that open apps, websites, files or quick actions.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/launch-1-v2.17.15.png",
+     "kind": "image",
+     "caption": "Launch pad tiles in the layout (quick actions plus two empty + tiles).",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/launch-2-v2.17.15.png",
+     "kind": "image",
+     "caption": "Tapping the Alarms tile opens the phone's Clock app on its alarm list.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "reminders",
    "title": "Reminders",
    "text": "Set reminders that ring full screen, even with the HUD running.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/reminders-1-v2.17.15.png",
+     "kind": "image",
+     "caption": "A demo reminder set for 10:08 PM: “Fuel stop at exit 42”.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/reminders-2-v2.17.15.png",
+     "kind": "image",
+     "caption": "The reminder ringing over the running HUD, with Snooze 10 min and done.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "background",
    "title": "Backgrounds",
    "text": "A color, a picture, or a slideshow behind the HUD.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/background-v2.17.15.png",
+     "kind": "image",
+     "caption": "A picture behind the HUD (a demo gradient).",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "profiles",
    "title": "Saved setups",
    "text": "Save whole layouts and switch between them, separately for portrait and landscape.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/profiles-1-v2.17.15.png",
+     "kind": "image",
+     "caption": "Two saved setups, Day and Night, in Settings.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/profiles-2-v2.17.15.png",
+     "kind": "image",
+     "caption": "Loading the Night setup.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "screensaver",
    "title": "Screensaver and live wallpaper",
    "text": "The same HUD as the phone's screensaver while charging, or as a live wallpaper.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/screensaver-1-v2.17.15.png",
+     "kind": "image",
+     "caption": "The HUD offered as a live wallpaper (preview).",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/screensaver-2-v2.17.15.png",
+     "kind": "image",
+     "caption": "PLS Clock HUD listed among the phone's screen savers.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   },
   {
    "id": "fold",
    "title": "Built for the Fold",
    "text": "Separate layouts for folded, open and landscape, centered automatically when the screen changes.",
-   "proofs": []
+   "proofs": [
+    {
+     "file": "proofs/fold-1-v2.17.15.png",
+     "kind": "image",
+     "caption": "Folded: the cover-screen layout.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/fold-2-v2.17.15.png",
+     "kind": "image",
+     "caption": "Open: the inner-screen layout.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/fold-3-v2.17.15.png",
+     "kind": "image",
+     "caption": "Landscape on the inner screen.",
+     "version": "2.17.15",
+     "captured": "Nov 19, 2026"
+    }
+   ]
   }
  ],
  "demo": {
-  "file": "proofs/hologram-v2.17.0.mp4",
-  "caption": "The HUD running on our Fold-sized test bench with the hologram effects on.",
-  "version": "2.17.0",
+  "file": "proofs/themes-demo-v2.17.15.mp4",
+  "caption": "Switching themes on the HUD: Night Vision, Corvette HUD, Blood Brass and Hologram.",
+  "version": "2.17.15",
   "captured": "Nov 19, 2026"
  },
  "note": "Every picture carries the app version and the day it was taken."
