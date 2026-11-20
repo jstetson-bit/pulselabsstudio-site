@@ -13,8 +13,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
+# Own lane. Runs started by the old `vault` tag still read that tag's copy of this file (lane "pages");
+# keeping this one in a different lane stops them from cancelling the real deploy. Their runs fail harmlessly.
 concurrency:
-  group: pages
+  group: site-deploy-main
   cancel-in-progress: true
 jobs:
   deploy:

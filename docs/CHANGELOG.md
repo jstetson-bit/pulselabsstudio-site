@@ -6,7 +6,9 @@
   the vault release's "edited" event started from the old `vault` tag. Those runs then failed, because the Pages
   environment only deploys main. So most farm updates since this morning never went live. The site only caught up
   when an unrelated push (a "where it stands" status update) deployed.
-- Fix: the deploy runs on pushes to main only. The watcher uploads files before it pushes, so nothing is lost.
+- Fix: the deploy runs on pushes to main only, in its own lane (`site-deploy-main`). The old tag's runs read the
+  tag's copy of the file, so they still start, but they can no longer cancel the real deploy. The watcher uploads
+  files before it pushes, so nothing is lost.
 
 ## v0.7.21 — 2026-11-19 — proof pages live for 11 products (owner)
 - HQ picture check of every proof PR (338 pictures: text read off every screen, every sheet looked at). Covered two spots: a real person's name and home town on one EOD screen, and the retired $9.99 price on one PLS PDF screen.
