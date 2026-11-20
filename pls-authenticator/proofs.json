@@ -1,0 +1,491 @@
+{
+ "name": "PLS Authenticator",
+ "systems": [
+  "Android"
+ ],
+ "tagline": "Your codes and passwords, on this device only.",
+ "overview": "PLS Authenticator keeps your two-factor sign-in codes and your passwords in one encrypted vault on your phone. No account, no cloud, no subscription, and no internet permission. Codes are free forever; the password vault is a one-time $10 unlock. You hold the only keys: your master password and a recovery key shown once.",
+ "capabilities": [
+  {
+   "id": "one-vault",
+   "title": "One vault, offline",
+   "text": "Your sign-in codes and your passwords live in one encrypted vault on this device. No account, no cloud, no subscription.",
+   "proofs": [
+    {
+     "file": "proofs/one-vault-v1.4.1.png",
+     "kind": "image",
+     "caption": "First screen: codes free forever, passwords, offline",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "create",
+   "title": "Create your vault in five steps",
+   "text": "Pick a master password, confirm it, keep the recovery key, prove you kept it, and finish.",
+   "proofs": [
+    {
+     "file": "proofs/create-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Step 1: create the master password",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/create-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Step 2: type it again",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "recovery-key",
+   "title": "Recovery key, shown once",
+   "text": "A recovery key is the only other way in. Save it to Downloads, as a PDF, or print it, then type a row back to prove you kept a copy.",
+   "proofs": [
+    {
+     "file": "proofs/recovery-key-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "The recovery key (demo vault)",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/recovery-key-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Type the row back to prove your copy",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/recovery-key-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "No back door: nobody can reset it for you",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "unlock",
+   "title": "Unlock with password or fingerprint",
+   "text": "Open the vault with your master password, or with your fingerprint once it is turned on. A wrong password is refused.",
+   "proofs": [
+    {
+     "file": "proofs/unlock-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Unlock with the master password",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/unlock-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Unlock with your fingerprint",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/unlock-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Wrong password: refused",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "home",
+   "title": "Home: everything one tap away",
+   "text": "Codes, passwords, quick actions (scan, type a key, add a password, back up) and search on one screen.",
+   "proofs": [
+    {
+     "file": "proofs/home-v1.4.1.png",
+     "kind": "image",
+     "caption": "Home with 3 demo codes and 3 demo passwords",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "codes",
+   "title": "Two-factor codes, free forever",
+   "text": "Time-based (TOTP) and counter (HOTP) codes with a countdown ring, 6 or 8 digits.",
+   "proofs": [
+    {
+     "file": "proofs/codes-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Three demo accounts with live codes",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/codes-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Code detail with countdown",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/codes-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Counter (HOTP) code",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/codes-bench-v1.4.1.png",
+     "kind": "image",
+     "caption": "On the bench: a demo account added by setup key, live code",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "copy",
+   "title": "Tap to copy a code",
+   "text": "One tap copies the code so you can paste it into the sign-in page.",
+   "proofs": [
+    {
+     "file": "proofs/copy-v1.4.1.png",
+     "kind": "image",
+     "caption": "Copied banner",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "add-scan",
+   "title": "Add by QR code or setup key",
+   "text": "Scan the QR code a site shows you, or type the setup key when there is no QR.",
+   "proofs": [
+    {
+     "file": "proofs/add-scan-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Add an account: scan or type",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/add-scan-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "QR camera",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/add-scan-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Scanned: check and save",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/add-scan-4-v1.4.1.png",
+     "kind": "image",
+     "caption": "Type a setup key",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "edit-delete",
+   "title": "Edit or delete an account",
+   "text": "Rename an account or remove it, with a clear confirm before anything is deleted.",
+   "proofs": [
+    {
+     "file": "proofs/edit-delete-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Edit an account",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/edit-delete-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Delete asks first",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "search",
+   "title": "Search",
+   "text": "Find any code or password by name.",
+   "proofs": [
+    {
+     "file": "proofs/search-v1.4.1.png",
+     "kind": "image",
+     "caption": "Search codes and passwords",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "passwords",
+   "title": "Password vault",
+   "text": "Save sign-ins (site, username, password, notes); passwords stay hidden until you ask.",
+   "proofs": [
+    {
+     "file": "proofs/passwords-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Three demo passwords",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/passwords-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Password detail",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/passwords-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Add a password",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "generator",
+   "title": "Strong password generator",
+   "text": "Make a strong password with the length and characters you choose, with a strength meter.",
+   "proofs": [
+    {
+     "file": "proofs/generator-v1.4.1.png",
+     "kind": "image",
+     "caption": "Password generator",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "unlock-passwords",
+   "title": "Passwords: one $10 unlock, once",
+   "text": "Codes are free forever. Passwords are a one-time $10 unlock through Google Play, checked once and never again.",
+   "proofs": [
+    {
+     "file": "proofs/unlock-passwords-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Passwords before the unlock",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/unlock-passwords-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "The one-time unlock screen",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "backup",
+   "title": "Backup and restore you control",
+   "text": "Export one encrypted backup file, import it, or restore a vault on a new phone with your password or recovery key.",
+   "proofs": [
+    {
+     "file": "proofs/backup-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Export an encrypted backup",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/backup-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Import a backup",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/backup-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Restore a vault",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/backup-4-v1.4.1.png",
+     "kind": "image",
+     "caption": "A wrong key is refused",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "change-password",
+   "title": "Change the master password",
+   "text": "Change the master password any time; the vault is locked again under the new one.",
+   "proofs": [
+    {
+     "file": "proofs/change-password-v1.4.1.png",
+     "kind": "image",
+     "caption": "Change master password",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "security-settings",
+   "title": "Auto-lock, fingerprint and privacy settings",
+   "text": "Choose when the vault locks itself, turn fingerprint unlock on or off, and hide codes until tapped.",
+   "proofs": [
+    {
+     "file": "proofs/security-settings-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Settings",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/security-settings-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Auto-lock timer",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/security-settings-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Fingerprint unlock",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/security-settings-4-v1.4.1.png",
+     "kind": "image",
+     "caption": "Hide codes",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/security-settings-5-v1.4.1.png",
+     "kind": "image",
+     "caption": "Codes hidden until tapped",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "looks",
+   "title": "Pulse dark, Light, or follow the phone",
+   "text": "Choose the look on first start and switch any time with the eye button; text size on the Display screen.",
+   "proofs": [
+    {
+     "file": "proofs/looks-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Choose your look",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/looks-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "Light look",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/looks-3-v1.4.1.png",
+     "kind": "image",
+     "caption": "Display and text size",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "manual",
+   "title": "How to use this app",
+   "text": "A step-by-step manual with Show me buttons that take you to the real screen.",
+   "proofs": [
+    {
+     "file": "proofs/manual-v1.4.1.png",
+     "kind": "image",
+     "caption": "The manual",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Report a problem, your way",
+   "text": "Write what happened; your own email app opens addressed to support, and you review it before sending. Vault contents are never included.",
+   "proofs": [
+    {
+     "file": "proofs/report-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "Report a Problem",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/report-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "After the email app opens",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "about",
+   "title": "About and what's new",
+   "text": "Version, what changed, and the facts about how the vault protects you.",
+   "proofs": [
+    {
+     "file": "proofs/about-1-v1.4.1.png",
+     "kind": "image",
+     "caption": "About",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/about-2-v1.4.1.png",
+     "kind": "image",
+     "caption": "What's new",
+     "version": "1.4.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "fill-in",
+   "title": "Fill in passwords everywhere",
+   "text": "Turn on the fill-in service once; apps and sites offer your saved sign-ins, and Open site opens a site with its login ready.",
+   "proofs": []
+  },
+  {
+   "id": "no-internet",
+   "title": "No internet permission",
+   "text": "The app has no internet permission at all, so nothing in the vault can leave the phone through the app.",
+   "proofs": []
+  }
+ ],
+ "demo": {
+  "file": "proofs/demo-v1.4.1.mp4",
+  "caption": "38 seconds on the test bench: choose a look, create a vault with a demo password, keep and prove the recovery key, then add a demo account by setup key and watch its code count down.",
+  "version": "1.4.1",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Pictures: the app's own screen check (build b26, v1.4.1) with demo accounts only (example.test). Demo clip and the bench code picture: Fold (open) bench profile, Android 15 emulator, a throwaway demo vault. No real accounts anywhere."
+}
