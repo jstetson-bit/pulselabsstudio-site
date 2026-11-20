@@ -1,0 +1,588 @@
+{
+ "name": "PLS Weather",
+ "systems": [
+  "Android"
+ ],
+ "tagline": "US weather on free NOAA data. No ads, no account, no tracking.",
+ "overview": "PLS Weather is a US weather app built on the National Weather Service's free public data. Current conditions, the full hourly and 7-day forecast, live NOAA radar and severe weather alerts are all free, with no ads, no account and no tracking. It names its sources and times on every screen, and says so when weather is old or a reading is missing.",
+ "capabilities": [
+  {
+   "id": "first-run",
+   "title": "First run in two taps",
+   "text": "Pick Dark, Light or Follow device, then Use My Location, Pick a Place or Decide Later. No account, no sign-up.",
+   "proofs": [
+    {
+     "file": "proofs/first-run-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Choose your look",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/first-run-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Then: your location, a place, or later",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "location",
+   "title": "Your location, only when you ask",
+   "text": "Looks up where you are only when you tap, rounded to about 350 feet, never in the background. Android asks first.",
+   "proofs": [
+    {
+     "file": "proofs/location-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "The app explains before Android asks",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/location-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Android's own permission question",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "home",
+   "title": "Home at a glance",
+   "text": "Where you are, the current reading with its station and time, the forecasters' one-line summary, the next hours and the next 7 days on one screen.",
+   "proofs": [
+    {
+     "file": "proofs/home-v0.6.7.png",
+     "kind": "image",
+     "caption": "Home on the open Fold: Chicago, IL, live NOAA data",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "home-map",
+   "title": "Live map on Home",
+   "text": "Pinch, drag and zoom the map; one-tap boxes for Rain & Storms, Snow, Ice, Wind and Alerts; a color legend and a radar line that says how fresh the radar is.",
+   "proofs": [
+    {
+     "file": "proofs/home-map-v0.6.7.png",
+     "kind": "image",
+     "caption": "Map, tick boxes and legend; radar status at the bottom of the map",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "detail-cards",
+   "title": "Detail cards",
+   "text": "Wind dial with gusts, humidity, dew point in plain words, pressure gauge with its trend, visibility and the sun's day, two across.",
+   "proofs": [
+    {
+     "file": "proofs/detail-cards-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Wind, humidity, dew point, pressure and the 7 days",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/detail-cards-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Visibility, sun, and the jump cards to every part",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "current",
+   "title": "Current details",
+   "text": "Every reading from the nearest NWS station: temperature, feels like, wind and gusts, humidity, dew point, pressure trend, visibility, sunrise and sunset. UV says plainly that NWS has no source.",
+   "proofs": [
+    {
+     "file": "proofs/current-v0.6.7.png",
+     "kind": "image",
+     "caption": "Current Details from station KMDW",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "hourly",
+   "title": "Hourly, straight across midnight",
+   "text": "The next 48 hours by default, or any single day from the day buttons, with temperature, precipitation and wind graphs and a full table.",
+   "proofs": [
+    {
+     "file": "proofs/hourly-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Next 48 h: graph and table",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/hourly-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Precip graph: rain chance and amount",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/hourly-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "Tap Sun 22: that day's hours",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "daily",
+   "title": "7-day forecast",
+   "text": "Each day with its day and night icons, rain chance, amount and high/low range; tap a day for Day and Night detail.",
+   "proofs": [
+    {
+     "file": "proofs/daily-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Daily 7 Day",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/daily-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Tap Sunday: the full day, Day and Night",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "graphs",
+   "title": "Graphs",
+   "text": "Temperature, precipitation, wind and humidity over 24 h, 48 h or the full forecast.",
+   "proofs": [
+    {
+     "file": "proofs/graphs-v0.6.7.png",
+     "kind": "image",
+     "caption": "Graphs page",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "radar",
+   "title": "Radar loop with honest times",
+   "text": "NOAA radar played as a loop; every frame shows its time and \"frame N of M\", LIVE only when the newest frame is under 15 minutes old. Iowa State is the automatic backup.",
+   "proofs": [
+    {
+     "file": "proofs/radar-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Loop running: frame 3 of 7, 13 min ago",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/radar-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Paused on the newest frame: LIVE",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "map-layers",
+   "title": "Map layers, one switch each",
+   "text": "NOAA radar, the NWS alert map, fronts with highs and lows, and today's rain, snow, ice and severe-storm areas, each on or off.",
+   "proofs": [
+    {
+     "file": "proofs/map-layers-v0.6.7.png",
+     "kind": "image",
+     "caption": "Map Layers",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "map-style",
+   "title": "Map style",
+   "text": "Choose the base map: roads and towns, satellite photo with labels, or outlines only, with a strength slider.",
+   "proofs": []
+  },
+  {
+   "id": "playback",
+   "title": "Playback settings",
+   "text": "Loop length (30 min, 1 or 2 hours), speed and radar opacity. The timestamp is always on.",
+   "proofs": [
+    {
+     "file": "proofs/playback-v0.6.7.png",
+     "kind": "image",
+     "caption": "Radar Playback Settings",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "temp-layer",
+   "title": "Temperature map",
+   "text": "A Temp box tints the map with this hour's NWS temperature forecast.",
+   "proofs": []
+  },
+  {
+   "id": "alerts",
+   "title": "Severe weather alerts",
+   "text": "Active NWS watches, warnings and advisories for every saved place: a banner on Home, a list, and a detail page split into What, Where, When, Impacts and What to do.",
+   "proofs": [
+    {
+     "file": "proofs/alerts-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "A live Wind Advisory on Home (Omaha, NE)",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/alerts-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Active alerts for every saved place",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/alerts-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "Alert detail from the NWS bulletin",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "alert-settings",
+   "title": "Alert settings and a test alert",
+   "text": "Alerts per place, a severity floor, quiet hours that tornado warnings always break through, and a button that sends a test tornado alert.",
+   "proofs": [
+    {
+     "file": "proofs/alert-settings-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Per-place switches, severity floor, quiet hours",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/alert-settings-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Send a test tornado alert: it arrives as a notification",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "discussion",
+   "title": "Forecast discussion",
+   "text": "The local NWS office's own discussion, as a summary of their key messages or the full text, with text size.",
+   "proofs": [
+    {
+     "file": "proofs/discussion-v0.6.7.png",
+     "kind": "image",
+     "caption": "NWS Omaha discussion, key messages",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "places",
+   "title": "Unlimited saved places, searched on the phone",
+   "text": "Search by city or ZIP from a US place list built into the app (nothing you type is sent), save as many places as you like, drag to reorder.",
+   "proofs": [
+    {
+     "file": "proofs/places-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Search \"Denver\": results come from the phone",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/places-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Search a ZIP: 68102 is Omaha, NE",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/places-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "My Places",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/places-4-v0.6.7.png",
+     "kind": "image",
+     "caption": "Drag the handle: Omaha moves above Denver",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "sun-moon",
+   "title": "Sun and Moon",
+   "text": "Sunrise, sunset, daylight length, twilight, and the moon phase drawn with how much is lit, worked out on the phone.",
+   "proofs": [
+    {
+     "file": "proofs/sun-moon-v0.6.7.png",
+     "kind": "image",
+     "caption": "Sun and Moon",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "units",
+   "title": "Units",
+   "text": "°F, °C or K; mph, km/h, m/s, knots or Beaufort; inches or mm; inHg, hPa or mb; miles or km. Applied at once.",
+   "proofs": [
+    {
+     "file": "proofs/units-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Before: °F and mph",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/units-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Switch to °C and km/h",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/units-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "After: Home in °C and km/h",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "history-undo",
+   "title": "History and Undo",
+   "text": "Every change is written to History, and Undo walks back the last 50 steps.",
+   "proofs": [
+    {
+     "file": "proofs/history-undo-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Undo names what it will undo",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/history-undo-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "History: every change, with the time",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "appearance",
+   "title": "Themes and the eye",
+   "text": "Light, Dark, AMOLED, Pulse or follow the device, four text sizes, and the eye at the top that flips light and dark in one tap.",
+   "proofs": [
+    {
+     "file": "proofs/appearance-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Light theme",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/appearance-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Pulse theme",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/appearance-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "Tap the eye: Home flips to light",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "refresh",
+   "title": "Keeps itself fresh",
+   "text": "While it is open the weather updates every 3, 5, 10, 15 or 30 minutes; shows when each place was last fetched; Refresh Now on demand.",
+   "proofs": [
+    {
+     "file": "proofs/refresh-v0.6.7.png",
+     "kind": "image",
+     "caption": "Data and Refresh",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "offline",
+   "title": "Honest when offline",
+   "text": "With no connection it keeps showing the saved weather, says so at the top with the time it was saved, and offers Retry.",
+   "proofs": [
+    {
+     "file": "proofs/offline-v0.6.7.png",
+     "kind": "image",
+     "caption": "No connection: \"Offline · Cached Weather\" with the saved time",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "privacy",
+   "title": "What it collects: nothing",
+   "text": "No ads, no analytics, no account. The Privacy page names every permission and the weather hosts it talks to.",
+   "proofs": [
+    {
+     "file": "proofs/privacy-v0.6.7.png",
+     "kind": "image",
+     "caption": "What This App Collects",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Report a Problem",
+   "text": "Write what happened and choose what to attach; it is sent only when you tap Send.",
+   "proofs": [
+    {
+     "file": "proofs/report-v0.6.7.png",
+     "kind": "image",
+     "caption": "Report a Problem (nothing was sent for this picture)",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "help",
+   "title": "Help on every screen",
+   "text": "The i on every screen says what it shows, its source and its time; a full offline manual, About the Data, and About.",
+   "proofs": [
+    {
+     "file": "proofs/help-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "The i on Home",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/help-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Offline manual",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/help-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "About the Data",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/help-4-v0.6.7.png",
+     "kind": "image",
+     "caption": "About",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "drive-mode",
+   "title": "Drive mode",
+   "text": "One tap starts Drive mode: it keeps watching the weather on your path, with a notification the whole time and a way to stop it.",
+   "proofs": [
+    {
+     "file": "proofs/drive-mode-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Drive box on",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/drive-mode-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "The Drive mode notification",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "weather-ahead",
+   "title": "Weather ahead on your path",
+   "text": "While you drive: your heading, your last hour, and the warnings and weather where you will be in the next two hours, spoken if you like.",
+   "proofs": []
+  },
+  {
+   "id": "crosswind",
+   "title": "Crosswind while driving",
+   "text": "Wind across your direction of travel, turning yellow and red near the limit you pick for high-profile vehicles.",
+   "proofs": []
+  },
+  {
+   "id": "fold",
+   "title": "Folded and unfolded",
+   "text": "On the open Fold the map sits left and the forecast right; folded, everything stacks in one column.",
+   "proofs": [
+    {
+     "file": "proofs/fold-1-v0.6.7.png",
+     "kind": "image",
+     "caption": "Open: map left, forecast right",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/fold-2-v0.6.7.png",
+     "kind": "image",
+     "caption": "Folded: one column",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/fold-3-v0.6.7.png",
+     "kind": "image",
+     "caption": "Folded, scrolled: next hours and 7 days",
+     "version": "0.6.7",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  }
+ ],
+ "demo": {
+  "file": "proofs/demo-v0.6.7.mp4",
+  "kind": "video",
+  "caption": "39 seconds: Home, the detail cards, the hourly forecast and a single day, then the live radar.",
+  "version": "0.6.7",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Captured with demo places only (Chicago IL, Denver CO, Omaha NE)."
+}
