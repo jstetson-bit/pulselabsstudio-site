@@ -1,0 +1,585 @@
+{
+ "name": "Pulse 64",
+ "systems": [
+  "Android",
+  "Windows PC"
+ ],
+ "tagline": "Know your machine: every part, live readings and benchmarks, on your phone and PC. Offline, no ads.",
+ "overview": "Pulse 64 shows what your phone or PC is doing right now: CPU speed for every core, memory, storage, network, battery charge, heat and power draw, around a spinning see-through hologram of your own device. On a folding phone it adds a face panel for the front screen and a charging screen that comes up by itself when you plug in. Run the arcade-style benchmarks, build your own panel, and color the hologram your way. It works offline, with no ads and no accounts, and anything the device doesn't share says so instead of making up a number.",
+ "capabilities": [
+  {
+   "id": "first-run",
+   "title": "First run in one tap",
+   "text": "The first time it opens it asks PLAYER 1 to choose a look: Dark, Light or follow the phone.",
+   "proofs": [
+    {
+     "file": "proofs/first-run-v0.13.5.png",
+     "kind": "image",
+     "caption": "First run: PLAYER 1 · CHOOSE YOUR LOOK",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "dashboard",
+   "title": "Live dashboard",
+   "text": "Time, uptime, date and device across the top, a SYSTEM STATUS line with a heat light, then power and heat, CPU, every core, memory, storage, network and system cards, all live.",
+   "proofs": [
+    {
+     "file": "proofs/dashboard-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Live dashboard: plugged-in banner, top bar, status line, power and heat, CPU, cores",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/dashboard-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Further down: network and system cards, then Benchmarks, Panel Studio, face panel and charging screen",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pinned-hologram",
+   "title": "The hologram stays pinned",
+   "text": "A spinning see-through picture of your phone stays at the top while the readings scroll up under it.",
+   "proofs": [
+    {
+     "file": "proofs/pinned-hologram-v0.13.5.png",
+     "kind": "image",
+     "caption": "Scrolled down: the hologram stays put, the cards slide under it",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "hologram",
+   "title": "Spinning see-through hologram",
+   "text": "Your phone drawn in glowing red light, inside and out: board, chips, battery and charging coil. It spins on its own and you can drag it to spin it.",
+   "proofs": [
+    {
+     "file": "proofs/demo-v0.13.5.mp4",
+     "kind": "video",
+     "caption": "Dragging the hologram to spin it (from the demo clip)",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "shapes",
+   "title": "Follows the screen's shape",
+   "text": "A folded front screen gets a tall layout, an opened Fold gets a menu on the left, and a wide screen gets its own layout. It switches by itself.",
+   "proofs": [
+    {
+     "file": "proofs/shapes-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Folded front screen (1080×2520): tall layout",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/shapes-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Opened-Fold layout with the NAVIGATING menu on the left",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "open-panel",
+   "title": "Open panel on wide screens",
+   "text": "On a wide screen the readings spread out with no boxes: memory, CPU and battery big across the top, power, heat, storage and network below, the device spinning at the bottom.",
+   "proofs": [
+    {
+     "file": "proofs/open-panel-v0.13.5.png",
+     "kind": "image",
+     "caption": "Wide screen (2520×1080): the open panel",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "core-view",
+   "title": "Core view",
+   "text": "The hologram fills the screen behind, with eight see-through tiles around it: CPU speed and heat, memory, storage, battery, charging, download and upload.",
+   "proofs": [
+    {
+     "file": "proofs/core-view-v0.13.5.png",
+     "kind": "image",
+     "caption": "Settings → Dashboard layout → Core view",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "up-close",
+   "title": "Up Close",
+   "text": "Tap the hologram to open it full screen. Drag to turn it any way, switch between Phone, Folded and Open, and reset the view.",
+   "proofs": [
+    {
+     "file": "proofs/up-close-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Tap the hologram: Up Close, Phone shape",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/up-close-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Open: a book fold laid flat, hinge modules down the middle",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/up-close-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "Drag to turn it",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "hinge-angle",
+   "title": "How far open",
+   "text": "A slider opens the folding picture from shut to flat, and the hinge readout follows.",
+   "proofs": [
+    {
+     "file": "proofs/hinge-angle-v0.13.5.png",
+     "kind": "image",
+     "caption": "How far open set to 90°: HINGE 90° under the name",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "follow-hinge",
+   "title": "Follows your real hinge",
+   "text": "On a phone with a hinge sensor the picture opens and closes with the phone.",
+   "proofs": []
+  },
+  {
+   "id": "colors",
+   "title": "Hologram colors",
+   "text": "Six parts of the hologram, each with its own color, strength and light/dark sliders, plus ready-made looks. The picture changes live.",
+   "proofs": [
+    {
+     "file": "proofs/colors-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Hologram colors: Pulse red",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/colors-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Ready-made look: Ice blue",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/colors-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "Ready-made look: Silver + red",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/colors-4-v0.13.5.png",
+     "kind": "image",
+     "caption": "Body color slider moved: the frame turns green",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "device-list",
+   "title": "Knows your phone's shape",
+   "text": "The hologram is drawn in your phone's real proportions, camera layout and buttons from a built-in list of 114 phones and tablets.",
+   "proofs": []
+  },
+  {
+   "id": "benchmarks",
+   "title": "Benchmarks",
+   "text": "PRESS START runs five tests in about 12 seconds: CPU one core, CPU all cores, memory speed, storage write and storage read. Each bar compares this run with your best.",
+   "proofs": [
+    {
+     "file": "proofs/benchmarks-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Running: STAGE 2 OF 5 · ALL 4 CORES",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/benchmarks-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Done: STAGE CLEAR · SCORE, and NEW HIGH SCORE!",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "high-scores",
+   "title": "HIGH SCORES table",
+   "text": "A new best asks for your three initials and goes on an arcade HIGH SCORES table, top ten.",
+   "proofs": [
+    {
+     "file": "proofs/benchmarks-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "Entering initials (demo initials PLS)",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/benchmarks-4-v0.13.5.png",
+     "kind": "image",
+     "caption": "HIGH SCORES: 1ST PLS with the date",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "too-hot",
+   "title": "GAME OVER: TOO HOT",
+   "text": "If the phone says it's getting too hot, the run stops by itself.",
+   "proofs": []
+  },
+  {
+   "id": "panel-studio",
+   "title": "Panel Studio",
+   "text": "Build your own panel: add readings, hold the yellow MOVE word to drag one, tap it for RESIZE to make it full width, take one off with the red arrow. The preview is live.",
+   "proofs": [
+    {
+     "file": "proofs/panel-studio-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Panel Studio: live preview and your readings",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/panel-studio-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Tap MOVE on Memory used: it turns into RESIZE",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/panel-studio-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "Drag right: Memory used is full width",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/panel-studio-4-v0.13.5.png",
+     "kind": "image",
+     "caption": "Hold MOVE and drag: Heat moved to the top",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "panel-look",
+   "title": "Panel size, columns and color",
+   "text": "Tile size, 1–3 columns and Red / Amber / Cyan / Green change the whole panel. Show it on the face panel and the charging screen.",
+   "proofs": [
+    {
+     "file": "proofs/panel-studio-5-v0.13.5.png",
+     "kind": "image",
+     "caption": "Small tiles, 3 columns, Cyan, two readings added",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/panel-studio-6-v0.13.5.png",
+     "kind": "image",
+     "caption": "Show my panel on the face panel and the charging screen: On",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "panel-file",
+   "title": "Panel file",
+   "text": "Save your panel as a file to back it up or share it, and load one back, through the phone's own file picker. No storage permission.",
+   "proofs": [
+    {
+     "file": "proofs/panel-file-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Save the panel to a file: Panel saved to the file",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/panel-file-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Load a panel file: the phone's own picker shows the saved panel",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/panel-file-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "Loaded back: the same size, columns and color",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "face-panel",
+   "title": "Face panel",
+   "text": "A big clock, the date, the charge line, the spinning hologram and your own panel on black, made for the folded front screen.",
+   "proofs": [
+    {
+     "file": "proofs/face-panel-v0.13.5.png",
+     "kind": "image",
+     "caption": "Face panel on the folded front screen, with my cyan panel",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "face-on-lock",
+   "title": "Face panel on the lock screen",
+   "text": "Turn it on and the face panel is waiting on the lock screen every time the screen goes off. Unlock and it steps aside.",
+   "proofs": []
+  },
+  {
+   "id": "charging-screen",
+   "title": "Charging screen",
+   "text": "Pick it once as Android's screen saver and it comes up by itself every time the phone charges.",
+   "proofs": [
+    {
+     "file": "proofs/charging-screen-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Android screen saver: Pulse 64 charging screen picked",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/charging-screen-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Preview: the charging screen, tall",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/charging-screen-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "The charging screen on a wide screen",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "wallpaper",
+   "title": "Live wallpaper",
+   "text": "The spinning hologram of your phone behind your home-screen icons, with the time, date and charge on it if you want.",
+   "proofs": [
+    {
+     "file": "proofs/wallpaper-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Set the hologram as my wallpaper: Android's preview",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/wallpaper-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Spinning, with the info panel tucked away",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "settings",
+   "title": "Settings",
+   "text": "Look, text size, °F/°C, update speed, face panel, layout, red sweep, hologram size and colors, clock look, wallpaper options, support and crash log.",
+   "proofs": [
+    {
+     "file": "proofs/settings-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Settings, top",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/settings-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "Settings: red sweep, panel look, hologram, clock, wallpaper",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/settings-3-v0.13.5.png",
+     "kind": "image",
+     "caption": "Settings: wallpaper options, support and crash log, About",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "units",
+   "title": "°F or °C",
+   "text": "One tap changes every temperature.",
+   "proofs": [
+    {
+     "file": "proofs/units-1-v0.13.5.png",
+     "kind": "image",
+     "caption": "Settings → Temperature → °C",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/units-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "The dashboard now says 25.0 °C (it said 77.0 °F)",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "invert",
+   "title": "Light and dark at a tap",
+   "text": "The half-circle button flips the whole app between dark and light, from any screen.",
+   "proofs": [
+    {
+     "file": "proofs/invert-v0.13.5.png",
+     "kind": "image",
+     "caption": "Tap the half-circle: the light look",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "manual",
+   "title": "Manual on every screen",
+   "text": "The ghost “i” opens a plain-words manual: what each part is and how to set it up.",
+   "proofs": [
+    {
+     "file": "proofs/manual-v0.13.5.png",
+     "kind": "image",
+     "caption": "The manual",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "crash-log",
+   "title": "Crash log and Report a problem",
+   "text": "Settings keeps a crash log you can read, and Report a problem opens your own email with the details.",
+   "proofs": [
+    {
+     "file": "proofs/crash-log-v0.13.5.png",
+     "kind": "image",
+     "caption": "Show the crash log: No crashes recorded.",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "honest",
+   "title": "Never a made-up number",
+   "text": "Anything the device doesn't share says N/A or “not shared”, never a guess.",
+   "proofs": [
+    {
+     "file": "proofs/shapes-2-v0.13.5.png",
+     "kind": "image",
+     "caption": "GPU LOAD: N/A, not shared by this phone (top middle)",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/pc-live-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "PC: CPU temperature and fans say N/A until Deep Sensors (bottom)",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "offline",
+   "title": "Offline, no ads",
+   "text": "No internet permission. Nothing you see leaves the phone. No ads, no accounts.",
+   "proofs": [
+    {
+     "file": "proofs/offline-v0.13.5.png",
+     "kind": "image",
+     "caption": "Settings → About: No internet permission",
+     "version": "0.13.5",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "back-to-opener",
+   "title": "Back goes back to the Pulse app that opened it",
+   "text": "Opened from another Pulse app, Back returns you there instead of to the home screen.",
+   "proofs": []
+  },
+  {
+   "id": "pc-live",
+   "title": "Windows: live readings",
+   "text": "On the PC: CPU load overall and per thread, memory, disk, network, and NVIDIA graphics temperature, load, clock and power, in the same bars as the phone.",
+   "proofs": [
+    {
+     "file": "proofs/pc-live-1-v0.1.1.png",
+     "kind": "image",
+     "caption": "PC live page, dark. Drawn by the app's own drawing code in the farm build check, with test readings; not a desktop screenshot",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/pc-live-2-v0.1.1.png",
+     "kind": "image",
+     "caption": "PC live page, light, narrow window (same build check)",
+     "version": "0.1.1",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pc-parts",
+   "title": "Windows: parts list",
+   "text": "This PC: processor, motherboard, BIOS, every memory stick, graphics, drives, network adapters and Windows version.",
+   "proofs": []
+  },
+  {
+   "id": "pc-tray",
+   "title": "Windows: tray and settings",
+   "text": "Closing the window rests it in the tray, where it reads nothing. Settings: look, text size, °F/°C, update speed, start with Windows, Report a problem.",
+   "proofs": []
+  }
+ ],
+ "demo": {
+  "file": "proofs/demo-v0.13.5.mp4",
+  "caption": "30 seconds on the test bench: the live dashboard, dragging the hologram, scrolling the cards under it, then Up Close: open the fold, set it to 90° and turn it.",
+  "version": "0.13.5",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Phone pictures: Android v0.13.5 on our test bench (an Android emulator with a Fold-size screen), not a real phone, so the device shown is a generic test phone. PC pictures: Windows v0.1.1 from the farm's drawing check, with test readings."
+}
