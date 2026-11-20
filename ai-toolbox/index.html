@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="../assets/pls.css">
 <script src="../store-config.js"></script>
 <script src="../assets/pls-store.js"></script>
+<script src="../assets/proofs.js"></script>
 </head>
 <body>
 <header>
@@ -58,6 +59,8 @@
 
   <h2>No tracking</h2>
   <p>No ads, no analytics. The app talks to the AI services you connect and to your own folders, nothing else.</p>
+
+  <div id="pf"></div>
 </div>
 
 <div id="manual" role="dialog" aria-modal="true"><div class="box">
@@ -68,6 +71,6 @@
   <p>◐ flips the colors.</p>
 </div></div>
 <footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="../privacy.html">Privacy Policy</a></footer>
-<script>PLS.header();</script>
+<script>PLS.header(); PLSProofs.render();</script>
 </body>
 </html>

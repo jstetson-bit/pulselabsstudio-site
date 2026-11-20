@@ -1,0 +1,299 @@
+{
+    "name":  "AI Toolbox",
+    "systems":  [
+                    "Android"
+                ],
+    "tagline":  "One room for every AI you use.",
+    "overview":  "AI Toolbox is one room where the AIs you use answer together while you chair. It reads and writes your own mailbox (a GitHub repo you connect with your own key): ask once and the question goes to every seat in the room, each answer lands in that round's channel, and the seats can discuss each other's answers before a summary marks every point AGREED, CONTESTED or UNVERIFIED. A live AI standings line rides on top, reply alerts tell you when someone answers, and the whole conversation can save itself as a plain file. These proofs are from version 0.4.4 on the test bench before any key was entered, so they show setup, seats, alerts and settings; screens that need a connected mailbox or the standings key are marked Proof coming.",
+    "capabilities":  [
+                         {
+                             "id":  "first-run",
+                             "title":  "First-run look",
+                             "text":  "On first open, pick how it looks: Dark, Light or Follow my phone. You can change it any time in Settings.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/first-run-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "First open: pick Dark, Light or Follow my phone",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "setup-card",
+                             "title":  "Two keys and you're live",
+                             "text":  "Until it's connected, the main page leads with the two setup steps (the mailbox key and the standings key), each ticked once done, and says plainly why nothing shows yet.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/main-setup-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Main page before any key: the two setup steps, the Hut and the collection",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "collection",
+                             "title":  "Your seats: the collection",
+                             "text":  "Baseball-style cards for every seat in the room, busiest first with a rank badge, a lit dot when it's in the room, and a dashed ADD SEAT / GO GET 'EM card to add one by name.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/add-seat-1-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "ADD SEAT: type a name (demo name \"Scout\")",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "omit",
+                             "title":  "Leave a seat out",
+                             "text":  "Tap a seat's card to leave it out of the next round: it fades and gets the tilted OMITTED stamp. Tap again to bring it back.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/omit-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Demo seat Scout left out (OMITTED); Ranger stays in the room",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "room-empty",
+                             "title":  "An empty room says why",
+                             "text":  "A room with no connection explains why it's empty and offers the button to set it up.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/room-empty-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "# bridge before the key: what's missing and the Set up button",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "message-bar",
+                             "title":  "Message bar above the keyboard",
+                             "text":  "The message bar sits right on top of the on-screen keyboard, so you can always see what you type.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/keyboard-up-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Typing a demo question with the keyboard up",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "no-key-send",
+                             "title":  "Sending before setup keeps your message",
+                             "text":  "Send before the app is connected and it asks first (set up the key, or stay); your message stays typed either way.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/no-key-send-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Send with no key: green tick to set it up, red undo to stay",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "connect",
+                             "title":  "Bridge connection page",
+                             "text":  "Step-by-step instructions to make the key, a PASTE button beside the key box, and plain messages: an empty box says exactly what to do instead of a confusing error. The key is stored locked on the phone.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/empty-key-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Save and test with an empty box: a plain message (repo and name are demo values)",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "bridge-scroll",
+                             "title":  "# bridge: the whole mailbox as one scroll",
+                             "text":  "Every message in the connected mailbox in time order, under each speaker's portrait, with long messages folded to 10 lines (More / Less). Opens instantly and with no signal for what's already been read.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "send-round",
+                             "title":  "Send a round",
+                             "text":  "Type a question once and it goes to every seat in the room; a ROUND N · FIGHT! screen opens the round, and each answer appears in the round's own channel.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "discuss-summarize",
+                             "title":  "Discuss and summarize",
+                             "text":  "DISCUSS asks every seat to answer the others; SUMMARIZE asks for a synthesis card with each point marked AGREED, CONTESTED or UNVERIFIED.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "index-key",
+                             "title":  "AI Index setup",
+                             "text":  "A page that explains where the standings come from (the Artificial Analysis Intelligence Index, credited) and how to get the free key, with PASTE and Save.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/index-key-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "The index key section, with the free-key steps and the credit",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "index-ticker",
+                             "title":  "The AI Index line on top",
+                             "text":  "One live line at the top of every page: the top ten, moving up in green and down in red, flipping every 4 seconds or scrolling smoothly.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "index-room",
+                             "title":  "The full index and its history",
+                             "text":  "Tap the line for the index's own room: bars, a history chart of the top ten across every saved day (7D / 30D / ALL), and every model with its score and move. Each day's standings are saved as the app's own record.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "reply-popup",
+                             "title":  "Reply pop-up in the app",
+                             "text":  "When a seat answers in a room you're not looking at, a bubble drops in at the top with its portrait and first line; tap to open the room, ✕ to dismiss.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/sample-popup-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings → Show a sample pop-up",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "reply-notification",
+                             "title":  "Phone notification and unread counts",
+                             "text":  "With the app closed, the answer arrives as the phone's own notification and opens the right room; each channel shows a red \"2 NEW\" until opened.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "alert-settings",
+                             "title":  "Reply alert settings",
+                             "text":  "Pop-up on/off, phone notification on/off, read new answers aloud, how often to check (open and closed), and how long the pop-up stays.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-3-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Reply alerts, check intervals, pop-up time, keys and the scroll folder",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "read-aloud",
+                             "title":  "Read aloud",
+                             "text":  "Any message read aloud with Stop; Settings picks where it plays: automatic, phone speaker or headset.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "scroll-file",
+                             "title":  "The scroll is a file",
+                             "text":  "Pick a folder and the whole conversation saves there as one plain file, AI-Toolbox-Bridge-scroll.md, every time it updates.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "settings-about",
+                             "title":  "Settings with About first",
+                             "text":  "Version and build, support address, tap-only Check for updates, crash log, look, text size slider and the read-aloud route.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-1-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings top: version 0.4.4 (build 10), look, text size, read-aloud route",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "manual",
+                             "title":  "Built-in manual",
+                             "text":  "The i button opens a plain-words page explaining every part of the app.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/manual-1-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "How AI Toolbox works",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "invert",
+                             "title":  "◐ flips the colors",
+                             "text":  "One tap on any page flips the colors.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/invert-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Main page after ◐ (demo seats Ranger and Scout)",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "light-look",
+                             "title":  "Light look",
+                             "text":  "The whole app in the Light look, chosen in Settings.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/light-settings-v0.4.4.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings in the Light look",
+                                                "version":  "0.4.4",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "crash-log",
+                             "title":  "Crash log to support",
+                             "text":  "Crash log sends the app's log to support through your own email app.",
+                             "proofs":  [
+
+                                        ]
+                         }
+                     ],
+    "demo":  {
+                 "file":  "proofs/demo-v0.4.4.mp4",
+                 "caption":  "30 seconds on the test bench before any key: leaving a demo seat out and bringing it back, the # bridge room and its setup prompt, then Settings.",
+                 "version":  "0.4.4",
+                 "captured":  "Nov 19, 2026"
+             },
+    "note":  "Captured on the Fold (open) bench profile, Android 15 emulator, with demo names only (seats Ranger and Scout, repo demo-studio/pulse-mailbox). No real key was entered, so screens that need a connected mailbox or the standings key are Proof coming."
+}
