@@ -1,0 +1,202 @@
+{
+ "name": "PLS PDF",
+ "systems": ["Android", "Windows PC"],
+ "tagline": "Read, edit, sign and fix PDFs, fully offline.",
+ "overview": "PLS PDF does the everyday work of a desktop PDF suite on your phone and your PC, with no account and no internet. Open a PDF and read it, then change the words already on the page, mark it up, sign it, black out private details, add a watermark and rearrange the pages. It also fills forms, signs digitally, scans paper, makes scans searchable and converts to and from Word, Excel and PowerPoint. The phone app has no internet permission at all, so your files never leave your device.",
+ "capabilities": [
+  {
+   "id": "open-read",
+   "title": "Open and read any PDF",
+   "text": "Open a file from your phone, see the page sharp and full size, zoom, and move through the pages with the arrows or the page rail.",
+   "proofs": [
+    { "file": "proofs/open-read-v0.44.5.png", "kind": "image", "caption": "Sample Doc.pdf open: page 1 of 3, zoom and page arrows at the bottom", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "tools-menu",
+   "title": "Every tool in one menu",
+   "text": "One MENU button opens every tool in plain words: About and the version at the top, your pinned favorites, the tools you use most, and an A to Z list.",
+   "proofs": [
+    { "file": "proofs/tools-menu-v0.44.5.png", "kind": "image", "caption": "Choose a PDF tool: About, Favorites, Most used", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "look",
+   "title": "Light, dark or follow your phone",
+   "text": "Pick how the app looks the first time you open it, and change it any time in Settings, along with menu text size and font.",
+   "proofs": [
+    { "file": "proofs/look-1-v0.44.5.png", "kind": "image", "caption": "First run: Light, Dark or Follow my phone", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/look-2-v0.44.5.png", "kind": "image", "caption": "Settings: app look, menu text size, menu font, reading options", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "invert",
+   "title": "One-tap invert for night reading",
+   "text": "The eye at the top flips the whole app and the pages: white pages turn black and black letters turn white, while colors keep their hue.",
+   "proofs": [
+    { "file": "proofs/invert-v0.44.5.png", "kind": "image", "caption": "After one tap on the eye: black page, white letters, red stays red", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "find",
+   "title": "Find words",
+   "text": "Search the whole PDF; every match is marked on the page with a count and arrows to jump between them.",
+   "proofs": [
+    { "file": "proofs/find-v0.44.5.png", "kind": "image", "caption": "Finding \"Chicago\": match marked on the page, 1 of 2", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "edit-text",
+   "title": "Change the words already on the page",
+   "text": "Tap any paragraph or heading and retype it, with font, size, bold, color and alignment. Every change can be undone or redone until you save.",
+   "proofs": [
+    { "file": "proofs/edit-text-1-v0.44.5.png", "kind": "image", "caption": "Edit text on: every paragraph outlined, ready to tap", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/edit-text-2-v0.44.5.png", "kind": "image", "caption": "Retyping the heading as \"Demo project plan\" and picking red", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/edit-text-3-v0.44.5.png", "kind": "image", "caption": "After: the new heading is on the page, with Undo, Redo and Save", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "find-replace",
+   "title": "Find and replace",
+   "text": "Swap a word everywhere in the PDF; every match is listed with its page and ticked, so you can leave some alone.",
+   "proofs": [
+    { "file": "proofs/find-replace-1-v0.44.5.png", "kind": "image", "caption": "Before: 2 matches for \"Chicago\" listed, both ticked", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/find-replace-2-v0.44.5.png", "kind": "image", "caption": "After Replace all: the table now reads \"Springfield IL\"", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "markup",
+   "title": "Highlight, underline, notes and drawings",
+   "text": "Highlight, underline, squiggly, cross out, boxes, arrows, callouts, sticky notes, stickers and links, in six colors.",
+   "proofs": [
+    { "file": "proofs/markup-1-v0.44.5.png", "kind": "image", "caption": "The Mark up tools and colors", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/markup-2-v0.44.5.png", "kind": "image", "caption": "A line highlighted in yellow by dragging across it", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "sign",
+   "title": "Draw or type your signature",
+   "text": "Write your signature with a finger or S Pen (or type it, or take it from a photo), save it on the phone, and place it on any page.",
+   "proofs": [
+    { "file": "proofs/sign-1-v0.44.5.png", "kind": "image", "caption": "Drawing a demo signature with a finger", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/sign-2-v0.44.5.png", "kind": "image", "caption": "The saved signature placed on page 1", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "pages",
+   "title": "Rearrange, rotate and delete pages",
+   "text": "Every page as a picture: hold and drag to reorder, pick pages to rotate, duplicate, delete or crop, and insert new ones.",
+   "proofs": [
+    { "file": "proofs/pages-1-v0.44.5.png", "kind": "image", "caption": "Page grid: all 3 pages", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/pages-2-v0.44.5.png", "kind": "image", "caption": "Page 2 picked and turned a quarter turn", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "redact",
+   "title": "Black out private details for good",
+   "text": "Find emails, phone numbers, ID numbers and long numbers for you, or draw boxes yourself; the words under the black boxes are removed from the file, not just covered.",
+   "proofs": [
+    { "file": "proofs/redact-1-v0.44.5.png", "kind": "image", "caption": "Find private data: a demo email and a demo account number found", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/redact-2-v0.44.5.png", "kind": "image", "caption": "The confirm: removed for good, or flatten the page", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/redact-3-v0.44.5.png", "kind": "image", "caption": "After: both blacked out", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "watermark",
+   "title": "Watermarks, page numbers and stamps",
+   "text": "Faded words across every page, page numbers, headers and footers, Bates numbers, page color and stamps such as Approved or Paid.",
+   "proofs": [
+    { "file": "proofs/watermark-1-v0.44.5.png", "kind": "image", "caption": "Watermark settings: text, strength, angle, placement, pages", "version": "0.44.5", "captured": "Nov 19, 2026" },
+    { "file": "proofs/watermark-2-v0.44.5.png", "kind": "image", "caption": "After: SAMPLE across the page", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "offline",
+   "title": "Offline and private",
+   "text": "The phone app has no internet permission: every tool runs on your device and nothing is uploaded. No ads and no subscription.",
+   "proofs": [
+    { "file": "proofs/offline-v0.44.5.png", "kind": "image", "caption": "About PLS PDF: version 0.44.5, offline, no internet permission", "version": "0.44.5", "captured": "Nov 19, 2026" }
+   ]
+  },
+  {
+   "id": "forms",
+   "title": "Fill in forms",
+   "text": "Type answers into a PDF's form fields, tick boxes, make your own fields and flatten the form when you're done.",
+   "proofs": []
+  },
+  {
+   "id": "digital-signature",
+   "title": "Digital signatures any reader can check",
+   "text": "Make your own digital ID on the device, sign a PDF with it, and check signatures; a file changed after signing shows as broken.",
+   "proofs": []
+  },
+  {
+   "id": "scan",
+   "title": "Scan paper with the camera",
+   "text": "Take a picture of a page; PLS PDF finds the corners, straightens it and makes a PDF.",
+   "proofs": []
+  },
+  {
+   "id": "ocr",
+   "title": "Make scans searchable",
+   "text": "On-device text recognition turns pictures of words into text you can search, select and copy.",
+   "proofs": []
+  },
+  {
+   "id": "office-view",
+   "title": "Read Word, Excel and PowerPoint files",
+   "text": "Open .docx, .xlsx and .pptx files right in the app, with a sheet and slide switcher.",
+   "proofs": []
+  },
+  {
+   "id": "convert",
+   "title": "Convert to Word, Excel, PowerPoint and pictures",
+   "text": "Save a PDF as an editable Word, Excel or PowerPoint copy, or as PNG or JPG pictures.",
+   "proofs": []
+  },
+  {
+   "id": "create",
+   "title": "Make PDFs from Word and text files",
+   "text": "Turn a Word or text file into a PDF with real, searchable text, or start a new blank PDF.",
+   "proofs": []
+  },
+  {
+   "id": "pdfa",
+   "title": "Save as PDF/A for archiving",
+   "text": "An archive copy in the PDF/A format that courts, agencies and record keepers ask for.",
+   "proofs": []
+  },
+  {
+   "id": "combine-split",
+   "title": "Combine and split PDFs",
+   "text": "Put several PDFs together into one, or split one into parts.",
+   "proofs": []
+  },
+  {
+   "id": "protect",
+   "title": "Lock with a password",
+   "text": "Protect a PDF with a strong password and set print and copy limits; open and unlock protected files.",
+   "proofs": []
+  },
+  {
+   "id": "read-aloud",
+   "title": "Read aloud and easy reading",
+   "text": "Your phone's voice reads from the page you're on and turns pages as it goes; Easy reading shows the words in one big column.",
+   "proofs": []
+  },
+  {
+   "id": "big-screens",
+   "title": "Made for big screens and foldables",
+   "text": "Works folded, unfolded and sideways, with two pages side by side on an open foldable.",
+   "proofs": []
+  },
+  {
+   "id": "windows",
+   "title": "PLS PDF for Windows",
+   "text": "The same tools on your PC as a desktop app: edit text, find and replace, digital signatures, page grid, measure, spelling and more. Java is built in, nothing else to install.",
+   "proofs": []
+  }
+ ],
+ "demo": { "file": "proofs/demo-v0.44.5.mp4", "caption": "30 seconds on the test bench: reading Sample Doc.pdf, one-tap invert, the tools menu, undo and redo, and turning pages.", "version": "0.44.5", "captured": "Nov 19, 2026" },
+ "note": "Android captures from the test bench (Fold-sized screen, open). Every document shown is a made-up demo file."
+}
