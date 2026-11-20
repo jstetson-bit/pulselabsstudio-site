@@ -1,0 +1,238 @@
+{
+ "name": "Pulse Meds",
+ "systems": ["Android"],
+ "tagline": "Daily medication reminders. Your phone. Your records.",
+ "overview": "Pulse Meds is a medication reminder for people who take daily meds. It shows your next dose with a countdown, reminds you at the right time, and asks you to confirm before anything is logged. It keeps your medications, supply count and history on your phone, with no account and no subscription. Medical light by default, Pulse dark one tap away. It is a reminder and record-keeping tool, not a medical device.",
+ "capabilities": [
+  {
+   "id": "first-run",
+   "title": "First run",
+   "text": "A welcome screen that says what the app is before asking anything, then a choice of look: Medical light, Pulse dark or Follow my phone.",
+   "proofs": [
+     {"file": "proofs/first-run-1-v0.2.1.png", "kind": "image", "caption": "Welcome: works offline, no account, no subscription", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/first-run-2-v0.2.1.png", "kind": "image", "caption": "Pick your look", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "home",
+   "title": "Home and next dose",
+   "text": "Home shows the next dose big, with a live countdown (or how late it is), and one-tap doors to the main screens.",
+   "proofs": [
+     {"file": "proofs/home-v0.2.1.png", "kind": "image", "caption": "Home: the dose due now, how late it is, and the main doors", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "doors",
+   "title": "Everything in one tap",
+   "text": "Twelve doors: Today's Doses, My Medications, Add, Refills, History and Undo, Emergency, Personal Info, Medical History, Health Diary, Documents, Appointments, Desk Display, plus Reports and Data.",
+   "proofs": [
+     {"file": "proofs/doors-v0.2.1.png", "kind": "image", "caption": "All 12 doors", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "menu-manual",
+   "title": "Menu and manual",
+   "text": "The menu holds Help, What's New, Replay Tips, Settings, Profiles, Report a Problem and About. The manual explains each task in numbered steps.",
+   "proofs": [
+     {"file": "proofs/menu-v0.2.1.png", "kind": "image", "caption": "The menu", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/manual-v0.2.1.png", "kind": "image", "caption": "Help / Manual: Take a dose, step by step", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "search",
+   "title": "Search",
+   "text": "Type in the search bar on Home to find a medication, with a plain answer when nothing matches.",
+   "proofs": []
+  },
+  {
+   "id": "add-med",
+   "title": "Add a medication",
+   "text": "A five-step guide: name and strength, time and dose, label photo, pill photo, supply count. You can save a draft and finish later.",
+   "proofs": [
+     {"file": "proofs/add-med-1-v0.2.1.png", "kind": "image", "caption": "Step 1: name and strength", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/add-med-2-v0.2.1.png", "kind": "image", "caption": "Step 2: time and dose", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/add-med-3-v0.2.1.png", "kind": "image", "caption": "Step 3: label photo (optional, skipped here)", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/add-med-4-v0.2.1.png", "kind": "image", "caption": "Step 5: how many on hand", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/add-med-5-v0.2.1.png", "kind": "image", "caption": "Medication added, reminders on", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "schedules",
+   "title": "Schedules",
+   "text": "Once a day or several times a day, free. Every other day, weekly and custom patterns come with the one-time unlock.",
+   "proofs": [
+     {"file": "proofs/schedules-1-v0.2.1.png", "kind": "image", "caption": "Once a day at a set time, or add more times", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/schedules-2-v0.2.1.png", "kind": "image", "caption": "Other schedules (one-time unlock)", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "alarm-takeover",
+   "title": "Full-screen reminder",
+   "text": "When a dose is due the reminder can take over the screen, even over the lock screen, with big Taken, Snooze and Skip buttons.",
+   "proofs": []
+  },
+  {
+   "id": "talking-alarm",
+   "title": "Talking reminder",
+   "text": "An optional voice reads the dose aloud using the phone's own offline voice.",
+   "proofs": []
+  },
+  {
+   "id": "notification",
+   "title": "Reminder notification",
+   "text": "At dose time a notification arrives with Taken, Snooze and Skip. Taken opens the confirm screen, so nothing is recorded by accident.",
+   "proofs": [
+     {"file": "proofs/notification-1-v0.2.1.png", "kind": "image", "caption": "The reminder arrives at dose time", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/notification-2-v0.2.1.png", "kind": "image", "caption": "Taken, Snooze and Skip right in the notification", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/notification-3-v0.2.1.png", "kind": "image", "caption": "Tap Taken: the app opens the confirm step", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "confirm-taken",
+   "title": "Two-step Taken",
+   "text": "Taken asks you to confirm. The dose is logged once, the count drops by one, and the next dose shows. Opening it again does not log it twice.",
+   "proofs": [
+     {"file": "proofs/confirm-taken-1-v0.2.1.png", "kind": "image", "caption": "Step 2 of 2: did you take this dose?", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/confirm-taken-2-v0.2.1.png", "kind": "image", "caption": "Dose recorded, 29 left, next dose showing", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/confirm-taken-3-v0.2.1.png", "kind": "image", "caption": "Opening it again: already recorded, not logged twice", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "backout",
+   "title": "Cancel logs nothing",
+   "text": "The red Cancel backs out of a confirm. Nothing is added to your history and the dose stays due.",
+   "proofs": [
+     {"file": "proofs/backout-v0.2.1.png", "kind": "image", "caption": "Dose not recorded, still due", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "snooze-skip",
+   "title": "Snooze and skip",
+   "text": "Snooze for 5, 10, 15 or 30 minutes (it never marks a dose taken). Skip asks you to confirm and takes an optional note.",
+   "proofs": [
+     {"file": "proofs/snooze-skip-1-v0.2.1.png", "kind": "image", "caption": "Remind me again: pick the time", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/snooze-skip-2-v0.2.1.png", "kind": "image", "caption": "Skip this dose? Confirm, or keep it open", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "overdue",
+   "title": "Overdue dose",
+   "text": "A late dose is flagged plainly with how late it is, and Taken, Snooze and Skip stay open.",
+   "proofs": [
+     {"file": "proofs/overdue-v0.2.1.png", "kind": "image", "caption": "Overdue dose with its actions", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "today-week",
+   "title": "Today and the week",
+   "text": "Today's Doses shows each dose as taken, due or overdue, with a progress bar, plus Day view and Week view.",
+   "proofs": [
+     {"file": "proofs/today-v0.2.1.png", "kind": "image", "caption": "Today: one taken, one overdue", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "medications",
+   "title": "My medications",
+   "text": "A list with Active, Paused and Stopped tabs, an info page per medication, and actions: Edit, Pause, Stop, Log a refill, Delete (history stays).",
+   "proofs": [
+     {"file": "proofs/meds-1-v0.2.1.png", "kind": "image", "caption": "My Medications: supply and next time", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/meds-2-v0.2.1.png", "kind": "image", "caption": "Medication Info: photos, schedule, supply, reminder", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/meds-3-v0.2.1.png", "kind": "image", "caption": "Medication actions", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "refills",
+   "title": "Refills and supply",
+   "text": "Low-supply warning, run-out date at your pace, log a refill, or fix the count by hand.",
+   "proofs": []
+  },
+  {
+   "id": "history-undo",
+   "title": "History and Undo",
+   "text": "Every action is stamped. Undo walks back up to 50 steps.",
+   "proofs": []
+  },
+  {
+   "id": "emergency",
+   "title": "Emergency",
+   "text": "A favorites call list. Every call asks first, 911 sits behind its own confirm page, and the phone app opens; it never calls by itself.",
+   "proofs": []
+  },
+  {
+   "id": "records",
+   "title": "Personal records",
+   "text": "Personal Info, Medical History, a Health Diary and Documents (photos of cards and papers), kept on the phone.",
+   "proofs": []
+  },
+  {
+   "id": "appointments",
+   "title": "Appointments",
+   "text": "Appointments with reminders a day before, an hour before and at the time.",
+   "proofs": []
+  },
+  {
+   "id": "desk-display",
+   "title": "Desk Display",
+   "text": "A stay-awake screen with the next dose, a clock and Emergency, which turns into the dose reminder at dose time.",
+   "proofs": []
+  },
+  {
+   "id": "your-data",
+   "title": "Your data",
+   "text": "Export a full backup, a spreadsheet (CSV) copy, and import/restore, all free. A doctor report comes with the one-time unlock.",
+   "proofs": []
+  },
+  {
+   "id": "photos-label",
+   "title": "Photos and label reading",
+   "text": "Pill and label photos stay on the phone. The app can read the label text on the phone for you to check; it never fills in a dose by itself.",
+   "proofs": []
+  },
+  {
+   "id": "profiles",
+   "title": "Profiles",
+   "text": "With the one-time unlock, keep separate medications and history for each person; all their reminders ring on this phone.",
+   "proofs": [
+     {"file": "proofs/profiles-v0.2.1.png", "kind": "image", "caption": "Profiles: one person now, more with the unlock", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "settings-test",
+   "title": "Settings and test reminder",
+   "text": "Alarm and sound, snooze length, per-med alarms, display and phone permissions in one place. Test reminder lets you see a reminder before you rely on it.",
+   "proofs": [
+     {"file": "proofs/settings-v0.2.1.png", "kind": "image", "caption": "Settings", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/test-1-v0.2.1.png", "kind": "image", "caption": "Test reminder: nothing is logged", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/test-3-v0.2.1.png", "kind": "image", "caption": "A test notification arrives", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "display",
+   "title": "Light or dark, bigger text",
+   "text": "Medical light, Pulse dark or follow the phone, switched with the eye on every screen. Text size Standard, Large or Extra large.",
+   "proofs": [
+     {"file": "proofs/display-1-v0.2.1.png", "kind": "image", "caption": "Display: Medical light, Large text", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/display-2-v0.2.1.png", "kind": "image", "caption": "Tap the eye: Pulse dark", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/home-dark-v0.2.1.png", "kind": "image", "caption": "Home in Pulse dark", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "help",
+   "title": "Help and support",
+   "text": "What's New for this version, a four-card tour you can replay, and Report a Problem, which opens an email draft you review before sending.",
+   "proofs": [
+     {"file": "proofs/whatsnew-v0.2.1.png", "kind": "image", "caption": "What's New in 0.2.1", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/tips-v0.2.1.png", "kind": "image", "caption": "Replay Tips: the quick tour", "version": "0.2.1", "captured": "Nov 19, 2026"},
+     {"file": "proofs/problem-v0.2.1.png", "kind": "image", "caption": "Report a Problem: you review the email first", "version": "0.2.1", "captured": "Nov 19, 2026"}
+   ]
+  },
+  {
+   "id": "offline",
+   "title": "Offline and private",
+   "text": "No account, no subscription, no ads. Your records stay on the phone.",
+   "proofs": []
+  }
+ ],
+ "demo": {"file": "proofs/demo-v0.2.1.mp4", "caption": "24 seconds on the test bench: home with the dose due now, Today's Doses, My Medications, all 12 doors, Pulse dark and back, and the menu.", "version": "0.2.1", "captured": "Nov 19, 2026"},
+ "note": "Demo data only: Vitamin D and Fish Oil, profile Me. Test bench: Android emulator, Fold open profile."
+}
