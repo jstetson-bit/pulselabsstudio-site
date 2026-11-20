@@ -1,0 +1,485 @@
+{
+ "name": "PLS Launcher",
+ "systems": [
+  "Android"
+ ],
+ "tagline": "One tap opens the whole Pulse family, full screen.",
+ "overview": "PLS Launcher is a small Android app you tap like any other. It opens a field that fills the whole screen with every Pulse Labs app: the ones you have are lit and open with one tap, the ones you don't have yet show as faded ghosts with their names. Arrange them in layers of your own: hold an app to move it, resize a layer, hide what you don't want, add any other app from the device, and undo any step. It has no internet permission; it only looks at which apps are on the device.",
+ "capabilities": [
+  {
+   "id": "field",
+   "title": "One tap, the whole family",
+   "text": "Tap PLS Launcher and a field fills the whole screen, edge to edge, with a red border that follows the screen's own rounded corners. Every Pulse Labs app is in it.",
+   "proofs": [
+    {
+     "file": "proofs/home-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "The field on the opened Fold: 3 of 9 Pulse apps on this device",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "lit",
+   "title": "Apps you have are lit and open with one tap",
+   "text": "Pulse apps on the device show their real icon. One tap opens the app.",
+   "proofs": [
+    {
+     "file": "proofs/lit-open-v0.3.0.png",
+     "kind": "image",
+     "caption": "Tap Keyboard Studio: it opens",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "ghosts",
+   "title": "Apps you don't have yet are ghosts",
+   "text": "Pulse apps you don't have show as a dashed outline with a faded line icon and their name, marked Not installed. Tapping one does nothing.",
+   "proofs": [
+    {
+     "file": "proofs/ghost-tap-v0.3.0.png",
+     "kind": "image",
+     "caption": "After tapping the PLS PDF ghost: nothing opened, still on the launcher",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "auto-detect",
+   "title": "New Pulse apps appear by themselves",
+   "text": "Any Pulse Labs app on the device shows up lit, even one that isn't on the built-in list yet.",
+   "proofs": [
+    {
+     "file": "proofs/auto-detect-v0.3.0.png",
+     "kind": "image",
+     "caption": "PLS Clock HUD isn't on the built-in list but shows up lit (9 apps counted)",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "lights-up",
+   "title": "A ghost lights up once installed",
+   "text": "Install a Pulse app and its ghost turns into a lit tile the next time you open the launcher.",
+   "proofs": []
+  },
+  {
+   "id": "layers",
+   "title": "Layers that fill themselves",
+   "text": "The launcher starts with two layers that fill themselves: Your Pulse apps and More from Pulse Labs, each with its count.",
+   "proofs": [
+    {
+     "file": "proofs/layers-v0.3.0.png",
+     "kind": "image",
+     "caption": "Your Pulse apps (3) and More from Pulse Labs (6)",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "add-layer",
+   "title": "Add your own layers",
+   "text": "Make a named layer (Work, Daily, Games...). New layers go on top and show a Drop apps here box until you fill them.",
+   "proofs": [
+    {
+     "file": "proofs/add-layer-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Add a layer: type its name",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/add-layer-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "New layer Daily, with its empty Drop apps here box",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "edit-layer",
+   "title": "Rename, reorder or remove a layer",
+   "text": "Each layer you made can be renamed, moved up or down, or removed. Removing a layer uninstalls nothing.",
+   "proofs": [
+    {
+     "file": "proofs/edit-layer-v0.3.0.png",
+     "kind": "image",
+     "caption": "Edit layer: name, Move up, Move down, Remove",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "arrange",
+   "title": "Hold any app to arrange",
+   "text": "Hold any app, lit or ghost, to jump into Arrange with that app picked: teal frame, an amber MOVE circle and a red minus.",
+   "proofs": [
+    {
+     "file": "proofs/arrange-v0.3.0.png",
+     "kind": "image",
+     "caption": "Held PLS Authenticator: picked, with MOVE and the red minus",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "move",
+   "title": "Drag to move",
+   "text": "Drag the MOVE circle to put the app anywhere: before or after another app, or into another layer.",
+   "proofs": [
+    {
+     "file": "proofs/move-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Dragged PLS Authenticator after PLS Clock HUD",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/move-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Dragged Keyboard Studio into the Daily layer",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "resize",
+   "title": "Tap for RESIZE, drag for size",
+   "text": "Tap the MOVE circle and it turns into a blue RESIZE circle. Drag right for bigger apps, left for smaller, live, for the whole layer.",
+   "proofs": [
+    {
+     "file": "proofs/resize-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "RESIZE mode at 100%",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/resize-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Dragged right: the layer at 157%",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "hide",
+   "title": "Hide an app, and bring it back",
+   "text": "The red minus or HIDE takes an app off the launcher without uninstalling it. Hidden apps lists them; one tap shows one again.",
+   "proofs": [
+    {
+     "file": "proofs/hide-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "PLS Authenticator hidden: the layer now shows 2",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/hide-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Hidden apps: tap one to show it again",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/hide-3-v0.3.0.png",
+     "kind": "image",
+     "caption": "Shown again: nothing is hidden",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "tile-options",
+   "title": "Each app's own options",
+   "text": "Tap a picked app again for its options: open it, choose its layer, move it earlier or later, or hide it.",
+   "proofs": [
+    {
+     "file": "proofs/tile-options-v0.3.0.png",
+     "kind": "image",
+     "caption": "Keyboard Studio's options: layer, order, hide",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "add-app",
+   "title": "Add any app from this device",
+   "text": "Any app on the device can sit in the launcher too, in any layer.",
+   "proofs": [
+    {
+     "file": "proofs/add-app-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Add an app: the device's apps",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/add-app-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "The device's Clock app added to Daily",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "undo",
+   "title": "Undo step by step, or Cancel it all",
+   "text": "The red arrow takes back one change per tap. Cancel takes back every change in this Arrange session. The green check keeps them.",
+   "proofs": [
+    {
+     "file": "proofs/undo-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "One tap on the red arrow: the size is back to 100%",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/undo-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Before Cancel: an app was just hidden (Hidden apps (1))",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/undo-3-v0.3.0.png",
+     "kind": "image",
+     "caption": "After Cancel: the hidden app is back",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "reset",
+   "title": "Put everything back",
+   "text": "One button returns the starting layout: your layers, hidden apps and added apps go away. Nothing is uninstalled, and it can be undone.",
+   "proofs": [
+    {
+     "file": "proofs/reset-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Put everything back? It asks first",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/reset-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Back to the two starting layers",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/reset-3-v0.3.0.png",
+     "kind": "image",
+     "caption": "Red arrow: the Daily layer is back",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "saved",
+   "title": "Your layout stays",
+   "text": "Layers, order, hidden and added apps are saved on the device and come back after the app is closed and opened again.",
+   "proofs": [
+    {
+     "file": "proofs/saved-v0.3.0.png",
+     "kind": "image",
+     "caption": "After closing and reopening the app: Daily, Clock and the new order are still there",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "looks",
+   "title": "Pulse dark, Light, or follow the phone",
+   "text": "Choose the look on first start; flip it any time with the eye button at the top.",
+   "proofs": [
+    {
+     "file": "proofs/looks-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "First start: choose your look",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/looks-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Light, picked on the first screen",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/looks-3-v0.3.0.png",
+     "kind": "image",
+     "caption": "Eye button: the launcher in Light",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "display",
+   "title": "Text size, font and app tile size",
+   "text": "Display settings: four text sizes, the Pulse font or the device's font, and Small, Medium or Large app tiles.",
+   "proofs": [
+    {
+     "file": "proofs/display-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Display: look, text size, font",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/display-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "App tile size: Large picked",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/display-3-v0.3.0.png",
+     "kind": "image",
+     "caption": "The launcher with Large tiles",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "ghost-switch",
+   "title": "Turn ghosts off",
+   "text": "A switch in Settings hides the apps you don't have, so only your own apps show.",
+   "proofs": [
+    {
+     "file": "proofs/ghost-switch-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Settings: Show apps you don't have, turned off",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/ghost-switch-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "The launcher with ghosts off",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "fold",
+   "title": "Folded or open",
+   "text": "The field fits the screen it is on: two columns on the folded cover screen, five on the opened Fold.",
+   "proofs": [
+    {
+     "file": "proofs/fold-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Folded cover screen (1080x2520)",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/fold-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Opened Fold",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "manual",
+   "title": "How to use it, with Show me",
+   "text": "A manual explains every part, with Show me buttons that take you to the real screen.",
+   "proofs": [
+    {
+     "file": "proofs/manual-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "The manual",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/manual-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Show me under Faded apps opens Settings, where the ghost switch is",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "report",
+   "title": "Report a problem, your way",
+   "text": "Write what happened; your own email app opens addressed to support, and you review it before sending.",
+   "proofs": [
+    {
+     "file": "proofs/report-1-v0.3.0.png",
+     "kind": "image",
+     "caption": "Report a Problem, filled in with demo text",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/report-2-v0.3.0.png",
+     "kind": "image",
+     "caption": "Your report is ready: review it in your email app",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "crash-log",
+   "title": "Crash log kept on the device",
+   "text": "Crashes are kept on the device and only sent if you add them to a report.",
+   "proofs": [
+    {
+     "file": "proofs/crash-log-v0.3.0.png",
+     "kind": "image",
+     "caption": "Crash log: no crashes recorded",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "offline",
+   "title": "Offline by design",
+   "text": "No internet permission. It only looks at which apps are on this device, and that never leaves it.",
+   "proofs": [
+    {
+     "file": "proofs/offline-v0.3.0.png",
+     "kind": "image",
+     "caption": "About: version 0.3.0, offline by design",
+     "version": "0.3.0",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  }
+ ],
+ "demo": {
+  "file": "proofs/demo-v0.3.0.mp4",
+  "caption": "35 seconds on the test bench (opened Fold): choose a look, open the field, tap a ghost (nothing opens), hold an app to arrange it, drag it to a new place, switch to RESIZE and make the layer bigger, undo both steps, keep.",
+  "version": "0.3.0",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Captured on the Pulse test bench (Android 15 emulator, Fold profile) with demo data only."
+}
