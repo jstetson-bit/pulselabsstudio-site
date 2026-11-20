@@ -1,0 +1,540 @@
+{
+    "name":  "Pulse Meter",
+    "systems":  [
+                    "Chrome / Edge",
+                    "Windows PC",
+                    "Android"
+                ],
+    "tagline":  "Your usage limits at a glance, before you hit the wall.",
+    "overview":  "Pulse Meter keeps your claude.ai usage limits on screen: the 5-hour session and the weekly limit, how full each is, and when each resets. It comes three ways: a Chrome / Edge extension that sits on the claude.ai page (v1.0.24), a light native Windows app that floats over the desktop app (v2.2.1), and an Android banner over the phone app (v0.4.1). It reads only your own numbers with your own sign-in; there are no servers and no ads. The extension pictures were taken in Edge on a demo chat page with demo usage numbers. Not made by or affiliated with Anthropic.",
+    "capabilities":  [
+                         {
+                             "id":  "meter",
+                             "title":  "Both limits on the page",
+                             "text":  "The 5-hour session and the weekly limit, how full each is and when each resets, always visible on claude.ai.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/meter-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Arcade Classic, the first look: 5-HR 47% and WEEK 38% with reset times (demo numbers)",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "first-run",
+                             "title":  "First-run look chooser",
+                             "text":  "The first time it starts it asks Light, Dark or Follow my device, then explains itself.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/first-run-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "First start: pick Light, Dark or Follow my device",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "manual",
+                             "title":  "Manual, tutorial and invert",
+                             "text":  "The ghost \"i\" opens the instruction manual with a try-it-now checklist; the half circle inverts the colors.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/manual-1-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Manual with the try-it-now checklist",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/manual-2-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "After tapping invert: the meter flips to light",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "looks",
+                             "title":  "Nine looks",
+                             "text":  "Arcade Classic plus Pulse looks: Full panel, Dual box, Separate boxes, Thin bars, Text, Cockpit, Header and Account bar.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/looks-1-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Full panel",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/looks-2-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Dual box",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/looks-3-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Separate boxes",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/looks-4-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Thin bars",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/looks-5-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Text",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/looks-6-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Header (docked at the top of the page)",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/looks-7-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Account bar (docked low on the left)",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "cockpit",
+                             "title":  "Cockpit look",
+                             "text":  "An instrument panel: status lights, RESETS IN / RESETS AT / LEFT tiles and a load bar for each limit.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/cockpit-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Cockpit at 47% session, 38% weekly, all lights green",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "bar-types",
+                             "title":  "Three bar types",
+                             "text":  "Blocks, Smooth or Choppies (slanted segments in a cut-corner panel), in any look.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/bar-types-1-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Blocks",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/bar-types-2-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Smooth",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/bar-types-3-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Choppies",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "wording",
+                             "title":  "Short, Line or Full wording",
+                             "text":  "Less or more text: Short puts the percent on the bar, Line reads \"Session Used: [bar] Resets 35M\", Full spells it all out.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/wording-1-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Short",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/wording-2-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Line",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/wording-3-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Full",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "frames",
+                             "title":  "Frames",
+                             "text":  "Box, No border or Clear (only the text and bars show on the page), plus an opacity slider.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/frames-1-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Box",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/frames-2-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Clear: only the text and bars sit on the page",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "weekly-only",
+                             "title":  "Weekly only for plans with no 5-hour limit",
+                             "text":  "Which limits: Auto, Session + weekly, or Weekly only. On Auto, an account with no 5-hour reading shows the weekly meter alone.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/weekly-only-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Demo account with no 5-hour limit: the meter shows Weekly alone",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "game-over",
+                             "title":  "Warning colors and GAME OVER",
+                             "text":  "Bars go yellow at 50% and red at 80%; at 100% the Cockpit reads LIMIT REACHED and Arcade Classic shows K.O.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/game-over-1-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Cockpit at 100% session: STATUS: LIMIT REACHED, red lights",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/game-over-2-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Arcade Classic at 100%: K.O. in red, weekly 86% red",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "safe-read",
+                             "title":  "Never shows wrong numbers",
+                             "text":  "If a read fails or the numbers come back in a format it doesn\u0027t know, it keeps the last good numbers and says so instead of guessing.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/safe-read-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "After an unreadable answer: \"Last good read just now\", numbers kept",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "popup",
+                             "title":  "Toolbar popup",
+                             "text":  "Status, the latest numbers, the look chooser, bar type, wording, resets, frame, opacity, sizes, font, Reset, green check / red undo, hide, refresh, settings, manual and crash log copy.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/popup-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "The whole toolbar popup",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "favorites",
+                             "title":  "Three favorites",
+                             "text":  "Save the whole look in ★1, ★2 or ★3 and switch with one tap.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/favorites-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "★1 Full panel and ★2 Cockpit saved",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "settings",
+                             "title":  "Settings",
+                             "text":  "The cog opens Settings: appearance, layout, frame, which limits, and more, with green check / red undo pinned at the top.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/settings-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Settings open over the page",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "fonts",
+                             "title":  "Any font",
+                             "text":  "A font picker with live examples, your own font files (TTF/OTF/WOFF) and the Windows fonts.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/fonts-v1.0.24.png",
+                                                "kind":  "image",
+                                                "caption":  "Font picker with live examples",
+                                                "version":  "1.0.24",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "move",
+                             "title":  "Move and resize",
+                             "text":  "Hold the yellow MOVE word to drag the meter; tap it for RESIZE.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "colors",
+                             "title":  "Pulse color picker",
+                             "text":  "Square-and-hue picker, 10 presets, 6 custom slots, opacity and hex for every color.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "crash-log",
+                             "title":  "Crash log",
+                             "text":  "Problems are logged on this computer and can be copied from the popup for a support report.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "level-up",
+                             "title":  "LEVEL UP on update",
+                             "text":  "After an update the meter flashes LEVEL UP with the new version.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "private",
+                             "title":  "Reads only your own usage",
+                             "text":  "It reads the same usage numbers your own account page shows, with your own sign-in. No servers, nothing sent anywhere else; permissions are storage and claude.ai only.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "pc-looks",
+                             "title":  "PC: the same looks on Windows",
+                             "text":  "The native Windows app draws Full panel, Cockpit, Dual box, Separate boxes, Arcade Classic, Strip and more, with Blocks / Smooth / Choppies bars.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/pc-looks-1-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Full panel, Choppies (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-looks-2-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Cockpit, Blocks (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-looks-3-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Dual box, Smooth (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-looks-4-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Separate boxes, Blocks (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-looks-5-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Arcade Classic (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-looks-6-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Strip, Choppies (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "pc-corner",
+                             "title":  "PC: Corner look, six detail levels",
+                             "text":  "Just the numbers, small, with little standing meters; a click racks from \"47 / 23\" up to the full line.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/pc-corner-1-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Smallest detail: the two numbers (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-corner-2-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Full detail: percent, time left and reset time (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "pc-game-over",
+                             "title":  "PC: GAME OVER",
+                             "text":  "At 100% the session row reads GAME OVER · CONTINUE IN 3h 50m.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/pc-gameover-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "Dual box at 100% session (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "pc-move",
+                             "title":  "PC: move and resize",
+                             "text":  "Hold the meter for the yellow MOVE word, tap for RESIZE, green check keeps, red undo puts it back.",
+                             "proofs":  [
+                                            {
+                                                "file":  "proofs/pc-move-1-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "MOVE mode with green check and red undo (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            },
+                                            {
+                                                "file":  "proofs/pc-move-2-v2.2.1.png",
+                                                "kind":  "image",
+                                                "caption":  "RESIZE mode (PC drawing check: the app\u0027s own drawing code on the farm Windows build)",
+                                                "version":  "2.2.1",
+                                                "captured":  "Nov 19, 2026"
+                                            }
+                                        ]
+                         },
+                         {
+                             "id":  "pc-over-app",
+                             "title":  "PC: shows only over the desktop app",
+                             "text":  "Appears only while the desktop app is the window in front, sticks to its window when it moves, and hides when it is minimized. No polling while hidden.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "pc-sit-with",
+                             "title":  "PC: sits with the app, not over everything",
+                             "text":  "Other windows in front of the app cover the meter too; \"Stay on top of every window\" is a choice.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "pc-signin",
+                             "title":  "PC: one-time sign-in",
+                             "text":  "A small sign-in window (email code); the sign-in is saved encrypted for your Windows user, then the window closes.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "pc-tray",
+                             "title":  "PC: tray, Settings and first run",
+                             "text":  "Tray icon (click = Settings), Settings with the ghost \"i\", invert, green check and red undo pinned at the top, Dark / Light / Follow Windows on first run.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "android-banner",
+                             "title":  "Phone: banner over the app",
+                             "text":  "A banner over the app\u0027s bottom line, session on the left and weekly on the right, shown only while the app is in front. Looks: Strip, Numbers, Tab, Corner.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "android-builder",
+                             "title":  "Phone: setup preview builder",
+                             "text":  "A picture of the chat screen sized like your phone with the real banner drawn on it; every look and placement setting changes it live.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "android-panel",
+                             "title":  "Phone: pull-down panel",
+                             "text":  "Pull the notification shade down for the full panel: big percents, full-width bars and reset times, with Refresh, Settings and Turn off.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "android-statusbar",
+                             "title":  "Phone: number in the status bar",
+                             "text":  "The session (or weekly) number sits in the status bar, as big as fits.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "android-weekly-only",
+                             "title":  "Phone: weekly only",
+                             "text":  "Accounts with no 5-hour limit get one full-width weekly meter in the banner, panel and status bar.",
+                             "proofs":  [
+
+                                        ]
+                         },
+                         {
+                             "id":  "android-move",
+                             "title":  "Phone: move, resize, tuck away",
+                             "text":  "Tap tucks it to an edge tab; hold for the yellow MOVE word, tap for RESIZE, green check / red undo.",
+                             "proofs":  [
+
+                                        ]
+                         }
+                     ],
+    "demo":  null,
+    "note":  "Extension pictures: Edge with the v1.0.24 extension on a demo page with demo numbers. PC pictures: the farm drawing check of the v2.2.1 Windows build. Phone pictures come with the next bench slot."
+}
