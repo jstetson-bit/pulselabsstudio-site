@@ -1,0 +1,223 @@
+{
+ "name": "Keyboard Studio",
+ "systems": [
+  "Android"
+ ],
+ "tagline": "A keyboard you design yourself.",
+ "overview": "Keyboard Studio is a keyboard you design yourself. Pick a ready-made picture keyboard, build one from parts, or import a picture of your own, then tune the layout, keys, letters, colors and shortcut keys. It types in every app, works offline, and never sends what you type anywhere.",
+ "capabilities": [
+  {
+   "id": "three-starts",
+   "title": "Three ways to start",
+   "text": "Simple (pick a look and go), Guided (one step at a time) or Advanced (everything at once), plus Quick picks of your own keyboards on the first screen.",
+   "proofs": [
+    {
+     "file": "proofs/three-starts-v1.24.281.png",
+     "kind": "image",
+     "caption": "First screen: Simple, Guided, Advanced and Quick picks",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "picture-looks",
+   "title": "Picture keyboards",
+   "text": "Ready-made Mecha keyboards (Fire, Gold, Ice, Mint, Stealth, Toxic, Violet) and Pro sets. One tap switches the whole keyboard.",
+   "proofs": [
+    {
+     "file": "proofs/picture-looks-1-v1.24.281.png",
+     "kind": "image",
+     "caption": "Before: Mecha Fire",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/picture-looks-2-v1.24.281.png",
+     "kind": "image",
+     "caption": "Tap Mecha Gold: the keyboard changes",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    },
+    {
+     "file": "proofs/picture-looks-3-v1.24.281.png",
+     "kind": "image",
+     "caption": "Tap Mecha Ice: the keyboard changes again",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "live-preview",
+   "title": "Live preview and test key",
+   "text": "The keyboard you are building sits at the top and changes with every tap; the TEST KEY beside it shows one key up close.",
+   "proofs": [
+    {
+     "file": "proofs/live-preview-v1.24.281.png",
+     "kind": "image",
+     "caption": "Live preview with the TEST KEY beside it",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "finger-coach",
+   "title": "Finger Coach",
+   "text": "Short lines point at the real control and say what to do next, step by step.",
+   "proofs": [
+    {
+     "file": "proofs/finger-coach-v1.24.281.png",
+     "kind": "image",
+     "caption": "Coach line: \"Tap a keyboard. Every tap changes the keyboard up here.\"",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "type-anywhere",
+   "title": "Types in every app",
+   "text": "Pick it as your keyboard and it types in any app on the phone.",
+   "proofs": [
+    {
+     "file": "proofs/type-anywhere-v1.24.281.png",
+     "kind": "image",
+     "caption": "Typing \"demo\" in a contacts form, key by key",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "suggestions",
+   "title": "Word suggestions",
+   "text": "Word suggestions above the keys as you type.",
+   "proofs": [
+    {
+     "file": "proofs/suggestions-v1.24.281.png",
+     "kind": "image",
+     "caption": "Suggestions for \"demo\"",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "g-keys",
+   "title": "G keys",
+   "text": "A column of programmable shortcut keys: copy, paste, cut, select all, undo, or your own text, app or address.",
+   "proofs": [
+    {
+     "file": "proofs/g-keys-v1.24.281.png",
+     "kind": "image",
+     "caption": "ALL key pressed: the whole word is selected",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "symbols",
+   "title": "Numbers and symbols",
+   "text": "The 123 key opens math, punctuation and symbols; ABC goes back.",
+   "proofs": [
+    {
+     "file": "proofs/symbols-v1.24.281.png",
+     "kind": "image",
+     "caption": "After tapping 123: the symbol keys",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "advanced-editor",
+   "title": "Advanced editor",
+   "text": "Everything at once: Undo/Redo, Save/Load, Report, tabs for layout, keys, letters and fonts, colors and extras, and a choice of preview on top, real keyboard, or side by side.",
+   "proofs": [
+    {
+     "file": "proofs/advanced-editor-v1.24.281.png",
+     "kind": "image",
+     "caption": "Advanced editor, open Fold, side by side 60/40",
+     "version": "1.24.281",
+     "captured": "Nov 19, 2026"
+    }
+   ]
+  },
+  {
+   "id": "own-picture",
+   "title": "Your own keyboard from a picture",
+   "text": "Import a picture of a keyboard and the app finds the keys, cleans the letters off and builds your own keyboard.",
+   "proofs": []
+  },
+  {
+   "id": "kitbasher",
+   "title": "KitBasher",
+   "text": "Build a keyboard from parts: mix keys from any set, roll the dice, harmonize colors, share a build code.",
+   "proofs": []
+  },
+  {
+   "id": "layouts",
+   "title": "Layouts",
+   "text": "Core, Split, 65, 76, 96 and 108-key layouts; the phone, the open Fold and a tablet each remember their own.",
+   "proofs": []
+  },
+  {
+   "id": "shapes-colors",
+   "title": "Shapes, colors and borders",
+   "text": "16 drawn key shapes, borders, wallpaper, per-key colors and see-through keys.",
+   "proofs": []
+  },
+  {
+   "id": "lettering",
+   "title": "Letters and fonts",
+   "text": "16 fonts plus your own, size, width, height and color of the letters, ALL CAPS or all small.",
+   "proofs": []
+  },
+  {
+   "id": "number-pad",
+   "title": "Number pad",
+   "text": "Key order, side, the green GO/OK/NEXT key, spacing and shuffled digits.",
+   "proofs": []
+  },
+  {
+   "id": "swipe",
+   "title": "Swipe typing",
+   "text": "Swipe across the letters to type, with a trail you can color.",
+   "proofs": []
+  },
+  {
+   "id": "voice",
+   "title": "Voice typing",
+   "text": "Tap the microphone key and speak.",
+   "proofs": []
+  },
+  {
+   "id": "screenshot-key",
+   "title": "Screenshot key",
+   "text": "A key that takes a screenshot and saves it where you choose.",
+   "proofs": []
+  },
+  {
+   "id": "app-adapt",
+   "title": "App Adapt",
+   "text": "A different look and font for each app.",
+   "proofs": []
+  },
+  {
+   "id": "offline",
+   "title": "Offline and private",
+   "text": "No internet permission: nothing you type leaves the phone. The only permission at install is vibration.",
+   "proofs": []
+  }
+ ],
+ "demo": {
+  "file": "proofs/demo-v1.24.281.mp4",
+  "caption": "26 seconds on the test bench: typing \"hello demo\" key by key with suggestions, the 123 symbols, the ALL key, then switching looks in the app.",
+  "version": "1.24.281",
+  "captured": "Nov 19, 2026"
+ },
+ "note": "Captured on the Fold (open) bench profile, Android 15 emulator, with demo text only."
+}
