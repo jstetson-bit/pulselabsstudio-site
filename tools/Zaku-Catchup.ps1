@@ -30,7 +30,8 @@ if (-not $t) { $out += "2. NO SeatMailboxPoll task on this machine - tell HQ" } 
   if (-not $repo -or -not (Test-Path $repo)) { $repo = @("$env:USERPROFILE\gundam-farm-note20", 'C:\Users\jstet\gundam-farm-note20') | Where-Object { Test-Path $_ } | Select-Object -First 1 }
   Copy-Item "$d\scripts\farm-seat\seat-poll.ps1" $file -Force
   $new = ($args0 -replace '\s-(Seat|ClaimTag|Repo)\s+\S+', '').Trim() + " -Seat ZakuII -ClaimTag zaku" + $(if ($repo) { " -Repo `"$repo`"" } else { '' })
-  Set-ScheduledTask -TaskName 'SeatMailboxPoll' -Action (New-ScheduledTaskAction -Execute $a.Execute -Argument $new -WorkingDirectory $a.WorkingDirectory) | Out-Null
+  $na = @{ Execute = $a.Execute; Argument = $new }; if ($a.WorkingDirectory) { $na.WorkingDirectory = $a.WorkingDirectory }
+  Set-ScheduledTask -TaskName 'SeatMailboxPoll' -Action (New-ScheduledTaskAction @na) | Out-Null
   $out += "2. new poll -> $file ; args: $new"
 }
 
