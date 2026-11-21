@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.25 — 2026-11-21 — status watcher fixed on Windows PowerShell 5.1; privacy pages always ship
+- The status watcher's "latest commit" lookup used a jq filter with quotes inside; Windows PowerShell 5.1 strips those when it
+  calls another program, so every run failed ("failed to parse jq expression") once Snow White ran the current copy. It now reads
+  the commit as JSON inside PowerShell. No other watcher command has the same pattern.
+- The deploy ships any product folder that holds a privacy page (Pulse 64's and PlsMark's were "page not found").
+
 ## v0.7.24 — 2026-11-21 — clean public site (owner)
 - Owner: no outside product names anywhere, including in the code and the builds.
 - Three in-house tools are off the public site: their cards and folders moved to the private farm repo (nothing lost).

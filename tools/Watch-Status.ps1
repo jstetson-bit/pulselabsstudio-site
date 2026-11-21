@@ -58,8 +58,10 @@ try {
     if (-not $row) { continue }
     $branch = $row.branch
     if (-not $branch) { $branch = (gh api "repos/$($row.repo)" --jq .default_branch 2>$null); if (-not $branch) { $branch = 'main' } }
-    $c = gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" --jq '.[0] | [.sha, .commit.committer.date, (.commit.message | split("\n") | .[0])] | @tsv' 2>$null
-    $sha, $when, $msg = $(if ($c) { ($c -split "`t") } else { @('', '', '') })
+    # Parsed here, not with a jq string: Windows PowerShell 5.1 strips the inner quotes from native arguments.
+    $sha = ''; $when = ''; $msg = ''
+    $cj = gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" 2>$null
+    if ($cj) { try { $c0 = @($cj | Out-String | ConvertFrom-Json)[0]; $sha = [string]$c0.sha; $when = [string]$c0.commit.committer.date; $msg = ([string]$c0.commit.message -split "`n")[0] } catch { } }
     $st = $null
     foreach ($path in @("projects/$($row.folder)/STATUS.md", 'docs/STATUS.md', 'STATUS.md', 'docs/CHANGELOG.md')) {
       if ($path -like 'projects//*') { continue }
