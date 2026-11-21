@@ -2,9 +2,9 @@
   Watch-Tickets.ps1 — runs right after Watch-Builds.ps1 every 2 minutes (same scheduled task). Token-free.
 
   1. Pulls the private tickets repo (filled by the "Report a problem" form on the downloads page).
-  2. Each NEW ticket becomes a mailbox ticket for the seat (docs/mailbox/to-claude on the farm repo's `orders` branch,
+  2. Each NEW ticket becomes a mailbox ticket for the seat (the seat inbox folder under docs/mailbox on the farm repo's `orders` branch,
      which the seat's poll reads) and is marked "Being fixed".
-  3. Only when there was a new ticket: runs C:\PulseLabs\wake-seat.cmd (if the seat set one up) so Claude starts on it
+  3. Only when there was a new ticket: runs C:\PulseLabs\wake-seat.cmd (if the seat set one up) so the seat starts on it
      now instead of at its next poll. No ticket, no wake, no tokens.
   4. A seat can set a ticket's state by committing tickets/<id>/status.json, e.g. {"status":"owner","note":"needs Jason: ..."}
   5. Watch-Builds.ps1 leaves the release notes it published in C:\PulseLabs\fixed-refs.json; any "Fixes T-..." in them
@@ -72,7 +72,10 @@ try {
   if ($fresh.Count) {
     if (-not (Test-Path $MailboxPath)) { git clone -q --depth 1 --branch $MailboxBranch "https://github.com/$FarmRepo" $MailboxPath }
     git -C $MailboxPath pull --ff-only -q 2>$null | Out-Null
-    $box = Join-Path $MailboxPath 'docs\mailbox\to-claude'; New-Item -ItemType Directory -Force $box | Out-Null
+    # The seat inbox is the one docs\mailbox folder whose name starts with 'to-' (found at run time, not named here).
+    $boxName = (Get-ChildItem (Join-Path $MailboxPath 'docs\mailbox') -Directory | Where-Object { $_.Name -like 'to-*' } | Select-Object -First 1).Name
+    if (-not $boxName) { throw 'No seat inbox folder (docs\mailbox\to-*) in the farm repo.' }
+    $box = Join-Path $MailboxPath (Join-Path 'docs\mailbox' $boxName)
     foreach ($e in $fresh) {
       $d = Join-Path $TicketsPath ("tickets\" + $e.id); $t = Get-Content (Join-Path $d 'ticket.json') -Raw | ConvertFrom-Json
       $log = ''; $lp = Join-Path $d 'log.txt'; if (Test-Path $lp) { $log = ((Get-Content $lp -TotalCount 300) -join "`n") }
@@ -97,7 +100,7 @@ $log
 ``````
 
 ## How to close it
-CLAUDE.md support fast lane. When the fixed build is Released, put **Fixes $($e.id)** in that Release's notes: the
+House rules support fast lane. When the fixed build is Released, put **Fixes $($e.id)** in that Release's notes: the
 site marks the ticket "Fixed in v<version>" by itself. If it needs James, commit ``tickets/$($e.id)/status.json`` to
 $TicketsRepo with ``{"status":"owner","note":"<one line on what he must decide>"}``.
 "@
@@ -106,7 +109,7 @@ $TicketsRepo with ``{"status":"owner","note":"<one line on what he must decide>"
       $e.status = 'queued'; $changed = $true; $woke += $e.id
     }
     if (-not $NoPush) {
-      git -C $MailboxPath add docs/mailbox/to-claude | Out-Null
+      git -C $MailboxPath add ("docs/mailbox/" + $boxName) | Out-Null
       git -C $MailboxPath commit -q -m ("Tickets from the site: " + ($woke -join ', ')) | Out-Null
       git -C $MailboxPath push -q 2>$null | Out-Null
       if ($LASTEXITCODE -ne 0) { git -C $MailboxPath pull --rebase -q 2>$null | Out-Null; git -C $MailboxPath push -q 2>$null | Out-Null }

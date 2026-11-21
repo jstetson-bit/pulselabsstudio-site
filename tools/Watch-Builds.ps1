@@ -4,7 +4,7 @@
   Looks at the GitHub Releases on every jstetson-bit repo. A Release is the farm's "built and passed the
   in-house checks" signal (delivery rule). Every new APK / PC exe / PC zip / Chrome extension it finds there
   goes straight into the private downloads vault, newest per product per shelf. Plain PowerShell + gh;
-  no Claude, no tokens. Quiet when nothing is new.
+  no tokens. Quiet when nothing is new.
 
   Skipped on purpose: drafts, Releases whose title/tag/notes say FAIL, source/art/asset zips, files over 1.5 GB.
 

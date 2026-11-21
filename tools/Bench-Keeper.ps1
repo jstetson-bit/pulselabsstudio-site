@@ -1,4 +1,4 @@
-# Pulse Bench Keeper v2 (HQ, 2026-11-20). Runs every minute (scheduled task "Pulse Bench Keeper"). No AI, no tokens.
+# Pulse Bench Keeper v2 (HQ, 2026-11-20). Runs every minute (scheduled task "Pulse Bench Keeper"). No tokens.
 # v1 only restarted the bench when the emulator wasn't running. v2 also restarts it when it is running but FROZEN:
 # it asks the emulator "are you booted?" (adb, 15 s limit); 5 failed checks in a row (about 5 minutes) = frozen -> kill + restart.
 # A freshly started bench gets 6 minutes to boot before it is checked. Pause file: <kit>\keeper-pause.

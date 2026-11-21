@@ -45,7 +45,7 @@
 - Manual: Voodoo doll entry.
 
 ## v0.4.3 (vc12) — 2026-11-18 — library grows to 74 monsters, 61 guns
-- From four more GPT sheets: **28 new monsters, every one with 5 painted angles (turns in all 8 directions) and a painted death** (Gore Eye, Azure Skull, Dawn Cleric, Magma Brute, Crimson Crusader, Blood Gargoyle, Jade Wraith, Void Sorcerer, Goblin Gunner, Flesh Brute, Iron Horn, Furnace Widow, Brain Maw, Bone Templar, Blue Specter, Crowned Void Skull, Blood Warlock, Fallen Seraph, Mist Wraith, War Crab, War Mech, Ember Golem, Red Paladin, Mecha Crab, Steel Trooper, Wing Fiend, Mecha Eye, Storm Golem).
+- From four more sheets: **28 new monsters, every one with 5 painted angles (turns in all 8 directions) and a painted death** (Gore Eye, Azure Skull, Dawn Cleric, Magma Brute, Crimson Crusader, Blood Gargoyle, Jade Wraith, Void Sorcerer, Goblin Gunner, Flesh Brute, Iron Horn, Furnace Widow, Brain Maw, Bone Templar, Blue Specter, Crowned Void Skull, Blood Warlock, Fallen Seraph, Mist Wraith, War Crab, War Mech, Ember Golem, Red Paladin, Mecha Crab, Steel Trooper, Wing Fiend, Mecha Eye, Storm Golem).
 - **39 new guns/blades** with painted firing frames. 8 whose frames came out glued together are hidden from the pickers until recut (marked `hide` in the manifest).
 - Gun idle frames no longer pick the frame with the muzzle flash.
 - Totals: 74 monsters (29 turn in 8 directions), 61 weapons (53 shown, 35 with painted firing animations).
@@ -56,7 +56,7 @@
 - Forge monsters with 5 angles turn like the Spine Baron; 5 death frames replace the squash death.
 
 ## v0.4.1 (vc10) — 2026-11-18 — bigger library, turning monsters, real firing animations
-- Art library now **46 painted monsters** and **22 guns** (third GPT sheet added: 25 more creatures, a full-turn demon, pickups and firing sequences).
+- Art library now **46 painted monsters** and **22 guns** (third sheet added: 25 more creatures, a full-turn demon, pickups and firing sequences).
 - **Spine Baron**: first monster with real angles (5 painted views, mirrored to all 8, picked by where you stand) and a painted 5-step death.
 - Guns with **painted firing sequences** (Storm Minigun, Octagon Breacher, Void Cannon, Spark Grinder, Gore Saw, Pulse Rifle): the shot animates through every frame, timed to the gun's fire rate.
 - New gun class **Thrown** (Hell Spear, Gut Knife, Buzz Disc; no ammo): the hand throws and the painted spear/knife/disc flies as the projectile. Bunker Buster fires its painted rocket.
@@ -64,7 +64,7 @@
 - `tools/cut_sheet3.py`: cutter for the mixed sheet (grid, rotation row, death row, pickups, measured firing strips).
 
 ## v0.4.0 (vc9) — 2026-11-18 — Pulse painted art library
-- The generators now build from **painted Doom-style art** (from the GPT sheets James supplied: 20 monsters, 12 guns with idle/firing/side frames). Stored in `res/art/` (PNG + manifest.json, ~1.1 MB, loaded only when a map uses it).
+- The generators now build from **painted Doom-style art** (from the sheets James supplied: 20 monsters, 12 guns with idle/firing/side frames). Stored in `res/art/` (PNG + manifest.json, ~1.1 MB, loaded only when a map uses it).
 - Monster generator: **Painted art** picker (20 bodies) plus color shift (hue), color strength, brightness, tint color and amount (Pulse red button), size, mirror. Rolls pick a body that fits the chosen body type and vary it. Motion is made from the one painting: walk lean/bob, attack lunge with flash, pain flash, 5-step death collapse with a blood pool.
 - Weapon generator: **Painted art** picker (12 guns) with the same color/size/mirror controls plus "Keep hands their natural color". Idle and firing frames, small floor pickup.
 - Every sprite is crushed into the Doom palette (Freedoom PLAYPAL, BSD) so it sits in the game like original art.

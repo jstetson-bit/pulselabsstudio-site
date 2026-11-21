@@ -45,15 +45,15 @@ The story of how EOD came to be, in the owner's words where possible.
 
 ## 2026-11-17/18 · The art reckoning
 - James on the code-drawn art: *"It looks like a 3-year-old ate half of the crayon while he was using the other half to draw these"*, and asked for a side-by-side with real Doom art and an honest breakdown.
-- Claude compared against Freedoom: shapes made by code (boxes, ovals, gradients) can't match sculpted/photographed/hand-pixeled art.
+- The build compared against Freedoom: shapes made by code (boxes, ovals, gradients) can't match sculpted/photographed/hand-pixeled art.
 - James: *"I want you to gain inspiration from their monsters. And that is what the generator should do"*, and Halo-style idea: take inspiration, change barrels and grips, *"it will be ours. But it has to be in the same art, style, flavor, and taste."*
-- James showed GPT image sheets (*"GPT did this in about 50 seconds"*), then two more (20 monsters, 12 weapons). *"These are examples… Your art generator needs to follow this… These are our weapons."*
+- James showed image sheets (*"this was done in about 50 seconds"*), then two more (20 monsters, 12 weapons). *"These are examples… Your art generator needs to follow this… These are our weapons."*
 - Built 0.4.0: those sheets became EOD's painted art library and both generators build from it. Next: a generator that makes NEW art in this style (see STATUS in CHANGELOG).
 - Third sheet (25 creatures, a demon in 5 angles + death, pickups, firing sequences incl. thrown spear/knife/disc) → 0.4.1.
-- James (on OpenAI API): *"I have OpenArt and I have ImagineArt. But GPT does art the best… I have the farm. I have all the 3090s that we could probably easily do a generator with."*
+- James (on art tools): he has several art tools and the GPU farm; art direction decided in chat.
 - James's generator spec: creature types (humanoid, goblin, dog, eyeball, bat, golem, robot, elemental, spider, crab, demon, ghost, knight, mecha crab, floating skull, dark caster, darker caster, light caster, spiked demon dog, worm, dragon worm) with yes/no parts (horns, wings, guns, pauldrons, shield, armor, weapon); weapons by barrel (long, short, mini barrels) and type (pulse cannon, 12 gauge, projectile, spear, bladed, saw). *"An actual program that would do that?"*
-- GPT's reply proposed a Windows Forge program and sent a prototype. Decided: Pulse Forge as its own web product (forge/), EOD reads its art (0.4.2).
-- Four more GPT sheets (angles + deaths for 28 creatures, ~39 weapon sequences). James: *"I'm trying to give you variety… if we were to chop these up, what does our creature database look like? What does our weapon database look like?"* → 0.4.3 library: 74 monsters, 61 weapons.
+- An outside prototype for a Windows Forge program came in. Decided: Pulse Forge as its own web product (forge/), EOD reads its art (0.4.2).
+- Four more sheets (angles + deaths for 28 creatures, ~39 weapon sequences). James: *"I'm trying to give you variety… if we were to chop these up, what does our creature database look like? What does our weapon database look like?"* → 0.4.3 library: 74 monsters, 61 weapons.
 
 ## 2026-11-18 · Front door, demo maps, voodoo dolls
 - James: *"I don't want a login screen or anything at the moment. I want it to just be able to be all the options available the second I go to the website… choose play a quick demo or create a monster, create a weapon, or edit a map or see a map. How many maps do we have? We should definitely have a demo map. We should have a few demo maps."*

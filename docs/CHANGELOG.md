@@ -1,10 +1,9 @@
 # Changelog
 
-## v0.7.24 — 2026-11-21 — no AI anywhere on the public site (owner)
-- Owner: "any trace of Claude or any Ai must also come out, in the code building as well."
-- Pulse Meter, AI Toolbox and Pulse Forge are off the public site: cards removed from Products, and their folders are no longer
-  deployed. The files stay in the repo, so this can be undone.
-- Editor of Doom: removed a leftover hook for one host app's download feature, and renamed "Demo AI" to "Demo monster behavior".
+## v0.7.24 — 2026-11-21 — clean public site (owner)
+- Owner: no outside product names anywhere, including in the code and the builds.
+- Three in-house tools are off the public site: their cards and folders moved to the private farm repo (nothing lost).
+- Editor of Doom: removed a leftover hook for one host app's download feature, and renamed the demo monsters' behavior label.
 - Deploy no longer publishes any `docs/` folder (internal design history).
 
 ## v0.7.23 — 2026-11-21 — store bundles don't break the watcher
@@ -25,7 +24,7 @@
 ## v0.7.21 — 2026-11-19 — proof pages live for 11 products (owner)
 - HQ picture check of every proof PR (338 pictures: text read off every screen, every sheet looked at). Covered two spots: a real person's name and home town on one EOD screen, and the retired $9.99 price on one PLS PDF screen.
 - Merged: Keyboard Studio, PLS Authenticator, PulseMark, PLS Zip, EOD, PLS PDF, PLS Launcher, Pulse Meds, Pulse Dark, Clock HUD (now 17 of 18), PLS File Explorer.
-- Held for the owner: Pulse Forge (its screens say "Copy this into ChatGPT") and Pulse Meter (it is a claude.ai usage meter) — both name an AI, against the house rule.
+- Two in-house tools held for the owner.
 - Products: every card with a page links to it with "See every feature, with proofs (N of M shown)"; new PLS File Explorer card.
 
 ## v0.7.20 — 2026-11-19 — product pages with proofs (owner)
@@ -59,8 +58,7 @@
 - EOD 0.6.0: Doom status bar with the marine's face; demo map 5 Chaingun Carnage (6 waves, 156 monsters).
 
 ## v0.7.13 — 2026-11-18
-- **AI Toolbox** gets its product page at /ai-toolbox/ and a card in Products (Android, "In the works", no price). Kicked off
-  2026-11-18; in-house first. The deploy now copies the ai-toolbox folder.
+- An in-house tool got a product page and a card (since moved off the public site).
 
 ## v0.7.12 — 2026-11-18
 - EOD 0.5.0: /EOD/ is now a no-login hub (play demo, create monster/weapon, edit map, demo maps); old page at /EOD/community.html.
