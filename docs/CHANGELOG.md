@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.23 — 2026-11-21 — store bundles don't break the watcher
+- The store weekend puts an unsigned Play bundle (.aab) beside each APK in a Release (first: PLS Clock HUD v2.17.39).
+  The watcher counted .aab as an Android download and its APK check failed ("Missing AndroidManifest.xml").
+- Fix: .aab files are skipped. They are for Google Play, not for installing from the downloads page. APKs post as before.
+
 ## v0.7.22 — 2026-11-20 — new builds reach the site within minutes again (owner)
 - Owner: "It should be immediate the second they're built… There's easily 20 different versions in the last hour."
 - Cause: every farm update started three deploys. The good one, from the push, was cancelled by two extra runs that

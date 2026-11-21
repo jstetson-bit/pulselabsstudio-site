@@ -4,7 +4,9 @@
 
 function Get-PlsPlatform([string]$FileName) {
   $n = $FileName.ToLowerInvariant()
-  if ($n -match '\.(apk|aab)$') { return 'android' }
+  # .aab = Play store bundle: not installable on a phone, never a download here (it broke the watcher 2026-11-21).
+  if ($n -match '\.aab$') { return $null }
+  if ($n -match '\.apk$') { return 'android' }
   if ($n -match '\.(exe|msi|msix)$') { return 'windows' }
   if ($n -match '\.crx$') { return 'chrome' }
   if ($n -match '\.zip$') {
