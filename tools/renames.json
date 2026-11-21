@@ -1,0 +1,4 @@
+{
+  "_note": "Old file-name prefix -> new one. The watcher folds builds under the old name into the new card. Run Fold-Renames.ps1 once after adding a line.",
+  "PulseAIDA64": "Pulse64"
+}
