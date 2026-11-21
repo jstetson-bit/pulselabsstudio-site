@@ -309,15 +309,15 @@
   },
   {
    "id": "pc-two-panes",
-   "title": "Windows: two panes",
-   "text": "Two folders side by side, each with Back, Up, This PC and the full path. Every Windows sort with folders on top; copy or move to the other pane with Windows' own progress and replace prompts; fast even with tens of thousands of files.",
+   "title": "Windows: two panes, tabs, Grid with pictures",
+   "text": "Two folders side by side, each pane with its own tabs and a clickable path. Details or Grid view with the same pictures Windows shows. Newest (everything that landed on this PC lately), Recent and Favorites sit at the top of This PC. Copy or move to the other pane with Windows' own progress and replace prompts.",
    "proofs": [
     {
-     "file": "proofs/pc-files-v0.1.2.png",
+     "file": "proofs/pc-files-v0.2.0.png",
      "kind": "image",
-     "caption": "Windows: This PC in both panes (farm test machine)",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "caption": "Windows: Grid with real thumbnails and two tabs on the left, Newest on the right (farm test machine)",
+     "version": "0.2.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
   },
