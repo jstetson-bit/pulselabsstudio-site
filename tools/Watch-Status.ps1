@@ -23,6 +23,9 @@ function Log($m) { $l = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') + '  status: 
 function Norm($s) { ([string]$s).ToLowerInvariant() -replace '[^a-z0-9]', '' }
 function Plain($md) { (($md -replace '\*\*|`|__', '') -replace '\[([^\]]+)\]\([^)]+\)', '$1').Trim() }
 function Gh-Text($path) {   # file text from GitHub, or $null
+  # 'Not found' is a normal answer here. Windows PowerShell 5.1 turns a native program's error text into a stopping
+  # error when ErrorActionPreference is Stop, even with 2>$null, so this function runs with Continue.
+  $ErrorActionPreference = 'Continue'
   $b = gh api $path --jq .content 2>$null
   if ($LASTEXITCODE -ne 0 -or -not $b) { return $null }
   return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String((($b -join '') -replace '\s', '')))
@@ -57,11 +60,13 @@ try {
     $row = $rows | Where-Object { ($_.keys -contains $k1) -or ($_.keys -contains $k2) -or ($k1 -and ($_.keys | Where-Object { $_ -and $_.Length -gt 4 -and ($k1.StartsWith($_) -or $_.StartsWith($k1)) })) } | Select-Object -First 1
     if (-not $row) { continue }
     $branch = $row.branch
+    $ErrorActionPreference = 'Continue'   # gh 'not found' must not stop the run (PS 5.1); set back below
     if (-not $branch) { $branch = (gh api "repos/$($row.repo)" --jq .default_branch 2>$null); if (-not $branch) { $branch = 'main' } }
     # Parsed here, not with a jq string: Windows PowerShell 5.1 strips the inner quotes from native arguments.
     $sha = ''; $when = ''; $msg = ''
     $cj = gh api "repos/$($row.repo)/commits?sha=$branch&per_page=1" 2>$null
     if ($cj) { try { $c0 = @($cj | Out-String | ConvertFrom-Json)[0]; $sha = [string]$c0.sha; $when = [string]$c0.commit.committer.date; $msg = ([string]$c0.commit.message -split "`n")[0] } catch { } }
+    $ErrorActionPreference = 'Stop'
     $st = $null
     foreach ($path in @("projects/$($row.folder)/STATUS.md", 'docs/STATUS.md', 'STATUS.md', 'docs/CHANGELOG.md')) {
       if ($path -like 'projects//*') { continue }

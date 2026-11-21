@@ -4,6 +4,8 @@
 - The status watcher's "latest commit" lookup used a jq filter with quotes inside; Windows PowerShell 5.1 strips those when it
   calls another program, so every run failed ("failed to parse jq expression") once Snow White ran the current copy. It now reads
   the commit as JSON inside PowerShell. No other watcher command has the same pattern.
+- Behind that error sat a second one: with "stop on any error", Windows PowerShell 5.1 treated GitHub's normal "not found"
+  (a status file that isn't at the first place looked) as fatal. The status watcher's GitHub lookups now treat it as an answer.
 - The deploy ships any product folder that holds a privacy page (Pulse 64's and PlsMark's were "page not found").
 
 ## v0.7.24 — 2026-11-21 — clean public site (owner)
