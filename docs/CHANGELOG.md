@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.24 — 2026-11-21 — no AI anywhere on the public site (owner)
+- Owner: "any trace of Claude or any Ai must also come out, in the code building as well."
+- Pulse Meter, AI Toolbox and Pulse Forge are off the public site: cards removed from Products, and their folders are no longer
+  deployed. The files stay in the repo, so this can be undone.
+- Editor of Doom: removed a leftover hook for one host app's download feature, and renamed "Demo AI" to "Demo monster behavior".
+- Deploy no longer publishes any `docs/` folder (internal design history).
+
 ## v0.7.23 — 2026-11-21 — store bundles don't break the watcher
 - The store weekend puts an unsigned Play bundle (.aab) beside each APK in a Release (first: PLS Clock HUD v2.17.39).
   The watcher counted .aab as an Android download and its APK check failed ("Missing AndroidManifest.xml").

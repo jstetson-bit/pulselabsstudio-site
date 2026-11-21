@@ -1,7 +1,7 @@
 /* ================= MONSTER GENERATOR: random Doom-style enemies, fully adjustable =================
    Each monster lives in the map (M.mon[type] = def), uses thing numbers 20000+, gets in-house
    procedural sprites (walk A-D, attack E-F, pain G, death H-K, corpse L) rebuilt from its settings,
-   fights with the normal Demo AI, and exports to GZDoom as a DECORATE actor + PNG sprites. */
+   fights with the normal Demo monster behavior, and exports to GZDoom as a DECORATE actor + PNG sprites. */
 const MON_BASE = 20000;
 const ARCHETYPES = {
   imp: { name: 'Clawed devil', atk: 'proj+melee', proj: 'fire', spd: [2, 2.8], size: [0.9, 1.15], float: false },

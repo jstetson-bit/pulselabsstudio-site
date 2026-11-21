@@ -78,20 +78,19 @@ function download(name, data, mime) {
   };
   let canShare = false;
   try { canShare = !!(navigator.canShare && navigator.canShare({ files: [new File([blob], name)] })); } catch (e) { }
-  const viaClaude = async () => {
+  const viaHostSave = async () => {
     let fn = name, data = blob;
     if (!/\.(json|html|zip|txt)$/i.test(name)) { data = makeZip(name, new Uint8Array(await blob.arrayBuffer())); fn = name + '.zip'; }
     DL.save({ filename: fn, data }).then(() => toast('Saved ' + fn), e => toast(e && e.code === 'declined' ? 'Save cancelled' : 'Save failed: ' + (e && e.code || e)));
   };
-  const btns = [{ label: 'Download', cls: 'demo', fn: () => { if (DL) { viaClaude(); return; } go(); toast('Saved ' + name); } }];
+  const btns = [{ label: 'Download', cls: 'demo', fn: () => { if (DL) { viaHostSave(); return; } go(); toast('Saved ' + name); } }];
   if (canShare) btns.push({ label: 'Share / Send to app', fn: () => { navigator.share({ files: [new File([blob], name, { type: blob.type })], title: name }).catch(() => { }); } });
   btns.push({ cancel: 1 });
   modal('Export: ' + name, '<p>File is ready (' + Math.ceil(blob.size / 1024) + ' KB).</p><p class="hint">If Download does nothing inside this app, use Share, or open EOD in Chrome.</p>', btns);
 }
 
-/* ---------- Claude app downloads + tiny zip (for formats the app won't save directly, e.g. .wad) ---------- */
+/* ---------- tiny zip (for formats a browser won't save directly, e.g. .wad) ---------- */
 let DL = null;
-try { if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { DL = d; }, () => { }); } catch (e) { }
 const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
 function makeZip(name, data) {
