@@ -50,7 +50,7 @@ sleep 2
 
 export PLSSCALE_DATA=$V/server PLSSCALE_DEVICE_DATA=$V/device
 if [ ! -f "$V/device/device.json" ]; then
-  LINK=$("$D/pls-scale-server" invite | grep -o 'plsscale://[^"]*' | head -1)
+  LINK=$("$D/pls-scale-server" invite "Pulse Server" | grep -o 'plsscale://[^"]*' | head -1)
   "$D/pls-scale" join "$LINK" -name "Pulse Server" -port 41641 >/dev/null
 fi
 systemctl enable pls-scale >/dev/null 2>&1
