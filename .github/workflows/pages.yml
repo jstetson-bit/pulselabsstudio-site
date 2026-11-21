@@ -35,7 +35,7 @@ jobs:
           [ -d pls-zip ] && cp -r pls-zip _site/
           [ -d assets ] && cp -r assets _site/
           # Product folders ship when they hold a proofs.json (features page) or a privacy.html (store listings link to it).
-          for d in */; do if [ -f "${d}proofs.json" ] || [ -f "${d}privacy.html" ]; then cp -r "$d" _site/; fi; done
+          for d in */; do [ "$d" = "_site/" ] && continue; if [ -f "${d}proofs.json" ] || [ -f "${d}privacy.html" ]; then cp -r "$d" _site/; fi; done
           cp *.js _site/ 2>/dev/null || true
           [ -d EOD ] && cp -r EOD _site/ && rm -rf _site/EOD/engine
           # Lowercase /eod/ redirect is generated here, not stored in the repo: a repo holding both EOD/ and eod/
