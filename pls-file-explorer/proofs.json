@@ -313,10 +313,10 @@
    "text": "Two folders side by side, each pane with its own tabs and a clickable path. Details or Grid view with the same pictures Windows shows. Newest (everything that landed on this PC lately), Recent and Favorites sit at the top of This PC. Copy or move to the other pane with Windows' own progress and replace prompts.",
    "proofs": [
     {
-     "file": "proofs/pc-files-v0.2.0.png",
+     "file": "proofs/pc-files-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: Grid with real thumbnails and two tabs on the left, Newest on the right (farm test machine)",
-     "version": "0.2.0 (Windows)",
+     "version": "0.9.0 (Windows)",
      "captured": "Nov 21, 2026"
     }
    ]
@@ -327,11 +327,11 @@
    "text": "Exact copies, checked byte for byte. One copy of every set is the protected original and can never be ticked; pick oldest copy or shortest folder path, or name Protected folders whose files always win.",
    "proofs": [
     {
-     "file": "proofs/pc-duplicates-v0.1.2.png",
+     "file": "proofs/pc-duplicates-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: the Duplicates page",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
   },
@@ -341,11 +341,11 @@
    "text": "Reads the first bytes of every file. DANGER marks a program dressed up as something else (a .jpg that is really a program, invoice.pdf.exe, names written backwards); HIDDEN marks a picture or video with the wrong ending, fixed in one click.",
    "proofs": [
     {
-     "file": "proofs/pc-disguised-files-v0.1.2.png",
+     "file": "proofs/pc-disguised-files-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: the Disguised files page",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
   },
@@ -355,39 +355,39 @@
    "text": "Temporary files, crash dumps, empty folders and extra copies come ticked; old installers and very big files are listed unticked. Every single file is shown first and everything goes to the Recycle Bin.",
    "proofs": [
     {
-     "file": "proofs/pc-cleanup-v0.1.2.png",
+     "file": "proofs/pc-cleanup-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: the Cleanup page",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
   },
   {
    "id": "pc-pls-zip",
-   "title": "Windows: PLS Zip",
-   "text": "Make zips; open and extract zip, tar, tar.gz and gz. Extracting never overwrites anything and never writes outside its own new folder.",
+   "title": "Windows: PLS Zip, its own engine",
+   "text": "Makes zips; opens zip, tar, gz, 7z (every common method, passwords, hidden names), RAR 2.9 to 5 (solid, passwords), tar.bz2, bz2 and archives split into parts. No outside code; every 7z and RAR file checked against its checksum; never overwrites, never writes outside its new folder.",
    "proofs": [
     {
-     "file": "proofs/pc-pls-zip-v0.1.2.png",
+     "file": "proofs/pc-pls-zip-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: the PLS Zip page",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
   },
   {
    "id": "pc-phone",
    "title": "Windows: your phone as a drive",
-   "text": "Pair your phone once through PLS Link; after that, same Wi-Fi, no password, every transfer encrypted.",
+   "text": "Pair your phone once; after that it shows in This PC next to your drives whenever it's on the same Wi-Fi. Open it like a drive, copy either way, drag PC files onto a phone folder. Encrypted; the link never deletes anything on the phone.",
    "proofs": [
     {
-     "file": "proofs/pc-phone-pls-link-v0.1.2.png",
+     "file": "proofs/pc-phone-pls-link-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: the Phone (PLS Link) page",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
   },
@@ -397,13 +397,53 @@
    "text": "About and Check for updates first; dark, light or follow Windows; font size; show hidden files; one-tap crash log through your own email app.",
    "proofs": [
     {
-     "file": "proofs/pc-settings-v0.1.2.png",
+     "file": "proofs/pc-settings-v0.9.0.png",
      "kind": "image",
      "caption": "Windows: Settings",
-     "version": "0.1.2 (Windows)",
-     "captured": "Nov 20, 2026"
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
     }
    ]
+  },
+  {
+   "id": "pc-compare",
+   "title": "Windows: compare folders",
+   "text": "The two folders open in Files, everything inside: only on one side, newer where, the same. Tick lines and copy them across with Windows' own copy window.",
+   "proofs": [
+    {
+     "file": "proofs/pc-compare-folders-v0.9.0.png",
+     "kind": "image",
+     "caption": "Windows: Compare folders",
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pc-sizes",
+   "title": "Windows: folder sizes",
+   "text": "What fills a folder or a whole drive, biggest first, as red bars; double-click a folder to look inside.",
+   "proofs": [
+    {
+     "file": "proofs/pc-folder-sizes-v0.9.0.png",
+     "kind": "image",
+     "caption": "Windows: Folder sizes",
+     "version": "0.9.0 (Windows)",
+     "captured": "Nov 21, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pc-tools-more",
+   "title": "Windows: tree, find, rename many",
+   "text": "A folder tree beside each pane; Find filters as you type or searches every folder inside; Rename many shows every new name in a live preview before anything changes, and undoes the last batch.",
+   "proofs": []
+  },
+  {
+   "id": "pc-setup",
+   "title": "Windows: one Setup, no admin",
+   "text": "Installs for you in a minute, over an older copy, adds Microsoft's .NET 11 runtime if the PC needs it, and removes cleanly from Installed apps.",
+   "proofs": []
   }
  ],
  "demo": {
