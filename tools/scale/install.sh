@@ -69,10 +69,16 @@ if systemctl is-active pls-scale-server >/dev/null && systemctl is-active pls-sc
   echo
   echo "PLS SCALE IS UP on $IP  (home server v$("$D/pls-scale-server" version))"
   echo
-  echo "Scan this with PLS Scale on YOUR phone (Join -> Scan). It joins as an owner device:"
-  "$D/pls-scale-server" invite-owner
-  echo
-  echo "Then add everything else from the phone: Owner -> Make a join code."
+  # v0.13.6: an owner key only on the first install (no owner device yet). An update made a fresh owner key every run.
+  if "$D/pls-scale-server" devices 2>/dev/null | grep -q '"owner": true'; then
+    echo "Updated. Your devices, their names and addresses are kept; your phone is still the owner. No new owner key made."
+    echo "Need another owner device?  $D/pls-scale-server invite-owner"
+  else
+    echo "Scan this with PLS Scale on YOUR phone (Join -> Scan). It joins as an owner device:"
+    "$D/pls-scale-server" invite-owner
+    echo
+    echo "Then add everything else from the phone: Owner -> Make a join code."
+  fi
   echo "Owner page from the phone or a PC on the network: http://$(python3 -c 'import json;print(json.load(open("'$V'/device/device.json"))["address"])' 2>/dev/null || echo 100.88.0.1):8489"
 else
   echo "PLS SCALE FAILED: run  journalctl -u pls-scale-server -u pls-scale -n 30"
