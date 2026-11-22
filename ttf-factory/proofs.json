@@ -1,0 +1,127 @@
+{
+ "name": "TTF Factory",
+ "systems": [
+  "Windows PC (planned)"
+ ],
+ "tagline": "A picture of letters in. A real, installable font out.",
+ "overview": "TTF Factory turns a glyph sheet, a keyboard screenshot or a photo of lettering into a real font you can install, use and sell. It traces every letter the way a designer does: the solid color only, leveled first, straight lines and clean three-point arcs, matching corners and stroke widths across the whole alphabet, then laid back over the original to prove it. From that one sheet it builds the full set of characters, kerns every pair, and spins a six-weight family and different output styles.",
+ "capabilities": [
+  {
+   "id": "sheet-to-font",
+   "title": "Glyph sheet to installable font",
+   "text": "Hand it a black-on-white sheet of letters and it copies the geometry exactly (no guessing) into a TTF that installs on Windows, with SVGs of every glyph.",
+   "proofs": [
+    {
+     "file": "proofs/sheet-to-font-v1.014.png",
+     "kind": "image",
+     "caption": "Red Astray, built from its own sheet, 1.7% median off the artist's vector",
+     "version": "1.014",
+     "captured": "2026-11-21"
+    }
+   ]
+  },
+  {
+   "id": "full-set",
+   "title": "Fills in the missing characters",
+   "text": "Sheet only has capitals and numbers? It builds small-caps lowercase and the symbols (! ? @ # $ % & \u20ac \u00a3 and the rest) from the sheet's own stroke weight and corner style, so the whole set matches.",
+   "proofs": [
+    {
+     "file": "proofs/sheet-to-font-v1.014.png",
+     "kind": "image",
+     "caption": "Full 96: the artist's 36 plus 60 built in the same style",
+     "version": "1.014",
+     "captured": "2026-11-21"
+    }
+   ]
+  },
+  {
+   "id": "six-weights",
+   "title": "Six weights from one sheet",
+   "text": "Thin, Light, Regular, Medium, Bold and Black. Bold is drawn like a designer draws it: stems thicken more than bars, so openings stay open and cut-outs never fill in. Every weight passes a clean check: no specks, no lost cut-outs, no pinholes.",
+   "proofs": [
+    {
+     "file": "proofs/six-weights-v0.008.png",
+     "kind": "image",
+     "caption": "Pulse Armor Line, six weights, clean check 0 of 96 in every weight",
+     "version": "0.008",
+     "captured": "2026-11-21"
+    },
+    {
+     "file": "proofs/six-weights-italic-v0.013.png",
+     "kind": "image",
+     "caption": "Pulse RazorWing (spiky italic), six weights, sharp tips kept",
+     "version": "0.013",
+     "captured": "2026-11-21"
+    }
+   ]
+  },
+  {
+   "id": "output-styles",
+   "title": "Output styles",
+   "text": "Export the same font as Razor Cutter, Plotter Pen, Chisel Nib or Stencil: one font, a different look in every export.",
+   "proofs": [
+    {
+     "file": "proofs/output-styles-v0.012.png",
+     "kind": "image",
+     "caption": "Pulse RazorWing Regular in each output style",
+     "version": "0.012",
+     "captured": "2026-11-21"
+    }
+   ]
+  },
+  {
+   "id": "stencil-angles",
+   "title": "Stencil cut angles",
+   "text": "Stencil cuts every glyph in half, and you pick the cut: slant, 45, 90 or 135 degrees.",
+   "proofs": [
+    {
+     "file": "proofs/stencil-angles-v0.012.png",
+     "kind": "image",
+     "caption": "Stencil at each cut angle",
+     "version": "0.012",
+     "captured": "2026-11-21"
+    }
+   ]
+  },
+  {
+   "id": "photo-trace",
+   "title": "Keyboard screenshot or photo to font",
+   "text": "Point it at a photo of a keyboard or a sign. It levels the letters, traces them with straight lines and arcs, keeps strokes even and matches the round letters to each other.",
+   "proofs": [
+    {
+     "file": "proofs/photo-trace-v0.009.png",
+     "kind": "image",
+     "caption": "A keyboard photo traced and laid back over the original",
+     "version": "0.009",
+     "captured": "2026-11-21"
+    }
+   ]
+  },
+  {
+   "id": "kerning",
+   "title": "Automatic kerning",
+   "text": "Every letter pair is measured and spaced to match, capitals and lowercase alike, with no collisions.",
+   "proofs": []
+  },
+  {
+   "id": "svg",
+   "title": "SVG export",
+   "text": "Every glyph also comes out as a clean SVG vector for cutters, plotters and design apps.",
+   "proofs": []
+  },
+  {
+   "id": "simple-mode",
+   "title": "Simple mode",
+   "text": "Drop the sheet in, get the engine's best swing, export.",
+   "proofs": []
+  },
+  {
+   "id": "advanced-mode",
+   "title": "Advanced mode",
+   "text": "A grid editor for fine-tuning any glyph, with the tracing rules as tools: arcs, 90-degree corners, mirror, match the family.",
+   "proofs": []
+  }
+ ],
+ "demo": null,
+ "note": "Proofs are real output from the engine. The app (Simple and Advanced modes) is in development; those show as Proof coming until it exists."
+}
