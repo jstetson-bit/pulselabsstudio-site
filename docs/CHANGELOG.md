@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.29 — 2026-11-22
+- EOD 0.8.9: bulletproof glass announces itself; glass demo names its panes.
+
 ## v0.7.28 — 2026-11-22
 - EOD 0.8.8: Kev's Water Plant hall back to its original layout; Baron still sealed in the pipe.
 

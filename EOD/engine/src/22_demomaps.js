@@ -56,7 +56,7 @@ function buildVoodooMap() {
 }
 function buildGlassMap() {
   M = emptyMap(); M.name = 'MAP03'; M.mon = {}; M.wep = {};
-  M.hint = 'Six kinds of glass. Shoot them, look at them from the side, try the mirror.';
+  M.hint = 'Six kinds of glass, left to right: clear, mirror, frosted, stained, bulletproof (cracks but never breaks) and Pulse red. Shoot them, look from the side, try the mirror.';
   const H = demoRect(0, 0, 768, 512, { fh: 0, ch: 160, li: 192, ft: 'FLOOR4_8', ct: 'CEIL5_2' });
   const looks = ['Clear window', 'Mirror', 'Frosted', 'Stained (middle texture)', 'Bulletproof', 'Pulse red'];
   const arts = ['gore_eye', 'crimson_crusader', 'jade_wraith', 'void_sorcerer', 'war_mech', 'blood_gargoyle'];

@@ -162,7 +162,7 @@ function damageGlass(l, dmg, px, py, pz, src) {
   const g = glassLive(l); if (!g) return;
   if (g.nearOnly && src === 'player' && G.p && Math.hypot(px - G.p.x, py - G.p.y) > g.nearOnly) { glassCrackAt(l, px, py, pz, 1); if (!G.nearMsg || G.tic - G.nearMsg > 105) { G.nearMsg = G.tic; msg('Too far to break the pipe. Get closer.'); } return; }
   if (src === 'mon' && !g.monBrk) { glassCrackAt(l, px, py, pz, 1); return; }
-  if (!g.brk) { if (g.snd) sfx('glasshit', 0.5); glassCrackAt(l, px, py, pz, 2); return; }
+  if (!g.brk) { if (g.snd) sfx('glasshit', 0.5); glassCrackAt(l, px, py, pz, 2); if (src === 'player' && (!g.noBrkMsg || G.tic - g.noBrkMsg > 140)) { g.noBrkMsg = G.tic; msg('Bulletproof glass: it cracks, but it never breaks.'); } return; }
   g.hp -= dmg; glassCrackAt(l, px, py, pz, dmg);
   if (g.hp <= 0) breakGlass(l, px, py, pz); else if (g.snd) sfx('glasshit', 0.8);
 }

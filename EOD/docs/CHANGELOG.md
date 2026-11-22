@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.9 (vc29) — 2026-11-22 — bulletproof glass says so
+- **Bulletproof glass now tells you.** Shoot an unbreakable pane and the message line says "Bulletproof glass: it cracks, but it never breaks." (once every few seconds, per pane). It used to just keep cracking with no word, so it looked like a bug.
+- **The glass demo names its panes** in the start message, left to right: clear, mirror, frosted, stained, bulletproof, Pulse red.
+- Why: James shot the fifth pane in the glass demo until it was white with cracks and asked "indestructable?" Yes, on purpose: it's the Bulletproof preset, showing the editor's breakable on/off setting. Nothing in the game said so.
+- Swept: the other glass that refuses to break (the water plant pipe from too far away) already says why.
+
 ## v0.8.8 (vc28) — 2026-11-22 — Kev's Water Plant: hall back to its original form
 - **The hall is back the way it was in 0.8.6:** the landing and drop from the first door, the west catwalk stairs only, no pillars, the chaingunner back on the east catwalk, the bullet box back in place. Removed: the three steps up from the drop, the east catwalk stairs and the four cover pillars.
 - **Kept:** the Baron sealed inside the green pipe until you break it open up close (monster fire can't crack it, far shots only crack it).
