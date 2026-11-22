@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.20 — 2026-11-22
+- EOD 0.8.0: multi-core 3D view, Classic/Modern look with a sharp status bar, death-screen fix, Restart button.
+
 ## v0.7.19 — 2026-11-22
 - EOD 0.7.3: 3D view up to 2.3× faster at high detail.
 

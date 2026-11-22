@@ -18,13 +18,20 @@ function autoRes(ms) {
 }
 function openDetail() {
   const opts = [['auto', 'Auto (sharpest that stays smooth)'], [320, 'Classic 320 (original Doom look)'], [640, '640'], [960, '960'], [1280, '1280 (720p)'], [1920, '1920 (1080p)'], [2560, '2560 (1440p)'], ['native', 'Native (every screen pixel, 4K on a 4K screen)']];
-  const now = () => `Drawing ${R.W} × ${R.H}` + (S.res === 'auto' ? ' (Auto)' : '');
-  modal('Picture detail', `<p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
+  const now = () => `Drawing ${R.W} × ${R.H}` + (S.res === 'auto' ? ' (Auto)' : '') + (MT.ws.length ? ` on ${MT.ws.length} cores` : ' on 1 core');
+  modal('Picture detail', `<p class="hint">Look:</p>
+  <div class="row"><button data-look="classic" class="${S.hudStyle === 'classic' ? 'on' : ''}">Classic (1993 pixels)</button><button data-look="modern" class="${S.hudStyle !== 'classic' ? 'on' : ''}">Modern (sharp)</button></div>
+  <p class="hint">Classic: the original chunky 320 picture and the pixel status bar. Modern: as sharp as your machine runs smoothly, a crisp status bar drawn at full screen resolution, and cleaned-up edges on the gun and the face.</p>
+  <p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
   <div style="display:grid;gap:6px;margin:8px 0">${opts.map(([k, n]) => `<button data-rs="${k}" class="${String(S.res) === String(k) ? 'on' : ''}">${n}</button>`).join('')}</div>
   <label class="chk"><input type="checkbox" id="rsSm" ${S.smooth ? 'checked' : ''}>Smooth the pixels when stretching (softer, less blocky)</label>
+  <p class="hint">Use all CPU cores (draws the view on ${mtThreads()} cores at once, for high detail and 4K):</p>
+  <div class="row">${[['auto', 'Auto'], ['on', 'Always'], ['off', 'Off (one core)']].map(([k, n]) => `<button data-th="${k}" class="${(S.threads || 'auto') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <p class="hint" id="rsNow">${now()}</p>`, [{ cancel: 1, title: 'Close' }]);
   setTimeout(() => {
     document.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { const v = b.dataset.rs; S.res = v === 'auto' || v === 'native' ? v : +v; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
+    document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const m = b.dataset.look; S.hudStyle = m; S.res = m === 'classic' ? 320 : 'auto'; S.smooth = false; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-look]').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x.dataset.rs === String(S.res))); $('#rsSm').checked = false; $('#rsNow').textContent = now(); });
+    document.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { S.threads = b.dataset.th; MT.failed = false; saveSettings(); document.querySelectorAll('[data-th]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
     $('#rsSm').onchange = e => { S.smooth = e.target.checked; saveSettings(); layoutGame(); };
   }, 0);
 }
@@ -38,7 +45,8 @@ function layoutGame() {
   const dev = Math.round(vw * (devicePixelRatio || 1)), want = S.res === 'auto' ? (GL.autoRes || S.autoRes || 960) : S.res === 'native' ? dev : +S.res || 320;
   const rw = Math.max(160, Math.min(want, dev)), rh = Math.max(100, Math.round(rw * vh / vw));
   cv.style.imageRendering = S.smooth ? 'auto' : 'pixelated';
-  cv.width = rw; cv.height = rh; rSetup(rw, rh);
+  // the screen canvas is always full sharpness: the 3D view is scaled up onto it, and the status bar, gun and text are drawn at full resolution on top
+  const dpr = devicePixelRatio || 1; cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr); rSetup(rw, rh);
   const pos = ctlPos();
   document.querySelectorAll('#ctls .ctl').forEach(el => {
     const p = pos[el.dataset.c]; el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.transform = `translate(-50%,-50%) scale(${p.s})`;
@@ -55,6 +63,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  if (typeof mtStop === "function") mtStop();
   if (window.__firstRunLater) { window.__firstRunLater = 0; setTimeout(firstRun, 300); }
   LIM.on = false;
   if (EODP.playOnly) { eodLeavePlay(); return; }
@@ -65,12 +74,15 @@ function exitGame() {
   if (wasVisual) { mapChanged(); }
   edResize();
 }
+function restartLevel() { if (!G) return; const mode = G.mode, p1 = realStart(); $('#gover').hidden = true; initGame(mode, { x: p1.x, y: p1.y, a: p1.a }); }
 function showOver() {
+  if (document.pointerLockElement) document.exitPointerLock(); // give the mouse back so the buttons can be clicked
+  IN.keys.clear(); IN.fire = false;
   const o = $('#gover'); o.hidden = false; const g = G.over;
   const pct = (a, b) => b ? Math.round(a * 100 / b) + '%' : '—';
-  if (g.k === 'dead') o.innerHTML = `<div class="box"><h1>YOU DIED</h1><p>Tap the green check to try again.</p><div class="row"><button class="okbtn" id="ovOk"></button><button class="cancelbtn" id="ovX"></button></div></div>`;
+  if (g.k === 'dead') o.innerHTML = `<div class="box"><h1>YOU DIED</h1><p>Click the green check (or press Enter) to try again.<br>Red arrow (or Esc) goes back to the editor.</p><div class="row"><button class="okbtn" id="ovOk"></button><button class="cancelbtn" id="ovX"></button></div></div>`;
   else o.innerHTML = `<div class="box"><h1>${g.secret ? 'SECRET EXIT!' : 'LEVEL COMPLETE'}</h1><div>${esc(M.name)}</div><div class="stats">KILLS&nbsp;&nbsp; ${pct(G.kills, G.totK)}<br>ITEMS&nbsp;&nbsp; ${pct(G.items, G.totI)}<br>SECRET&nbsp; ${pct(G.secrets, G.totS)}<br>TIME&nbsp;&nbsp;&nbsp; ${Math.floor(g.time / 60)}:${String(Math.floor(g.time % 60)).padStart(2, '0')}</div><div class="row"><button class="okbtn" id="ovOk" title="Play again"></button><button class="cancelbtn" id="ovX" title="Back to editor"></button></div></div>`;
-  $('#ovOk').onclick = () => { const p1 = realStart(); o.hidden = true; initGame('play', { x: p1.x, y: p1.y, a: p1.a }); };
+  $('#ovOk').onclick = () => restartLevel();
   $('#ovX').onclick = () => exitGame();
 }
 
@@ -123,11 +135,12 @@ function gameSprites() {
 }
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
-  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) }, G.sc, gameSprites());
-  R.ctx.putImageData(R.img, 0, 0);
-  const cv = $('#gv'), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
-  g.drawImage(R.cv, 0, 0);
-  const W = cv.width, H = cv.height; void sec;
+  const cam = { x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) };
+  const mt = mtDraw(cam, gameSprites());
+  if (!mt) { render3D(cam, G.sc, gameSprites()); R.ctx.putImageData(R.img, 0, 0); }
+  const cv = $('#gv'), g = cv.getContext('2d'), W = cv.width, H = cv.height; void sec;
+  g.imageSmoothingEnabled = !!S.smooth; if (S.smooth) g.imageSmoothingQuality = 'high';
+  g.drawImage(R.cv, 0, 0, W, H); g.imageSmoothingEnabled = false;
   // tints
   if (p.hurt > 0) { g.fillStyle = `rgba(255,0,0,${Math.min(0.5, p.hurt / 40)})`; g.fillRect(0, 0, W, H); }
   if (G.bonus > 0) { g.fillStyle = 'rgba(255,220,80,0.18)'; g.fillRect(0, 0, W, H); }
@@ -143,17 +156,21 @@ function drawGame() {
   }
   if (G.mode === 'play') { g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(W / 2 - 3 * u, H / 2); g.lineTo(W / 2 + 3 * u, H / 2); g.moveTo(W / 2, H / 2 - 3 * u); g.lineTo(W / 2, H / 2 + 3 * u); g.stroke(); }
   g.textAlign = 'left'; g.font = `${7 * u}px monospace`; g.fillStyle = '#fff';
-  G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
+  if (hudModern()) g.font = `800 ${Math.round(6.5 * u)}px "Segoe UI", Arial, sans-serif`;
+  G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = hudModern() ? '#fff' : '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
   if (G.automap) drawAutomap(g, W, H);
   drawLimitsHud(g, W, H, u);
+  return mt;
 }
 function drawWeaponRes(g, W, H, u, bx, by) {
   const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
   const firing = p.fireT > 0, fr = firing ? ws[2][Math.min(ws[2].length - 1, Math.floor((6 - p.fireT) / 2))] : ws[1][Math.floor(G.tic / 4) % ws[1].length];
   const main = getSpriteFrame(ws[0], fr, 0); if (!main) return false;
   const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168), viewBottom = H - hh;
-  const put = f => { if (!f) return; const img = f.img; g.drawImage(spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
+  const modern = hudModern(); if (modern) { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; }
+  const put = f => { if (!f) return; const img = f.img; g.drawImage(modern ? hqCanvas(img) : spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
   put(main); if (firing && p.fireT > 2 && ws[3]) put(getSpriteFrame(ws[3], ws[4][Math.min(ws[4].length - 1, Math.floor((6 - p.fireT) / 2))], 0));
+  g.imageSmoothingEnabled = false;
   return true;
 }
 function drawWeapon(g, W, H, u) {
@@ -209,7 +226,7 @@ function drawAutomap(g, W, H) {
 
 /* ---------- Visual (3D) editing ---------- */
 function visualTarget() {
-  const i = (R.W >> 1) * R.H + (R.H >> 1), k = R.pk[i], idx = R.pi[i];
+  const vc = viewCenter(), k = vc.pk, idx = vc.pi;
   if (k === 4 || k === 5) return { kind: k === 4 ? 'floor' : 'ceil', sec: idx, label: (k === 4 ? 'Floor' : 'Ceiling') + ' · sector ' + idx + ' · ' + (k === 4 ? M.sec[idx].fh + ' ' + M.sec[idx].ft : M.sec[idx].ch + ' ' + M.sec[idx].ct) };
   if (k >= 1 && k <= 3) {
     const L = M.l[idx]; if (!L) return null; const p = G.p; const front = lineSide(L, p.x, p.y) < 0; const sd = front ? L.s1 : L.s2;
@@ -287,6 +304,7 @@ function gameUp(e) {
 function cycleWeapon(dir = 1) { const p = G.p; const list = [...p.has].sort((a, b) => a - b); const i = list.indexOf(p.w); p.w = list[(i + dir + list.length) % list.length]; msg(WEAPONS[p.w].name); sfx('switch'); }
 function gameKey(e, down) {
   if (!G || $('#game').hidden || !$('#modal').hidden) return;
+  if (down && !$('#gover').hidden) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#ovOk') && $('#ovOk').click(); } else if (e.key === 'Escape') { e.preventDefault(); $('#ovX') && $('#ovX').click(); } return; }
   const k = keyName(e);
   if (down) {
     setInputMode('kbm');

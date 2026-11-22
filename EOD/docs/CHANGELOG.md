@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.0 (vc20) — 2026-11-22 — all CPU cores, Modern look, sharp HUD, death-screen fix
+- **Multi-core 3D view.** The screen is cut into vertical strips and each strip is drawn by its own worker, one per spare CPU core (up to 8). The workers run the exact same drawing code as before (copied from the page when they start, so the two can never drift apart). Textures and sprites are sent to them once; each frame they get only the camera, sector heights/lights and the sprite list, and hand back their strip as a ready-made picture that is just pasted on screen. It switches on by itself above about 800×400 on machines with 3+ cores. Detail ▸ "Use all CPU cores": Auto / Always / Off.
+- **Classic or Modern look** (Detail button, top of the list). Classic = the 1993 chunky 320 picture and the pixel status bar. **Modern (new default)** = Auto detail, plus a new status bar drawn sharp at full screen resolution: big red numbers, HEALTH/ARMOR/AMMO labels, weapon numbers with the current one in a red chip, colored key chips, a clear ammo table, red-rimmed panels with chamfered corners. The marine's face and your gun are cleaned up with a pixel-art upscaler (Scale2x twice) so they're smooth, not blocky. Armor turns green/blue for green/blue armor.
+- **The whole screen canvas is now full resolution.** Before, the status bar, gun and text were drawn at the 3D view's low resolution and stretched with it. Now only the 3D view is scaled; everything on top is drawn sharp.
+- **Fix: couldn't click the YOU DIED buttons.** The mouse was still locked to the game when you died. The death and level-complete screens now release the mouse, and **Enter = try again, Esc = back to the editor**.
+- **New Restart button** in the game's top bar (asks first: green check / red undo).
+- **Kev's Water Plant: the lights-out trap** now dims the hall to about 40% instead of near-black, and the lights come back up when the Baron dies.
+- Checked: all 7 demo maps and a Freedoom map play; multi-core output matches single-core (walls, flats, sky, sprites, all glass types, aim point).
+
 ## v0.7.3 (vc19) — 2026-11-22 — faster at high detail
 - **The 3D view draws up to 2.3× faster at high detail.** The renderer works one screen column at a time, top to bottom, but it was storing pixels row by row. At big sizes every pixel landed far away in memory from the one before it, which stalls the CPU. The picture is now drawn into a column-ordered buffer and flipped into the screen image once per frame, in small 32×32 blocks.
 - Measured on the slow 2-core test machine: 1920 wide went from 41 to 32 ms a frame, and 2560 wide from 164 to 70 ms. Auto detail will now settle one or two steps sharper on the same machine.

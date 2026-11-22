@@ -2,7 +2,7 @@
 const R = { W: 0, H: 0 };
 function rSetup(w, h) {
   if (R.W === w && R.H === h) return;
-  R.W = w; R.H = h; R.cv = document.createElement('canvas'); R.cv.width = w; R.cv.height = h;
+  R.W = w; R.H = h; R.x0 = 0; R.x1 = w; R.cv = document.createElement('canvas'); R.cv.width = w; R.cv.height = h;
   R.ctx = R.cv.getContext('2d'); R.img = R.ctx.createImageData(w, h); R.out = new Uint32Array(R.img.data.buffer);
   // the renderer works column by column, so its buffers are column-major (o = x * H + y); rTranspose() copies to the row-major image once per frame
   R.buf = new Uint32Array(w * h);
@@ -36,7 +36,7 @@ function bucketLines(cam, L, W, proj) {
     else if (db < NEAR) { const t = (NEAR - db) / (da - db); sb_ += (sa_ - sb_) * t; db = NEAR; }
     const xa = half + sa_ / da * proj, xb = half + sb_ / db * proj;
     let lo = Math.floor(Math.min(xa, xb)) - 1, hi = Math.ceil(Math.max(xa, xb)) + 1;
-    if (lo < 0) lo = 0; if (hi > W - 1) hi = W - 1; if (lo > hi) { BX0[i] = 1; BX1[i] = 0; continue; }
+    if (lo < R.x0) lo = R.x0; if (hi > R.x1 - 1) hi = R.x1 - 1; if (lo > hi) { BX0[i] = 1; BX1[i] = 0; continue; }
     BX0[i] = lo; BX1[i] = hi; for (let x = lo; x <= hi; x++) BCNT[x]++; total += hi - lo + 1;
   }
   if (BLIST.length < total) BLIST = new Int32Array(Math.ceil(total * 1.3) + 64);
@@ -61,13 +61,13 @@ function rTranspose() {
 }
 function render3D(cam, sc, sprites) {
   if (LIM.on) { LIM.keys.clear(); LIM.frame++; LIM.segs = 0; if (LIM.segStamp.length < sc.lines.length) LIM.segStamp = new Int32Array(sc.lines.length); }
-  const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  const X0 = R.x0, X1 = R.x1, W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   const hz = H / 2 + (cam.pitch || 0), proj = Math.max(W * 0.5, H * 0.42), plane = (W / 2) / proj;
   const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, secs = sc.secs;
-  const sky = getSky(), cz = cam.z, px = cam.x, py = cam.y, tic = (performance.now() / 28.57) | 0;
-  const flats = secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(animFlat(s.ft, tic), true), c: s.ct === 'F_SKY1' ? null : getTex(animFlat(s.ct, tic), true) }));
+  const sky = cam.sky || getSky(), cz = cam.z, px = cam.x, py = cam.y, tic = cam.tic != null ? cam.tic : (performance.now() / 28.57) | 0;
+  const flats = cam.flats || secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(animFlat(s.ft, tic), true), c: s.ct === 'F_SKY1' ? null : getTex(animFlat(s.ct, tic), true) }));
   bucketLines(cam, L, W, proj); GLN = 0;
-  for (let x = 0; x < W; x++) {
+  for (let x = X0; x < X1; x++) {
     const cx = (2 * (x + 0.5) / W - 1) * plane, rdx = ca + sa * cx, rdy = sa - ca * cx;
     let nh = 0; const b0 = BOFF[x], b1 = BOFF[x + 1];
     if (b1 - b0 > HT.length) { const m = (b1 - b0) * 2; HT = new Float32Array(m); HU = new Float32Array(m); HI = new Int32Array(m); HD = new Float32Array(m); ORD = new Int32Array(m); }
@@ -116,7 +116,7 @@ function render3D(cam, sc, sprites) {
       bot = Math.min(bot, Math.ceil(Math.min(yf, yff)) - 1);
       cur = far.sec;
     }
-    if (!solid) for (let y = top; y <= bot; y++) { const o = x * H + y; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
+    if (!solid) for (let y = top; y <= bot; y++) { const o = (x - X0) * H + y; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
   }
   if (sprites) drawSprites(cam, sprites, hz, proj);
   glassComposite(cam, sc, hz, proj, flats, sky);
@@ -126,10 +126,10 @@ function render3D(cam, sc, sprites) {
 function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, skyCol) {
   if (ya > yb) return;
   if (LIM.on) limPlane(x, h, tex, li, ceil);
-  const H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  const X0 = R.x0, H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
-    for (let y = ya; y <= yb; y++) { const o = x * H + y; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
+    for (let y = ya; y <= yb; y++) { const o = (x - X0) * H + y; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
     return;
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
@@ -139,24 +139,24 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
     const dy = ceil ? (hz - (y + 0.5)) : ((y + 0.5) - hz); if (dy <= 0) continue;
     const d = dz * proj / dy; const wx = cam.x + rdx * d - scx, wy = cam.y + rdy * d - scy;
     const l = shadeLvl(li, d); if (l !== lastL) { sp = tex.shade(l); lastL = l; }
-    const o = x * H + y; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
+    const o = (x - X0) * H + y; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
     void tp;
   }
 }
 function wall3(x, ya, yb, tex, tu, ref, cz, hz, t, proj, lvl, kind, idx) {
   if (ya > yb) return;
-  const H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
-  if (!tex) { for (let y = ya; y <= yb; y++) { const o = x * H + y; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
+  const X0 = R.x0, H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  if (!tex) { for (let y = ya; y <= yb; y++) { const o = (x - X0) * H + y; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
   const sp = tex.shade(lvl), tw = tex.w, th = tex.h, col = ((Math.floor(tu) % tw) + tw) % tw;
   const step = t / proj; let z = cz - (ya + 0.5 - hz) * step;
   for (let y = ya; y <= yb; y++, z -= step) {
-    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = x * H + y;
+    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = (x - X0) * H + y;
     buf[o] = sp[v * tw + col]; dep[o] = t; pk[o] = kind; pi[o] = idx;
   }
 }
 // sprites: [{x,y,z,img,flip,bright,fuzz,id}]
 function drawSprites(cam, list, hz, proj) {
-  const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
+  const X0 = R.x0, W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
   const vis = [];
   for (const s of list) { const dx = s.x - cam.x, dy = s.y - cam.y, d = dx * ca + dy * sa; if (d < 4) continue; vis.push([d, dx * sa - dy * ca, s]); }
   vis.sort((a, b) => b[0] - a[0]); if (LIM.on) LIM.sprites = 0;
@@ -167,14 +167,14 @@ function drawSprites(cam, list, hz, proj) {
     const ox = img.ox != null ? img.ox : img.w / 2, oy = img.oy != null ? img.oy : img.h;
     const x0 = s.flip ? sx - (img.w - ox) * sc : sx - ox * sc;
     const yt = hz - (s.z - cam.z) * (proj / d) - oy * sc;
-    const xa = Math.max(0, Math.ceil(x0)), xb = Math.min(W - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
+    const xa = Math.max(X0, Math.ceil(x0)), xb = Math.min(R.x1 - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
     if (xa > xb || ya > yb) continue;
     let drew = false;
     const sp = img.shade(s.bright ? 15 : shadeLvl(s.light || 160, d)), iw = img.w, ih = img.h;
     for (let x = xa; x <= xb; x++) {
       let u = ((x - x0) / sw * iw) | 0; if (s.flip) u = iw - 1 - u; if (u < 0 || u >= iw) continue;
       for (let y = ya; y <= yb; y++) {
-        const o = x * H + y; if (dep[o] < d) continue;
+        const o = (x - X0) * H + y; if (dep[o] < d) continue;
         if (s.fuzz && ((x + y + tic) & 1)) continue;
         const v = ((y - yt) / sh * ih) | 0; if (v < 0 || v >= ih) continue;
         const c = sp[v * iw + u]; if (!c) continue;

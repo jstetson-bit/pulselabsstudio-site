@@ -139,6 +139,7 @@ function boot() {
   $('#tutSkip').onclick = () => { if (TUT) { TUT.i++; tutShow(); } }; $('#tutQuit').onclick = endTutorial;
   $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal') closeModal(); });
   $('#gControls').onclick = openControls; $('#gDetail').onclick = openDetail;
+  $('#gRestart').onclick = () => { if (document.pointerLockElement) document.exitPointerLock(); modal('Restart level?', '<p>Start this level over from the beginning?</p>', [{ ok: 1, title: 'Restart', fn: () => restartLevel() }, { cancel: 1 }]); };
   const gm = $('#game'); gm.addEventListener('wheel', e => { if (!G) return; e.preventDefault(); IN.tapped.add(e.deltaY < 0 ? 'wheelup' : 'wheeldown'); }, { passive: false });
   gm.addEventListener('contextmenu', e => e.preventDefault());
   gm.addEventListener('pointerdown', gameDown); gm.addEventListener('pointermove', gameMove); gm.addEventListener('pointerup', gameUp); gm.addEventListener('pointercancel', gameUp);

@@ -1,6 +1,6 @@
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.7.3', VC = 19;
+const VERSION = '0.8.0', VC = 20;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -27,7 +27,7 @@ function toast(msg, ms = 2400) {
 }
 
 /* ---------- settings ---------- */
-const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
+const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, hudStyle: 'modern', threads: 'auto', layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
 let S = Object.assign({}, DEF_SET, LS.get('settings', {}));
 if (!S.resV2) { if ([200, 320, 480].includes(S.res)) S.res = 'auto'; S.resV2 = 1; } // 0.7.2: old fixed detail levels move to Auto
 function saveSettings() { LS.set('settings', S); applySettings(); }

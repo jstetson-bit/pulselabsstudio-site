@@ -217,7 +217,7 @@ function activate(l, how, fromFront) {
   else if ([5, 101].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjCeil(s)));
   else if ([19, 102].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, highestAdjFloor(s)));
   else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { const who = G.actor || G.p; who.x = dst.x; who.y = dst.y; who.a = dst.a * Math.PI / 180; who.vx = who.vy = 0; if (!G.actor) { G.flash = 8; sfx('tele'); } else who.sec = gSectorAt(who.x, who.y); } else did = false; }
-  else if (sp === 35) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 35);
+  else if (sp === 35) { const v = (M.l[l.idx] && M.l[l.idx].lightTo) || 35; tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = v); }
   else if (sp === 13) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 255);
   else if ([11, 52, 51, 124].includes(sp)) { endLevel([51, 124].includes(sp)); }
   else did = false;
@@ -468,7 +468,7 @@ function gameFrame(now) {
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
-    const t0 = performance.now(); drawGame(); autoRes(performance.now() - t0);
+    const t0 = performance.now(); if (!drawGame()) autoRes(performance.now() - t0);
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }
   requestAnimationFrame(gameFrame);
 }

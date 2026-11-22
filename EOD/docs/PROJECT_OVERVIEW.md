@@ -14,6 +14,7 @@ A free, open web home for classic Doom mapping: an editor that feels like Ultima
 - **Demo maps** (`22_demomaps.js`): built in code. Horde options live on `M.start` (loadout, `hurt`, `power`, `waveAt`, `waveGap`); things with `wave: n` wait in `G.waveQ` and are released by `tickWaves()` in `09_game.js`.
 - **Freedoom maps** (`22_demomaps.js` FD_MAPS, `loadFreedoomMap`): `res/freedoom-maps.wad.gz` holds only THINGS/LINEDEFS/SIDEDEFS/VERTEXES/SECTORS of all 68 Freedoom maps (BSD). `editor.html?fd=MAP01&go=play`.
 - **Map triggers** (`M.triggers`, `runTrigger` in 09_game.js): `{kill: thingIndex, msg, flat:{tag,ft,sp}, flow:{tag,dx,dy}, light:{tag,li}, open: tag, waves: true}`. Sector `flow:[dx,dy]` scrolls from the start.
+- **Rendering** (`08_render.js`, `24_mtrender.js`): column raycaster into column-major buffers (`o = (x - R.x0) * H + y`) for a strip `[R.x0, R.x1)`. Single core: `rTranspose()` to the image. Multi-core: `mtSource()` copies the render functions into worker blobs; textures/sprites by id once; per frame camera + sectors + sprites; workers return ImageBitmap strips. The screen canvas `#gv` is device resolution; the 3D view `R.cv` (render resolution) is scaled onto it, HUD drawn on top. `S.hudStyle` classic/modern (`sbDrawModern`, `hqCanvas` = Scale2x×2).
 - **Play flow:** library → `editor.html?play=<id>` → browser downloads the map JSON → game runs locally → exit returns to the library. Plays are counted with a server function.
 
 ## Map permissions

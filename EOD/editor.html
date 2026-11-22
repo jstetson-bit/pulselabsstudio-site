@@ -168,7 +168,7 @@ a.brand{color:var(--text);text-decoration:none}
     <button id="gExit" class="cancelbtn" title="Back to editor"></button>
     <span id="gTitle"></span>
     <div class="grow"></div>
-    <button id="gDetail" class="tb" title="Picture detail">Detail</button><button id="gControls" class="tb">Controls</button><button id="gArrange" class="tb">Arrange</button>
+    <button id="gRestart" class="tb" title="Start this level over">Restart</button><button id="gDetail" class="tb" title="Picture detail">Detail</button><button id="gControls" class="tb">Controls</button><button id="gArrange" class="tb">Arrange</button>
     <button id="gInfo" class="ghostbtn" title="Manual"></button>
     <button id="gInvert" class="iconbtn" title="Invert colors"></button>
   </div>
@@ -196,7 +196,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.7.3', VC = 19;
+const VERSION = '0.8.0', VC = 20;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -223,7 +223,7 @@ function toast(msg, ms = 2400) {
 }
 
 /* ---------- settings ---------- */
-const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
+const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, hudStyle: 'modern', threads: 'auto', layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
 let S = Object.assign({}, DEF_SET, LS.get('settings', {}));
 if (!S.resV2) { if ([200, 320, 480].includes(S.res)) S.res = 'auto'; S.resV2 = 1; } // 0.7.2: old fixed detail levels move to Auto
 function saveSettings() { LS.set('settings', S); applySettings(); }
@@ -2064,7 +2064,7 @@ function firstRun() {
 const R = { W: 0, H: 0 };
 function rSetup(w, h) {
   if (R.W === w && R.H === h) return;
-  R.W = w; R.H = h; R.cv = document.createElement('canvas'); R.cv.width = w; R.cv.height = h;
+  R.W = w; R.H = h; R.x0 = 0; R.x1 = w; R.cv = document.createElement('canvas'); R.cv.width = w; R.cv.height = h;
   R.ctx = R.cv.getContext('2d'); R.img = R.ctx.createImageData(w, h); R.out = new Uint32Array(R.img.data.buffer);
   // the renderer works column by column, so its buffers are column-major (o = x * H + y); rTranspose() copies to the row-major image once per frame
   R.buf = new Uint32Array(w * h);
@@ -2098,7 +2098,7 @@ function bucketLines(cam, L, W, proj) {
     else if (db < NEAR) { const t = (NEAR - db) / (da - db); sb_ += (sa_ - sb_) * t; db = NEAR; }
     const xa = half + sa_ / da * proj, xb = half + sb_ / db * proj;
     let lo = Math.floor(Math.min(xa, xb)) - 1, hi = Math.ceil(Math.max(xa, xb)) + 1;
-    if (lo < 0) lo = 0; if (hi > W - 1) hi = W - 1; if (lo > hi) { BX0[i] = 1; BX1[i] = 0; continue; }
+    if (lo < R.x0) lo = R.x0; if (hi > R.x1 - 1) hi = R.x1 - 1; if (lo > hi) { BX0[i] = 1; BX1[i] = 0; continue; }
     BX0[i] = lo; BX1[i] = hi; for (let x = lo; x <= hi; x++) BCNT[x]++; total += hi - lo + 1;
   }
   if (BLIST.length < total) BLIST = new Int32Array(Math.ceil(total * 1.3) + 64);
@@ -2123,13 +2123,13 @@ function rTranspose() {
 }
 function render3D(cam, sc, sprites) {
   if (LIM.on) { LIM.keys.clear(); LIM.frame++; LIM.segs = 0; if (LIM.segStamp.length < sc.lines.length) LIM.segStamp = new Int32Array(sc.lines.length); }
-  const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  const X0 = R.x0, X1 = R.x1, W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   const hz = H / 2 + (cam.pitch || 0), proj = Math.max(W * 0.5, H * 0.42), plane = (W / 2) / proj;
   const ca = Math.cos(cam.a), sa = Math.sin(cam.a), L = sc.lines, secs = sc.secs;
-  const sky = getSky(), cz = cam.z, px = cam.x, py = cam.y, tic = (performance.now() / 28.57) | 0;
-  const flats = secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(animFlat(s.ft, tic), true), c: s.ct === 'F_SKY1' ? null : getTex(animFlat(s.ct, tic), true) }));
+  const sky = cam.sky || getSky(), cz = cam.z, px = cam.x, py = cam.y, tic = cam.tic != null ? cam.tic : (performance.now() / 28.57) | 0;
+  const flats = cam.flats || secs.map(s => ({ f: s.ft === 'F_SKY1' ? null : getTex(animFlat(s.ft, tic), true), c: s.ct === 'F_SKY1' ? null : getTex(animFlat(s.ct, tic), true) }));
   bucketLines(cam, L, W, proj); GLN = 0;
-  for (let x = 0; x < W; x++) {
+  for (let x = X0; x < X1; x++) {
     const cx = (2 * (x + 0.5) / W - 1) * plane, rdx = ca + sa * cx, rdy = sa - ca * cx;
     let nh = 0; const b0 = BOFF[x], b1 = BOFF[x + 1];
     if (b1 - b0 > HT.length) { const m = (b1 - b0) * 2; HT = new Float32Array(m); HU = new Float32Array(m); HI = new Int32Array(m); HD = new Float32Array(m); ORD = new Int32Array(m); }
@@ -2178,7 +2178,7 @@ function render3D(cam, sc, sprites) {
       bot = Math.min(bot, Math.ceil(Math.min(yf, yff)) - 1);
       cur = far.sec;
     }
-    if (!solid) for (let y = top; y <= bot; y++) { const o = x * H + y; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
+    if (!solid) for (let y = top; y <= bot; y++) { const o = (x - X0) * H + y; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
   }
   if (sprites) drawSprites(cam, sprites, hz, proj);
   glassComposite(cam, sc, hz, proj, flats, sky);
@@ -2188,10 +2188,10 @@ function render3D(cam, sc, sprites) {
 function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, skyCol) {
   if (ya > yb) return;
   if (LIM.on) limPlane(x, h, tex, li, ceil);
-  const H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  const X0 = R.x0, H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
-    for (let y = ya; y <= yb; y++) { const o = x * H + y; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
+    for (let y = ya; y <= yb; y++) { const o = (x - X0) * H + y; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
     return;
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
@@ -2201,24 +2201,24 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
     const dy = ceil ? (hz - (y + 0.5)) : ((y + 0.5) - hz); if (dy <= 0) continue;
     const d = dz * proj / dy; const wx = cam.x + rdx * d - scx, wy = cam.y + rdy * d - scy;
     const l = shadeLvl(li, d); if (l !== lastL) { sp = tex.shade(l); lastL = l; }
-    const o = x * H + y; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
+    const o = (x - X0) * H + y; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
     void tp;
   }
 }
 function wall3(x, ya, yb, tex, tu, ref, cz, hz, t, proj, lvl, kind, idx) {
   if (ya > yb) return;
-  const H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
-  if (!tex) { for (let y = ya; y <= yb; y++) { const o = x * H + y; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
+  const X0 = R.x0, H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  if (!tex) { for (let y = ya; y <= yb; y++) { const o = (x - X0) * H + y; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
   const sp = tex.shade(lvl), tw = tex.w, th = tex.h, col = ((Math.floor(tu) % tw) + tw) % tw;
   const step = t / proj; let z = cz - (ya + 0.5 - hz) * step;
   for (let y = ya; y <= yb; y++, z -= step) {
-    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = x * H + y;
+    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = (x - X0) * H + y;
     buf[o] = sp[v * tw + col]; dep[o] = t; pk[o] = kind; pi[o] = idx;
   }
 }
 // sprites: [{x,y,z,img,flip,bright,fuzz,id}]
 function drawSprites(cam, list, hz, proj) {
-  const W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
+  const X0 = R.x0, W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
   const vis = [];
   for (const s of list) { const dx = s.x - cam.x, dy = s.y - cam.y, d = dx * ca + dy * sa; if (d < 4) continue; vis.push([d, dx * sa - dy * ca, s]); }
   vis.sort((a, b) => b[0] - a[0]); if (LIM.on) LIM.sprites = 0;
@@ -2229,14 +2229,14 @@ function drawSprites(cam, list, hz, proj) {
     const ox = img.ox != null ? img.ox : img.w / 2, oy = img.oy != null ? img.oy : img.h;
     const x0 = s.flip ? sx - (img.w - ox) * sc : sx - ox * sc;
     const yt = hz - (s.z - cam.z) * (proj / d) - oy * sc;
-    const xa = Math.max(0, Math.ceil(x0)), xb = Math.min(W - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
+    const xa = Math.max(X0, Math.ceil(x0)), xb = Math.min(R.x1 - 1, Math.floor(x0 + sw)), ya = Math.max(0, Math.ceil(yt)), yb = Math.min(H - 1, Math.floor(yt + sh));
     if (xa > xb || ya > yb) continue;
     let drew = false;
     const sp = img.shade(s.bright ? 15 : shadeLvl(s.light || 160, d)), iw = img.w, ih = img.h;
     for (let x = xa; x <= xb; x++) {
       let u = ((x - x0) / sw * iw) | 0; if (s.flip) u = iw - 1 - u; if (u < 0 || u >= iw) continue;
       for (let y = ya; y <= yb; y++) {
-        const o = x * H + y; if (dep[o] < d) continue;
+        const o = (x - X0) * H + y; if (dep[o] < d) continue;
         if (s.fuzz && ((x + y + tic) & 1)) continue;
         const v = ((y - yt) / sh * ih) | 0; if (v < 0 || v >= ih) continue;
         const c = sp[v * iw + u]; if (!c) continue;
@@ -2466,7 +2466,7 @@ function activate(l, how, fromFront) {
   else if ([5, 101].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjCeil(s)));
   else if ([19, 102].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, highestAdjFloor(s)));
   else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { const who = G.actor || G.p; who.x = dst.x; who.y = dst.y; who.a = dst.a * Math.PI / 180; who.vx = who.vy = 0; if (!G.actor) { G.flash = 8; sfx('tele'); } else who.sec = gSectorAt(who.x, who.y); } else did = false; }
-  else if (sp === 35) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 35);
+  else if (sp === 35) { const v = (M.l[l.idx] && M.l[l.idx].lightTo) || 35; tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = v); }
   else if (sp === 13) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 255);
   else if ([11, 52, 51, 124].includes(sp)) { endLevel([51, 124].includes(sp)); }
   else did = false;
@@ -2717,7 +2717,7 @@ function gameFrame(now) {
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
-    const t0 = performance.now(); drawGame(); autoRes(performance.now() - t0);
+    const t0 = performance.now(); if (!drawGame()) autoRes(performance.now() - t0);
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }
   requestAnimationFrame(gameFrame);
 }
@@ -2742,13 +2742,20 @@ function autoRes(ms) {
 }
 function openDetail() {
   const opts = [['auto', 'Auto (sharpest that stays smooth)'], [320, 'Classic 320 (original Doom look)'], [640, '640'], [960, '960'], [1280, '1280 (720p)'], [1920, '1920 (1080p)'], [2560, '2560 (1440p)'], ['native', 'Native (every screen pixel, 4K on a 4K screen)']];
-  const now = () => `Drawing ${R.W} × ${R.H}` + (S.res === 'auto' ? ' (Auto)' : '');
-  modal('Picture detail', `<p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
+  const now = () => `Drawing ${R.W} × ${R.H}` + (S.res === 'auto' ? ' (Auto)' : '') + (MT.ws.length ? ` on ${MT.ws.length} cores` : ' on 1 core');
+  modal('Picture detail', `<p class="hint">Look:</p>
+  <div class="row"><button data-look="classic" class="${S.hudStyle === 'classic' ? 'on' : ''}">Classic (1993 pixels)</button><button data-look="modern" class="${S.hudStyle !== 'classic' ? 'on' : ''}">Modern (sharp)</button></div>
+  <p class="hint">Classic: the original chunky 320 picture and the pixel status bar. Modern: as sharp as your machine runs smoothly, a crisp status bar drawn at full screen resolution, and cleaned-up edges on the gun and the face.</p>
+  <p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
   <div style="display:grid;gap:6px;margin:8px 0">${opts.map(([k, n]) => `<button data-rs="${k}" class="${String(S.res) === String(k) ? 'on' : ''}">${n}</button>`).join('')}</div>
   <label class="chk"><input type="checkbox" id="rsSm" ${S.smooth ? 'checked' : ''}>Smooth the pixels when stretching (softer, less blocky)</label>
+  <p class="hint">Use all CPU cores (draws the view on ${mtThreads()} cores at once, for high detail and 4K):</p>
+  <div class="row">${[['auto', 'Auto'], ['on', 'Always'], ['off', 'Off (one core)']].map(([k, n]) => `<button data-th="${k}" class="${(S.threads || 'auto') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <p class="hint" id="rsNow">${now()}</p>`, [{ cancel: 1, title: 'Close' }]);
   setTimeout(() => {
     document.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { const v = b.dataset.rs; S.res = v === 'auto' || v === 'native' ? v : +v; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
+    document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const m = b.dataset.look; S.hudStyle = m; S.res = m === 'classic' ? 320 : 'auto'; S.smooth = false; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-look]').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x.dataset.rs === String(S.res))); $('#rsSm').checked = false; $('#rsNow').textContent = now(); });
+    document.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { S.threads = b.dataset.th; MT.failed = false; saveSettings(); document.querySelectorAll('[data-th]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
     $('#rsSm').onchange = e => { S.smooth = e.target.checked; saveSettings(); layoutGame(); };
   }, 0);
 }
@@ -2762,7 +2769,8 @@ function layoutGame() {
   const dev = Math.round(vw * (devicePixelRatio || 1)), want = S.res === 'auto' ? (GL.autoRes || S.autoRes || 960) : S.res === 'native' ? dev : +S.res || 320;
   const rw = Math.max(160, Math.min(want, dev)), rh = Math.max(100, Math.round(rw * vh / vw));
   cv.style.imageRendering = S.smooth ? 'auto' : 'pixelated';
-  cv.width = rw; cv.height = rh; rSetup(rw, rh);
+  // the screen canvas is always full sharpness: the 3D view is scaled up onto it, and the status bar, gun and text are drawn at full resolution on top
+  const dpr = devicePixelRatio || 1; cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr); rSetup(rw, rh);
   const pos = ctlPos();
   document.querySelectorAll('#ctls .ctl').forEach(el => {
     const p = pos[el.dataset.c]; el.style.left = p.x + '%'; el.style.top = p.y + '%'; el.style.transform = `translate(-50%,-50%) scale(${p.s})`;
@@ -2779,6 +2787,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  if (typeof mtStop === "function") mtStop();
   if (window.__firstRunLater) { window.__firstRunLater = 0; setTimeout(firstRun, 300); }
   LIM.on = false;
   if (EODP.playOnly) { eodLeavePlay(); return; }
@@ -2789,12 +2798,15 @@ function exitGame() {
   if (wasVisual) { mapChanged(); }
   edResize();
 }
+function restartLevel() { if (!G) return; const mode = G.mode, p1 = realStart(); $('#gover').hidden = true; initGame(mode, { x: p1.x, y: p1.y, a: p1.a }); }
 function showOver() {
+  if (document.pointerLockElement) document.exitPointerLock(); // give the mouse back so the buttons can be clicked
+  IN.keys.clear(); IN.fire = false;
   const o = $('#gover'); o.hidden = false; const g = G.over;
   const pct = (a, b) => b ? Math.round(a * 100 / b) + '%' : '—';
-  if (g.k === 'dead') o.innerHTML = `<div class="box"><h1>YOU DIED</h1><p>Tap the green check to try again.</p><div class="row"><button class="okbtn" id="ovOk"></button><button class="cancelbtn" id="ovX"></button></div></div>`;
+  if (g.k === 'dead') o.innerHTML = `<div class="box"><h1>YOU DIED</h1><p>Click the green check (or press Enter) to try again.<br>Red arrow (or Esc) goes back to the editor.</p><div class="row"><button class="okbtn" id="ovOk"></button><button class="cancelbtn" id="ovX"></button></div></div>`;
   else o.innerHTML = `<div class="box"><h1>${g.secret ? 'SECRET EXIT!' : 'LEVEL COMPLETE'}</h1><div>${esc(M.name)}</div><div class="stats">KILLS&nbsp;&nbsp; ${pct(G.kills, G.totK)}<br>ITEMS&nbsp;&nbsp; ${pct(G.items, G.totI)}<br>SECRET&nbsp; ${pct(G.secrets, G.totS)}<br>TIME&nbsp;&nbsp;&nbsp; ${Math.floor(g.time / 60)}:${String(Math.floor(g.time % 60)).padStart(2, '0')}</div><div class="row"><button class="okbtn" id="ovOk" title="Play again"></button><button class="cancelbtn" id="ovX" title="Back to editor"></button></div></div>`;
-  $('#ovOk').onclick = () => { const p1 = realStart(); o.hidden = true; initGame('play', { x: p1.x, y: p1.y, a: p1.a }); };
+  $('#ovOk').onclick = () => restartLevel();
   $('#ovX').onclick = () => exitGame();
 }
 
@@ -2847,11 +2859,12 @@ function gameSprites() {
 }
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
-  render3D({ x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) }, G.sc, gameSprites());
-  R.ctx.putImageData(R.img, 0, 0);
-  const cv = $('#gv'), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
-  g.drawImage(R.cv, 0, 0);
-  const W = cv.width, H = cv.height; void sec;
+  const cam = { x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) };
+  const mt = mtDraw(cam, gameSprites());
+  if (!mt) { render3D(cam, G.sc, gameSprites()); R.ctx.putImageData(R.img, 0, 0); }
+  const cv = $('#gv'), g = cv.getContext('2d'), W = cv.width, H = cv.height; void sec;
+  g.imageSmoothingEnabled = !!S.smooth; if (S.smooth) g.imageSmoothingQuality = 'high';
+  g.drawImage(R.cv, 0, 0, W, H); g.imageSmoothingEnabled = false;
   // tints
   if (p.hurt > 0) { g.fillStyle = `rgba(255,0,0,${Math.min(0.5, p.hurt / 40)})`; g.fillRect(0, 0, W, H); }
   if (G.bonus > 0) { g.fillStyle = 'rgba(255,220,80,0.18)'; g.fillRect(0, 0, W, H); }
@@ -2867,17 +2880,21 @@ function drawGame() {
   }
   if (G.mode === 'play') { g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(W / 2 - 3 * u, H / 2); g.lineTo(W / 2 + 3 * u, H / 2); g.moveTo(W / 2, H / 2 - 3 * u); g.lineTo(W / 2, H / 2 + 3 * u); g.stroke(); }
   g.textAlign = 'left'; g.font = `${7 * u}px monospace`; g.fillStyle = '#fff';
-  G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
+  if (hudModern()) g.font = `800 ${Math.round(6.5 * u)}px "Segoe UI", Arial, sans-serif`;
+  G.msgs.forEach((m, i) => { g.fillStyle = '#000'; g.fillText(m.t, 5 * u, (40 + i * 9) * u + u); g.fillStyle = hudModern() ? '#fff' : '#ff3'; g.fillText(m.t, 4 * u, (40 + i * 9) * u); });
   if (G.automap) drawAutomap(g, W, H);
   drawLimitsHud(g, W, H, u);
+  return mt;
 }
 function drawWeaponRes(g, W, H, u, bx, by) {
   const p = G.p, ws = WSPR[p.w]; if (!ws || !RES.packs.length || !resPal()) return false;
   const firing = p.fireT > 0, fr = firing ? ws[2][Math.min(ws[2].length - 1, Math.floor((6 - p.fireT) / 2))] : ws[1][Math.floor(G.tic / 4) % ws[1].length];
   const main = getSpriteFrame(ws[0], fr, 0); if (!main) return false;
   const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168), viewBottom = H - hh;
-  const put = f => { if (!f) return; const img = f.img; g.drawImage(spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
+  const modern = hudModern(); if (modern) { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; }
+  const put = f => { if (!f) return; const img = f.img; g.drawImage(modern ? hqCanvas(img) : spriteCanvas(img), W / 2 + (1 - (img.ox || 0) - 160) * s + bx, viewBottom - (136 + (img.oy || 0)) * s + by, img.w * s, img.h * s); };
   put(main); if (firing && p.fireT > 2 && ws[3]) put(getSpriteFrame(ws[3], ws[4][Math.min(ws[4].length - 1, Math.floor((6 - p.fireT) / 2))], 0));
+  g.imageSmoothingEnabled = false;
   return true;
 }
 function drawWeapon(g, W, H, u) {
@@ -2933,7 +2950,7 @@ function drawAutomap(g, W, H) {
 
 /* ---------- Visual (3D) editing ---------- */
 function visualTarget() {
-  const i = (R.W >> 1) * R.H + (R.H >> 1), k = R.pk[i], idx = R.pi[i];
+  const vc = viewCenter(), k = vc.pk, idx = vc.pi;
   if (k === 4 || k === 5) return { kind: k === 4 ? 'floor' : 'ceil', sec: idx, label: (k === 4 ? 'Floor' : 'Ceiling') + ' · sector ' + idx + ' · ' + (k === 4 ? M.sec[idx].fh + ' ' + M.sec[idx].ft : M.sec[idx].ch + ' ' + M.sec[idx].ct) };
   if (k >= 1 && k <= 3) {
     const L = M.l[idx]; if (!L) return null; const p = G.p; const front = lineSide(L, p.x, p.y) < 0; const sd = front ? L.s1 : L.s2;
@@ -3011,6 +3028,7 @@ function gameUp(e) {
 function cycleWeapon(dir = 1) { const p = G.p; const list = [...p.has].sort((a, b) => a - b); const i = list.indexOf(p.w); p.w = list[(i + dir + list.length) % list.length]; msg(WEAPONS[p.w].name); sfx('switch'); }
 function gameKey(e, down) {
   if (!G || $('#game').hidden || !$('#modal').hidden) return;
+  if (down && !$('#gover').hidden) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#ovOk') && $('#ovOk').click(); } else if (e.key === 'Escape') { e.preventDefault(); $('#ovX') && $('#ovX').click(); } return; }
   const k = keyName(e);
   if (down) {
     setInputMode('kbm');
@@ -3188,6 +3206,7 @@ function boot() {
   $('#tutSkip').onclick = () => { if (TUT) { TUT.i++; tutShow(); } }; $('#tutQuit').onclick = endTutorial;
   $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal') closeModal(); });
   $('#gControls').onclick = openControls; $('#gDetail').onclick = openDetail;
+  $('#gRestart').onclick = () => { if (document.pointerLockElement) document.exitPointerLock(); modal('Restart level?', '<p>Start this level over from the beginning?</p>', [{ ok: 1, title: 'Restart', fn: () => restartLevel() }, { cancel: 1 }]); };
   const gm = $('#game'); gm.addEventListener('wheel', e => { if (!G) return; e.preventDefault(); IN.tapped.add(e.deltaY < 0 ? 'wheelup' : 'wheeldown'); }, { passive: false });
   gm.addEventListener('contextmenu', e => e.preventDefault());
   gm.addEventListener('pointerdown', gameDown); gm.addEventListener('pointermove', gameMove); gm.addEventListener('pointerup', gameUp); gm.addEventListener('pointercancel', gameUp);
@@ -3297,6 +3316,7 @@ addEventListener('gamepaddisconnected', () => toast('Controller disconnected'));
 /* ---------- mouse + keyboard hooks on the game screen ---------- */
 function gameMouseDown(e) {
   if (e.pointerType !== 'mouse') return false;
+  if (!$('#gover').hidden) return true;
   setInputMode('kbm');
   const gv = $('#gv');
   if (!document.pointerLockElement && gv.requestPointerLock) { try { const r = gv.requestPointerLock(); if (r && r.catch) r.catch(() => { }); } catch (er) { } return true; }
@@ -4285,7 +4305,7 @@ function reflSample(sc, flats, sky, cam, hz, proj, y, t, ns, hx, hy, rx, ry) {
 }
 function glassComposite(cam, sc, hz, proj, flats, sky) {
   if (!GLN) return;
-  const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, cz = cam.z, secs = sc.secs;
+  const X0 = R.x0, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, cz = cam.z, secs = sc.secs;
   for (let n = GLN - 1; n >= 0; n--) {
     const x = GX[n], ya = GA[n], yb = GB[n], t = GT[n], l = sc.lines[GI[n]], g = l.gl, ns = GS[n], rdx = GRX[n], rdy = GRY[n];
     const S0 = secs[ns]; if (!S0 || !g) continue;
@@ -4303,7 +4323,7 @@ function glassComposite(cam, sc, hz, proj, flats, sky) {
     }
     let z = cz - (ya + 0.5 - hz) * step;
     for (let y = ya; y <= yb; y++, z -= step) {
-      const o = x * R.H + y; if (dep[o] < t - 0.5) continue;
+      const o = (x - X0) * R.H + y; if (dep[o] < t - 0.5) continue;
       const bc = buf[o]; let r, gg, b;
       let cr = tr, cg = tg, cb = tb;
       if (pat) { const c = texAt(pat, lvl, uu + side.xo, -z + side.yo); if (c >>> 24) { cr = c & 255; cg = (c >> 8) & 255; cb = (c >> 16) & 255; } }
@@ -4896,7 +4916,7 @@ function buildWaterMap() {
   // the clogged pipe: green glass all round, the demon stuck inside
   sectorLines(Pipe).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) L.glass = Object.assign({}, GLASS_PRESETS['Clear window'], { col: '#4a9a2a', op: 55, rs: 20, hp: 120 }); });
   // traps: drop into the hall and the lights die; step into the pump room and the closets open
-  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; }
+  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; }
   const tp = demoLine(704, 2320, 832, 2320); if (tp >= 0) { M.l[tp].sp = 2; M.l[tp].tag = 20; }
   const k = demoLine(704, 3344, 832, 3344); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // things
@@ -4909,7 +4929,7 @@ function buildWaterMap() {
   T(3002, 448, 2470, 0, 7); T(3002, 448, 2560, 0, 7); T(69, 1088, 2510, 180, 7);
   T(2048, 600, 2360); T(2046, 940, 2360); T(2003, 940, 2650); T(2012, 600, 2650);
   const bi = M.t.length; T(3003, 768, 2504, 270, 7 | 8);
-  M.triggers = [{ kill: bi, msg: 'The plumbing is clear! The water runs blue and flows again. Now get out.', flat: { tag: 10, ft: 'FWATER1', sp: 0 }, flow: { tag: 12, dx: 0, dy: 2 }, open: 30, waves: true }];
+  M.triggers = [{ kill: bi, msg: 'The plumbing is clear! The water runs blue and flows again. Now get out.', flat: { tag: 10, ft: 'FWATER1', sp: 0 }, flow: { tag: 12, dx: 0, dy: 2 }, light: { tag: 40, li: 192 }, open: 30, waves: true }];
   M.triggers.push({ kill: bi, flat: { tag: 12, ft: 'FWATER1', sp: 0 } });
   // the way out: waves come for you in the clearwell yard once the water runs
   [[400, 3100, 3004], [1150, 3100, 3004], [400, 2900, 3001], [1150, 2900, 3001], [500, 3200, 9], [1050, 3200, 9], [768, 3250, 3002]].forEach(([x, y, t]) => T(t, x, y, 270, 7, 1));
@@ -4961,7 +4981,7 @@ function sbReady() { return !!(RES.packs.length && resPal() && sbPic('STBAR') &&
 // height of the status bar on screen; weapons and the automap sit above it
 function hudHeight(W, H) {
   const u = Math.max(1, Math.round(W / 320));
-  if (S.statusBar !== 'slim' && G && G.mode === 'play' && sbReady()) return Math.round(32 * sbScale(W, H));
+  if (S.statusBar !== 'slim' && G && G.mode === 'play' && (sbReady() || hudModern())) return Math.round(32 * sbScale(W, H));
   return 20 * u;
 }
 function sbScale(W, H) { const mode = !S.statusBar || S.statusBar === 'auto' ? (innerHeight < 560 ? 'compact' : 'classic') : S.statusBar; const big = { classic: 0.2, compact: 0.13 }[mode] || 0.2; return Math.min(W / 320, H * big / 32); }
@@ -4990,9 +5010,54 @@ function faceName() {
   if ((p.fireHeld || 0) > 70) return 'STFKILL' + l;
   return 'STFST' + l + (f.look || 0);
 }
+/* ---- Modern look: everything drawn sharp at full screen resolution ---- */
+function hudModern() { return S.hudStyle === 'modern'; }
+// Scale2x twice: pixel art blown up 4x with its edges cleaned (no blur, no jaggies); cached per picture
+function hqCanvas(img) {
+  if (img.hqc) return img.hqc; const src = spriteCanvas(img);
+  const up = (c) => { const w = c.width, h = c.height, a = new Uint32Array(c.getContext('2d').getImageData(0, 0, w, h).data.buffer), o = document.createElement('canvas'); o.width = w * 2; o.height = h * 2; const od = o.getContext('2d').createImageData(w * 2, h * 2), b = new Uint32Array(od.data.buffer), W2 = w * 2;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const E = a[y * w + x], B = y ? a[(y - 1) * w + x] : E, Hh = y < h - 1 ? a[(y + 1) * w + x] : E, D = x ? a[y * w + x - 1] : E, F = x < w - 1 ? a[y * w + x + 1] : E;
+      let e0 = E, e1 = E, e2 = E, e3 = E; if (B !== Hh && D !== F) { e0 = D === B ? D : E; e1 = B === F ? F : E; e2 = D === Hh ? D : E; e3 = Hh === F ? F : E; }
+      const o0 = y * 2 * W2 + x * 2; b[o0] = e0; b[o0 + 1] = e1; b[o0 + W2] = e2; b[o0 + W2 + 1] = e3; }
+    o.getContext('2d').putImageData(od, 0, 0); return o; };
+  return img.hqc = up(up(src));
+}
+function chopRect(g, x, y, w, h, c) { g.beginPath(); g.moveTo(x + c, y); g.lineTo(x + w, y); g.lineTo(x + w, y + h - c); g.lineTo(x + w - c, y + h); g.lineTo(x, y + h); g.lineTo(x, y + c); g.closePath(); }
+function sbDrawModern(g, W, H) {
+  const p = G.p, wd = WEAPONS[p.w], s = sbScale(W, H), bh = Math.round(32 * s), bw = Math.min(W, 320 * s * 1.0), x0 = Math.round((W - bw) / 2), y0 = H - bh, k = bw / 320;
+  const RED = '#e0262d', DIM = 'rgba(255,255,255,.28)', F = (px, wgt = 900) => `${wgt} ${Math.round(px)}px "Arial Black", "Segoe UI", Impact, sans-serif`;
+  // full-width plate
+  const gr = g.createLinearGradient(0, y0, 0, H); gr.addColorStop(0, '#1b1416'); gr.addColorStop(1, '#0b0809'); g.fillStyle = gr; g.fillRect(0, y0, W, bh);
+  g.fillStyle = RED; g.fillRect(0, y0, W, Math.max(2, Math.round(s * 0.6)));
+  const box = (bx, bwid, label) => { const X = x0 + bx * k, Y = y0 + 3 * k, Wd = bwid * k, Hd = bh - 6 * k; chopRect(g, X, Y, Wd, Hd, 4 * k); g.fillStyle = 'rgba(0,0,0,.45)'; g.fill(); g.strokeStyle = 'rgba(224,38,45,.75)'; g.lineWidth = Math.max(1, k * 0.6); g.stroke();
+    if (label) { g.font = F(4.6 * k, 700); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(label, X + Wd / 2, Y + Hd - 2.2 * k); } return { X, Y, Wd, Hd }; };
+  const num = (b, v, pct, col) => { g.font = F(15 * k); g.textAlign = 'center'; g.fillStyle = col || RED; g.shadowColor = 'rgba(224,38,45,.55)'; g.shadowBlur = 4 * k; const t = String(Math.max(0, v | 0)) + (pct ? '%' : ''); g.fillText(t, b.X + b.Wd / 2, b.Y + b.Hd * 0.62); g.shadowBlur = 0; };
+  const a = box(1, 46, 'AMMO'); if (wd && wd.ammo) num(a, p.ammo[wd.ammo]); else { g.font = F(9 * k); g.fillStyle = DIM; g.textAlign = 'center'; g.fillText('∞', a.X + a.Wd / 2, a.Y + a.Hd * 0.6); }
+  num(box(49, 54, 'HEALTH'), p.hp, true, p.hp <= 25 ? '#ff4040' : RED);
+  // arms 2-7
+  const ar = box(105, 37, ''); G.armsRect = { x: ar.X, y: ar.Y, w: ar.Wd, h: ar.Hd };
+  for (let i = 2; i <= 7; i++) { const c = (i - 2) % 3, r = Math.floor((i - 2) / 3), cx = ar.X + ar.Wd * (c + 0.5) / 3, cy = ar.Y + ar.Hd * (r + 0.5) / 2, have = p.has.has(i) || (i === 3 && p.has.has(4)) || (i === 2 && p.has.has(1)), cur = p.w === i || (i === 3 && p.w === 4) || (i === 2 && p.w === 1);
+    if (cur) { chopRect(g, cx - 5 * k, cy - 5.5 * k, 10 * k, 11 * k, 2 * k); g.fillStyle = RED; g.fill(); }
+    g.font = F(8 * k); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = cur ? '#fff' : have ? '#fff' : DIM; g.fillText(String(i), cx, cy + 0.5 * k); g.textBaseline = 'alphabetic'; }
+  // the marine
+  const fb = box(144, 33, ''), fp = sbPic(faceName());
+  if (fp) { const img = fp.img, sc = Math.min(fb.Wd / img.w, fb.Hd / img.h) * 0.98; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(hqCanvas(img), fb.X + (fb.Wd - img.w * sc) / 2, fb.Y + (fb.Hd - img.h * sc) / 2, img.w * sc, img.h * sc); g.imageSmoothingEnabled = false; }
+  num(box(179, 54, 'ARMOR'), p.armor, true, p.at === 2 ? '#4d8bff' : p.armor ? '#3fbf4a' : RED);
+  // keys
+  const kb = box(235, 13, ''); [['b', '#3b6cff'], ['y', '#f2c200'], ['r', RED]].forEach(([kk, c], i) => { const Y = kb.Y + kb.Hd * (0.18 + i * 0.3); if (p.keys.has(kk)) { chopRect(g, kb.X + kb.Wd * 0.22, Y, kb.Wd * 0.56, kb.Hd * 0.2, 1.5 * k); g.fillStyle = c; g.fill(); } else { g.strokeStyle = 'rgba(255,255,255,.15)'; chopRect(g, kb.X + kb.Wd * 0.22, Y, kb.Wd * 0.56, kb.Hd * 0.2, 1.5 * k); g.stroke(); } });
+  // ammo table
+  const tb = box(250, 69, '');
+  [['BULL', 'bullets'], ['SHEL', 'shells'], ['RCKT', 'rockets'], ['CELL', 'cells']].forEach(([lab, a2], i) => { const Y = tb.Y + tb.Hd * (0.2 + i * 0.235), cur = wd && wd.ammo === a2;
+    g.font = F(4.8 * k, 800); g.textAlign = 'left'; g.fillStyle = cur ? RED : '#fff'; g.fillText(lab, tb.X + 3 * k, Y + 1.6 * k);
+    g.textAlign = 'right'; g.font = F(5.6 * k, 800); g.fillStyle = '#fff'; g.fillText(`${p.ammo[a2] | 0}`, tb.X + tb.Wd * 0.66, Y + 1.8 * k); g.fillStyle = DIM; g.fillText(`/ ${p.max[a2] | 0}`, tb.X + tb.Wd - 3 * k, Y + 1.8 * k); });
+  // side panels on wide screens: weapon, kills, items
+  if (x0 > 80) { const lines = [(wd ? wd.name : '').toUpperCase(), 'KILLS ' + G.kills + ' / ' + G.totK, 'ITEMS ' + G.items + ' / ' + G.totI]; let fs = Math.min(bh / 5, 8 * k); g.font = F(fs, 800); const mw = Math.max(...lines.map(t => g.measureText(t).width)); if (mw > x0 - 24) fs *= (x0 - 24) / mw; g.font = F(fs, 800); g.textAlign = 'left'; lines.forEach((t, i) => { g.fillStyle = i ? '#fff' : RED; g.fillText(t, 14, y0 + bh * (0.32 + i * 0.27)); }); }
+  g.textAlign = 'left'; return true;
+}
 /* ---- drawing ---- */
 function drawStatusBar(g, W, H) {
   if (G) G.armsRect = null;
+  if (hudModern() && S.statusBar !== 'slim' && G.mode === 'play') return sbDrawModern(g, W, H);
   if (S.statusBar === 'slim' || !sbReady()) return false;
   const s = sbScale(W, H), bw = 320 * s, bh = 32 * s, x0 = Math.round((W - bw) / 2), y0 = Math.round(H - bh), p = G.p, wd = WEAPONS[p.w];
   g.imageSmoothingEnabled = false;
@@ -5023,6 +5088,128 @@ function drawStatusBar(g, W, H) {
   }
   return true;
 }
+
+/* ================= MULTI-CORE 3D VIEW =================
+   The 3D view is drawn one screen column at a time, and every column is independent.
+   So the screen is cut into vertical strips and each strip is drawn by its own worker
+   (one per spare CPU core). The workers run the very same render functions as the
+   single-core path: their source is copied from this page when the workers start, so
+   the two can never drift apart. Each worker hands back its strip as an ImageBitmap,
+   which the main thread just pastes; nothing big is copied per frame.
+   Textures and sprite pictures go to the workers once (by id) and stay there. */
+const MT = { ws: [], n: 0, busy: false, failed: false, texId: new WeakMap(), texN: 0, sent: new Set(), sc: null, sceneV: 0, lineSig: null, strips: null, pending: 0, t0: 0, ms: 0, center: null, gen: 0 };
+
+function mtThreads() { return Math.max(2, Math.min(8, (navigator.hardwareConcurrency || 4) - 1)); }
+function mtWanted() {
+  return !MT.failed && S.threads !== 'off' && typeof Worker !== 'undefined' && typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap !== 'undefined'
+    && (S.threads === 'on' || (navigator.hardwareConcurrency || 2) >= 3) && !LIM.on && R.W * R.H >= (S.threads === 'on' ? 0 : 300000);
+}
+function mtSource() {
+  const fns = [shadeLvl, texObj, bucketLines, limPlane, render3D, plane3, wall3, drawSprites, glassRec, reflectHits, texAt, reflSample, glassComposite, glassLive];
+  return `'use strict';
+const clamp = ${clamp.toString()};
+const R = { W: 0, H: 0, x0: 0, x1: 0, buf: null, dep: null, pk: null, pi: null };
+let HT = new Float32Array(8192), HU = new Float32Array(8192), HI = new Int32Array(8192), HD = new Float32Array(8192), ORD = new Int32Array(8192);
+let BX0 = new Int32Array(0), BX1 = new Int32Array(0), BCNT = new Int32Array(0), BOFF = new Int32Array(0), BLIST = new Int32Array(0);
+const LIM = { on: false, keys: new Map(), segStamp: new Int32Array(0), frame: 0, segs: 0, sprites: 0, visplanes: 0 }; let texIdN = 0;
+let GLN = 0, GX = new Int32Array(1024), GA = new Int32Array(1024), GB = new Int32Array(1024), GT = new Float32Array(1024), GU = new Float32Array(1024), GI = new Int32Array(1024), GS = new Int32Array(1024), GRX = new Float32Array(1024), GRY = new Float32Array(1024);
+let RHS = new Float32Array(64), RHU = new Float32Array(64), RHI = new Int32Array(64), RHD = new Float32Array(64), RHN = 0, RSTAMP = new Int32Array(0), RST = 0;
+const GCS = ${GCS};
+let G = null, GLAST = null;
+const TX = new Map(), GRAY = texObj(8, 8, new Uint32Array(64).fill(0xff505050));
+function getSky() { return GRAY; }
+function getTex() { return GRAY; }
+function rTranspose() { }
+${fns.map(f => f.toString()).join('\n')}
+let L = [], SC = { lines: L, secs: [] }, OC = null, OX = null, OIMG = null;
+const tx = id => id < 0 ? null : (TX.get(id) || GRAY);
+function side(s) { return s ? { sec: s[0], xo: s[1], yo: s[2], upT: tx(s[3]), midT: tx(s[4]), loT: tx(s[5]) } : null; }
+onmessage = e => {
+  const m = e.data;
+  for (const t of m.tex || []) { const o = texObj(t.w, t.h, t.px); if (t.ox != null) { o.ox = t.ox; o.oy = t.oy; } TX.set(t.id, o); }
+  if (m.scene) { L = m.scene.map(a => ({ idx: a[0], ax: a[1], ay: a[2], bx: a[3], by: a[4], ex: a[3] - a[1], ey: a[4] - a[2], len: Math.hypot(a[3] - a[1], a[4] - a[2]), f: a[5], s1: side(a[6]), s2: side(a[7]), gl: null })); SC.lines = L; }
+  for (const [i, s1, s2] of m.sides || []) { const l = L[i]; if (l) { l.s1 = side(s1); l.s2 = side(s2); } }
+  if (!m.frame) return;
+  const f = m.frame, W = f.W, H = f.H, sw = f.x1 - f.x0;
+  for (const l of L) l.gl = null; for (const [i, g] of f.glass) if (L[i]) L[i].gl = g;
+  if (!R.buf || R.buf.length !== sw * H) { R.buf = new Uint32Array(sw * H); R.dep = new Float32Array(sw * H); R.pk = new Uint8Array(sw * H); R.pi = new Int32Array(sw * H); }
+  R.W = W; R.H = H; R.x0 = f.x0; R.x1 = f.x1;
+  const secs = f.secs; G = { secs }; SC.secs = secs;
+  const flats = f.flats.map(([a, b]) => ({ f: tx(a), c: tx(b) }));
+  const sprites = f.sprites.map(s => (s.img = TX.get(s.img), s)).filter(s => s.img);
+  const t0 = performance.now();
+  render3D({ x: f.x, y: f.y, z: f.z, a: f.a, sec: f.sec, pitch: f.pitch, tic: f.tic, sky: tx(f.sky) || GRAY, flats }, SC, sprites);
+  if (!OC || OC.width !== sw || OC.height !== H) { OC = new OffscreenCanvas(sw, H); OX = OC.getContext('2d'); OIMG = OX.createImageData(sw, H); }
+  const out = new Uint32Array(OIMG.data.buffer), src = R.buf, B = 32;
+  for (let x0 = 0; x0 < sw; x0 += B) { const x1 = Math.min(sw, x0 + B); for (let y0 = 0; y0 < H; y0 += B) { const y1 = Math.min(H, y0 + B); for (let y = y0; y < y1; y++) { let d = y * sw + x0, o = x0 * H + y; for (let x = x0; x < x1; x++, o += H) out[d++] = src[o]; } } }
+  OX.putImageData(OIMG, 0, 0);
+  const bmp = OC.transferToImageBitmap(), cx = W >> 1;
+  let center = null; if (cx >= f.x0 && cx < f.x1) { const o = (cx - f.x0) * H + (H >> 1); center = { pk: R.pk[o], pi: R.pi[o] }; }
+  postMessage({ gen: f.gen, x0: f.x0, W, H, bmp, ms: performance.now() - t0, center }, [bmp]);
+};`;
+}
+function mtStart() {
+  if (MT.ws.length) return true;
+  try {
+    const url = URL.createObjectURL(new Blob([mtSource()], { type: 'text/javascript' }));
+    MT.n = mtThreads();
+    for (let i = 0; i < MT.n; i++) { const w = new Worker(url); w.onmessage = mtResult; w.onerror = e => mtFail('worker: ' + (e.message || e)); MT.ws.push(w); }
+    MT.sent = new Set(); MT.sc = null; MT.busy = false; return true;
+  } catch (e) { mtFail(e.message); return false; }
+}
+function mtFail(why) { logCrash && logCrash('multi-core view off: ' + why); MT.failed = true; mtStop(); }
+function mtStop() { MT.ws.forEach(w => w.terminate()); MT.ws = []; MT.busy = false; MT.strips = null; MT.sc = null; }
+function mtId(o) { let id = MT.texId.get(o); if (id == null) { id = ++MT.texN; MT.texId.set(o, id); } return id; }
+function mtTex(o, list) { if (!o || !o.px) return -1; const id = mtId(o); if (!MT.sent.has(id)) { MT.sent.add(id); list.push({ id, w: o.w, h: o.h, px: o.px.slice(), ox: o.ox, oy: o.oy }); } return id; }
+function mtSide(s, list) { return s ? [s.sec, s.xo || 0, s.yo || 0, mtTex(s.upT, list), mtTex(s.midT, list), mtTex(s.loT, list)] : null; }
+/* send this frame to every worker (each gets its own strip) */
+function mtPost(cam, sprites) {
+  const sc = G.sc, tex = [], msg = {};
+  if (MT.sc !== sc) {
+    MT.sc = sc; msg.scene = sc.lines.map(l => [l.idx, l.ax, l.ay, l.bx, l.by, l.f, mtSide(l.s1, tex), mtSide(l.s2, tex)]);
+    MT.lineSig = sc.lines.map(l => [l.s1 && l.s1.upT, l.s1 && l.s1.midT, l.s1 && l.s1.loT, l.s2 && l.s2.upT, l.s2 && l.s2.midT, l.s2 && l.s2.loT]);
+  } else {
+    // switches and edits change wall textures: resend only the lines that changed
+    const sides = [];
+    sc.lines.forEach((l, i) => { const g = MT.lineSig[i], a = [l.s1 && l.s1.upT, l.s1 && l.s1.midT, l.s1 && l.s1.loT, l.s2 && l.s2.upT, l.s2 && l.s2.midT, l.s2 && l.s2.loT]; for (let k = 0; k < 6; k++) if (a[k] !== g[k]) { MT.lineSig[i] = a; sides.push([i, mtSide(l.s1, tex), mtSide(l.s2, tex)]); break; } });
+    if (sides.length) msg.sides = sides;
+  }
+  const tic = (performance.now() / 28.57) | 0;
+  const flats = sc.secs.map(s => [s.ft === 'F_SKY1' ? -1 : mtTex(getTex(animFlat(s.ft, tic), true), tex), s.ct === 'F_SKY1' ? -1 : mtTex(getTex(animFlat(s.ct, tic), true), tex)]);
+  const secs = sc.secs.map(s => ({ fh: s.fh, ch: s.ch, li: s.li, ft: s.ft, ct: s.ct, sx: s.sx || 0, sy: s.sy || 0 }));
+  const sky = mtTex(getSky(), tex);
+  const spr = sprites.map(s => ({ x: s.x, y: s.y, z: s.z, img: mtTex(s.img, tex), flip: s.flip, bright: s.bright, fuzz: s.fuzz, scale: s.scale, light: s.light, id: s.id }));
+  const glass = []; sc.lines.forEach((l, i) => { if (l.gl) glass.push([i, l.gl]); });
+  const W = R.W, H = R.H, n = MT.ws.length, gen = ++MT.gen;
+  MT.pending = n; MT.busy = true; MT.t0 = performance.now(); MT.strips = []; MT.center = MT.center || null;
+  for (let i = 0; i < n; i++) {
+    const x0 = Math.floor(W * i / n), x1 = Math.floor(W * (i + 1) / n);
+    const m = { frame: { gen, W, H, x0, x1, x: cam.x, y: cam.y, z: cam.z, a: cam.a, sec: cam.sec, pitch: cam.pitch, tic, sky, flats, secs, sprites: spr, glass } };
+    if (i === 0) Object.assign(m, msg, { tex }); else { if (msg.scene) m.scene = msg.scene; if (msg.sides) m.sides = msg.sides; m.tex = tex; }
+    MT.ws[i].postMessage(m);
+  }
+}
+function mtResult(e) {
+  const r = e.data;
+  if (r.gen !== MT.gen) { r.bmp.close(); return; }
+  if (r.W === R.W && r.H === R.H) MT.strips.push(r); else r.bmp.close();
+  if (r.center) MT.center = r.center;
+  MT.ms = Math.max(MT.ms * 0, r.ms);
+  if (--MT.pending === 0) {
+    // paste the finished strips onto the 3D view canvas
+    for (const s of MT.strips) { R.ctx.drawImage(s.bmp, s.x0, 0); s.bmp.close(); }
+    MT.strips = []; MT.busy = false;
+    autoRes(performance.now() - MT.t0);
+  }
+}
+/* returns true when the multi-core path drew (or is drawing) this frame */
+function mtDraw(cam, sprites) {
+  if (!mtWanted()) { if (MT.ws.length) mtStop(); return false; }
+  if (!mtStart()) return false;
+  if (!MT.busy) mtPost(cam, sprites);
+  return true;
+}
+function viewCenter() { return MT.ws.length && MT.center ? MT.center : { pk: R.pk[(R.W >> 1) * R.H + (R.H >> 1)], pi: R.pi[(R.W >> 1) * R.H + (R.H >> 1)] }; }
 
 try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }
 

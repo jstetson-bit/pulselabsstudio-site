@@ -84,6 +84,7 @@ addEventListener('gamepaddisconnected', () => toast('Controller disconnected'));
 /* ---------- mouse + keyboard hooks on the game screen ---------- */
 function gameMouseDown(e) {
   if (e.pointerType !== 'mouse') return false;
+  if (!$('#gover').hidden) return true;
   setInputMode('kbm');
   const gv = $('#gv');
   if (!document.pointerLockElement && gv.requestPointerLock) { try { const r = gv.requestPointerLock(); if (r && r.catch) r.catch(() => { }); } catch (er) { } return true; }

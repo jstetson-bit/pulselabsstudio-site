@@ -86,3 +86,8 @@ The story of how EOD came to be, in the owner's words where possible.
 - James (screenshot from the water plant on his 4K screen): *"this looks prety grainy. can we do something about it in 4k?"*
 - Cause: the game drew 320 pixels wide and stretched them. Built 0.7.2: Auto detail (steps up to whatever his machine keeps smooth), fixed levels up to Native 4K, an in-game Detail button, and optional smoothing. Next: split the drawing across CPU cores so 4K runs at full speed.
 - Same day, 0.7.3: the renderer stored pixels in the wrong order for how it draws them, which got much worse at high resolution. Fixed; 1440p-class detail is about 2.3× faster.
+
+## 2026-11-22 · "Let's get this thing into the future"
+- James: *"proceed, lets get this thing into the future"* (go ahead with drawing on all CPU cores).
+- While it was being built: *"the lights are going out and off"* (the water plant's lights-out trap was too dark), *"i cant click the reset. it needs to be in game option maybe?"* (the mouse stayed locked on the death screen), and *"we need to update and sharpen the panels below also so everythign isnt so pixelated. maybe give it options in the viewer that changes your resolution? classic or modern maybe?"*
+- Built 0.8.0: multi-core 3D view, Classic/Modern look (Modern default, sharp status bar), full-resolution screen canvas, clickable death screen + Enter/Esc, in-game Restart, dimmer-not-black trap that relights when the Baron dies.

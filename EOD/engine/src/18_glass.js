@@ -88,7 +88,7 @@ function reflSample(sc, flats, sky, cam, hz, proj, y, t, ns, hx, hy, rx, ry) {
 }
 function glassComposite(cam, sc, hz, proj, flats, sky) {
   if (!GLN) return;
-  const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, cz = cam.z, secs = sc.secs;
+  const X0 = R.x0, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, cz = cam.z, secs = sc.secs;
   for (let n = GLN - 1; n >= 0; n--) {
     const x = GX[n], ya = GA[n], yb = GB[n], t = GT[n], l = sc.lines[GI[n]], g = l.gl, ns = GS[n], rdx = GRX[n], rdy = GRY[n];
     const S0 = secs[ns]; if (!S0 || !g) continue;
@@ -106,7 +106,7 @@ function glassComposite(cam, sc, hz, proj, flats, sky) {
     }
     let z = cz - (ya + 0.5 - hz) * step;
     for (let y = ya; y <= yb; y++, z -= step) {
-      const o = x * R.H + y; if (dep[o] < t - 0.5) continue;
+      const o = (x - X0) * R.H + y; if (dep[o] < t - 0.5) continue;
       const bc = buf[o]; let r, gg, b;
       let cr = tr, cg = tg, cb = tb;
       if (pat) { const c = texAt(pat, lvl, uu + side.xo, -z + side.yo); if (c >>> 24) { cr = c & 255; cg = (c >> 8) & 255; cb = (c >> 16) & 255; } }
