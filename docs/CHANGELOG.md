@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.27 — 2026-11-22
+- EOD 0.8.7: Kev's Water Plant rework (Baron sealed in the pipe, stairs back up, east catwalk stairs, cover pillars).
+
 ## v0.7.26 — 2026-11-22
 - EOD 0.8.6: boss health bar (The Clog in Kev's Water Plant).
 

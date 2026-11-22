@@ -55,7 +55,7 @@ function initGame(mode, start) {
   if (G.waveQ) { G.waveQ.sort((a, b) => a.wave - b.wave); G.nextWave = 35 * ((M.start && M.start.waveFirst) || 12); G.waveN = 0; G.waveHold = !!(M.start && M.start.waveHold); }
   if (M.triggers) M.triggers.forEach(t => delete t.done);
   // bosses: the monster a trigger waits on gets a health bar on screen
-  G.boss = null; if (M.triggers) for (const t of M.triggers) { if (t.kill == null || !t.boss) continue; const e = G.ents.find(x => x.ti === t.kill); if (e) { e.bossName = t.boss; e.maxhp = e.hp; G.boss = e; } }
+  G.boss = null; if (M.triggers) for (const t of M.triggers) { if (t.kill == null || !t.boss) continue; const e = G.ents.find(x => x.ti === t.kill); if (e) { e.bossName = t.boss; e.maxhp = e.hp; G.boss = e; if (t.stuck) e.stuck = true; } }
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
   G.start = start; voodooInit();
@@ -372,6 +372,11 @@ function tickMonsters() {
   const p = G.p;
   for (const e of G.ents) {
     if (!e.alive || e.d.cat !== 'monster') continue;
+    if (e.stuck) {
+      const panes = G.sc.lines.filter(l => l.gl && ((l.s1 && l.s1.sec === e.sec) || (l.s2 && l.s2.sec === e.sec))); const caged = panes.length && panes.every(l => !l.gl.broken);
+      if (caged) { e.state = 'idle'; e.anim++; continue; }
+      e.stuck = false; e.ambush = false; e.state = 'chase'; e.cool = 35; msg((e.bossName || 'It') + ' is free! Kill it!'); sfx('telept', 1, 'mon');
+    }
     e.anim++; if (e.anim % 8 === 0) e.flip = !e.flip;
     if (e.state === 'idle') { if ((G.tic + e.id) % 6 === 0 && !p.dead) { const dist = Math.hypot(p.x - e.x, p.y - e.y), ang = Math.atan2(p.y - e.y, p.x - e.x); const fov = Math.abs(((ang - e.a + Math.PI * 3) % (Math.PI * 2)) - Math.PI) < 1.6 || dist < 128; if (dist < 2400 && fov && sight(e.x, e.y, e.z + 41, p.x, p.y, p.viewz)) { e.state = 'chase'; e.cool = 20 + rnd(0, 20); } } continue; }
     if (p.dead) continue;

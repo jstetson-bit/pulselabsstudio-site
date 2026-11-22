@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.7 (vc27) — 2026-11-22 — Kev's Water Plant: the demon is IN the pipe, and the room has counterplay
+- **The Clog stays in the pipe.** The Baron now starts sealed inside the green glass pipe (he's why the water is green) and doesn't move or attack until the pipe is broken open. Monster fire can't crack it, and you can't snipe it from the hall: it only gives way to shots from close range (the message says "Too far to break the pipe. Get closer."). Break any pane and he's free: "The Clog is free! Kill it!"
+- **A way back up from the drop.** The first room drops into the hall by three deep steps now (16 units each, treads 32 deep), so you can walk back up to the door. Earlier treads were too short for the player's body to clear, which is why the first try at stairs didn't work.
+- **Stairs to the catwalk on both sides.** The east catwalk has a staircase too (the west one already did), so the shooters up top can be reached and fought on their level.
+- **Cover in the hall.** Four tall pillars to duck behind: one by each catwalk stair and two in the middle of the walkway to the pump room.
+- **Lighter up top.** The catwalk chaingunner is now an imp; the bullet box moved off the stairs.
+- Why: James said there was no counterplay to the room, the drop was one-way, the glass container was empty, and the Baron was chasing him across the hall with no way to kite him. "Two of them": the other big grey-green one is the Hell Knight in a pump-room closet (half the Baron's health).
+- Checked: walking up the new steps reaches the door landing; the east stairs reach the catwalk; the Baron stays idle in the pipe for 20 s while the room fights; far shots only crack the glass; a close shot breaks a pane and frees him. All demo maps and the Freedoom loader pass.
+
 ## v0.8.6 (vc26) — 2026-11-22 — boss health bar
 - **Boss health bar.** The monster a level is waiting on now shows a red health bar with its name across the top of the screen once it wakes up or gets hit, so you can see every shot land. In Kev's Water Plant that's **The Clog**, the Baron stuck in the pipes.
 - Why he felt unkillable: he's a Baron, 1,000 health (a zombie has 20), and he starts behind four panes of green glass that each soak up about 120 damage before they break. With the pistol that's about 100 hits. The Sawed-Off up close (~500 a blast) or the rocket launcher in the pump room is the way. The level's start message now says so.
