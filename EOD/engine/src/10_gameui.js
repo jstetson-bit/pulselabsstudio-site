@@ -161,6 +161,14 @@ function gameSprites() {
   }
   return out;
 }
+/* boss health bar: shows once the boss has woken up or been hit, so you can see the damage land */
+function drawBossBar(g, W, H, u) {
+  const b = G.boss; if (!b || !b.alive || !b.maxhp || (b.hp >= b.maxhp && b.state === 'idle')) return;
+  const w = Math.min(W * 0.5, 260 * u), h = Math.max(6, 5 * u), x = (W - w) / 2, y = 22 * u, f = Math.max(0, b.hp / b.maxhp);
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(x - 2, y - 2, w + 4, h + 4); g.fillStyle = '#3a0a0c'; g.fillRect(x, y, w, h);
+  g.fillStyle = '#e0262d'; g.fillRect(x, y, w * f, h); g.strokeStyle = '#fff'; g.lineWidth = Math.max(1, u / 2); g.strokeRect(x - 1, y - 1, w + 2, h + 2);
+  g.font = `800 ${Math.round(5.5 * u)}px "Segoe UI", Arial, sans-serif`; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(`${b.bossName.toUpperCase()} · ${Math.ceil(f * 100)}%`, W / 2, y - 3 * u); g.textAlign = 'left';
+}
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
   const cam = { x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) };
@@ -176,6 +184,7 @@ function drawGame() {
   const u = Math.max(1, Math.round(W / 320));
   if (G.mode === 'play') {
     drawWeapon(g, W, H, u);
+    drawBossBar(g, W, H, u);
     drawHud(g, W, H, u);
   } else {
     g.strokeStyle = '#ffd400'; g.lineWidth = u; g.beginPath(); g.moveTo(W / 2 - 6 * u, H / 2); g.lineTo(W / 2 + 6 * u, H / 2); g.moveTo(W / 2, H / 2 - 6 * u); g.lineTo(W / 2, H / 2 + 6 * u); g.stroke();

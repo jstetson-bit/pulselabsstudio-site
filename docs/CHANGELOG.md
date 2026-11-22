@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.26 — 2026-11-22
+- EOD 0.8.6: boss health bar (The Clog in Kev's Water Plant).
+
 ## v0.7.25 — 2026-11-22
 - EOD 0.8.5: animated break-open reload with ejecting shells on the Sawed-Off.
 

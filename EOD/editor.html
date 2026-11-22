@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.5', VC = 25;
+const VERSION = '0.8.6', VC = 26;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2308,6 +2308,8 @@ function initGame(mode, start) {
   if (mode === 'play' && M.start) { const ls = M.start; (ls.weapons || []).forEach(w => G.p.has.add(w)); Object.assign(G.p.max, ls.max || {}); Object.assign(G.p.ammo, ls.ammo || {}); if (ls.w) G.p.w = ls.w; if (ls.armor) { G.p.armor = ls.armor; G.p.at = ls.at || 1; } if (ls.hp) G.p.hp = ls.hp; }
   if (G.waveQ) { G.waveQ.sort((a, b) => a.wave - b.wave); G.nextWave = 35 * ((M.start && M.start.waveFirst) || 12); G.waveN = 0; G.waveHold = !!(M.start && M.start.waveHold); }
   if (M.triggers) M.triggers.forEach(t => delete t.done);
+  // bosses: the monster a trigger waits on gets a health bar on screen
+  G.boss = null; if (M.triggers) for (const t of M.triggers) { if (t.kill == null || !t.boss) continue; const e = G.ents.find(x => x.ti === t.kill); if (e) { e.bossName = t.boss; e.maxhp = e.hp; G.boss = e; } }
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
   G.start = start; voodooInit();
@@ -2905,6 +2907,14 @@ function gameSprites() {
   }
   return out;
 }
+/* boss health bar: shows once the boss has woken up or been hit, so you can see the damage land */
+function drawBossBar(g, W, H, u) {
+  const b = G.boss; if (!b || !b.alive || !b.maxhp || (b.hp >= b.maxhp && b.state === 'idle')) return;
+  const w = Math.min(W * 0.5, 260 * u), h = Math.max(6, 5 * u), x = (W - w) / 2, y = 22 * u, f = Math.max(0, b.hp / b.maxhp);
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(x - 2, y - 2, w + 4, h + 4); g.fillStyle = '#3a0a0c'; g.fillRect(x, y, w, h);
+  g.fillStyle = '#e0262d'; g.fillRect(x, y, w * f, h); g.strokeStyle = '#fff'; g.lineWidth = Math.max(1, u / 2); g.strokeRect(x - 1, y - 1, w + 2, h + 2);
+  g.font = `800 ${Math.round(5.5 * u)}px "Segoe UI", Arial, sans-serif`; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(`${b.bossName.toUpperCase()} · ${Math.ceil(f * 100)}%`, W / 2, y - 3 * u); g.textAlign = 'left';
+}
 function drawGame() {
   const p = G.p, sec = G.secs[p.sec];
   const cam = { x: p.x, y: p.y, z: p.viewz, a: p.a, sec: p.sec, pitch: (p.look || 0) * R.H * 0.42 - (G.kick || 0) };
@@ -2920,6 +2930,7 @@ function drawGame() {
   const u = Math.max(1, Math.round(W / 320));
   if (G.mode === 'play') {
     drawWeapon(g, W, H, u);
+    drawBossBar(g, W, H, u);
     drawHud(g, W, H, u);
   } else {
     g.strokeStyle = '#ffd400'; g.lineWidth = u; g.beginPath(); g.moveTo(W / 2 - 6 * u, H / 2); g.lineTo(W / 2 + 6 * u, H / 2); g.moveTo(W / 2, H / 2 - 6 * u); g.lineTo(W / 2, H / 2 + 6 * u); g.stroke();
@@ -4990,7 +5001,7 @@ function buildHillMap() {
 }
 function buildWaterMap() {
   M = emptyMap(); M.name = 'MAP07'; M.mon = {}; M.wep = {};
-  M.hint = "Kev's Water Plant: the water is green. Get inside, find what is clogging the plumbing, break it out and kill it.";
+  M.hint = "Kev's Water Plant: the water is green. Get inside, find what is clogging the plumbing, break it out and kill it. He's tough: bring the Sawed-Off or the rockets from the pump room.";
   M.start = { hp: 100, waveHold: true, waveAt: 6, waveGap: 25, hurt: 0.6 };
   const T = (type, x, y, a = 90, f = 7, wave = 0) => M.t.push(wave ? { x, y, a, type, f, wave } : { x, y, a, type, f });
   const G10 = { ft: 'NUKAGE1', sp: 7, tag: 10 }; // green, hurts; turns blue later
@@ -5049,7 +5060,7 @@ function buildWaterMap() {
   T(3002, 448, 2470, 0, 7); T(3002, 448, 2560, 0, 7); T(69, 1088, 2510, 180, 7);
   T(2048, 600, 2360); T(2046, 940, 2360); T(2003, 940, 2650); T(2012, 600, 2650);
   const bi = M.t.length; T(3003, 768, 2504, 270, 7 | 8);
-  M.triggers = [{ kill: bi, msg: 'The plumbing is clear! The water runs blue and flows again. Now get out.', flat: { tag: 10, ft: 'FWATER1', sp: 0 }, flow: { tag: 12, dx: 0, dy: 2 }, light: { tag: 40, li: 192 }, open: 30, waves: true }];
+  M.triggers = [{ kill: bi, boss: 'The Clog (Baron in the pipes)', msg: 'The plumbing is clear! The water runs blue and flows again. Now get out.', flat: { tag: 10, ft: 'FWATER1', sp: 0 }, flow: { tag: 12, dx: 0, dy: 2 }, light: { tag: 40, li: 192 }, open: 30, waves: true }];
   M.triggers.push({ kill: bi, flat: { tag: 12, ft: 'FWATER1', sp: 0 } });
   // the way out: waves come for you in the clearwell yard once the water runs
   [[400, 3100, 3004], [1150, 3100, 3004], [400, 2900, 3001], [1150, 2900, 3001], [500, 3200, 9], [1050, 3200, 9], [768, 3250, 3002]].forEach(([x, y, t]) => T(t, x, y, 270, 7, 1));

@@ -166,7 +166,7 @@ function buildHillMap() {
 }
 function buildWaterMap() {
   M = emptyMap(); M.name = 'MAP07'; M.mon = {}; M.wep = {};
-  M.hint = "Kev's Water Plant: the water is green. Get inside, find what is clogging the plumbing, break it out and kill it.";
+  M.hint = "Kev's Water Plant: the water is green. Get inside, find what is clogging the plumbing, break it out and kill it. He's tough: bring the Sawed-Off or the rockets from the pump room.";
   M.start = { hp: 100, waveHold: true, waveAt: 6, waveGap: 25, hurt: 0.6 };
   const T = (type, x, y, a = 90, f = 7, wave = 0) => M.t.push(wave ? { x, y, a, type, f, wave } : { x, y, a, type, f });
   const G10 = { ft: 'NUKAGE1', sp: 7, tag: 10 }; // green, hurts; turns blue later
@@ -225,7 +225,7 @@ function buildWaterMap() {
   T(3002, 448, 2470, 0, 7); T(3002, 448, 2560, 0, 7); T(69, 1088, 2510, 180, 7);
   T(2048, 600, 2360); T(2046, 940, 2360); T(2003, 940, 2650); T(2012, 600, 2650);
   const bi = M.t.length; T(3003, 768, 2504, 270, 7 | 8);
-  M.triggers = [{ kill: bi, msg: 'The plumbing is clear! The water runs blue and flows again. Now get out.', flat: { tag: 10, ft: 'FWATER1', sp: 0 }, flow: { tag: 12, dx: 0, dy: 2 }, light: { tag: 40, li: 192 }, open: 30, waves: true }];
+  M.triggers = [{ kill: bi, boss: 'The Clog (Baron in the pipes)', msg: 'The plumbing is clear! The water runs blue and flows again. Now get out.', flat: { tag: 10, ft: 'FWATER1', sp: 0 }, flow: { tag: 12, dx: 0, dy: 2 }, light: { tag: 40, li: 192 }, open: 30, waves: true }];
   M.triggers.push({ kill: bi, flat: { tag: 12, ft: 'FWATER1', sp: 0 } });
   // the way out: waves come for you in the clearwell yard once the water runs
   [[400, 3100, 3004], [1150, 3100, 3004], [400, 2900, 3001], [1150, 2900, 3001], [500, 3200, 9], [1050, 3200, 9], [768, 3250, 3002]].forEach(([x, y, t]) => T(t, x, y, 270, 7, 1));

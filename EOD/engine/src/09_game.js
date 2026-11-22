@@ -54,6 +54,8 @@ function initGame(mode, start) {
   if (mode === 'play' && M.start) { const ls = M.start; (ls.weapons || []).forEach(w => G.p.has.add(w)); Object.assign(G.p.max, ls.max || {}); Object.assign(G.p.ammo, ls.ammo || {}); if (ls.w) G.p.w = ls.w; if (ls.armor) { G.p.armor = ls.armor; G.p.at = ls.at || 1; } if (ls.hp) G.p.hp = ls.hp; }
   if (G.waveQ) { G.waveQ.sort((a, b) => a.wave - b.wave); G.nextWave = 35 * ((M.start && M.start.waveFirst) || 12); G.waveN = 0; G.waveHold = !!(M.start && M.start.waveHold); }
   if (M.triggers) M.triggers.forEach(t => delete t.done);
+  // bosses: the monster a trigger waits on gets a health bar on screen
+  G.boss = null; if (M.triggers) for (const t of M.triggers) { if (t.kill == null || !t.boss) continue; const e = G.ents.find(x => x.ti === t.kill); if (e) { e.bossName = t.boss; e.maxhp = e.hp; G.boss = e; } }
   if (mode === 'play') Object.values(WEAPONS).forEach((w, i) => { if (w.custom && w.custom.startWith) { const id = +Object.keys(WEAPONS).find(k => WEAPONS[k] === w); G.p.has.add(id); if (w.ammo) G.p.ammo[w.ammo] = Math.max(G.p.ammo[w.ammo], w.custom.give || 0); } });
   showGame();
   G.start = start; voodooInit();
