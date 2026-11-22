@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.24 — 2026-11-22
+- EOD 0.8.4: in-game Menu (Esc, pauses) with volume sliders.
+
 ## v0.7.23 — 2026-11-22
 - EOD 0.8.3: the Sawed-Off (both barrels, close-range power, reload every blast).
 

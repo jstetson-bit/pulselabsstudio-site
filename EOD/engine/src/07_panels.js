@@ -225,7 +225,7 @@ function openSettings() {
   <div class="f"><label>Skill</label><select id="stSk">${[[1, "I'm too young to die"], [2, 'Hurt me plenty'], [3, 'Ultra-violence']].map(([k, n]) => `<option value="${k}" ${S.skill == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Turn speed <b id="snV">${S.sens}</b></label><input id="stSn" type="range" min="0.3" max="3" step="0.1" value="${S.sens}"></div>
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
-  <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
+  <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label> <button id="stVol">🔊 Volume…</button>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
   <div class="h">Status bar (in the game)</div>
   <p class="hint">Auto picks Compact on short screens (phones sideways) and Classic otherwise. Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
@@ -249,6 +249,7 @@ function openSettings() {
     ch('#stDW', e => S.defWall = e.value.toUpperCase().slice(0, 8)); ch('#stDF', e => S.defFloor = e.value.toUpperCase().slice(0, 8)); ch('#stDC', e => S.defCeil = e.value.toUpperCase().slice(0, 8)); ch('#stES', e => S.ellipseSides = clamp(+e.value || 16, 3, 64));
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = isNaN(+e.value) ? e.value : +e.value); ch('#stSk', e => S.skill = +e.value);
+    b.querySelector('#stVol').onclick = () => { closeModal(); openSound(); };
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
     b.querySelectorAll('[data-sb]').forEach(x => x.onclick = () => { S.statusBar = x.dataset.sb; saveSettings(); b.querySelectorAll('[data-sb]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });

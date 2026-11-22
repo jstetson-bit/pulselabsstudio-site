@@ -74,6 +74,34 @@ function exitGame() {
   if (wasVisual) { mapChanged(); }
   edResize();
 }
+function openSound(back) {
+  const V = S.vol || (S.vol = { master: 80, weap: 100, mon: 100, you: 100, world: 100 });
+  const rows = [['master', 'Master volume', 'everything', 'weapon'], ['weap', 'Your guns', 'shots and reloads', 'shotgun'], ['mon', 'Monsters', 'their shots, pain and deaths', 'die'], ['you', 'You', 'getting hurt, pickups', 'pickup'], ['world', 'World', 'doors, switches, explosions, glass', 'door']];
+  modal('Sound', `<label class="chk"><input type="checkbox" id="sdOn" ${S.sound ? 'checked' : ''}>Sound on</label>
+  ${rows.map(([k, n, h]) => `<div class="f"><label>${n} <b id="sv_${k}">${V[k]}%</b> <span class="hint">(${h})</span></label><input type="range" min="0" max="100" step="5" value="${V[k]}" data-vk="${k}"></div>`).join('')}
+  <p class="hint">Each slider plays a sample when you let go so you can hear the level. Master scales everything else.</p>`, [{ cancel: 1, title: 'Back', fn: () => { if (back) setTimeout(back, 0); } }]);
+  setTimeout(() => {
+    $('#sdOn').onchange = e => { S.sound = e.target.checked; saveSettings(); if (S.sound) sfx('switch'); };
+    document.querySelectorAll('[data-vk]').forEach(r => { const k = r.dataset.vk, row = rows.find(x => x[0] === k);
+      r.oninput = () => { V[k] = +r.value; $('#sv_' + k).textContent = V[k] + '%'; };
+      r.onchange = () => { saveSettings(); sfx(row[3], 1, k === 'master' ? 'you' : k); }; });
+  }, 0);
+}
+function openGameMenu() {
+  if (!G) return; if (document.pointerLockElement) document.exitPointerLock();
+  const items = [['resume', '▶ Resume'], ['restart', '↻ Restart level'], ['sound', '🔊 Sound'], ['detail', '🖥 Picture detail (Classic / Modern)'], ['controls', '🎮 Controls'], ['arrange', '✥ Move the on-screen buttons'], ['manual', 'ⓘ Manual'], ['quit', '⏏ Quit to the editor']];
+  modal('Menu', `<div style="display:grid;gap:8px;margin:4px 0">${items.map(([k, n]) => `<button data-gm="${k}" style="text-align:left;padding:12px 14px;font-size:1.05em">${n}</button>`).join('')}</div><p class="hint">The game is paused while this menu is open. Esc opens it.</p>`, [{ cancel: 1, title: 'Resume' }]);
+  setTimeout(() => document.querySelectorAll('[data-gm]').forEach(b => b.onclick = () => {
+    const k = b.dataset.gm; closeModal();
+    if (k === 'restart') modal('Restart level?', '<p>Start this level over from the beginning?</p>', [{ ok: 1, title: 'Restart', fn: () => restartLevel() }, { cancel: 1, fn: () => { setTimeout(openGameMenu, 0); } }]);
+    else if (k === 'sound') openSound(openGameMenu);
+    else if (k === 'detail') openDetail();
+    else if (k === 'controls') openControls();
+    else if (k === 'arrange') enterArrange();
+    else if (k === 'manual') openManual();
+    else if (k === 'quit') $('#gExit').click();
+  }), 0);
+}
 function restartLevel() { if (!G) return; const mode = G.mode, p1 = realStart(); $('#gover').hidden = true; initGame(mode, { x: p1.x, y: p1.y, a: p1.a }); }
 function showOver() {
   if (document.pointerLockElement) document.exitPointerLock(); // give the mouse back so the buttons can be clicked

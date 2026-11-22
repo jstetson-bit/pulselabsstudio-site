@@ -1,6 +1,6 @@
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.3', VC = 23;
+const VERSION = '0.8.4', VC = 24;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -27,7 +27,7 @@ function toast(msg, ms = 2400) {
 }
 
 /* ---------- settings ---------- */
-const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, hudStyle: 'modern', threads: 'auto', layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
+const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, vol: { master: 80, weap: 100, mon: 100, you: 100, world: 100 }, hudStyle: 'modern', threads: 'auto', layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
 let S = Object.assign({}, DEF_SET, LS.get('settings', {}));
 if (!S.resV2) { if ([200, 320, 480].includes(S.res)) S.res = 'auto'; S.resV2 = 1; } // 0.7.2: old fixed detail levels move to Auto
 function saveSettings() { LS.set('settings', S); applySettings(); }
@@ -107,10 +107,13 @@ function makeZip(name, data) {
 /* ---------- sound (synthesized, no assets) ---------- */
 let AC = null;
 function audio() { if (!S.sound) return null; try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
-function sfx(kind, vol = 1) {
+const SND_GROUP = { pistol: 'weap', shotgun: 'weap', chain: 'weap', rocket: 'weap', plasma: 'weap', dshtgn: 'weap', dbopn: 'weap', dbload: 'weap', dbcls: 'weap', pain: 'you', oof: 'you', pickup: 'you', weapon: 'you', die: 'mon', fire: 'mon', door: 'world', switch: 'world', tele: 'world', telept: 'world', secret: 'world', explode: 'world', glass: 'world', glasshit: 'world' };
+function sndLevel(group) { const v = S.vol || {}, m = (v.master != null ? v.master : 80) / 100, g = (v[group] != null ? v[group] : 100) / 100; return m * g; }
+function sfx(kind, vol = 1, group) {
   const ac = audio(); if (!ac) return;
-  if (typeof resSound === 'function') { const rb = resSound(kind); if (rb) { const src = ac.createBufferSource(), gn = ac.createGain(); src.buffer = rb; gn.gain.value = Math.min(1, vol); src.connect(gn); gn.connect(ac.destination); src.start(); return; } }
-  const t = ac.currentTime, g = ac.createGain(); g.connect(ac.destination);
+  vol *= sndLevel(group || SND_GROUP[kind] || 'world'); if (vol <= 0.001) return;
+  if (typeof resSound === 'function') { const rb = resSound(kind); if (rb) { const src = ac.createBufferSource(), gn = ac.createGain(); src.buffer = rb; gn.gain.value = Math.min(1.5, vol); src.connect(gn); gn.connect(ac.destination); src.start(); return; } }
+  const t = ac.currentTime, g0 = ac.createGain(); g0.gain.value = Math.min(1.5, vol); g0.connect(ac.destination); const g = ac.createGain(); g.connect(g0);
   const noise = (dur, f0, f1, v) => {
     const len = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);

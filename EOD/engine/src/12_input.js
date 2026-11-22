@@ -38,7 +38,7 @@ function setInputMode(m) {
   if (IN.mode === m) return; IN.mode = m;
   const c = $('#ctls'); if (c) c.style.display = m === 'touch' ? '' : 'none';
   if (G && m === 'pad') msg('Controller: left stick moves, right stick turns, RT fires, A uses');
-  if (G && m === 'kbm') msg('Click the game to lock the mouse. WASD moves, mouse turns, click fires, E uses');
+  if (G && m === 'kbm') msg('Click the game to lock the mouse. WASD moves, mouse turns, click fires, E uses, Esc = menu');
 }
 // called once per game tic; returns analog/digital movement and fires edge actions
 function pollInput() {
@@ -75,7 +75,7 @@ function inputEdge(n) {
   else if (n === 'map') G.automap = !G.automap;
   else if (n === 'uturn') IN.uturn = true;
   else if (n === 'lc') { if (G.p) G.p.look = 0; }
-  else if (n === 'menu') { if (document.pointerLockElement) document.exitPointerLock(); else setTimeout(() => $('#gExit').click(), 0); }
+  else if (n === 'menu') { if (document.pointerLockElement) document.exitPointerLock(); setTimeout(() => { if ($('#modal').hidden) openGameMenu(); }, 0); }
 }
 function rumble(strength, ms) { const g = readPad(); try { if (g && g.vibrationActuator) g.vibrationActuator.playEffect('dual-rumble', { duration: ms, strongMagnitude: strength, weakMagnitude: strength * 0.6 }); } catch (e) { } }
 addEventListener('gamepadconnected', e => { toast('Controller connected: ' + (e.gamepad.id || 'gamepad').replace(/\(.*\)/, '').trim().slice(0, 40)); if (G) setInputMode('pad'); });

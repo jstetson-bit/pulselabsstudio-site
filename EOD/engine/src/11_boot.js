@@ -62,7 +62,7 @@ function openManual() {
 <h3>Demo controls</h3>
 <ul><li><b>Left stick</b> moves: up = forward, down = back, sideways = side-step (or turn, if you pick the classic arcade style in <b>Controls</b>).</li><li><b>LOOK stick</b> (right thumb) turns you left/right and looks up/down. Dragging anywhere on the screen, or sliding your thumb on <b>FIRE</b>, does the same.</li><li><b>⟲</b> spins you around 180° in a blink.</li><li><b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap. Tap a number on the status bar's ARMS panel to grab that gun (2 = chainsaw, tap again for the pistol).</li><li>Move or resize any button with <b>Arrange</b>; change it all in <b>Controls</b>.</li>
 <li>Layouts for portrait 9:16, landscape 16:9 and Z Fold unfolded are picked automatically. Change them in Settings. <b>Arrange</b> lets you move and resize every button with the yellow words, saved separately for each layout.</li>
-<li>PC: WASD moves, mouse (or arrow keys) turns, mouse up/down or PageUp/PageDown looks up/down, Home looks straight, X turns around, Ctrl or F fires, Space or E uses, Tab shows the map, 1-8 picks a weapon, Esc exits.</li></ul>
+<li>PC: Esc opens the in-game Menu (restart, sound volume, picture detail, controls; the game pauses). WASD moves, mouse (or arrow keys) turns, mouse up/down or PageUp/PageDown looks up/down, Home looks straight, X turns around, Ctrl or F fires, Space or E uses, Tab shows the map, 1-8 picks a weapon, Esc exits.</li></ul>
 <h3>Export</h3>
 <ul><li><b>Export Doom WAD:</b> a real Doom-format PWAD. Play it in <b>GZDoom</b> (PC) or <b>Delta Touch</b> (Android) with Doom II or the free <b>Freedoom</b> IWAD. GZDoom builds the nodes itself.</li>
 <li><b>Export playable game:</b> one .html file with your map baked in. It opens straight into the game on any phone or PC browser. It's your shareable "executable".</li>
@@ -138,8 +138,7 @@ function boot() {
   $('#fileIn').onchange = e => { if (e.target.files[0]) handleFile(e.target.files[0]); };
   $('#tutSkip').onclick = () => { if (TUT) { TUT.i++; tutShow(); } }; $('#tutQuit').onclick = endTutorial;
   $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal') closeModal(); });
-  $('#gControls').onclick = openControls; $('#gDetail').onclick = openDetail;
-  $('#gRestart').onclick = () => { if (document.pointerLockElement) document.exitPointerLock(); modal('Restart level?', '<p>Start this level over from the beginning?</p>', [{ ok: 1, title: 'Restart', fn: () => restartLevel() }, { cancel: 1 }]); };
+  $('#gMenu').onclick = openGameMenu;
   const gm = $('#game'); gm.addEventListener('wheel', e => { if (!G) return; e.preventDefault(); IN.tapped.add(e.deltaY < 0 ? 'wheelup' : 'wheeldown'); }, { passive: false });
   gm.addEventListener('contextmenu', e => e.preventDefault());
   gm.addEventListener('pointerdown', gameDown); gm.addEventListener('pointermove', gameMove); gm.addEventListener('pointerup', gameUp); gm.addEventListener('pointercancel', gameUp);

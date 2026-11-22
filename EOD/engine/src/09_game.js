@@ -255,10 +255,10 @@ function damageMonster(e, dmg, src) {
     e.alive = false; e.state = 'dead'; e.diedAt = G.tic;
     if (M.triggers) M.triggers.forEach(t => { if (t.kill === e.ti && !t.done) { t.done = 1; runTrigger(t); } });
     if (e.d.barrel) { explode(e.x, e.y, e.z + 20, 128, 128, src); return; }
-    if (e.d.cat === 'monster') { G.kills++; sfx('die'); if (e.d.drop) G.ents.push({ id: 9000 + G.ents.length, x: e.x + 8, y: e.y, z: e.z, d: THINGS[e.d.drop], type: e.d.drop, r: 20, h: 16, alive: true, dropped: true, sec: e.sec }); }
+    if (e.d.cat === 'monster') { G.kills++; sfx('die', 1, 'mon'); if (e.d.drop) G.ents.push({ id: 9000 + G.ents.length, x: e.x + 8, y: e.y, z: e.z, d: THINGS[e.d.drop], type: e.d.drop, r: 20, h: 16, alive: true, dropped: true, sec: e.sec }); }
     return;
   }
-  if (e.d.cat === 'monster') { e.state = 'chase'; if (Math.random() < e.d.pain) { e.pain = 8; e.atk = 0; sfx('pain', .5); } }
+  if (e.d.cat === 'monster') { e.state = 'chase'; if (Math.random() < e.d.pain) { e.pain = 8; e.atk = 0; sfx('pain', .5, 'mon'); } }
 }
 function damagePlayer(dmg, src) {
   const p = G.p; if (p.dead || G.mode !== 'play') return;
@@ -309,7 +309,7 @@ function fireWeapon() {
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   const cu = w.custom || {};
   p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; }
-  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
+  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
   const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
@@ -400,8 +400,8 @@ function monsterAttack(e, dist) {
   if (!sight(e.x, e.y, e.z + 41, p.x, p.y, p.viewz)) return;
   e.flash = 4;
   const gb = d.atk === 'hit' ? glassBetween(e.x, e.y, e.z + 41, p.x, p.y, p.viewz) : null;
-  if (gb) { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
-  else if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg), e); } }
+  if (gb) { sfx('pistol', .5, 'mon'); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
+  else if (d.atk === 'hit') { sfx('pistol', .5, 'mon'); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg), e); } }
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
   if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
@@ -481,6 +481,7 @@ function gameFrame(now) {
   LIM.on = limitsOn();
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
+    if (!$('#modal').hidden || G.paused) G.acc = 0; // paused while a menu is open
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
     const t0 = performance.now(); if (!drawGame()) autoRes(performance.now() - t0);
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }

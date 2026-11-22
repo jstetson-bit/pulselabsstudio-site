@@ -169,7 +169,7 @@ a.brand{color:var(--text);text-decoration:none}
     <button id="gExit" class="cancelbtn" title="Back to editor"></button>
     <span id="gTitle"></span><span id="gStats"></span>
     <div class="grow"></div>
-    <button id="gRestart" class="tb" title="Start this level over">Restart</button><button id="gDetail" class="tb" title="Picture detail">Detail</button><button id="gControls" class="tb">Controls</button><button id="gArrange" class="tb">Arrange</button>
+    <button id="gMenu" class="tb" title="Menu (Esc): restart, sound, picture, controls">☰ Menu</button><button id="gArrange" class="tb">Arrange</button>
     <button id="gInfo" class="ghostbtn" title="Manual"></button>
     <button id="gInvert" class="iconbtn" title="Invert colors"></button>
   </div>
@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.3', VC = 23;
+const VERSION = '0.8.4', VC = 24;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -224,7 +224,7 @@ function toast(msg, ms = 2400) {
 }
 
 /* ---------- settings ---------- */
-const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, hudStyle: 'modern', threads: 'auto', layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
+const DEF_SET = { theme: null, font: 'clean', fs: 15, grid: 32, snap: true, res: 'auto', smooth: false, vol: { master: 80, weap: 100, mon: 100, you: 100, world: 100 }, hudStyle: 'modern', threads: 'auto', layout: 'auto', ctlOpacity: 0.6, skill: 2, sens: 1, sound: true, inverted: false, ellipseSides: 16, defWall: 'STARTAN3', defFloor: 'FLOOR4_8', defCeil: 'CEIL3_5', mapName: 'MAP01' };
 let S = Object.assign({}, DEF_SET, LS.get('settings', {}));
 if (!S.resV2) { if ([200, 320, 480].includes(S.res)) S.res = 'auto'; S.resV2 = 1; } // 0.7.2: old fixed detail levels move to Auto
 function saveSettings() { LS.set('settings', S); applySettings(); }
@@ -304,10 +304,13 @@ function makeZip(name, data) {
 /* ---------- sound (synthesized, no assets) ---------- */
 let AC = null;
 function audio() { if (!S.sound) return null; try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
-function sfx(kind, vol = 1) {
+const SND_GROUP = { pistol: 'weap', shotgun: 'weap', chain: 'weap', rocket: 'weap', plasma: 'weap', dshtgn: 'weap', dbopn: 'weap', dbload: 'weap', dbcls: 'weap', pain: 'you', oof: 'you', pickup: 'you', weapon: 'you', die: 'mon', fire: 'mon', door: 'world', switch: 'world', tele: 'world', telept: 'world', secret: 'world', explode: 'world', glass: 'world', glasshit: 'world' };
+function sndLevel(group) { const v = S.vol || {}, m = (v.master != null ? v.master : 80) / 100, g = (v[group] != null ? v[group] : 100) / 100; return m * g; }
+function sfx(kind, vol = 1, group) {
   const ac = audio(); if (!ac) return;
-  if (typeof resSound === 'function') { const rb = resSound(kind); if (rb) { const src = ac.createBufferSource(), gn = ac.createGain(); src.buffer = rb; gn.gain.value = Math.min(1, vol); src.connect(gn); gn.connect(ac.destination); src.start(); return; } }
-  const t = ac.currentTime, g = ac.createGain(); g.connect(ac.destination);
+  vol *= sndLevel(group || SND_GROUP[kind] || 'world'); if (vol <= 0.001) return;
+  if (typeof resSound === 'function') { const rb = resSound(kind); if (rb) { const src = ac.createBufferSource(), gn = ac.createGain(); src.buffer = rb; gn.gain.value = Math.min(1.5, vol); src.connect(gn); gn.connect(ac.destination); src.start(); return; } }
+  const t = ac.currentTime, g0 = ac.createGain(); g0.gain.value = Math.min(1.5, vol); g0.connect(ac.destination); const g = ac.createGain(); g.connect(g0);
   const noise = (dur, f0, f1, v) => {
     const len = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
@@ -2016,7 +2019,7 @@ function openSettings() {
   <div class="f"><label>Skill</label><select id="stSk">${[[1, "I'm too young to die"], [2, 'Hurt me plenty'], [3, 'Ultra-violence']].map(([k, n]) => `<option value="${k}" ${S.skill == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Turn speed <b id="snV">${S.sens}</b></label><input id="stSn" type="range" min="0.3" max="3" step="0.1" value="${S.sens}"></div>
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
-  <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label>
+  <label class="chk"><input type="checkbox" id="stSnd" ${S.sound ? 'checked' : ''}>Sound effects</label> <button id="stVol">🔊 Volume…</button>
   <div class="row"><button id="stArr">Arrange on-screen controls</button><button id="stArrReset">Reset control layout</button></div>
   <div class="h">Status bar (in the game)</div>
   <p class="hint">Auto picks Compact on short screens (phones sideways) and Classic otherwise. Classic is the full Doom bar with the marine's face (needs the Freedoom art pack). Compact is the same bar smaller. Slim is a thin bar.</p>
@@ -2040,6 +2043,7 @@ function openSettings() {
     ch('#stDW', e => S.defWall = e.value.toUpperCase().slice(0, 8)); ch('#stDF', e => S.defFloor = e.value.toUpperCase().slice(0, 8)); ch('#stDC', e => S.defCeil = e.value.toUpperCase().slice(0, 8)); ch('#stES', e => S.ellipseSides = clamp(+e.value || 16, 3, 64));
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
     ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = isNaN(+e.value) ? e.value : +e.value); ch('#stSk', e => S.skill = +e.value);
+    b.querySelector('#stVol').onclick = () => { closeModal(); openSound(); };
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
     b.querySelectorAll('[data-sb]').forEach(x => x.onclick = () => { S.statusBar = x.dataset.sb; saveSettings(); b.querySelectorAll('[data-sb]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });
@@ -2505,10 +2509,10 @@ function damageMonster(e, dmg, src) {
     e.alive = false; e.state = 'dead'; e.diedAt = G.tic;
     if (M.triggers) M.triggers.forEach(t => { if (t.kill === e.ti && !t.done) { t.done = 1; runTrigger(t); } });
     if (e.d.barrel) { explode(e.x, e.y, e.z + 20, 128, 128, src); return; }
-    if (e.d.cat === 'monster') { G.kills++; sfx('die'); if (e.d.drop) G.ents.push({ id: 9000 + G.ents.length, x: e.x + 8, y: e.y, z: e.z, d: THINGS[e.d.drop], type: e.d.drop, r: 20, h: 16, alive: true, dropped: true, sec: e.sec }); }
+    if (e.d.cat === 'monster') { G.kills++; sfx('die', 1, 'mon'); if (e.d.drop) G.ents.push({ id: 9000 + G.ents.length, x: e.x + 8, y: e.y, z: e.z, d: THINGS[e.d.drop], type: e.d.drop, r: 20, h: 16, alive: true, dropped: true, sec: e.sec }); }
     return;
   }
-  if (e.d.cat === 'monster') { e.state = 'chase'; if (Math.random() < e.d.pain) { e.pain = 8; e.atk = 0; sfx('pain', .5); } }
+  if (e.d.cat === 'monster') { e.state = 'chase'; if (Math.random() < e.d.pain) { e.pain = 8; e.atk = 0; sfx('pain', .5, 'mon'); } }
 }
 function damagePlayer(dmg, src) {
   const p = G.p; if (p.dead || G.mode !== 'play') return;
@@ -2559,7 +2563,7 @@ function fireWeapon() {
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   const cu = w.custom || {};
   p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; }
-  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
+  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
   const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
@@ -2650,8 +2654,8 @@ function monsterAttack(e, dist) {
   if (!sight(e.x, e.y, e.z + 41, p.x, p.y, p.viewz)) return;
   e.flash = 4;
   const gb = d.atk === 'hit' ? glassBetween(e.x, e.y, e.z + 41, p.x, p.y, p.viewz) : null;
-  if (gb) { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
-  else if (d.atk === 'hit') { sfx('pistol', .5); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg), e); } }
+  if (gb) { sfx('pistol', .5, 'mon'); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
+  else if (d.atk === 'hit') { sfx('pistol', .5, 'mon'); for (let i = 0; i < d.pellets; i++) { const miss = clamp(0.4 + dist / 2500, 0.4, 0.85); if (Math.random() > miss) damagePlayer(rnd(...d.dmg), e); } }
   else { const a = Math.atan2(p.y - e.y, p.x - e.x) + (Math.random() - 0.5) * 0.08; const t = dist / PROJ[d.proj].spd; spawnProj('mon', d.proj, e.x, e.y, e.z + (d.float ? 24 : 32), a, ((p.z + 32) - (e.z + 32)) / Math.max(1, t)); sfx('fire', .5); }
   if (--e.burst > 0) e.atk = e.d.burstGap || 4;
 }
@@ -2731,6 +2735,7 @@ function gameFrame(now) {
   LIM.on = limitsOn();
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
+    if (!$('#modal').hidden || G.paused) G.acc = 0; // paused while a menu is open
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
     const t0 = performance.now(); if (!drawGame()) autoRes(performance.now() - t0);
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }
@@ -2812,6 +2817,34 @@ function exitGame() {
   G = null; $('#game').hidden = true; $('#props').style.display = ''; IN.keys.clear(); IN.fire = false; IN.fwd = IN.str = 0;
   if (wasVisual) { mapChanged(); }
   edResize();
+}
+function openSound(back) {
+  const V = S.vol || (S.vol = { master: 80, weap: 100, mon: 100, you: 100, world: 100 });
+  const rows = [['master', 'Master volume', 'everything', 'weapon'], ['weap', 'Your guns', 'shots and reloads', 'shotgun'], ['mon', 'Monsters', 'their shots, pain and deaths', 'die'], ['you', 'You', 'getting hurt, pickups', 'pickup'], ['world', 'World', 'doors, switches, explosions, glass', 'door']];
+  modal('Sound', `<label class="chk"><input type="checkbox" id="sdOn" ${S.sound ? 'checked' : ''}>Sound on</label>
+  ${rows.map(([k, n, h]) => `<div class="f"><label>${n} <b id="sv_${k}">${V[k]}%</b> <span class="hint">(${h})</span></label><input type="range" min="0" max="100" step="5" value="${V[k]}" data-vk="${k}"></div>`).join('')}
+  <p class="hint">Each slider plays a sample when you let go so you can hear the level. Master scales everything else.</p>`, [{ cancel: 1, title: 'Back', fn: () => { if (back) setTimeout(back, 0); } }]);
+  setTimeout(() => {
+    $('#sdOn').onchange = e => { S.sound = e.target.checked; saveSettings(); if (S.sound) sfx('switch'); };
+    document.querySelectorAll('[data-vk]').forEach(r => { const k = r.dataset.vk, row = rows.find(x => x[0] === k);
+      r.oninput = () => { V[k] = +r.value; $('#sv_' + k).textContent = V[k] + '%'; };
+      r.onchange = () => { saveSettings(); sfx(row[3], 1, k === 'master' ? 'you' : k); }; });
+  }, 0);
+}
+function openGameMenu() {
+  if (!G) return; if (document.pointerLockElement) document.exitPointerLock();
+  const items = [['resume', '▶ Resume'], ['restart', '↻ Restart level'], ['sound', '🔊 Sound'], ['detail', '🖥 Picture detail (Classic / Modern)'], ['controls', '🎮 Controls'], ['arrange', '✥ Move the on-screen buttons'], ['manual', 'ⓘ Manual'], ['quit', '⏏ Quit to the editor']];
+  modal('Menu', `<div style="display:grid;gap:8px;margin:4px 0">${items.map(([k, n]) => `<button data-gm="${k}" style="text-align:left;padding:12px 14px;font-size:1.05em">${n}</button>`).join('')}</div><p class="hint">The game is paused while this menu is open. Esc opens it.</p>`, [{ cancel: 1, title: 'Resume' }]);
+  setTimeout(() => document.querySelectorAll('[data-gm]').forEach(b => b.onclick = () => {
+    const k = b.dataset.gm; closeModal();
+    if (k === 'restart') modal('Restart level?', '<p>Start this level over from the beginning?</p>', [{ ok: 1, title: 'Restart', fn: () => restartLevel() }, { cancel: 1, fn: () => { setTimeout(openGameMenu, 0); } }]);
+    else if (k === 'sound') openSound(openGameMenu);
+    else if (k === 'detail') openDetail();
+    else if (k === 'controls') openControls();
+    else if (k === 'arrange') enterArrange();
+    else if (k === 'manual') openManual();
+    else if (k === 'quit') $('#gExit').click();
+  }), 0);
 }
 function restartLevel() { if (!G) return; const mode = G.mode, p1 = realStart(); $('#gover').hidden = true; initGame(mode, { x: p1.x, y: p1.y, a: p1.a }); }
 function showOver() {
@@ -3148,7 +3181,7 @@ function openManual() {
 <h3>Demo controls</h3>
 <ul><li><b>Left stick</b> moves: up = forward, down = back, sideways = side-step (or turn, if you pick the classic arcade style in <b>Controls</b>).</li><li><b>LOOK stick</b> (right thumb) turns you left/right and looks up/down. Dragging anywhere on the screen, or sliding your thumb on <b>FIRE</b>, does the same.</li><li><b>⟲</b> spins you around 180° in a blink.</li><li><b>USE</b> opens doors and hits switches, <b>WPN</b> cycles weapons, <b>MAP</b> shows the automap. Tap a number on the status bar's ARMS panel to grab that gun (2 = chainsaw, tap again for the pistol).</li><li>Move or resize any button with <b>Arrange</b>; change it all in <b>Controls</b>.</li>
 <li>Layouts for portrait 9:16, landscape 16:9 and Z Fold unfolded are picked automatically. Change them in Settings. <b>Arrange</b> lets you move and resize every button with the yellow words, saved separately for each layout.</li>
-<li>PC: WASD moves, mouse (or arrow keys) turns, mouse up/down or PageUp/PageDown looks up/down, Home looks straight, X turns around, Ctrl or F fires, Space or E uses, Tab shows the map, 1-8 picks a weapon, Esc exits.</li></ul>
+<li>PC: Esc opens the in-game Menu (restart, sound volume, picture detail, controls; the game pauses). WASD moves, mouse (or arrow keys) turns, mouse up/down or PageUp/PageDown looks up/down, Home looks straight, X turns around, Ctrl or F fires, Space or E uses, Tab shows the map, 1-8 picks a weapon, Esc exits.</li></ul>
 <h3>Export</h3>
 <ul><li><b>Export Doom WAD:</b> a real Doom-format PWAD. Play it in <b>GZDoom</b> (PC) or <b>Delta Touch</b> (Android) with Doom II or the free <b>Freedoom</b> IWAD. GZDoom builds the nodes itself.</li>
 <li><b>Export playable game:</b> one .html file with your map baked in. It opens straight into the game on any phone or PC browser. It's your shareable "executable".</li>
@@ -3224,8 +3257,7 @@ function boot() {
   $('#fileIn').onchange = e => { if (e.target.files[0]) handleFile(e.target.files[0]); };
   $('#tutSkip').onclick = () => { if (TUT) { TUT.i++; tutShow(); } }; $('#tutQuit').onclick = endTutorial;
   $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal') closeModal(); });
-  $('#gControls').onclick = openControls; $('#gDetail').onclick = openDetail;
-  $('#gRestart').onclick = () => { if (document.pointerLockElement) document.exitPointerLock(); modal('Restart level?', '<p>Start this level over from the beginning?</p>', [{ ok: 1, title: 'Restart', fn: () => restartLevel() }, { cancel: 1 }]); };
+  $('#gMenu').onclick = openGameMenu;
   const gm = $('#game'); gm.addEventListener('wheel', e => { if (!G) return; e.preventDefault(); IN.tapped.add(e.deltaY < 0 ? 'wheelup' : 'wheeldown'); }, { passive: false });
   gm.addEventListener('contextmenu', e => e.preventDefault());
   gm.addEventListener('pointerdown', gameDown); gm.addEventListener('pointermove', gameMove); gm.addEventListener('pointerup', gameUp); gm.addEventListener('pointercancel', gameUp);
@@ -3289,7 +3321,7 @@ function setInputMode(m) {
   if (IN.mode === m) return; IN.mode = m;
   const c = $('#ctls'); if (c) c.style.display = m === 'touch' ? '' : 'none';
   if (G && m === 'pad') msg('Controller: left stick moves, right stick turns, RT fires, A uses');
-  if (G && m === 'kbm') msg('Click the game to lock the mouse. WASD moves, mouse turns, click fires, E uses');
+  if (G && m === 'kbm') msg('Click the game to lock the mouse. WASD moves, mouse turns, click fires, E uses, Esc = menu');
 }
 // called once per game tic; returns analog/digital movement and fires edge actions
 function pollInput() {
@@ -3326,7 +3358,7 @@ function inputEdge(n) {
   else if (n === 'map') G.automap = !G.automap;
   else if (n === 'uturn') IN.uturn = true;
   else if (n === 'lc') { if (G.p) G.p.look = 0; }
-  else if (n === 'menu') { if (document.pointerLockElement) document.exitPointerLock(); else setTimeout(() => $('#gExit').click(), 0); }
+  else if (n === 'menu') { if (document.pointerLockElement) document.exitPointerLock(); setTimeout(() => { if ($('#modal').hidden) openGameMenu(); }, 0); }
 }
 function rumble(strength, ms) { const g = readPad(); try { if (g && g.vibrationActuator) g.vibrationActuator.playEffect('dual-rumble', { duration: ms, strongMagnitude: strength, weakMagnitude: strength * 0.6 }); } catch (e) { } }
 addEventListener('gamepadconnected', e => { toast('Controller connected: ' + (e.gamepad.id || 'gamepad').replace(/\(.*\)/, '').trim().slice(0, 40)); if (G) setInputMode('pad'); });

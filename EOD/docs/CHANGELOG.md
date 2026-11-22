@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.4 (vc24) — 2026-11-22 — in-game Menu and volume
+- **In-game Menu** (☰ Menu in the top bar, or **Esc**): Resume, Restart level, Sound, Picture detail (Classic / Modern), Controls, Move the on-screen buttons, Manual, Quit to the editor. **The game pauses** while the menu or any panel is open. Esc no longer throws you straight back to the editor.
+- **Sound panel**: Sound on/off plus five volume sliders: **Master**, **Your guns**, **Monsters**, **You** (getting hurt, pickups) and **World** (doors, switches, explosions, glass). Each slider plays a sample when you let go so you hear the level. Saved with your settings. Also reachable from the editor's Settings (🔊 Volume…).
+- The top bar is now just ☰ Menu (+ Arrange on touch screens, manual and invert), since Restart / Detail / Controls moved into the menu.
+
 ## v0.8.3 (vc23) — 2026-11-22 — the Sawed-Off
 - **New gun: Sawed-Off.** A short double barrel (our painted "Octagon Double Barrel" art). One pull fires **both barrels at once**: 2 shells, 24 pellets, wide spread. **Brutal up close and weak at range**: damage is ×2.2 point blank, normal at about 300 units, and down to ×0.4 far away. Tested: about 500 damage point blank (Doom's super shotgun does about 200), about 100 at 300 units, about 20 at 700.
 - **Break-open reload after every blast**: the gun drops off screen, you hear it crack open, shells go in, it snaps shut (Doom II's own double-barrel sounds), and the AMMO box says RELOADING. About 1.7 seconds before you can fire again.
