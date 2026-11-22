@@ -10,6 +10,14 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.1 (vc21) — 2026-11-22 — status bar cleanup, face upgrade path
+- **The tiny side text is gone.** Weapon name, kills and items were squeezed into the thin margins beside the bar and came out microscopic. Now the AMMO box is labeled with the gun you're holding (SHOTGUN, CHAINGUN…), and **KILLS · ITEMS · SECRETS** sit in the top bar next to the map name. Same for the Classic bar.
+- **Full words in the ammo table:** BULLETS, SHELLS, ROCKETS, CELLS. The ammo your gun uses is red.
+- **Keys box is labeled KEYS** and the three slots are outlined in their own colors (blue, yellow, red). A key you pick up fills its slot in.
+- **Face upgrade path:** the game now looks for painted high-detail faces in `res/art/faces/` and uses them when they exist (falling back to Freedoom's face per expression). Art order sheet `docs/art/EOD-Marine-Face-Sheet-v001.pdf` (2 pages, 29 faces: 5 damage levels × straight/left/right/ouch/grin, plus rampage, god, dead), and `tools/cut_faces.py` cuts the returned sheets straight into the game.
+- Turning around now says so on screen ("TURNED AROUND (⟲ / X key / right-stick click)"), since a sudden 180° spin can feel like being teleported.
+- Checked: walked every route in Kev's Water Plant tic by tic (door, hall, basins, sluice, catwalk stairs): no position jumps; the sector lookup is correct at 2,400 sample points in that map (and in 3 others).
+
 ## v0.8.0 (vc20) — 2026-11-22 — all CPU cores, Modern look, sharp HUD, death-screen fix
 - **Multi-core 3D view.** The screen is cut into vertical strips and each strip is drawn by its own worker, one per spare CPU core (up to 8). The workers run the exact same drawing code as before (copied from the page when they start, so the two can never drift apart). Textures and sprites are sent to them once; each frame they get only the camera, sector heights/lights and the sprite list, and hand back their strip as a ready-made picture that is just pasted on screen. It switches on by itself above about 800×400 on machines with 3+ cores. Detail ▸ "Use all CPU cores": Auto / Always / Off.
 - **Classic or Modern look** (Detail button, top of the list). Classic = the 1993 chunky 320 picture and the pixel status bar. **Modern (new default)** = Auto detail, plus a new status bar drawn sharp at full screen resolution: big red numbers, HEALTH/ARMOR/AMMO labels, weapon numbers with the current one in a red chip, colored key chips, a clear ammo table, red-rimmed panels with chamfered corners. The marine's face and your gun are cleaned up with a pixel-art upscaler (Scale2x twice) so they're smooth, not blocky. Armor turns green/blue for green/blue armor.

@@ -93,6 +93,7 @@ button.demo{background:var(--accent);border-color:#ff5a5a;color:#fff;font-weight
 #gtop>*{pointer-events:auto}
 #gtop .cancelbtn{width:46px;height:40px}
 #gTitle{color:#fff;font-weight:800;text-shadow:0 1px 2px #000;font-size:.9em}
+#gStats{color:#fff;font-weight:700;text-shadow:0 1px 2px #000;font-size:.85em;margin-left:14px;opacity:.9;white-space:nowrap}
 #gtop .tb{background:rgba(0,0,0,.5);color:#fff;border-color:#555}
 #gtop .iconbtn{color:#fff}
 #ctls .ctl{position:absolute;transform:translate(-50%,-50%);color:#fff;font-weight:900;letter-spacing:1px;user-select:none;touch-action:none}
@@ -166,7 +167,7 @@ a.brand{color:var(--text);text-decoration:none}
   <canvas id="gv"></canvas>
   <div id="gtop">
     <button id="gExit" class="cancelbtn" title="Back to editor"></button>
-    <span id="gTitle"></span>
+    <span id="gTitle"></span><span id="gStats"></span>
     <div class="grow"></div>
     <button id="gRestart" class="tb" title="Start this level over">Restart</button><button id="gDetail" class="tb" title="Picture detail">Detail</button><button id="gControls" class="tb">Controls</button><button id="gArrange" class="tb">Arrange</button>
     <button id="gInfo" class="ghostbtn" title="Manual"></button>
@@ -196,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.0', VC = 20;
+const VERSION = '0.8.1', VC = 21;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2672,7 +2673,7 @@ function gameTic() {
   const lookIn = (pin.look || 0) + IN.look; IN.look = 0;
   p.look = clamp((p.look || 0) + lookIn, -1, 1);
   if (BINDS.lookSpring && !lookIn && !IN.lookY && !TP.size) p.look *= 0.9;
-  if (IN.uturn) { IN.uturn = false; if (!p.uturnT) { p.uturnT = 9; sfx('switch', .3); } }
+  if (IN.uturn) { IN.uturn = false; if (!p.uturnT) { p.uturnT = 9; sfx('switch', .3); msg('TURNED AROUND (⟲ / X key / right-stick click)'); } }
   if (p.uturnT > 0) { p.a += Math.PI / 9; p.uturnT--; }
   const speed = G.mode === 'visual' ? 14 : 9, ca = Math.cos(p.a), sa = Math.sin(p.a);
   const mx = (ca * fwd + sa * str) * speed, my = (sa * fwd - ca * str) * speed;
@@ -5032,27 +5033,56 @@ function sbDrawModern(g, W, H) {
   const box = (bx, bwid, label) => { const X = x0 + bx * k, Y = y0 + 3 * k, Wd = bwid * k, Hd = bh - 6 * k; chopRect(g, X, Y, Wd, Hd, 4 * k); g.fillStyle = 'rgba(0,0,0,.45)'; g.fill(); g.strokeStyle = 'rgba(224,38,45,.75)'; g.lineWidth = Math.max(1, k * 0.6); g.stroke();
     if (label) { g.font = F(4.6 * k, 700); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(label, X + Wd / 2, Y + Hd - 2.2 * k); } return { X, Y, Wd, Hd }; };
   const num = (b, v, pct, col) => { g.font = F(15 * k); g.textAlign = 'center'; g.fillStyle = col || RED; g.shadowColor = 'rgba(224,38,45,.55)'; g.shadowBlur = 4 * k; const t = String(Math.max(0, v | 0)) + (pct ? '%' : ''); g.fillText(t, b.X + b.Wd / 2, b.Y + b.Hd * 0.62); g.shadowBlur = 0; };
-  const a = box(1, 46, 'AMMO'); if (wd && wd.ammo) num(a, p.ammo[wd.ammo]); else { g.font = F(9 * k); g.fillStyle = DIM; g.textAlign = 'center'; g.fillText('∞', a.X + a.Wd / 2, a.Y + a.Hd * 0.6); }
-  num(box(49, 54, 'HEALTH'), p.hp, true, p.hp <= 25 ? '#ff4040' : RED);
-  // arms 2-7
-  const ar = box(105, 37, ''); G.armsRect = { x: ar.X, y: ar.Y, w: ar.Wd, h: ar.Hd };
+  // fit a label inside a box width
+  const fit = (t, maxW, px, wgt) => { g.font = F(px, wgt); const w = g.measureText(t).width; if (w > maxW) g.font = F(px * maxW / w, wgt); };
+  // AMMO box is labeled with the gun you're holding
+  const wname = ((wd && wd.name) || 'AMMO').toUpperCase();
+  const a = box(1, 44, ''); fit(wname, a.Wd - 4 * k, 4.6 * k, 800); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(wname, a.X + a.Wd / 2, a.Y + a.Hd - 2.2 * k);
+  if (wd && wd.ammo) num(a, p.ammo[wd.ammo]); else { g.font = F(10 * k); g.fillStyle = DIM; g.textAlign = 'center'; g.fillText('∞', a.X + a.Wd / 2, a.Y + a.Hd * 0.6); }
+  num(box(47, 48, 'HEALTH'), p.hp, true, p.hp <= 25 ? '#ff4040' : RED);
+  // arms 2-7 (tap one to pick it)
+  const ar = box(97, 37, ''); G.armsRect = { x: ar.X, y: ar.Y, w: ar.Wd, h: ar.Hd };
   for (let i = 2; i <= 7; i++) { const c = (i - 2) % 3, r = Math.floor((i - 2) / 3), cx = ar.X + ar.Wd * (c + 0.5) / 3, cy = ar.Y + ar.Hd * (r + 0.5) / 2, have = p.has.has(i) || (i === 3 && p.has.has(4)) || (i === 2 && p.has.has(1)), cur = p.w === i || (i === 3 && p.w === 4) || (i === 2 && p.w === 1);
     if (cur) { chopRect(g, cx - 5 * k, cy - 5.5 * k, 10 * k, 11 * k, 2 * k); g.fillStyle = RED; g.fill(); }
-    g.font = F(8 * k); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = cur ? '#fff' : have ? '#fff' : DIM; g.fillText(String(i), cx, cy + 0.5 * k); g.textBaseline = 'alphabetic'; }
+    g.font = F(8 * k); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = cur || have ? '#fff' : DIM; g.fillText(String(i), cx, cy + 0.5 * k); g.textBaseline = 'alphabetic'; }
   // the marine
-  const fb = box(144, 33, ''), fp = sbPic(faceName());
-  if (fp) { const img = fp.img, sc = Math.min(fb.Wd / img.w, fb.Hd / img.h) * 0.98; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(hqCanvas(img), fb.X + (fb.Wd - img.w * sc) / 2, fb.Y + (fb.Hd - img.h * sc) / 2, img.w * sc, img.h * sc); g.imageSmoothingEnabled = false; }
-  num(box(179, 54, 'ARMOR'), p.armor, true, p.at === 2 ? '#4d8bff' : p.armor ? '#3fbf4a' : RED);
-  // keys
-  const kb = box(235, 13, ''); [['b', '#3b6cff'], ['y', '#f2c200'], ['r', RED]].forEach(([kk, c], i) => { const Y = kb.Y + kb.Hd * (0.18 + i * 0.3); if (p.keys.has(kk)) { chopRect(g, kb.X + kb.Wd * 0.22, Y, kb.Wd * 0.56, kb.Hd * 0.2, 1.5 * k); g.fillStyle = c; g.fill(); } else { g.strokeStyle = 'rgba(255,255,255,.15)'; chopRect(g, kb.X + kb.Wd * 0.22, Y, kb.Wd * 0.56, kb.Hd * 0.2, 1.5 * k); g.stroke(); } });
-  // ammo table
-  const tb = box(250, 69, '');
-  [['BULL', 'bullets'], ['SHEL', 'shells'], ['RCKT', 'rockets'], ['CELL', 'cells']].forEach(([lab, a2], i) => { const Y = tb.Y + tb.Hd * (0.2 + i * 0.235), cur = wd && wd.ammo === a2;
-    g.font = F(4.8 * k, 800); g.textAlign = 'left'; g.fillStyle = cur ? RED : '#fff'; g.fillText(lab, tb.X + 3 * k, Y + 1.6 * k);
-    g.textAlign = 'right'; g.font = F(5.6 * k, 800); g.fillStyle = '#fff'; g.fillText(`${p.ammo[a2] | 0}`, tb.X + tb.Wd * 0.66, Y + 1.8 * k); g.fillStyle = DIM; g.fillText(`/ ${p.max[a2] | 0}`, tb.X + tb.Wd - 3 * k, Y + 1.8 * k); });
-  // side panels on wide screens: weapon, kills, items
-  if (x0 > 80) { const lines = [(wd ? wd.name : '').toUpperCase(), 'KILLS ' + G.kills + ' / ' + G.totK, 'ITEMS ' + G.items + ' / ' + G.totI]; let fs = Math.min(bh / 5, 8 * k); g.font = F(fs, 800); const mw = Math.max(...lines.map(t => g.measureText(t).width)); if (mw > x0 - 24) fs *= (x0 - 24) / mw; g.font = F(fs, 800); g.textAlign = 'left'; lines.forEach((t, i) => { g.fillStyle = i ? '#fff' : RED; g.fillText(t, 14, y0 + bh * (0.32 + i * 0.27)); }); }
+  const fb = box(136, 33, ''); faceDraw(g, fb);
+  num(box(171, 48, 'ARMOR'), p.armor, true, p.at === 2 ? '#4d8bff' : p.armor ? '#3fbf4a' : RED);
+  // keycards: an empty slot shows the key's color as an outline, a key you hold fills in
+  const kb = box(221, 20, 'KEYS');
+  [['b', '#3b6cff'], ['y', '#f2c200'], ['r', '#ff3030']].forEach(([kk, c], i) => { const X = kb.X + kb.Wd * 0.2, Y = kb.Y + kb.Hd * (0.1 + i * 0.22), w = kb.Wd * 0.6, h = kb.Hd * 0.15; chopRect(g, X, Y, w, h, 1.5 * k);
+    if (p.keys.has(kk)) { g.fillStyle = c; g.fill(); } else { g.strokeStyle = c; g.globalAlpha = 0.45; g.lineWidth = Math.max(1, k * 0.5); g.stroke(); g.globalAlpha = 1; } });
+  // ammo table with full words; the one your gun uses is red
+  const tb = box(243, 76, '');
+  [['BULLETS', 'bullets'], ['SHELLS', 'shells'], ['ROCKETS', 'rockets'], ['CELLS', 'cells']].forEach(([lab, a2], i) => { const Y = tb.Y + tb.Hd * (0.2 + i * 0.235), cur = wd && wd.ammo === a2;
+    fit('ROCKETS', tb.Wd * 0.4, 4.8 * k, 800); g.textAlign = 'left'; g.fillStyle = cur ? RED : '#fff'; g.fillText(lab, tb.X + 3 * k, Y + 1.6 * k);
+    g.textAlign = 'right'; g.font = F(5.4 * k, 800); g.fillStyle = cur ? RED : '#fff'; g.fillText(`${p.ammo[a2] | 0}`, tb.X + tb.Wd * 0.7, Y + 1.8 * k); g.fillStyle = DIM; g.fillText(`/ ${p.max[a2] | 0}`, tb.X + tb.Wd - 3 * k, Y + 1.8 * k); });
+  sbStats();
   g.textAlign = 'left'; return true;
+}
+// kills / items / secrets live in the top bar (they were cramped in the side margins)
+function sbStats() { const el = $('#gStats'); if (!el || !G) return; const t = `KILLS ${G.kills}/${G.totK} · ITEMS ${G.items}/${G.totI}` + (G.totS ? ` · SECRETS ${G.secrets}/${G.totS}` : ''); if (el.textContent !== t) el.textContent = t; }
+// the face: a painted high-detail face if the art pack has one (res/art/faces), otherwise Freedoom's, cleaned up
+const FACEHD = { m: null, imgs: new Map(), tried: false };
+// painted face keys: <kind>_<level>, kinds: straight left right ouch grin (levels 0-4), hitleft hitright rampage god dead
+function faceKey(name) {
+  if (name === 'STFDEAD0') return ['dead']; if (name === 'STFGOD0') return ['god'];
+  let m = name.match(/^STF(OUCH|EVL|KILL)(\d)$/); if (m) { const l = +m[2], k = { OUCH: 'ouch', EVL: 'grin', KILL: 'rampage' }[m[1]]; return k === 'rampage' ? ['rampage_' + (l <= 2 ? 0 : 4), 'grin_' + l] : [k + '_' + l, 'straight_' + l]; }
+  m = name.match(/^STFT([LR])(\d)0$/); if (m) { const l = +m[2], s = m[1] === 'L' ? 'left' : 'right'; return ['hit' + s, s + '_' + l, 'straight_' + l]; }
+  m = name.match(/^STFST(\d)(\d)$/); if (m) { const l = +m[1]; return [['straight', 'left', 'right'][+m[2]] + '_' + l, 'straight_' + l]; }
+  return [];
+}
+function faceHD(name) {
+  if (!FACEHD.tried) { FACEHD.tried = true; fetch('res/art/faces/faces.json').then(r => r.ok ? r.json() : null).then(m => { if (!m) return; FACEHD.m = m; for (const n of m.faces || []) { const im = new Image(); im.onload = () => FACEHD.imgs.set(n, im); im.src = 'res/art/faces/' + n + '.png'; } }).catch(() => { }); }
+  for (const k of faceKey(name)) { const im = FACEHD.imgs.get(k); if (im) return im; }
+  return null;
+}
+function faceDraw(g, fb) {
+  const name = faceName(), hd = faceHD(name);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  if (hd) { const sc = Math.min(fb.Wd / hd.width, fb.Hd / hd.height); g.drawImage(hd, fb.X + (fb.Wd - hd.width * sc) / 2, fb.Y + (fb.Hd - hd.height * sc) / 2, hd.width * sc, hd.height * sc); }
+  else { const fp = sbPic(name); if (fp) { const img = fp.img, sc = Math.min(fb.Wd / img.w, fb.Hd / img.h) * 0.98; g.drawImage(hqCanvas(img), fb.X + (fb.Wd - img.w * sc) / 2, fb.Y + (fb.Hd - img.h * sc) / 2, img.w * sc, img.h * sc); } }
+  g.imageSmoothingEnabled = false;
 }
 /* ---- drawing ---- */
 function drawStatusBar(g, W, H) {
@@ -5080,12 +5110,7 @@ function drawStatusBar(g, W, H) {
   [['b', 0], ['y', 1], ['r', 2]].forEach(([k, i]) => { if (p.keys.has(k)) put('STKEYS' + i, 239, 3 + i * 10); });
   [['bullets', 5], ['shells', 11], ['cells', 23], ['rockets', 17]].forEach(([a, y]) => { small(p.ammo[a], 288, y, 'STYSNUM'); small(p.max[a], 314, y, 'STYSNUM'); });
   // EOD extras on the side bars: weapon name, kills / items
-  if (x0 > 60) {
-    const lines = [(wd ? wd.name : '').toUpperCase(), 'KILLS ' + G.kills + '/' + G.totK, 'ITEMS ' + G.items + '/' + G.totI];
-    let fs = Math.min(bh / 4, 7 * s); g.font = `bold ${fs}px monospace`;
-    const mw = Math.max(...lines.map(t => g.measureText(t).width)); if (mw > x0 - 16) fs *= (x0 - 16) / mw;
-    if (fs >= 8) { g.font = `bold ${fs}px monospace`; g.textAlign = 'left'; g.fillStyle = '#fff'; lines.forEach((t, i) => g.fillText(t, 8, y0 + bh * (0.3 + i * 0.28))); }
-  }
+  sbStats();
   return true;
 }
 

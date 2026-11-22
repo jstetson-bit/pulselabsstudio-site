@@ -85,6 +85,7 @@ button.demo{background:var(--accent);border-color:#ff5a5a;color:#fff;font-weight
 #gtop>*{pointer-events:auto}
 #gtop .cancelbtn{width:46px;height:40px}
 #gTitle{color:#fff;font-weight:800;text-shadow:0 1px 2px #000;font-size:.9em}
+#gStats{color:#fff;font-weight:700;text-shadow:0 1px 2px #000;font-size:.85em;margin-left:14px;opacity:.9;white-space:nowrap}
 #gtop .tb{background:rgba(0,0,0,.5);color:#fff;border-color:#555}
 #gtop .iconbtn{color:#fff}
 #ctls .ctl{position:absolute;transform:translate(-50%,-50%);color:#fff;font-weight:900;letter-spacing:1px;user-select:none;touch-action:none}

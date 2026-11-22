@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.21 — 2026-11-22
+- EOD 0.8.1: status bar cleanup (gun name, full ammo words, KEYS), kills/items in the top bar, face art order sheet.
+
 ## v0.7.20 — 2026-11-22
 - EOD 0.8.0: multi-core 3D view, Classic/Modern look with a sharp status bar, death-screen fix, Restart button.
 

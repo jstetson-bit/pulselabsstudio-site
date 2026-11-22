@@ -423,7 +423,7 @@ function gameTic() {
   const lookIn = (pin.look || 0) + IN.look; IN.look = 0;
   p.look = clamp((p.look || 0) + lookIn, -1, 1);
   if (BINDS.lookSpring && !lookIn && !IN.lookY && !TP.size) p.look *= 0.9;
-  if (IN.uturn) { IN.uturn = false; if (!p.uturnT) { p.uturnT = 9; sfx('switch', .3); } }
+  if (IN.uturn) { IN.uturn = false; if (!p.uturnT) { p.uturnT = 9; sfx('switch', .3); msg('TURNED AROUND (⟲ / X key / right-stick click)'); } }
   if (p.uturnT > 0) { p.a += Math.PI / 9; p.uturnT--; }
   const speed = G.mode === 'visual' ? 14 : 9, ca = Math.cos(p.a), sa = Math.sin(p.a);
   const mx = (ca * fwd + sa * str) * speed, my = (sa * fwd - ca * str) * speed;

@@ -91,3 +91,7 @@ The story of how EOD came to be, in the owner's words where possible.
 - James: *"proceed, lets get this thing into the future"* (go ahead with drawing on all CPU cores).
 - While it was being built: *"the lights are going out and off"* (the water plant's lights-out trap was too dark), *"i cant click the reset. it needs to be in game option maybe?"* (the mouse stayed locked on the death screen), and *"we need to update and sharpen the panels below also so everythign isnt so pixelated. maybe give it options in the viewer that changes your resolution? classic or modern maybe?"*
 - Built 0.8.0: multi-core 3D view, Classic/Modern look (Modern default, sharp status bar), full-resolution screen canvas, clickable death screen + Enter/Esc, in-game Restart, dimmer-not-black trap that relights when the Baron dies.
+
+## 2026-11-22 · Status bar notes from James
+- On a numbered screenshot: *"whats going on with 1 2 3. and can we make 4 more up to date with the face? and full words for the bull shell? and whats the 3 hashes in 7"* — and *"somethign happens in the second room, it like, teleports me to the other side or something"*.
+- 1-2-3 was the side text (weapon, kills, items) shrunk to fit tiny margins: moved into the AMMO label and the top bar. 4: the face needs new painted art; made art order sheet V001 and the cutter. 7: the three outlines were the empty keycard slots: now labeled KEYS and color-coded. Teleport: no jump found by walking every route; the likely cause is the turn-around (X key / right-stick click / ⟲), which now announces itself.
