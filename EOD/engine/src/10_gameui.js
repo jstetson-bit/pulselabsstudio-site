@@ -203,7 +203,7 @@ function drawWeaponRes(g, W, H, u, bx, by) {
 }
 function drawWeapon(g, W, H, u) {
   const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4); let by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
-  if (p.reloadT > 0 && !p.reloadDelay && p.reload0 && p.reloadW === p.w) { const k = 1 - p.reloadT / p.reload0; by += Math.sin(Math.PI * k) * 70 * u; }
+  if (p.reloadT > 0 && !p.reloadDelay && p.reload0 && p.reloadW === p.w && !(WEAPONS[p.w].custom && WEAPONS[p.w].custom.reloadAnim)) { const k = 1 - p.reloadT / p.reload0; by += Math.sin(Math.PI * k) * 70 * u; }
   if (WEAPONS[p.w] && WEAPONS[p.w].custom) { drawCustomWeapon(g, W, H, u, bx, by); return; }
   if (drawWeaponRes(g, W, H, u, bx, by)) return;
   const cx = W / 2 + bx, base = H - 34 * u + by + (p.fireT > 3 ? 4 * u : 0), w = p.w;

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.25 — 2026-11-22
+- EOD 0.8.5: animated break-open reload with ejecting shells on the Sawed-Off.
+
 ## v0.7.24 — 2026-11-22
 - EOD 0.8.4: in-game Menu (Esc, pauses) with volume sliders.
 

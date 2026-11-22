@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.5 (vc25) — 2026-11-22 — Sawed-Off break-open reload, animated
+- **A real break-action reload on the Sawed-Off**, about 1.6 s, step by step:
+  1. **The barrels crack down** off the receiver on the hinge: the muzzles tip away and the steel breech face swings up toward you, showing both chambers with the spent shells' dull brass rims.
+  2. **The ejectors kick:** both spent shells spring out, one to the left and one to the right, spinning, arcing up and falling away with gravity, with a puff of smoke from the chambers. (Doom II's break-open sound.)
+  3. **Two fresh red shells** come up from your hand and slide into the chambers. (Load sound.)
+  4. **The action snaps shut** with bright new brass in the chambers. (Close sound.)
+- The two chambers line up with the bores in the painting automatically (the game finds the two dark bore circles in the art), so other break-action guns can use the same animation (`reloadAnim: 'break'`).
+- Painted guns now get the same clean upscaling as the rest of the Modern look.
+
 ## v0.8.4 (vc24) — 2026-11-22 — in-game Menu and volume
 - **In-game Menu** (☰ Menu in the top bar, or **Esc**): Resume, Restart level, Sound, Picture detail (Classic / Modern), Controls, Move the on-screen buttons, Manual, Quit to the editor. **The game pauses** while the menu or any panel is open. Esc no longer throws you straight back to the editor.
 - **Sound panel**: Sound on/off plus five volume sliders: **Master**, **Your guns**, **Monsters**, **You** (getting hurt, pickups) and **World** (doors, switches, explosions, glass). Each slider plays a sample when you let go so you hear the level. Saved with your settings. Also reachable from the editor's Settings (🔊 Volume…).

@@ -120,7 +120,7 @@ function demoSkin(tex, def) { M.l.forEach(L => { if (L.s1 < 0 || L.s2 < 0) retur
 /* Sawed-Off: short double barrel, both barrels in one pull, huge up close, break-open reload after every blast */
 function demoSawedOff(seed) {
   const id = demoWeapon('dbl1', seed), d = M.wep[id];
-  Object.assign(d, { name: 'Sawed-Off', kind: 'hit', ammo: 'shells', use: 2, rate: 10, reload: 48, pellets: 24, spread: 0.16, dmg: [6, 16], close: 1, recoil: 9, give: 16, snd: 'dshtgn', proj: null, splash: 0, range: 0 });
+  Object.assign(d, { name: 'Sawed-Off', kind: 'hit', ammo: 'shells', use: 2, rate: 10, reload: 56, reloadAnim: 'break', pellets: 24, spread: 0.16, dmg: [6, 16], close: 1, recoil: 9, give: 16, snd: 'dshtgn', proj: null, splash: 0, range: 0 });
   return id;
 }
 /* a long-range painted rifle for the summit (Doom never had one) */

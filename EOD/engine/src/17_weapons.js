@@ -167,8 +167,69 @@ function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
 function drawCustomWeapon(g, W, H, u, bx, by) {
   const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
   if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
-  const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, c = spriteCanvas(img);
-  g.imageSmoothingEnabled = false; g.drawImage(c, W / 2 - img.w * s / 2 + bx, H - hh - img.h * s + by + (p.fireT > 3 ? 3 * s : 0), img.w * s, img.h * s);
+  const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, modern = typeof hudModern === 'function' && hudModern();
+  const c = modern ? hqCanvas(img) : spriteCanvas(img); g.imageSmoothingEnabled = modern; if (modern) g.imageSmoothingQuality = 'high';
+  const dw = img.w * s, dh = img.h * s, x0 = W / 2 - dw / 2 + bx, yb = H - hh + by + (p.fireT > 3 ? 3 * s : 0);
+  if (d.reloadAnim === 'break' && p.reloadT > 0 && !p.reloadDelay && p.reloadW === p.w && p.reload0) breakReload(g, W, H, hh, art.idle, c, dw, dh, x0, yb, s);
+  else g.drawImage(c, x0, yb - dh, dw, dh);
+  g.imageSmoothingEnabled = false; shellFx(g, W, H, s);
+}
+/* ---------- break-action reload: the barrels crack down off the receiver, the spent shells spring out
+   left and right, two fresh ones go in, and the action snaps shut ---------- */
+// where the two bores are on the painting (darkest blobs, left and right of center), cached per picture
+function boresOf(img) {
+  if (img.bores) return img.bores;
+  const px = img.px, w = img.w, h = img.h, L = []; let n = 0, xs = 0;
+  for (let y = 0; y < h * 0.75; y++) for (let x = 0; x < w; x++) { const c = px[y * w + x]; if (!(c >>> 24)) continue; n++; xs += x; const l = (c & 255) * 0.3 + ((c >> 8) & 255) * 0.59 + ((c >> 16) & 255) * 0.11; L.push([l, x, y]); }
+  const cx = n ? xs / n : w / 2; L.sort((a, b) => a[0] - b[0]); const dark = L.slice(0, Math.max(8, Math.floor(L.length * 0.07)));
+  const side = sgn => { const pts = dark.filter(([, x]) => sgn < 0 ? x < cx : x >= cx); if (pts.length < 3) return null; let sx = 0, sy = 0; pts.forEach(([, x, y]) => { sx += x; sy += y; }); return { x: sx / pts.length / w, y: sy / pts.length / h, r: Math.max(0.05, Math.sqrt(pts.length / Math.PI) / w) }; };
+  const a = side(-1) || { x: 0.4, y: 0.45, r: 0.09 }, b = side(1) || { x: 0.6, y: 0.45, r: 0.09 }; const r = Math.min(0.14, Math.max(a.r, b.r));
+  return img.bores = [{ x: a.x, y: a.y, r }, { x: b.x, y: b.y, r }];
+}
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+function drawShell(g, x, y, len, rot, spent, endOn) {
+  g.save(); g.translate(x, y); g.rotate(rot);
+  if (endOn) { // seen from the back: brass rim with a primer dot
+    const r = len * 0.32; g.fillStyle = spent ? '#7a5c18' : '#c9a227'; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
+    g.fillStyle = spent ? '#4a3a12' : '#e8c95a'; g.beginPath(); g.arc(0, 0, r * 0.72, 0, 7); g.fill(); g.fillStyle = '#5a4416'; g.beginPath(); g.arc(0, 0, r * 0.22, 0, 7); g.fill();
+  } else { const w = len * 0.42, hb = len * 0.3;
+    const gr = g.createLinearGradient(0, -w / 2, 0, w / 2); gr.addColorStop(0, spent ? '#7a1418' : '#e0262d'); gr.addColorStop(1, spent ? '#3a0a0c' : '#7a0d12');
+    g.fillStyle = gr; g.fillRect(-len / 2 + hb, -w / 2, len - hb, w);
+    const gb = g.createLinearGradient(0, -w / 2, 0, w / 2); gb.addColorStop(0, '#f0d270'); gb.addColorStop(1, '#8a6a1a'); g.fillStyle = gb; g.fillRect(-len / 2, -w / 2 - len * 0.03, hb, w + len * 0.06);
+    if (spent) { g.fillStyle = 'rgba(20,20,20,.6)'; g.fillRect(len / 2 - len * 0.08, -w / 2, len * 0.08, w); } }
+  g.restore();
+}
+function breakReload(g, W, H, hh, idle, c, dw, dh, x0, yb, s) {
+  const p = G.p, k = 1 - p.reloadT / p.reload0;
+  const o = k < 0.16 ? ease(k / 0.16) : k > 0.86 ? 1 - ease((k - 0.86) / 0.14) : 1; // how far the barrels are cracked open
+  const sq = 1 - 0.42 * o, drop = dh * 0.05 * o, tilt = -0.05 * o, cx = x0 + dw / 2;
+  // the gun: pivots at the hinge (bottom center); muzzles tip down = foreshortened
+  g.save(); g.translate(cx, yb + drop); g.rotate(tilt); g.scale(1, sq); g.drawImage(c, -dw / 2, -dh, dw, dh); g.restore();
+  if (o < 0.25) return;
+  // the open breech: two chambers facing you
+  const B = boresOf(idle), ch = B.map(b => ({ x: cx + (b.x - 0.5) * dw + Math.sin(tilt) * (1 - b.y) * dh, y: yb + drop - (1 - b.y) * dh * sq - dh * 0.16 * o, r: b.r * dw * 1.05 }));
+  const a = Math.min(1, (o - 0.25) / 0.4); g.globalAlpha = a;
+  // the breech face of the barrel block, tipped up toward you
+  { const pad = ch[0].r * 1.0, X = Math.min(ch[0].x, ch[1].x) - ch[0].r - pad, X2 = Math.max(ch[0].x, ch[1].x) + ch[0].r + pad, Y = Math.min(ch[0].y, ch[1].y) - ch[0].r - pad * 0.8, Y2 = Math.max(ch[0].y, ch[1].y) + ch[0].r + pad * 0.8;
+    const gr = g.createLinearGradient(0, Y, 0, Y2); gr.addColorStop(0, '#8a8d94'); gr.addColorStop(0.5, '#4a4c52'); gr.addColorStop(1, '#232428');
+    g.fillStyle = gr; g.beginPath(); const rr = pad; g.moveTo(X + rr, Y); g.lineTo(X2 - rr, Y); g.quadraticCurveTo(X2, Y, X2, Y + rr); g.lineTo(X2, Y2 - rr); g.quadraticCurveTo(X2, Y2, X2 - rr, Y2); g.lineTo(X + rr, Y2); g.quadraticCurveTo(X, Y2, X, Y2 - rr); g.lineTo(X, Y + rr); g.quadraticCurveTo(X, Y, X + rr, Y); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = Math.max(1, pad * 0.15); g.stroke(); g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(X + rr, Y + pad * 0.12, X2 - X - 2 * rr, pad * 0.12); }
+  ch.forEach(q => { g.fillStyle = '#0b0b0b'; g.beginPath(); g.arc(q.x, q.y, q.r, 0, 7); g.fill(); g.strokeStyle = '#5a5a5e'; g.lineWidth = Math.max(1, q.r * 0.18); g.stroke(); });
+  // spent shells sit there until the ejectors kick them out
+  if (k < 0.24) ch.forEach(q => drawShell(g, q.x, q.y, q.r * 2.6, 0, true, true));
+  else if (!p.ejected) { p.ejected = true; ch.forEach((q, i) => { const dir = i ? 1 : -1; (G.shells = G.shells || []).push({ x: q.x, y: q.y, vx: dir * (5 + Math.random() * 3) * s, vy: -(9 + Math.random() * 4) * s, rot: 0, vr: dir * (0.25 + Math.random() * 0.2), len: q.r * 2.6, t: 0 }); (G.smoke = G.smoke || []).push({ x: q.x, y: q.y, r: q.r, t: 0 }); }); }
+  // two fresh shells come up from your hand and slide in
+  if (k >= 0.42) ch.forEach((q, i) => { const t = ease((k - 0.42 - i * 0.06) / 0.28); if (t <= 0) return; const y = H + q.r * 4 + (q.y - H - q.r * 4) * t, x = q.x + (i ? 1 : -1) * q.r * 3 * (1 - t);
+    if (t < 1) drawShell(g, x, y, q.r * 2.6 * (1.6 - 0.6 * t), -Math.PI / 2 + (1 - t) * 0.4 * (i ? 1 : -1), false, false); else drawShell(g, q.x, q.y, q.r * 2.6, 0, false, true); });
+  g.globalAlpha = 1;
+}
+// spent shells in flight + a puff of smoke from the chambers (screen space, gravity, spin)
+function shellFx(g, W, H, s) {
+  const now = performance.now(), dt = Math.min(3, ((now - (G.shellT || now)) / (1000 / 35)) || 1); G.shellT = now;
+  if (G.smoke) { G.smoke = G.smoke.filter(m => (m.t += dt) < 22); G.smoke.forEach(m => { g.fillStyle = `rgba(200,200,200,${0.35 * (1 - m.t / 22)})`; g.beginPath(); g.arc(m.x, m.y - m.t * 2 * s, m.r * (1 + m.t / 8), 0, 7); g.fill(); }); }
+  if (!G.shells || !G.shells.length) return;
+  G.shells = G.shells.filter(q => q.y < H + 80 && (q.t += dt) < 120);
+  G.shells.forEach(q => { q.vy += 0.9 * s * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt; drawShell(g, q.x, q.y, q.len, q.rot, true, false); });
 }
 /* ---------- registry ---------- */
 let WEP_SIG = '';

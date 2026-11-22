@@ -308,7 +308,7 @@ function fireWeapon() {
   if (w.ammo && p.ammo[w.ammo] < w.use) { const order = [7, 6, 4, 5, 3, 2, 1]; const nw = order.find(i => p.has.has(i) && (!WEAPONS[i].ammo || p.ammo[WEAPONS[i].ammo] >= WEAPONS[i].use)); if (nw && nw !== p.w) { p.w = nw; msg(WEAPONS[nw].name); } else sfx('oof'); p.cool = 10; return; }
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   const cu = w.custom || {};
-  p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; }
+  p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; p.ejected = false; }
   p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
@@ -458,7 +458,7 @@ function gameTic() {
   p.viewz += (target - p.viewz) * (target < p.viewz ? 0.6 : 0.35); if (p.viewz > S0.ch - 4) p.viewz = S0.ch - 4;
   if (G.mode === 'play') {
     if (p.cool > 0) p.cool--; if (p.fireT > 0) p.fireT--;
-    if (p.reloadDelay > 0) { p.reloadDelay--; if (!p.reloadDelay) sfx('dbopn', .7); } else if (p.reloadT > 0) { p.reloadT--; if (p.reloadT === Math.round(p.reload0 * 0.55)) sfx('dbload', .7); if (p.reloadT === 6) sfx('dbcls', .7); }
+    if (p.reloadDelay > 0) { p.reloadDelay--; if (!p.reloadDelay) sfx('dbopn', .7); } else if (p.reloadT > 0) { p.reloadT--; if (p.reloadT === Math.round(p.reload0 * 0.5)) sfx('dbload', .7); if (p.reloadT === 6) sfx('dbcls', .7); }
     if ((IN.fire || IN.firePad) && !p.dead) fireWeapon(); else p.refire = false;
     if (IN.use) { IN.use = false; playerUse(); }
     tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls(); faceTick(); tickWaves();
