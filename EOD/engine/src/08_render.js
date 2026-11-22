@@ -158,7 +158,7 @@ function wall3(x, ya, yb, tex, tu, ref, cz, hz, t, proj, lvl, kind, idx) {
 function drawSprites(cam, list, hz, proj) {
   const X0 = R.x0, W = R.W, H = R.H, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi, ca = Math.cos(cam.a), sa = Math.sin(cam.a);
   const vis = [];
-  for (const s of list) { const dx = s.x - cam.x, dy = s.y - cam.y, d = dx * ca + dy * sa; if (d < 4) continue; vis.push([d, dx * sa - dy * ca, s]); }
+  for (const s of list) { const dx = s.x - cam.x, dy = s.y - cam.y, d = dx * ca + dy * sa; if (d < 4) continue; if (d < 40 && s.img && s.img.h * (s.scale || 1) < 32 && s.z < cam.z - 16) continue; /* floor junk (corpses, gibs, shards) right under you would fill the screen */ vis.push([d, dx * sa - dy * ca, s]); }
   vis.sort((a, b) => b[0] - a[0]); if (LIM.on) LIM.sprites = 0;
   const tic = (performance.now() / 50) | 0;
   for (const [d, side, s] of vis) {

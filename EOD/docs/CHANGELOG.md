@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.10 (vc30) — 2026-11-22 — monster infighting; no more giant corpse under your feet
+- **Monster infighting, like the original Doom.** Monsters' shots now hit whatever is in the way, including other monsters. A monster hurt by another monster turns on it and fights it until one of them dies, then comes back for you. So you can bait them: stand so a zombie's line of fire runs through an imp, or so an imp's fireball lands on a demon, and let them tear into each other.
+  - Doom rules kept: a fireball doesn't hurt a monster of the same kind (imps don't hurt imps with fireballs), but bullets do (zombies will shoot each other). Rocket and barrel blasts count too.
+  - Hit a monster yourself while it's busy with another one and it turns back on you.
+  - The Baron sealed in the water plant pipe ignores it all until he's out.
+- **Flicker fix: floor junk right under you is no longer drawn.** A dead body, gibs or glass shards almost under your feet were drawn huge across the bottom of the screen and popped in and out as you moved, like a red damage flash. Low flat things within about one step of the camera are now skipped (Doom hides them the same way).
+- Why: James, in the glass demo: "the screen is flickering here, and i thought it was damage, but it wasnt", and "can i bait enemies to attack other enemies like the original doom? ... monster infighting is what its called."
+- Checked: a zombie shooting at you through an imp hits the imp; the imp turns and kills the zombie. All demo maps and the Freedoom loader pass.
+
 ## v0.8.9 (vc29) — 2026-11-22 — bulletproof glass says so
 - **Bulletproof glass now tells you.** Shoot an unbreakable pane and the message line says "Bulletproof glass: it cracks, but it never breaks." (once every few seconds, per pane). It used to just keep cracking with no word, so it looked like a bug.
 - **The glass demo names its panes** in the start message, left to right: clear, mirror, frosted, stained, bulletproof, Pulse red.

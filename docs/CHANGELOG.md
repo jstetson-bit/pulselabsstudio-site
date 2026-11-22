@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.30 — 2026-11-22
+- EOD 0.8.10: monster infighting; floor junk under the camera no longer flickers across the screen.
+
 ## v0.7.29 — 2026-11-22
 - EOD 0.8.9: bulletproof glass announces itself; glass demo names its panes.
 
