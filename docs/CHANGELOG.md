@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.22 — 2026-11-22
+- EOD 0.8.2: bullets aim up/down at monsters; monsters partly behind ledges can be hit.
+
 ## v0.7.21 — 2026-11-22
 - EOD 0.8.1: status bar cleanup (gun name, full ammo words, KEYS), kills/items in the top bar, face art order sheet.
 

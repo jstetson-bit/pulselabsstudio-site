@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.2 (vc22) — 2026-11-22 — shooting up, down and over ledges
+- **Fix: bullets couldn't reach monsters above or below you.** Every bullet flew dead level at eye height, so anything up on a catwalk or down off a ledge was out of reach: the shot hit the ledge in between, even with the monster right in your crosshair. Bullets now aim up or down at the monster the auto-aim picked (like Doom's own auto-aim), or where you're looking if nothing is picked.
+- **Fix: monsters partly behind a ledge or gap couldn't be targeted.** The game only checked whether it could see a monster's middle. Now it checks the body, then the head, then the legs, and aims at the first part it can see, so a monster showing only its head over a wall can still be shot. Rockets and plasma aim at that same visible part.
+- Tested in Kev's Water Plant: shooting the catwalk monsters from the hall floor. Old build: 0 hits out of 10. New build: the shotgun guy dies in 6, the imp takes 10.
+
 ## v0.8.1 (vc21) — 2026-11-22 — status bar cleanup, face upgrade path
 - **The tiny side text is gone.** Weapon name, kills and items were squeezed into the thin margins beside the bar and came out microscopic. Now the AMMO box is labeled with the gun you're holding (SHOTGUN, CHAINGUN…), and **KILLS · ITEMS · SECRETS** sit in the top bar next to the map name. Same for the Classic bar.
 - **Full words in the ammo table:** BULLETS, SHELLS, ROCKETS, CELLS. The ammo your gun uses is red.
