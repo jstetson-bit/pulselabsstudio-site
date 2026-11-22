@@ -209,7 +209,7 @@ function drawAutomap(g, W, H) {
 
 /* ---------- Visual (3D) editing ---------- */
 function visualTarget() {
-  const i = (R.H >> 1) * R.W + (R.W >> 1), k = R.pk[i], idx = R.pi[i];
+  const i = (R.W >> 1) * R.H + (R.H >> 1), k = R.pk[i], idx = R.pi[i];
   if (k === 4 || k === 5) return { kind: k === 4 ? 'floor' : 'ceil', sec: idx, label: (k === 4 ? 'Floor' : 'Ceiling') + ' · sector ' + idx + ' · ' + (k === 4 ? M.sec[idx].fh + ' ' + M.sec[idx].ft : M.sec[idx].ch + ' ' + M.sec[idx].ct) };
   if (k >= 1 && k <= 3) {
     const L = M.l[idx]; if (!L) return null; const p = G.p; const front = lineSide(L, p.x, p.y) < 0; const sd = front ? L.s1 : L.s2;

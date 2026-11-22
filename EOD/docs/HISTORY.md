@@ -85,3 +85,4 @@ The story of how EOD came to be, in the owner's words where possible.
 ## 2026-11-22 · "This looks pretty grainy"
 - James (screenshot from the water plant on his 4K screen): *"this looks prety grainy. can we do something about it in 4k?"*
 - Cause: the game drew 320 pixels wide and stretched them. Built 0.7.2: Auto detail (steps up to whatever his machine keeps smooth), fixed levels up to Native 4K, an in-game Detail button, and optional smoothing. Next: split the drawing across CPU cores so 4K runs at full speed.
+- Same day, 0.7.3: the renderer stored pixels in the wrong order for how it draws them, which got much worse at high resolution. Fixed; 1440p-class detail is about 2.3× faster.

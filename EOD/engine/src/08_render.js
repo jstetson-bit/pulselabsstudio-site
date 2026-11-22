@@ -3,7 +3,9 @@ const R = { W: 0, H: 0 };
 function rSetup(w, h) {
   if (R.W === w && R.H === h) return;
   R.W = w; R.H = h; R.cv = document.createElement('canvas'); R.cv.width = w; R.cv.height = h;
-  R.ctx = R.cv.getContext('2d'); R.img = R.ctx.createImageData(w, h); R.buf = new Uint32Array(R.img.data.buffer);
+  R.ctx = R.cv.getContext('2d'); R.img = R.ctx.createImageData(w, h); R.out = new Uint32Array(R.img.data.buffer);
+  // the renderer works column by column, so its buffers are column-major (o = x * H + y); rTranspose() copies to the row-major image once per frame
+  R.buf = new Uint32Array(w * h);
   R.dep = new Float32Array(w * h); R.pk = new Uint8Array(w * h); R.pi = new Int32Array(w * h);
 }
 // scene: static per-play snapshot of lines with resolved textures; secs = live sector array (heights change)
@@ -51,6 +53,11 @@ function limPlane(x, h, tex, light, ceil) {
   if (!r) LIM.keys.set(key, { col: x, n: 1, max: 1 });
   else if (r.col === x) { r.n++; if (r.n > r.max) r.max = r.n; }
   else { r.col = x; r.n = 1; }
+}
+/* column-major render buffer -> row-major image, in cache-friendly 32x32 blocks */
+function rTranspose() {
+  const W = R.W, H = R.H, src = R.buf, dst = R.out, B = 32;
+  for (let x0 = 0; x0 < W; x0 += B) { const x1 = Math.min(W, x0 + B); for (let y0 = 0; y0 < H; y0 += B) { const y1 = Math.min(H, y0 + B); for (let y = y0; y < y1; y++) { let d = y * W + x0, o = x0 * H + y; for (let x = x0; x < x1; x++, o += H) dst[d++] = src[o]; } } }
 }
 function render3D(cam, sc, sprites) {
   if (LIM.on) { LIM.keys.clear(); LIM.frame++; LIM.segs = 0; if (LIM.segStamp.length < sc.lines.length) LIM.segStamp = new Int32Array(sc.lines.length); }
@@ -109,19 +116,20 @@ function render3D(cam, sc, sprites) {
       bot = Math.min(bot, Math.ceil(Math.min(yf, yff)) - 1);
       cur = far.sec;
     }
-    if (!solid) for (let y = top; y <= bot; y++) { const o = y * W + x; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
+    if (!solid) for (let y = top; y <= bot; y++) { const o = x * H + y; buf[o] = 0xff000000; dep[o] = 1e9; pk[o] = 0; }
   }
   if (sprites) drawSprites(cam, sprites, hz, proj);
   glassComposite(cam, sc, hz, proj, flats, sky);
+  rTranspose();
   if (LIM.on) { let v = 0; for (const r of LIM.keys.values()) v += r.max; LIM.visplanes = v; }
 }
 function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, skyCol) {
   if (ya > yb) return;
   if (LIM.on) limPlane(x, h, tex, li, ceil);
-  const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  const H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
   if (!tex) { // sky
     const sp = sky.shade(15), sh = R.H, sw = sky.w, sth = sky.h, col = ((skyCol % sw) + sw) % sw;
-    for (let y = ya; y <= yb; y++) { const o = y * W + x; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
+    for (let y = ya; y <= yb; y++) { const o = x * H + y; const v = clamp(((y - hz + sh * 0.95) * sth / (sh * 1.55)) | 0, 0, sth - 1); buf[o] = sp[v * sw + col]; dep[o] = 1e9; pk[o] = ceil ? 5 : 4; pi[o] = si; }
     return;
   }
   const dz = ceil ? h - cam.z : cam.z - h; if (dz <= 0) return;
@@ -131,18 +139,18 @@ function plane3(x, ya, yb, h, tex, li, rdx, rdy, cam, hz, proj, ceil, si, sky, s
     const dy = ceil ? (hz - (y + 0.5)) : ((y + 0.5) - hz); if (dy <= 0) continue;
     const d = dz * proj / dy; const wx = cam.x + rdx * d - scx, wy = cam.y + rdy * d - scy;
     const l = shadeLvl(li, d); if (l !== lastL) { sp = tex.shade(l); lastL = l; }
-    const o = y * W + x; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
+    const o = x * H + y; buf[o] = sp[((Math.floor(-wy) & 63) << 6) | (Math.floor(wx) & 63)]; dep[o] = d; pk[o] = ceil ? 5 : 4; pi[o] = si;
     void tp;
   }
 }
 function wall3(x, ya, yb, tex, tu, ref, cz, hz, t, proj, lvl, kind, idx) {
   if (ya > yb) return;
-  const W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
-  if (!tex) { for (let y = ya; y <= yb; y++) { const o = y * W + x; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
+  const H = R.H, W = R.W, buf = R.buf, dep = R.dep, pk = R.pk, pi = R.pi;
+  if (!tex) { for (let y = ya; y <= yb; y++) { const o = x * H + y; buf[o] = 0xff202020; dep[o] = t; pk[o] = kind; pi[o] = idx; } return; }
   const sp = tex.shade(lvl), tw = tex.w, th = tex.h, col = ((Math.floor(tu) % tw) + tw) % tw;
   const step = t / proj; let z = cz - (ya + 0.5 - hz) * step;
   for (let y = ya; y <= yb; y++, z -= step) {
-    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = y * W + x;
+    let v = Math.floor(ref - z) % th; if (v < 0) v += th; const o = x * H + y;
     buf[o] = sp[v * tw + col]; dep[o] = t; pk[o] = kind; pi[o] = idx;
   }
 }
@@ -166,7 +174,7 @@ function drawSprites(cam, list, hz, proj) {
     for (let x = xa; x <= xb; x++) {
       let u = ((x - x0) / sw * iw) | 0; if (s.flip) u = iw - 1 - u; if (u < 0 || u >= iw) continue;
       for (let y = ya; y <= yb; y++) {
-        const o = y * W + x; if (dep[o] < d) continue;
+        const o = x * H + y; if (dep[o] < d) continue;
         if (s.fuzz && ((x + y + tic) & 1)) continue;
         const v = ((y - yt) / sh * ih) | 0; if (v < 0 || v >= ih) continue;
         const c = sp[v * iw + u]; if (!c) continue;

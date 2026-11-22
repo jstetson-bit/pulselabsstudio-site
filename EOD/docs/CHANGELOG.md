@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.7.3 (vc19) — 2026-11-22 — faster at high detail
+- **The 3D view draws up to 2.3× faster at high detail.** The renderer works one screen column at a time, top to bottom, but it was storing pixels row by row. At big sizes every pixel landed far away in memory from the one before it, which stalls the CPU. The picture is now drawn into a column-ordered buffer and flipped into the screen image once per frame, in small 32×32 blocks.
+- Measured on the slow 2-core test machine: 1920 wide went from 41 to 32 ms a frame, and 2560 wide from 164 to 70 ms. Auto detail will now settle one or two steps sharper on the same machine.
+- Checked: walls, floors, sky, sprites, all six glass types and the aim/pick point all draw the same as before.
+
 ## v0.7.2 (vc18) — 2026-11-22 — sharper picture (Auto detail up to 4K)
 - **Why it looked grainy:** EOD draws every pixel itself like the original Doom, and it was drawing a 320-pixel-wide picture and stretching it across the whole screen (8× on a 2560 screen, 12× on 4K).
 - **New Picture detail levels:** Auto (new default), Classic 320, 640, 960, 1280, 1920, 2560 and **Native** (every real screen pixel, so 4K on a 4K monitor). The picture never uses more pixels than the screen really has (Windows scaling is taken into account).

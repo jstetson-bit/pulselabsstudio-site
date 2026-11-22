@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.19 — 2026-11-22
+- EOD 0.7.3: 3D view up to 2.3× faster at high detail.
+
 ## v0.7.18 — 2026-11-22
 - EOD 0.7.2: Auto picture detail up to Native 4K, in-game Detail button.
 

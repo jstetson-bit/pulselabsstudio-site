@@ -106,7 +106,7 @@ function glassComposite(cam, sc, hz, proj, flats, sky) {
     }
     let z = cz - (ya + 0.5 - hz) * step;
     for (let y = ya; y <= yb; y++, z -= step) {
-      const o = y * W + x; if (dep[o] < t - 0.5) continue;
+      const o = x * R.H + y; if (dep[o] < t - 0.5) continue;
       const bc = buf[o]; let r, gg, b;
       let cr = tr, cg = tg, cb = tb;
       if (pat) { const c = texAt(pat, lvl, uu + side.xo, -z + side.yo); if (c >>> 24) { cr = c & 255; cg = (c >> 8) & 255; cb = (c >> 16) & 255; } }
