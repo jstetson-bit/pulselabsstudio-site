@@ -10,6 +10,14 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.7.2 (vc18) — 2026-11-22 — sharper picture (Auto detail up to 4K)
+- **Why it looked grainy:** EOD draws every pixel itself like the original Doom, and it was drawing a 320-pixel-wide picture and stretching it across the whole screen (8× on a 2560 screen, 12× on 4K).
+- **New Picture detail levels:** Auto (new default), Classic 320, 640, 960, 1280, 1920, 2560 and **Native** (every real screen pixel, so 4K on a 4K monitor). The picture never uses more pixels than the screen really has (Windows scaling is taken into account).
+- **Auto** times every frame: it starts at 960 and steps up while frames take under 6.5 ms, and steps down if they go over 14 ms, so it settles at the sharpest level the machine keeps smooth. It remembers where it settled.
+- **Detail button** in the game's top bar opens the choices live (no need to leave the game), plus **Smooth the pixels when stretching** (softer, less blocky).
+- Anyone who had the old Classic/Chunky/Sharp setting is moved to Auto once.
+- Measured on the slow 2-core test machine: 960 = 11 ms, 1920 = 41 ms per frame. The drawing is one CPU core, so true 4K at full speed needs the work split across cores (next).
+
 ## v0.7.1 (vc17) — 2026-11-22 — water plant door fix
 - **Fix: Kev's Water Plant entrance door only opened a crack.** A Doom door rises to the lowest ceiling of the sectors touching it, and the door was built right against the intake grate, whose ceiling is only 24 units up, so it stopped there. The door now sits 16 units clear of the grate on both sides and opens to 188 (full height). No secret, no trick: it was a build mistake.
 - Checked: every door in all 7 demo maps opened by test and measured. All open to full height.

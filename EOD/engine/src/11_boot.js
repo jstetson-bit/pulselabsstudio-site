@@ -138,7 +138,7 @@ function boot() {
   $('#fileIn').onchange = e => { if (e.target.files[0]) handleFile(e.target.files[0]); };
   $('#tutSkip').onclick = () => { if (TUT) { TUT.i++; tutShow(); } }; $('#tutQuit').onclick = endTutorial;
   $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal') closeModal(); });
-  $('#gControls').onclick = openControls;
+  $('#gControls').onclick = openControls; $('#gDetail').onclick = openDetail;
   const gm = $('#game'); gm.addEventListener('wheel', e => { if (!G) return; e.preventDefault(); IN.tapped.add(e.deltaY < 0 ? 'wheelup' : 'wheeldown'); }, { passive: false });
   gm.addEventListener('contextmenu', e => e.preventDefault());
   gm.addEventListener('pointerdown', gameDown); gm.addEventListener('pointermove', gameMove); gm.addEventListener('pointerup', gameUp); gm.addEventListener('pointercancel', gameUp);

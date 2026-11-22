@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.18 — 2026-11-22
+- EOD 0.7.2: Auto picture detail up to Native 4K, in-game Detail button.
+
 ## v0.7.17 — 2026-11-22
 - EOD 0.7.1: Kev's Water Plant entrance door opens fully.
 

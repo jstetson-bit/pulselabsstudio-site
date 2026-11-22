@@ -221,7 +221,7 @@ function openSettings() {
   <div class="f"><label>Screen layout</label><select id="stL">${[['auto', 'Auto (detect)'], ['portrait', 'Portrait 9:16'], ['landscape', 'Landscape 16:9'], ['fold', 'Z Fold unfolded']].map(([k, n]) => `<option value="${k}" ${S.layout === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Art pack</label><select id="stArt"><option value="freedoom" ${(S.artPack || 'freedoom') === 'freedoom' ? 'selected' : ''}>Freedoom (looks like Doom · free · ~7 MB once)</option><option value="inhouse" ${S.artPack === 'inhouse' ? 'selected' : ''}>EOD in-house (lightest, no download)</option></select></div>
   <p class="hint">Maps that bring their own art always use it. Freedoom is free art made by the Freedoom project (BSD license); see Credits in the manual.</p>
-  <div class="f"><label>Picture detail</label><select id="stR">${[[200, 'Chunky (fastest)'], [320, 'Classic 320'], [480, 'Sharp 480']].map(([k, n]) => `<option value="${k}" ${S.res == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+  <div class="f"><label>Picture detail</label><select id="stR">${[['auto', 'Auto (sharpest that stays smooth)'], [320, 'Classic 320'], [640, '640'], [960, '960'], [1280, '1280 (720p)'], [1920, '1920 (1080p)'], [2560, '2560 (1440p)'], ['native', 'Native (4K on a 4K screen)']].map(([k, n]) => `<option value="${k}" ${String(S.res) === String(k) ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Skill</label><select id="stSk">${[[1, "I'm too young to die"], [2, 'Hurt me plenty'], [3, 'Ultra-violence']].map(([k, n]) => `<option value="${k}" ${S.skill == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
   <div class="f"><label>Turn speed <b id="snV">${S.sens}</b></label><input id="stSn" type="range" min="0.3" max="3" step="0.1" value="${S.sens}"></div>
   <div class="f"><label>Control opacity <b id="coV">${S.ctlOpacity}</b></label><input id="stCo" type="range" min="0.15" max="1" step="0.05" value="${S.ctlOpacity}"></div>
@@ -248,7 +248,7 @@ function openSettings() {
     ch('#stF', e => S.font = e.value); ch('#stFs', e => { S.fs = +e.value; b.querySelector('#fsV').textContent = S.fs; }); ch('#stInv', e => S.inverted = e.checked);
     ch('#stDW', e => S.defWall = e.value.toUpperCase().slice(0, 8)); ch('#stDF', e => S.defFloor = e.value.toUpperCase().slice(0, 8)); ch('#stDC', e => S.defCeil = e.value.toUpperCase().slice(0, 8)); ch('#stES', e => S.ellipseSides = clamp(+e.value || 16, 3, 64));
     ch('#stArt', e => { S.artPack = e.value; setTimeout(applyArtSetting, 0); });
-    ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = +e.value); ch('#stSk', e => S.skill = +e.value);
+    ch('#stL', e => S.layout = e.value); ch('#stR', e => S.res = isNaN(+e.value) ? e.value : +e.value); ch('#stSk', e => S.skill = +e.value);
     ch('#stSn', e => { S.sens = +e.value; b.querySelector('#snV').textContent = S.sens; }); ch('#stCo', e => { S.ctlOpacity = +e.value; b.querySelector('#coV').textContent = S.ctlOpacity; }); ch('#stSnd', e => S.sound = e.checked);
     b.querySelectorAll('[data-sb]').forEach(x => x.onclick = () => { S.statusBar = x.dataset.sb; saveSettings(); b.querySelectorAll('[data-sb]').forEach(y => y.classList.toggle('on', y === x)); });
     b.querySelectorAll('[data-doll]').forEach(x => x.onclick = () => { S.dollMsg = x.dataset.doll === 'true'; saveSettings(); b.querySelectorAll('[data-doll]').forEach(y => y.classList.toggle('on', y === x)); });

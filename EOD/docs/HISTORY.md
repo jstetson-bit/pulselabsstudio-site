@@ -81,3 +81,7 @@ The story of how EOD came to be, in the owner's words where possible.
 ## 2026-11-22 · The door that only opened a crack
 - James: *"inside Kevin's water level, that door to the right doesn't open all the way. It just opens a fraction. Is there a secret, or is it just improperly tuned…?"*
 - It was a mistake: the door touched the low intake grate, and Doom doors stop at the lowest neighboring ceiling. Moved the door clear of the grate and tested every door in every demo map. 0.7.1.
+
+## 2026-11-22 · "This looks pretty grainy"
+- James (screenshot from the water plant on his 4K screen): *"this looks prety grainy. can we do something about it in 4k?"*
+- Cause: the game drew 320 pixels wide and stretched them. Built 0.7.2: Auto detail (steps up to whatever his machine keeps smooth), fixed levels up to Native 4K, an in-game Detail button, and optional smoothing. Next: split the drawing across CPU cores so 4K runs at full speed.

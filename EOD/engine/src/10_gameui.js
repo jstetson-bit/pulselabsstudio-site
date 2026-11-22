@@ -7,13 +7,37 @@ const CTL_DEF = {
 const GL = { key: 'landscape', vw: 0, vh: 0, vx: 0, vy: 0, arrange: false, arrBackup: null };
 function layoutKey() { if (S.layout !== 'auto') return S.layout; const W = innerWidth, H = innerHeight; return H / W > 1.25 ? 'portrait' : W / H > 1.35 ? 'landscape' : 'fold'; }
 function ctlPos() { const all = LS.get('ctlpos', {}); return Object.assign({}, CTL_DEF[GL.key], all[GL.key] || {}); }
+/* Auto detail: time each frame and step the picture up or down so it stays smooth */
+const RES_STEPS = [320, 480, 640, 800, 960, 1280, 1600, 1920, 2560, 3200, 3840];
+function autoRes(ms) {
+  if (S.res !== 'auto') return; const A = GL.auto || (GL.auto = { ema: ms, n: 0 });
+  A.ema = A.ema * 0.92 + ms * 0.08; if (++A.n < 60) return; A.n = 0;
+  const cur = GL.autoRes || S.autoRes || 960, i = RES_STEPS.findIndex(r => r >= cur), dev = Math.round(GL.vw * (devicePixelRatio || 1));
+  let next = cur; if (A.ema > 14 && i > 0) next = RES_STEPS[i - 1]; else if (A.ema < 6.5 && i < RES_STEPS.length - 1 && RES_STEPS[i + 1] <= dev) next = RES_STEPS[i + 1];
+  if (next !== cur) { GL.autoRes = S.autoRes = next; A.ema = A.ema * (next > cur ? 1.6 : 0.6); layoutGame(); try { saveSettings(); } catch (e) { } }
+}
+function openDetail() {
+  const opts = [['auto', 'Auto (sharpest that stays smooth)'], [320, 'Classic 320 (original Doom look)'], [640, '640'], [960, '960'], [1280, '1280 (720p)'], [1920, '1920 (1080p)'], [2560, '2560 (1440p)'], ['native', 'Native (every screen pixel, 4K on a 4K screen)']];
+  const now = () => `Drawing ${R.W} × ${R.H}` + (S.res === 'auto' ? ' (Auto)' : '');
+  modal('Picture detail', `<p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
+  <div style="display:grid;gap:6px;margin:8px 0">${opts.map(([k, n]) => `<button data-rs="${k}" class="${String(S.res) === String(k) ? 'on' : ''}">${n}</button>`).join('')}</div>
+  <label class="chk"><input type="checkbox" id="rsSm" ${S.smooth ? 'checked' : ''}>Smooth the pixels when stretching (softer, less blocky)</label>
+  <p class="hint" id="rsNow">${now()}</p>`, [{ cancel: 1, title: 'Close' }]);
+  setTimeout(() => {
+    document.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { const v = b.dataset.rs; S.res = v === 'auto' || v === 'native' ? v : +v; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
+    $('#rsSm').onchange = e => { S.smooth = e.target.checked; saveSettings(); layoutGame(); };
+  }, 0);
+}
 function layoutGame() {
   const W = innerWidth, H = innerHeight; GL.key = layoutKey();
   let vw = W, vh = H;
   if (GL.key === 'portrait') vh = Math.round(Math.min(H * 0.58, W * 1.3));
   GL.vw = vw; GL.vh = vh;
   const cv = $('#gv'); cv.style.width = vw + 'px'; cv.style.height = vh + 'px';
-  const rw = Math.min(S.res, Math.round(vw)), rh = Math.max(100, Math.round(rw * vh / vw));
+  // picture detail: a fixed width, or Auto (as sharp as this machine draws smoothly); never more pixels than the screen really has
+  const dev = Math.round(vw * (devicePixelRatio || 1)), want = S.res === 'auto' ? (GL.autoRes || S.autoRes || 960) : S.res === 'native' ? dev : +S.res || 320;
+  const rw = Math.max(160, Math.min(want, dev)), rh = Math.max(100, Math.round(rw * vh / vw));
+  cv.style.imageRendering = S.smooth ? 'auto' : 'pixelated';
   cv.width = rw; cv.height = rh; rSetup(rw, rh);
   const pos = ctlPos();
   document.querySelectorAll('#ctls .ctl').forEach(el => {

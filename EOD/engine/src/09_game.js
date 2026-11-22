@@ -468,7 +468,7 @@ function gameFrame(now) {
   try {
     const dt = Math.min(250, now - G.last); G.last = now; G.acc += dt;
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
-    drawGame();
+    const t0 = performance.now(); drawGame(); autoRes(performance.now() - t0);
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }
   requestAnimationFrame(gameFrame);
 }
