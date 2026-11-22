@@ -131,7 +131,7 @@ function spriteRot(thingAng, tx, ty, cx, cy) { let r = Math.atan2(ty - cy, tx - 
 function spriteCanvas(img) { if (img.canvas) return img.canvas; const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; const id = new ImageData(img.w, img.h); new Uint32Array(id.data.buffer).set(img.px); c.getContext('2d').putImageData(id, 0, 0); img.canvas = c; return c; }
 /* ---------- sounds (Doom DMX format) ---------- */
 const SNDC = new Map();
-const SND_MAP = { pistol: 'DSPISTOL', shotgun: 'DSSHOTGN', chain: 'DSPISTOL', rocket: 'DSRLAUNC', plasma: 'DSPLASMA', explode: 'DSBAREXP', door: 'DSDOROPN', switch: 'DSSWTCHN', pickup: 'DSITEMUP', weapon: 'DSWPNUP', oof: 'DSNOWAY', pain: 'DSPLPAIN', die: 'DSPODTH1', fire: 'DSFIRSHT', tele: 'DSTELEPT', secret: 'DSGETPOW' };
+const SND_MAP = { pistol: 'DSPISTOL', shotgun: 'DSSHOTGN', chain: 'DSPISTOL', rocket: 'DSRLAUNC', plasma: 'DSPLASMA', explode: 'DSBAREXP', door: 'DSDOROPN', switch: 'DSSWTCHN', pickup: 'DSITEMUP', weapon: 'DSWPNUP', oof: 'DSNOWAY', pain: 'DSPLPAIN', die: 'DSPODTH1', fire: 'DSFIRSHT', tele: 'DSTELEPT', telept: 'DSTELEPT', secret: 'DSGETPOW', dshtgn: 'DSDSHTGN', dbopn: 'DSDBOPN', dbload: 'DSDBLOAD', dbcls: 'DSDBCLS' };
 function resSound(kind) {
   const lump = SND_MAP[kind]; if (!lump) return null; if (SNDC.has(lump)) return SNDC.get(lump);
   let buf = null; const ac = AC;

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.23 — 2026-11-22
+- EOD 0.8.3: the Sawed-Off (both barrels, close-range power, reload every blast).
+
 ## v0.7.22 — 2026-11-22
 - EOD 0.8.2: bullets aim up/down at monsters; monsters partly behind ledges can be hit.
 

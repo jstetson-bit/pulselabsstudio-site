@@ -92,7 +92,8 @@ function buildArenaMap() {
 function buildChaingunMap() {
   M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
   M.hint = 'Hold FIRE. Six waves are coming. Tap the numbers on the bar to switch guns: 2 = chainsaw (again = pistol), 4 = double barrel, 5 = chaingun, 6 = rockets.';
-  M.start = { weapons: [1, 4, 5, 6], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  const SO = demoSawedOff(71);
+  M.start = { weapons: [1, 4, 5, 6, SO], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
   // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
   const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
   const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
@@ -116,6 +117,12 @@ function buildChaingunMap() {
 }
 /* give two-sided lines their upper/lower textures (steps, ledges, pools) from a per-sector table */
 function demoSkin(tex, def) { M.l.forEach(L => { if (L.s1 < 0 || L.s2 < 0) return; for (const sd of [L.s1, L.s2]) { const d = M.sd[sd], t = tex[d.sec] || def; if (d.lo === '-') d.lo = t; if (d.up === '-') d.up = t; } }); }
+/* Sawed-Off: short double barrel, both barrels in one pull, huge up close, break-open reload after every blast */
+function demoSawedOff(seed) {
+  const id = demoWeapon('dbl1', seed), d = M.wep[id];
+  Object.assign(d, { name: 'Sawed-Off', kind: 'hit', ammo: 'shells', use: 2, rate: 10, reload: 48, pellets: 24, spread: 0.16, dmg: [6, 16], close: 1, recoil: 9, give: 16, snd: 'dshtgn', proj: null, splash: 0, range: 0 });
+  return id;
+}
 /* a long-range painted rifle for the summit (Doom never had one) */
 function demoSniper(seed) {
   const id = demoWeapon('marksman_rifle', seed), d = M.wep[id];
@@ -144,7 +151,7 @@ function buildHillMap() {
   demoSkin(Object.fromEntries(cover.map(c => [c, 'SUPPORT3'])), RK);
   const k = demoLine(896, -16, 1152, -16); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // the summit armory: long-range guns + ammo
-  T(demoSniper(61), 1024, 2700, 270); T(2003, 900, 2620); T(2002, 1148, 2620); T(82, 1024, 2600); T(2004, 1150, 2720);
+  T(demoSniper(61), 1024, 2700, 270); T(demoSawedOff(72), 760, 2620); T(2003, 900, 2620); T(2002, 1148, 2620); T(82, 1024, 2600); T(2004, 1150, 2720);
   for (let i = 0; i < 4; i++) { T(2048, 870 + i * 100, 2470); T(2046, 870 + i * 100, 2400); }
   T(2049, 760, 2300); T(2049, 1290, 2300); T(17, 1290, 2450); T(2019, 760, 2450); T(2012, 1700, 2200); T(2012, 1900, 2200);
   T(1, 1024, 2350, 270);
@@ -209,6 +216,7 @@ function buildWaterMap() {
   const k = demoLine(704, 3344, 832, 3344); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // things
   T(1, 768, 600, 90);
+  T(demoSawedOff(73), 700, 640); T(2049, 820, 640);
   T(2001, 600, 640); T(2008, 900, 640); T(2008, 960, 640); T(2011, 300, 620);
   [[560, 1000, 3004], [960, 1100, 3004], [560, 1300, 9], [960, 1400, 3001], [300, 700, 3004], [1300, 700, 3001], [960, 1250, 3004], [560, 1450, 3001]].forEach(([x, y, t]) => T(t, x, y, 90));
   T(2018, 700, 700); T(2011, 840, 700);

@@ -10,6 +10,13 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.3 (vc23) — 2026-11-22 — the Sawed-Off
+- **New gun: Sawed-Off.** A short double barrel (our painted "Octagon Double Barrel" art). One pull fires **both barrels at once**: 2 shells, 24 pellets, wide spread. **Brutal up close and weak at range**: damage is ×2.2 point blank, normal at about 300 units, and down to ×0.4 far away. Tested: about 500 damage point blank (Doom's super shotgun does about 200), about 100 at 300 units, about 20 at 700.
+- **Break-open reload after every blast**: the gun drops off screen, you hear it crack open, shells go in, it snaps shut (Doom II's own double-barrel sounds), and the AMMO box says RELOADING. About 1.7 seconds before you can fire again.
+- Where to get it: on the shore at the start of **Kev's Water Plant**, in the summit armory on **King of Shit Hill**, and you start with it in **Chaingun Carnage**.
+- **ARMS panel knows about painted guns now.** Each gun lives under a number by its type (shotguns under 3, launchers under 6, energy under 7…). Tap a number again to cycle through the guns that share it.
+- Engine: custom guns can have a reload time (`reload`) and short-barrel falloff (`close`).
+
 ## v0.8.2 (vc22) — 2026-11-22 — shooting up, down and over ledges
 - **Fix: bullets couldn't reach monsters above or below you.** Every bullet flew dead level at eye height, so anything up on a catwalk or down off a ledge was out of reach: the shot hit the ledge in between, even with the monster right in your crosshair. Bullets now aim up or down at the monster the auto-aim picked (like Doom's own auto-aim), or where you're looking if nothing is picked.
 - **Fix: monsters partly behind a ledge or gap couldn't be targeted.** The game only checked whether it could see a monster's middle. Now it checks the body, then the head, then the legs, and aims at the first part it can see, so a monster showing only its head over a wall can still be shot. Rockets and plasma aim at that same visible part.

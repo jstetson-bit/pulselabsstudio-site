@@ -174,7 +174,8 @@ function drawWeaponRes(g, W, H, u, bx, by) {
   return true;
 }
 function drawWeapon(g, W, H, u) {
-  const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4), by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4); let by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  if (p.reloadT > 0 && !p.reloadDelay && p.reload0 && p.reloadW === p.w) { const k = 1 - p.reloadT / p.reload0; by += Math.sin(Math.PI * k) * 70 * u; }
   if (WEAPONS[p.w] && WEAPONS[p.w].custom) { drawCustomWeapon(g, W, H, u, bx, by); return; }
   if (drawWeaponRes(g, W, H, u, bx, by)) return;
   const cx = W / 2 + bx, base = H - 34 * u + by + (p.fireT > 3 ? 4 * u : 0), w = p.w;
@@ -275,14 +276,17 @@ function gameDown(e) {
   TP.set(id, { k: 'turn', lx: e.clientX, ly: e.clientY });
 }
 /* tap a number on the status bar's ARMS panel to pick that gun (2 = chainsaw, tap again for the pistol) */
+/* which number on the ARMS panel a weapon lives under (2-7); painted/custom guns go by their class */
+function panelOf(id) { const w = WEAPONS[id]; if (!w) return 0; if (!w.custom) return id === 1 ? 2 : id === 8 ? 7 : id; return { sidearm: 2, melee: 2, shotgun: 3, repeater: 5, explosive: 6, thrown: 6, energy: 7, railgun: 7, super: 7 }[w.custom.cls] || 5; }
+function panelGuns(n) { return [...G.p.has].filter(id => panelOf(id) === n).sort((a, b) => a - b); }
 function armsTap(e) {
   const a = G && G.armsRect; if (!a) return false; const cv = $('#gv'), r = cv.getBoundingClientRect();
   const x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
   if (x < a.x || y < a.y || x > a.x + a.w || y > a.y + a.h) return false;
   const col = clamp(Math.floor((x - a.x) / (a.w / 3)), 0, 2), row = clamp(Math.floor((y - a.y) / (a.h / 2)), 0, 1), slot = 2 + row * 3 + col, p = G.p;
-  let w = slot; if (slot === 2 && p.has.has(1) && p.w !== 1) w = 1;
-  if (slot === 3 && p.has.has(4) && (p.w === 3 || !p.has.has(3))) w = 4;
-  if (p.has.has(w) && w !== p.w) { p.w = w; msg(WEAPONS[w].name); sfx('switch'); }
+  // tap a number again to cycle through the guns that share it (e.g. 3: Shotgun > Sawed-Off)
+  const list = panelGuns(slot); if (!list.length) return true; const i = list.indexOf(p.w), w = list[(i + 1) % list.length];
+  if (w !== p.w) { p.w = w; msg(WEAPONS[w].name); sfx('switch'); }
   return true;
 }
 function stickMove(e) { const t = TP.get(e.pointerId); let dx = e.clientX - t.cx, dy = e.clientY - t.cy; const m = Math.hypot(dx, dy), max = t.rad * 0.7; if (m > max) { dx *= max / m; dy *= max / m; }

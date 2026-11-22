@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.2', VC = 22;
+const VERSION = '0.8.3', VC = 23;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -1361,7 +1361,7 @@ function spriteRot(thingAng, tx, ty, cx, cy) { let r = Math.atan2(ty - cy, tx - 
 function spriteCanvas(img) { if (img.canvas) return img.canvas; const c = document.createElement('canvas'); c.width = img.w; c.height = img.h; const id = new ImageData(img.w, img.h); new Uint32Array(id.data.buffer).set(img.px); c.getContext('2d').putImageData(id, 0, 0); img.canvas = c; return c; }
 /* ---------- sounds (Doom DMX format) ---------- */
 const SNDC = new Map();
-const SND_MAP = { pistol: 'DSPISTOL', shotgun: 'DSSHOTGN', chain: 'DSPISTOL', rocket: 'DSRLAUNC', plasma: 'DSPLASMA', explode: 'DSBAREXP', door: 'DSDOROPN', switch: 'DSSWTCHN', pickup: 'DSITEMUP', weapon: 'DSWPNUP', oof: 'DSNOWAY', pain: 'DSPLPAIN', die: 'DSPODTH1', fire: 'DSFIRSHT', tele: 'DSTELEPT', secret: 'DSGETPOW' };
+const SND_MAP = { pistol: 'DSPISTOL', shotgun: 'DSSHOTGN', chain: 'DSPISTOL', rocket: 'DSRLAUNC', plasma: 'DSPLASMA', explode: 'DSBAREXP', door: 'DSDOROPN', switch: 'DSSWTCHN', pickup: 'DSITEMUP', weapon: 'DSWPNUP', oof: 'DSNOWAY', pain: 'DSPLPAIN', die: 'DSPODTH1', fire: 'DSFIRSHT', tele: 'DSTELEPT', telept: 'DSTELEPT', secret: 'DSGETPOW', dshtgn: 'DSDSHTGN', dbopn: 'DSDBOPN', dbload: 'DSDBLOAD', dbcls: 'DSDBCLS' };
 function resSound(kind) {
   const lump = SND_MAP[kind]; if (!lump) return null; if (SNDC.has(lump)) return SNDC.get(lump);
   let buf = null; const ac = AC;
@@ -2526,7 +2526,7 @@ function explode(x, y, z, radius, maxd, src) {
 }
 /* the first height on a monster you can actually see (body, head, then legs), or null */
 function aimPoint(x, y, z, e) { for (const f of [0.5, 0.82, 0.22]) { const tz = e.z + e.h * f; if (sight(x, y, z, e.x, e.y, tz)) return tz; } return null; }
-function hitscan(a, dmg, range = 2048) {
+function hitscan(a, dmg, range = 2048, close = 0) {
   const p = G.p, z = p.viewz - 8, t = G.aimT;
   // vertical aim: straight at the auto-aimed monster (up onto a catwalk, down off a cliff), otherwise where you're looking
   let slope = (p.look || 0) * 0.9;
@@ -2540,6 +2540,8 @@ function hitscan(a, dmg, range = 2048) {
     const onLine = zz >= e.z - 6 && zz <= e.z + e.h + 6 && sight(p.x, p.y, z, e.x, e.y, zz);
     if (onLine || (!t && aimPoint(p.x, p.y, z, e) != null)) { best = e; bd = al; }
   }
+  // short barrels: brutal up close, weak at range (x2.2 point blank, x1 at ~300, x0.4 far away)
+  if (best && close) dmg = Math.round(dmg * clamp(2.2 - bd / 250, 0.4, 2.2));
   if (best) { damageMonster(best, dmg, 'player'); return true; }
   if (glassLive(w.l)) damageGlass(w.l, dmg, p.x + c * w.d, p.y + s * w.d, z, 'player');
   G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
@@ -2555,13 +2557,15 @@ function fireWeapon() {
   if (p.cool > 0) return;
   if (w.ammo && p.ammo[w.ammo] < w.use) { const order = [7, 6, 4, 5, 3, 2, 1]; const nw = order.find(i => p.has.has(i) && (!WEAPONS[i].ammo || p.ammo[WEAPONS[i].ammo] >= WEAPONS[i].use)); if (nw && nw !== p.w) { p.w = nw; msg(WEAPONS[nw].name); } else sfx('oof'); p.cool = 10; return; }
   if (w.ammo) p.ammo[w.ammo] -= w.use;
-  p.cool = w.rate; p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
+  const cu = w.custom || {};
+  p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; }
+  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
   const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
   if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); ww.hitMon = 1; break; } if (!ww.hitMon && glassLive(ww.l)) damageGlass(ww.l, rnd(...w.dmg), p.x + Math.cos(a) * ww.d, p.y + Math.sin(a) * ww.d, p.viewz - 8, 'player'); }
   else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, aimVz((PROJ[w.proj] || PROJ.rocket).spd)); }
-  else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg), longR || 2048);
+  else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg), longR || 2048, cu.close || 0);
   p.refire = true;
   // wake monsters by sound
   G.ents.forEach(e => { if (e.alive && e.d.cat === 'monster' && e.state === 'idle' && !e.ambush && Math.hypot(e.x - p.x, e.y - p.y) < 1400) e.state = 'chase'; });
@@ -2704,6 +2708,7 @@ function gameTic() {
   p.viewz += (target - p.viewz) * (target < p.viewz ? 0.6 : 0.35); if (p.viewz > S0.ch - 4) p.viewz = S0.ch - 4;
   if (G.mode === 'play') {
     if (p.cool > 0) p.cool--; if (p.fireT > 0) p.fireT--;
+    if (p.reloadDelay > 0) { p.reloadDelay--; if (!p.reloadDelay) sfx('dbopn', .7); } else if (p.reloadT > 0) { p.reloadT--; if (p.reloadT === Math.round(p.reload0 * 0.55)) sfx('dbload', .7); if (p.reloadT === 6) sfx('dbcls', .7); }
     if ((IN.fire || IN.firePad) && !p.dead) fireWeapon(); else p.refire = false;
     if (IN.use) { IN.use = false; playerUse(); }
     tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls(); faceTick(); tickWaves();
@@ -2908,7 +2913,8 @@ function drawWeaponRes(g, W, H, u, bx, by) {
   return true;
 }
 function drawWeapon(g, W, H, u) {
-  const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4), by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  const p = G.p, bx = Math.sin(p.bob * 0.5) * 6 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4); let by = Math.abs(Math.cos(p.bob * 0.5)) * 4 * u * Math.min(1, Math.hypot(p.vx, p.vy) / 4);
+  if (p.reloadT > 0 && !p.reloadDelay && p.reload0 && p.reloadW === p.w) { const k = 1 - p.reloadT / p.reload0; by += Math.sin(Math.PI * k) * 70 * u; }
   if (WEAPONS[p.w] && WEAPONS[p.w].custom) { drawCustomWeapon(g, W, H, u, bx, by); return; }
   if (drawWeaponRes(g, W, H, u, bx, by)) return;
   const cx = W / 2 + bx, base = H - 34 * u + by + (p.fireT > 3 ? 4 * u : 0), w = p.w;
@@ -3009,14 +3015,17 @@ function gameDown(e) {
   TP.set(id, { k: 'turn', lx: e.clientX, ly: e.clientY });
 }
 /* tap a number on the status bar's ARMS panel to pick that gun (2 = chainsaw, tap again for the pistol) */
+/* which number on the ARMS panel a weapon lives under (2-7); painted/custom guns go by their class */
+function panelOf(id) { const w = WEAPONS[id]; if (!w) return 0; if (!w.custom) return id === 1 ? 2 : id === 8 ? 7 : id; return { sidearm: 2, melee: 2, shotgun: 3, repeater: 5, explosive: 6, thrown: 6, energy: 7, railgun: 7, super: 7 }[w.custom.cls] || 5; }
+function panelGuns(n) { return [...G.p.has].filter(id => panelOf(id) === n).sort((a, b) => a - b); }
 function armsTap(e) {
   const a = G && G.armsRect; if (!a) return false; const cv = $('#gv'), r = cv.getBoundingClientRect();
   const x = (e.clientX - r.left) * cv.width / r.width, y = (e.clientY - r.top) * cv.height / r.height;
   if (x < a.x || y < a.y || x > a.x + a.w || y > a.y + a.h) return false;
   const col = clamp(Math.floor((x - a.x) / (a.w / 3)), 0, 2), row = clamp(Math.floor((y - a.y) / (a.h / 2)), 0, 1), slot = 2 + row * 3 + col, p = G.p;
-  let w = slot; if (slot === 2 && p.has.has(1) && p.w !== 1) w = 1;
-  if (slot === 3 && p.has.has(4) && (p.w === 3 || !p.has.has(3))) w = 4;
-  if (p.has.has(w) && w !== p.w) { p.w = w; msg(WEAPONS[w].name); sfx('switch'); }
+  // tap a number again to cycle through the guns that share it (e.g. 3: Shotgun > Sawed-Off)
+  const list = panelGuns(slot); if (!list.length) return true; const i = list.indexOf(p.w), w = list[(i + 1) % list.length];
+  if (w !== p.w) { p.w = w; msg(WEAPONS[w].name); sfx('switch'); }
   return true;
 }
 function stickMove(e) { const t = TP.get(e.pointerId); let dx = e.clientX - t.cx, dy = e.clientY - t.cy; const m = Math.hypot(dx, dy), max = t.rad * 0.7; if (m > max) { dx *= max / m; dy *= max / m; }
@@ -4814,7 +4823,8 @@ function buildArenaMap() {
 function buildChaingunMap() {
   M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
   M.hint = 'Hold FIRE. Six waves are coming. Tap the numbers on the bar to switch guns: 2 = chainsaw (again = pistol), 4 = double barrel, 5 = chaingun, 6 = rockets.';
-  M.start = { weapons: [1, 4, 5, 6], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  const SO = demoSawedOff(71);
+  M.start = { weapons: [1, 4, 5, 6, SO], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
   // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
   const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
   const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
@@ -4838,6 +4848,12 @@ function buildChaingunMap() {
 }
 /* give two-sided lines their upper/lower textures (steps, ledges, pools) from a per-sector table */
 function demoSkin(tex, def) { M.l.forEach(L => { if (L.s1 < 0 || L.s2 < 0) return; for (const sd of [L.s1, L.s2]) { const d = M.sd[sd], t = tex[d.sec] || def; if (d.lo === '-') d.lo = t; if (d.up === '-') d.up = t; } }); }
+/* Sawed-Off: short double barrel, both barrels in one pull, huge up close, break-open reload after every blast */
+function demoSawedOff(seed) {
+  const id = demoWeapon('dbl1', seed), d = M.wep[id];
+  Object.assign(d, { name: 'Sawed-Off', kind: 'hit', ammo: 'shells', use: 2, rate: 10, reload: 48, pellets: 24, spread: 0.16, dmg: [6, 16], close: 1, recoil: 9, give: 16, snd: 'dshtgn', proj: null, splash: 0, range: 0 });
+  return id;
+}
 /* a long-range painted rifle for the summit (Doom never had one) */
 function demoSniper(seed) {
   const id = demoWeapon('marksman_rifle', seed), d = M.wep[id];
@@ -4866,7 +4882,7 @@ function buildHillMap() {
   demoSkin(Object.fromEntries(cover.map(c => [c, 'SUPPORT3'])), RK);
   const k = demoLine(896, -16, 1152, -16); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // the summit armory: long-range guns + ammo
-  T(demoSniper(61), 1024, 2700, 270); T(2003, 900, 2620); T(2002, 1148, 2620); T(82, 1024, 2600); T(2004, 1150, 2720);
+  T(demoSniper(61), 1024, 2700, 270); T(demoSawedOff(72), 760, 2620); T(2003, 900, 2620); T(2002, 1148, 2620); T(82, 1024, 2600); T(2004, 1150, 2720);
   for (let i = 0; i < 4; i++) { T(2048, 870 + i * 100, 2470); T(2046, 870 + i * 100, 2400); }
   T(2049, 760, 2300); T(2049, 1290, 2300); T(17, 1290, 2450); T(2019, 760, 2450); T(2012, 1700, 2200); T(2012, 1900, 2200);
   T(1, 1024, 2350, 270);
@@ -4931,6 +4947,7 @@ function buildWaterMap() {
   const k = demoLine(704, 3344, 832, 3344); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // things
   T(1, 768, 600, 90);
+  T(demoSawedOff(73), 700, 640); T(2049, 820, 640);
   T(2001, 600, 640); T(2008, 900, 640); T(2008, 960, 640); T(2011, 300, 620);
   [[560, 1000, 3004], [960, 1100, 3004], [560, 1300, 9], [960, 1400, 3001], [300, 700, 3004], [1300, 700, 3001], [960, 1250, 3004], [560, 1450, 3001]].forEach(([x, y, t]) => T(t, x, y, 90));
   T(2018, 700, 700); T(2011, 840, 700);
@@ -5045,13 +5062,13 @@ function sbDrawModern(g, W, H) {
   // fit a label inside a box width
   const fit = (t, maxW, px, wgt) => { g.font = F(px, wgt); const w = g.measureText(t).width; if (w > maxW) g.font = F(px * maxW / w, wgt); };
   // AMMO box is labeled with the gun you're holding
-  const wname = ((wd && wd.name) || 'AMMO').toUpperCase();
+  const wname = p.reloadT > 0 && !p.reloadDelay && p.reloadW === p.w ? 'RELOADING' : ((wd && wd.name) || 'AMMO').toUpperCase();
   const a = box(1, 44, ''); fit(wname, a.Wd - 4 * k, 4.6 * k, 800); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(wname, a.X + a.Wd / 2, a.Y + a.Hd - 2.2 * k);
   if (wd && wd.ammo) num(a, p.ammo[wd.ammo]); else { g.font = F(10 * k); g.fillStyle = DIM; g.textAlign = 'center'; g.fillText('∞', a.X + a.Wd / 2, a.Y + a.Hd * 0.6); }
   num(box(47, 48, 'HEALTH'), p.hp, true, p.hp <= 25 ? '#ff4040' : RED);
   // arms 2-7 (tap one to pick it)
   const ar = box(97, 37, ''); G.armsRect = { x: ar.X, y: ar.Y, w: ar.Wd, h: ar.Hd };
-  for (let i = 2; i <= 7; i++) { const c = (i - 2) % 3, r = Math.floor((i - 2) / 3), cx = ar.X + ar.Wd * (c + 0.5) / 3, cy = ar.Y + ar.Hd * (r + 0.5) / 2, have = p.has.has(i) || (i === 3 && p.has.has(4)) || (i === 2 && p.has.has(1)), cur = p.w === i || (i === 3 && p.w === 4) || (i === 2 && p.w === 1);
+  for (let i = 2; i <= 7; i++) { const c = (i - 2) % 3, r = Math.floor((i - 2) / 3), cx = ar.X + ar.Wd * (c + 0.5) / 3, cy = ar.Y + ar.Hd * (r + 0.5) / 2, have = panelGuns(i).length > 0, cur = panelOf(p.w) === i;
     if (cur) { chopRect(g, cx - 5 * k, cy - 5.5 * k, 10 * k, 11 * k, 2 * k); g.fillStyle = RED; g.fill(); }
     g.font = F(8 * k); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = cur || have ? '#fff' : DIM; g.fillText(String(i), cx, cy + 0.5 * k); g.textBaseline = 'alphabetic'; }
   // the marine
@@ -5113,7 +5130,7 @@ function drawStatusBar(g, W, H) {
   // weapon numbers 2-7: yellow = you have it
   if (sbPic('STARMS')) put('STARMS', 104, 0);
   G.armsRect = { x: x0 + 104 * s, y: y0, w: 40 * s, h: 32 * s };
-  for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((p.has.has(i) || (i === 3 && p.has.has(8)) ? 'STYSNUM' : 'STGNUM') + i, x, y); }
+  for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((panelGuns(i).length ? 'STYSNUM' : 'STGNUM') + i, x, y); }
   put(faceName(), 143, 0, true);
   big(p.armor, 221, 3, true);
   [['b', 0], ['y', 1], ['r', 2]].forEach(([k, i]) => { if (p.keys.has(k)) put('STKEYS' + i, 239, 3 + i * 10); });

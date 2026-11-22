@@ -67,13 +67,13 @@ function sbDrawModern(g, W, H) {
   // fit a label inside a box width
   const fit = (t, maxW, px, wgt) => { g.font = F(px, wgt); const w = g.measureText(t).width; if (w > maxW) g.font = F(px * maxW / w, wgt); };
   // AMMO box is labeled with the gun you're holding
-  const wname = ((wd && wd.name) || 'AMMO').toUpperCase();
+  const wname = p.reloadT > 0 && !p.reloadDelay && p.reloadW === p.w ? 'RELOADING' : ((wd && wd.name) || 'AMMO').toUpperCase();
   const a = box(1, 44, ''); fit(wname, a.Wd - 4 * k, 4.6 * k, 800); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(wname, a.X + a.Wd / 2, a.Y + a.Hd - 2.2 * k);
   if (wd && wd.ammo) num(a, p.ammo[wd.ammo]); else { g.font = F(10 * k); g.fillStyle = DIM; g.textAlign = 'center'; g.fillText('∞', a.X + a.Wd / 2, a.Y + a.Hd * 0.6); }
   num(box(47, 48, 'HEALTH'), p.hp, true, p.hp <= 25 ? '#ff4040' : RED);
   // arms 2-7 (tap one to pick it)
   const ar = box(97, 37, ''); G.armsRect = { x: ar.X, y: ar.Y, w: ar.Wd, h: ar.Hd };
-  for (let i = 2; i <= 7; i++) { const c = (i - 2) % 3, r = Math.floor((i - 2) / 3), cx = ar.X + ar.Wd * (c + 0.5) / 3, cy = ar.Y + ar.Hd * (r + 0.5) / 2, have = p.has.has(i) || (i === 3 && p.has.has(4)) || (i === 2 && p.has.has(1)), cur = p.w === i || (i === 3 && p.w === 4) || (i === 2 && p.w === 1);
+  for (let i = 2; i <= 7; i++) { const c = (i - 2) % 3, r = Math.floor((i - 2) / 3), cx = ar.X + ar.Wd * (c + 0.5) / 3, cy = ar.Y + ar.Hd * (r + 0.5) / 2, have = panelGuns(i).length > 0, cur = panelOf(p.w) === i;
     if (cur) { chopRect(g, cx - 5 * k, cy - 5.5 * k, 10 * k, 11 * k, 2 * k); g.fillStyle = RED; g.fill(); }
     g.font = F(8 * k); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = cur || have ? '#fff' : DIM; g.fillText(String(i), cx, cy + 0.5 * k); g.textBaseline = 'alphabetic'; }
   // the marine
@@ -135,7 +135,7 @@ function drawStatusBar(g, W, H) {
   // weapon numbers 2-7: yellow = you have it
   if (sbPic('STARMS')) put('STARMS', 104, 0);
   G.armsRect = { x: x0 + 104 * s, y: y0, w: 40 * s, h: 32 * s };
-  for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((p.has.has(i) || (i === 3 && p.has.has(8)) ? 'STYSNUM' : 'STGNUM') + i, x, y); }
+  for (let i = 2; i <= 7; i++) { const k = i - 2, x = 111 + (k % 3) * 12, y = 4 + Math.floor(k / 3) * 10; put((panelGuns(i).length ? 'STYSNUM' : 'STGNUM') + i, x, y); }
   put(faceName(), 143, 0, true);
   big(p.armor, 221, 3, true);
   [['b', 0], ['y', 1], ['r', 2]].forEach(([k, i]) => { if (p.keys.has(k)) put('STKEYS' + i, 239, 3 + i * 10); });

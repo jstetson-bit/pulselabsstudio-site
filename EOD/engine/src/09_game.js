@@ -276,7 +276,7 @@ function explode(x, y, z, radius, maxd, src) {
 }
 /* the first height on a monster you can actually see (body, head, then legs), or null */
 function aimPoint(x, y, z, e) { for (const f of [0.5, 0.82, 0.22]) { const tz = e.z + e.h * f; if (sight(x, y, z, e.x, e.y, tz)) return tz; } return null; }
-function hitscan(a, dmg, range = 2048) {
+function hitscan(a, dmg, range = 2048, close = 0) {
   const p = G.p, z = p.viewz - 8, t = G.aimT;
   // vertical aim: straight at the auto-aimed monster (up onto a catwalk, down off a cliff), otherwise where you're looking
   let slope = (p.look || 0) * 0.9;
@@ -290,6 +290,8 @@ function hitscan(a, dmg, range = 2048) {
     const onLine = zz >= e.z - 6 && zz <= e.z + e.h + 6 && sight(p.x, p.y, z, e.x, e.y, zz);
     if (onLine || (!t && aimPoint(p.x, p.y, z, e) != null)) { best = e; bd = al; }
   }
+  // short barrels: brutal up close, weak at range (x2.2 point blank, x1 at ~300, x0.4 far away)
+  if (best && close) dmg = Math.round(dmg * clamp(2.2 - bd / 250, 0.4, 2.2));
   if (best) { damageMonster(best, dmg, 'player'); return true; }
   if (glassLive(w.l)) damageGlass(w.l, dmg, p.x + c * w.d, p.y + s * w.d, z, 'player');
   G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
@@ -305,13 +307,15 @@ function fireWeapon() {
   if (p.cool > 0) return;
   if (w.ammo && p.ammo[w.ammo] < w.use) { const order = [7, 6, 4, 5, 3, 2, 1]; const nw = order.find(i => p.has.has(i) && (!WEAPONS[i].ammo || p.ammo[WEAPONS[i].ammo] >= WEAPONS[i].use)); if (nw && nw !== p.w) { p.w = nw; msg(WEAPONS[nw].name); } else sfx('oof'); p.cool = 10; return; }
   if (w.ammo) p.ammo[w.ammo] -= w.use;
-  p.cool = w.rate; p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
+  const cu = w.custom || {};
+  p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; }
+  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
   const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
   if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); ww.hitMon = 1; break; } if (!ww.hitMon && glassLive(ww.l)) damageGlass(ww.l, rnd(...w.dmg), p.x + Math.cos(a) * ww.d, p.y + Math.sin(a) * ww.d, p.viewz - 8, 'player'); }
   else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, aimVz((PROJ[w.proj] || PROJ.rocket).spd)); }
-  else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg), longR || 2048);
+  else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg), longR || 2048, cu.close || 0);
   p.refire = true;
   // wake monsters by sound
   G.ents.forEach(e => { if (e.alive && e.d.cat === 'monster' && e.state === 'idle' && !e.ambush && Math.hypot(e.x - p.x, e.y - p.y) < 1400) e.state = 'chase'; });
@@ -454,6 +458,7 @@ function gameTic() {
   p.viewz += (target - p.viewz) * (target < p.viewz ? 0.6 : 0.35); if (p.viewz > S0.ch - 4) p.viewz = S0.ch - 4;
   if (G.mode === 'play') {
     if (p.cool > 0) p.cool--; if (p.fireT > 0) p.fireT--;
+    if (p.reloadDelay > 0) { p.reloadDelay--; if (!p.reloadDelay) sfx('dbopn', .7); } else if (p.reloadT > 0) { p.reloadT--; if (p.reloadT === Math.round(p.reload0 * 0.55)) sfx('dbload', .7); if (p.reloadT === 6) sfx('dbcls', .7); }
     if ((IN.fire || IN.firePad) && !p.dead) fireWeapon(); else p.refire = false;
     if (IN.use) { IN.use = false; playerUse(); }
     tickMonsters(); tickProjs(); tickPickups(); tickConveyors(); tickDolls(); faceTick(); tickWaves();
