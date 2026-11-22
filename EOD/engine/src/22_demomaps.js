@@ -170,7 +170,7 @@ function buildWaterMap() {
   const Chan = demoRect(640, 768, 896, 1536, Object.assign({ fh: -16, ch: 512, li: 176, ct: 'F_SKY1', flow: [0, 2] }, G10));
   const WalkE = demoRect(896, 768, 1024, 1536, { fh: 0, ch: 512, li: 176, ft: 'FLAT5_4', ct: 'F_SKY1' });
   const Grate = demoRect(640, 1536, 896, 1552, Object.assign({ fh: -16, ch: 24, li: 144, ct: 'FLAT20', flow: [0, 2] }, G10));
-  const Door1 = demoRect(896, 1536, 1024, 1552, { fh: 0, ch: 128, li: 160, ft: 'FLAT20', ct: 'FLAT20' });
+  const Door1 = demoRect(912, 1536, 1008, 1552, { fh: 0, ch: 128, li: 160, ft: 'FLAT20', ct: 'FLAT20' });
   // 2. Treatment hall (lower floor -64): settling basins, a sluice, catwalks above (upper layer)
   const Hall = demoRect(256, 1552, 1280, 2304, { fh: -64, ch: 192, li: 176, ft: 'FLOOR0_6', ct: 'CEIL5_2', tag: 40 });
   const Ves = demoRect(896, 1552, 1024, 1616, { fh: -40, ch: 192, li: 176, ft: 'FLAT20', ct: 'CEIL5_2', tag: 40 });

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.17 — 2026-11-22
+- EOD 0.7.1: Kev's Water Plant entrance door opens fully.
+
 ## v0.7.25 — 2026-11-21 — status watcher fixed on Windows PowerShell 5.1; privacy pages always ship
 - The status watcher's "latest commit" lookup used a jq filter with quotes inside; Windows PowerShell 5.1 strips those when it
   calls another program, so every run failed ("failed to parse jq expression") once Snow White ran the current copy. It now reads

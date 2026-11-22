@@ -10,6 +10,10 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.7.1 (vc17) — 2026-11-22 — water plant door fix
+- **Fix: Kev's Water Plant entrance door only opened a crack.** A Doom door rises to the lowest ceiling of the sectors touching it, and the door was built right against the intake grate, whose ceiling is only 24 units up, so it stopped there. The door now sits 16 units clear of the grate on both sides and opens to 188 (full height). No secret, no trick: it was a build mistake.
+- Checked: every door in all 7 demo maps opened by test and measured. All open to full height.
+
 ## v0.7.0 (vc16) — 2026-11-19 — King of Shit Hill, Kev's Water Plant, 68 Freedoom maps
 - **Demo map 6: King of Shit Hill.** You start on a summit 432 units above a valley full of monsters (107, plus 3 more waves). There's a cliff edge to look over and an armory behind you with the new **Pulse Sniper** (Doom never had a sniper rifle; ours is painted, hits for 90–160 and reaches 6000 units), a rocket launcher, chaingun, double barrel, plasma rifle and ammo. Thin the valley out, then take the 18-step ramp down the east side to the exit at the south end. Monsters can climb that ramp too.
 - **Demo map 7: Kev's Water Plant Concept.** Kevin's idea, laid out like the Lake Bloomington water treatment plant (lake intake → treatment hall → pump room → clearwell → out). The lake and intake channel are flowing green sludge that hurts. Inside, the treatment hall has two levels: catwalks with monsters above settling basins, and the lights die when you drop in (trap 1). Stepping into the pump room opens two monster closets (trap 2). A Baron is stuck in a green glass pipe junction: break the glass, kill him, and **every pool turns to clean blue water that stops hurting, the outflow starts flowing, the north door opens**, and two waves come at you in the clearwell yard on the way to the exit.

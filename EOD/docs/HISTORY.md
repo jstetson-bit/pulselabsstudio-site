@@ -77,3 +77,7 @@ The story of how EOD came to be, in the owner's words where possible.
 - Kevin's idea, as James told it: *"he wants to enter a water plant, and the idea is that when you start, the water that's flowing into the plant is green… you come across a demon or something that's stuck in the plumbing, so you have to break him out and shoot him out. And then when you do, the water turns blue, and then it starts flowing again, and then you have to fight your way out to the other side… It's like dual layered, this top layer, bottom layer… name it Kev's Water Plant Concept. And the water plant that he's talking about is in Bloomington, Illinois."*
 - Decided: Doom never had a sniper rifle, so EOD got its own (Pulse Sniper, painted Marksman Rifle art). The water plant follows the real Lake Bloomington plant's flow (lake intake, treatment, pumping, clearwell), built as a game level. For free maps, Freedoom's BSD licence explicitly allows reuse, so all 68 Freedoom maps went in. Most other community maps have their own permission text per WAD, so they need checking one by one.
 - Built 0.7.0.
+
+## 2026-11-22 · The door that only opened a crack
+- James: *"inside Kevin's water level, that door to the right doesn't open all the way. It just opens a fraction. Is there a secret, or is it just improperly tuned…?"*
+- It was a mistake: the door touched the low intake grate, and Doom doors stop at the lowest neighboring ceiling. Moved the door clear of the grate and tested every door in every demo map. 0.7.1.
