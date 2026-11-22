@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.28 — 2026-11-22
+- EOD 0.8.8: Kev's Water Plant hall back to its original layout; Baron still sealed in the pipe.
+
 ## v0.7.27 — 2026-11-22
 - EOD 0.8.7: Kev's Water Plant rework (Baron sealed in the pipe, stairs back up, east catwalk stairs, cover pillars).
 

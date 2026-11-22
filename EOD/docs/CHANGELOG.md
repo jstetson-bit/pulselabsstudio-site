@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.8 (vc28) — 2026-11-22 — Kev's Water Plant: hall back to its original form
+- **The hall is back the way it was in 0.8.6:** the landing and drop from the first door, the west catwalk stairs only, no pillars, the chaingunner back on the east catwalk, the bullet box back in place. Removed: the three steps up from the drop, the east catwalk stairs and the four cover pillars.
+- **Kept:** the Baron sealed inside the green pipe until you break it open up close (monster fire can't crack it, far shots only crack it).
+- Why: James, after trying 0.8.7: "i cant jump up the stairs? put the room back in its orignal form".
+
 ## v0.8.7 (vc27) — 2026-11-22 — Kev's Water Plant: the demon is IN the pipe, and the room has counterplay
 - **The Clog stays in the pipe.** The Baron now starts sealed inside the green glass pipe (he's why the water is green) and doesn't move or attack until the pipe is broken open. Monster fire can't crack it, and you can't snipe it from the hall: it only gives way to shots from close range (the message says "Too far to break the pipe. Get closer."). Break any pane and he's free: "The Clog is free! Kill it!"
 - **A way back up from the drop.** The first room drops into the hall by three deep steps now (16 units each, treads 32 deep), so you can walk back up to the door. Earlier treads were too short for the player's body to clear, which is why the first try at stairs didn't work.

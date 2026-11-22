@@ -180,18 +180,13 @@ function buildWaterMap() {
   const Door1 = demoRect(912, 1536, 1008, 1552, { fh: 0, ch: 128, li: 160, ft: 'FLAT20', ct: 'FLAT20' });
   // 2. Treatment hall (lower floor -64): settling basins, a sluice, catwalks above (upper layer)
   const Hall = demoRect(256, 1552, 1280, 2304, { fh: -64, ch: 192, li: 176, ft: 'FLOOR0_6', ct: 'CEIL5_2', tag: 40 });
-  const Ves = demoRect(896, 1552, 1024, 1584, { fh: -16, ch: 192, li: 176, ft: 'FLAT20', ct: 'CEIL5_2', tag: 40 });
-  demoRect(896, 1584, 1024, 1616, { fh: -32, ch: 192, li: 176, ft: 'FLAT20', ct: 'CEIL5_2', tag: 40 });
-  demoRect(896, 1616, 1024, 1648, { fh: -48, ch: 192, li: 176, ft: 'FLAT20', ct: 'CEIL5_2', tag: 40 });
+  const Ves = demoRect(896, 1552, 1024, 1616, { fh: -40, ch: 192, li: 176, ft: 'FLAT20', ct: 'CEIL5_2', tag: 40 });
   const BasW = demoRect(352, 1700, 608, 2200, Object.assign({ fh: -80, ch: 192, li: 160, ct: 'CEIL5_2' }, G10, { tag: 10 }));
   const Slu = demoRect(640, 1552, 896, 2304, Object.assign({ fh: -80, ch: 192, li: 160, ct: 'CEIL5_2' }, G10));
   const BasE = demoRect(1056, 1700, 1184, 2200, Object.assign({ fh: -80, ch: 192, li: 160, ct: 'CEIL5_2' }, G10));
   const CatW = demoRect(256, 1720, 320, 2304, { fh: 64, ch: 192, li: 200, ft: 'FLOOR4_8', ct: 'CEIL5_2', tag: 40 });
   const CatE = demoRect(1216, 1720, 1280, 2304, { fh: 64, ch: 192, li: 200, ft: 'FLOOR4_8', ct: 'CEIL5_2', tag: 40 });
-  const stE = []; for (let i = 0; i < 6; i++) stE.push(demoRect(1216, 1552 + i * 28, 1280, 1580 + i * 28, { fh: -64 + (i + 1) * 21 + (i === 5 ? 2 : 0), ch: 192, li: 200, ft: 'FLOOR4_8', ct: 'CEIL5_2', tag: 40 }));
   const stW = []; for (let i = 0; i < 6; i++) stW.push(demoRect(256, 1552 + i * 28, 320, 1580 + i * 28, { fh: -64 + (i + 1) * 21 + (i === 5 ? 2 : 0), ch: 192, li: 190, ft: 'FLOOR4_8', ct: 'CEIL5_2', tag: 40 }));
-  // cover: four solid pillars on the hall floor to duck behind
-  const pillars = [[372, 1600], [1140, 1610], [944, 1860], [944, 2080]].map(([x, y]) => demoRect(x, y, x + 52, y + 52, { fh: 192, ch: 192, li: 176, ft: 'FLOOR4_8', ct: 'CEIL5_2', tag: 40 }));
   // 3. Pump room with the clogged plumbing junction (glass pipe) and two monster closets
   const Gap = demoRect(704, 2304, 832, 2320, { fh: -64, ch: 96, li: 160, ft: 'FLAT20', ct: 'FLAT20' });
   const Pump = demoRect(512, 2320, 1024, 2688, { fh: -64, ch: 160, li: 144, ft: 'FLOOR0_6', ct: 'CEIL5_2' });
@@ -208,7 +203,7 @@ function buildWaterMap() {
   M.sec[Out].sp = 7; M.sec[Out].tag = 12;
   demoWalls({ [Lake]: 'ROCK4', [Shore]: 'ROCK4', [WalkW]: 'BRICK7', [WalkE]: 'BRICK7', [Chan]: 'BRICK7', [Grate]: 'BRICK7', [Door1]: 'BRICK7', [Hall]: 'STARTAN3', [Ves]: 'STARTAN3', [CatW]: 'STARTAN3', [CatE]: 'STARTAN3', [Gap]: 'METAL2', [Pump]: 'PIPEWAL2', [Pipe]: 'PIPE2', [ClW]: 'PIPEWAL1', [ClE]: 'PIPEWAL1', [DW]: 'PIPEWAL1', [DE]: 'PIPEWAL1', [Door2]: 'METAL2', [Yard]: 'BRICK7', [Out]: 'BRICK7', [Ex]: 'METAL2' });
   stW.forEach(s => sectorLines(s));
-  demoSkin(Object.assign({ [Grate]: 'MIDGRATE', [Pipe]: 'PIPE4', [CatW]: 'SUPPORT3', [CatE]: 'SUPPORT3' }, Object.fromEntries(pillars.map(s => [s, 'SUPPORT3']))), 'BRICK7');
+  demoSkin({ [Grate]: 'MIDGRATE', [Pipe]: 'PIPE4', [CatW]: 'SUPPORT3', [CatE]: 'SUPPORT3' }, 'BRICK7');
   // the grate over the intake: water passes, you don't
   sectorLines(Grate).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) for (const sd of [L.s1, L.s2]) M.sd[sd].up = 'PIPE4'; });
   tagDoor(Door1, 0); M.sec[Door1].tag = 0; sectorLines(Door1).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) L.sp = 1; });
@@ -216,7 +211,7 @@ function buildWaterMap() {
   // the clogged pipe: green glass all round, the demon stuck inside
   sectorLines(Pipe).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) L.glass = Object.assign({}, GLASS_PRESETS['Clear window'], { col: '#4a9a2a', op: 55, rs: 20, hp: 120, monBrk: false, nearOnly: 320 }); });
   // traps: drop into the hall and the lights die; step into the pump room and the closets open
-  const tl = demoLine(896, 1648, 1024, 1648); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; }
+  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; }
   const tp = demoLine(704, 2320, 832, 2320); if (tp >= 0) { M.l[tp].sp = 2; M.l[tp].tag = 20; }
   const k = demoLine(704, 3344, 832, 3344); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // things
@@ -225,8 +220,8 @@ function buildWaterMap() {
   T(2001, 600, 640); T(2008, 900, 640); T(2008, 960, 640); T(2011, 300, 620);
   [[560, 1000, 3004], [960, 1100, 3004], [560, 1300, 9], [960, 1400, 3001], [300, 700, 3004], [1300, 700, 3001], [960, 1250, 3004], [560, 1450, 3001]].forEach(([x, y, t]) => T(t, x, y, 90));
   T(2018, 700, 700); T(2011, 840, 700);
-  [[288, 1900, 3001], [288, 2200, 9], [1248, 1900, 3001], [1248, 2150, 3001], [480, 1640, 3002], [1100, 1640, 3002], [800, 2250, 3004], [1150, 2270, 3004]].forEach(([x, y, t]) => T(t, x, y, 270));
-  T(2002, 1100, 1580); T(2048, 1040, 1680); T(2012, 450, 2270); T(2049, 450, 1600); T(2001, 1150, 2250);
+  [[288, 1900, 3001], [288, 2200, 9], [1248, 1900, 3001], [1248, 2150, 65], [480, 1640, 3002], [1100, 1640, 3002], [800, 2250, 3004], [1150, 2270, 3004]].forEach(([x, y, t]) => T(t, x, y, 270));
+  T(2002, 1100, 1580); T(2048, 1150, 1600); T(2012, 450, 2270); T(2049, 450, 1600); T(2001, 1150, 2250);
   T(3002, 448, 2470, 0, 7); T(3002, 448, 2560, 0, 7); T(69, 1088, 2510, 180, 7);
   T(2048, 600, 2360); T(2046, 940, 2360); T(2003, 940, 2650); T(2012, 600, 2650);
   const bi = M.t.length; T(3003, 768, 2504, 270, 7 | 8);
