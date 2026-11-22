@@ -1,0 +1,108 @@
+{
+ "name": "Pulse 128",
+ "systems": [
+  "Android",
+  "Windows PC"
+ ],
+ "tagline": "Everything inside your phone or PC, live. No subscription.",
+ "overview": "Pulse 128 is a system monitor for Android phones and tablets and for Windows PCs. It shows what is inside your device and how it is doing right now: every core's speed, load, temperatures, memory, storage, network and battery, on one clean live panel with a see-through hologram of your own device. It runs benchmarks with an arcade HIGH SCORE table, shows the whole PC's power at the wall (measured by a smart plug, or an honest estimate), and on Windows it opens and runs the sensor panels you already made for AIDA64. No internet on the phone, no ads, no account, and light enough to leave running next to a game.",
+ "capabilities": [
+  {
+   "id": "live",
+   "title": "Live sensor panel",
+   "text": "CPU speed for every core, CPU and memory load, battery level, temperature, voltage and charging watts, storage, network speed, up time and heat status, updated every 1, 2 or 5 seconds. Readings a device keeps private show as N/A; Pulse 128 never makes up a number.",
+   "proofs": [
+    {
+     "file": "proofs/live-v0.14.4.png",
+     "kind": "image",
+     "caption": "The live dashboard on a folding phone's front screen",
+     "version": "0.14.4",
+     "captured": "Nov 22, 2026"
+    }
+   ]
+  },
+  {
+   "id": "hologram",
+   "title": "A hologram of your device",
+   "text": "A see-through model of your own phone or tablet spins in the middle of the panel in red glow and fine scan lines; folding phones fold on the real hinge. Pick its colors, or set it as your live wallpaper.",
+   "proofs": [
+    {
+     "file": "proofs/hologram-fold-v0.14.4.png",
+     "kind": "image",
+     "caption": "The hologram of a folding phone, opened on its hinge",
+     "version": "0.14.4",
+     "captured": "Nov 22, 2026"
+    }
+   ]
+  },
+  {
+   "id": "bench",
+   "title": "Benchmarks with HIGH SCORES",
+   "text": "Five short tests of the processor, memory and storage, about 12 seconds in all. Your best runs go on an arcade-style HIGH SCORE table with your initials.",
+   "proofs": []
+  },
+  {
+   "id": "face",
+   "title": "Face panel and charging screen",
+   "text": "Your live readings come up over the lock screen (off until you turn it on), or as the screen saver while the phone charges.",
+   "proofs": [
+    {
+     "file": "proofs/face-panel-v0.14.4.png",
+     "kind": "image",
+     "caption": "Face panel over the lock screen",
+     "version": "0.14.4",
+     "captured": "Nov 22, 2026"
+    },
+    {
+     "file": "proofs/charging-v0.14.4.png",
+     "kind": "image",
+     "caption": "Charging screen",
+     "version": "0.14.4",
+     "captured": "Nov 22, 2026"
+    }
+   ]
+  },
+  {
+   "id": "studio",
+   "title": "Panel Studio",
+   "text": "Build your own panel: choose the readings, gauges and bars you care about.",
+   "proofs": []
+  },
+  {
+   "id": "pc-live",
+   "title": "Windows: live readings and parts list",
+   "text": "Processor, every core, memory, graphics card, drives and network, from Windows' own interfaces with no driver to install, plus a full parts list of the PC.",
+   "proofs": [
+    {
+     "file": "proofs/pc-live-v0.3.3.png",
+     "kind": "image",
+     "caption": "Windows: live readings (test sample values)",
+     "version": "0.3.3",
+     "captured": "Nov 22, 2026"
+    }
+   ]
+  },
+  {
+   "id": "pc-power",
+   "title": "Windows: power at the wall",
+   "text": "The whole PC's draw in watts, labeled MEASURED (Shelly, TP-Link Kasa or Tasmota smart plug on your home network) or ESTIMATED, where it goes (processor, graphics, the rest, power supply loss), and what it costs per hour, day and month.",
+   "proofs": []
+  },
+  {
+   "id": "pc-panels",
+   "title": "Windows: opens your AIDA64 SensorPanel files",
+   "text": "Open a .sensorpanel, .spzip or .rslcd file and Pulse 128 draws it with live readings. It sizes itself to the screen it is on, stays on its own screen when monitors change, and tells you which readings and fonts this PC can show.",
+   "proofs": [
+    {
+     "file": "proofs/pc-panel-v0.3.3.png",
+     "kind": "image",
+     "caption": "Windows: a .spzip sensor panel drawn with live readings (test panel)",
+     "version": "0.3.3",
+     "captured": "Nov 22, 2026"
+    }
+   ]
+  }
+ ],
+ "demo": null,
+ "note": "AIDA64 is a trademark of FinalWire Ltd. Pulse 128 is not affiliated with FinalWire. Pictures are added as each capability is captured from the app."
+}
