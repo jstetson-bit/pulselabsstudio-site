@@ -431,8 +431,12 @@ function weaponExportLumps() {
   let txt = '\n// EOD custom weapons\n';
   list.forEach(([id, d], i) => {
     const pre = 'PW' + (i + 1).toString(36).toUpperCase().padStart(2, '0'), pk = 'PP' + (i + 1).toString(36).toUpperCase().padStart(2, '0'), art = weaponArt(id, d);
-    out.sprites.push([pre + 'A0', pngGrab(dec(spriteCanvas(art.idle)), Math.round(art.idle.w / 2 - 159), Math.round(art.idle.h - 168))]);
-    out.sprites.push([pre + 'B0', pngGrab(dec(spriteCanvas(art.fire)), Math.round(art.fire.w / 2 - 159), Math.round(art.fire.h - 168))]);
+    // painted frames (full-color pictures) are drawn straight onto a canvas; scaled from their 640-wide basis to Doom's 320
+    const cv = f => { if (!f.painted) return spriteCanvas(f); const k = 320 / (art.basis || 320), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(f.w * k)); c.height = Math.max(1, Math.round(f.h * k)); c.getContext('2d').drawImage(f.im, 0, 0, c.width, c.height); return c; };
+    if (art.painted) { const sc = 320 / (art.basis || 320); [art.idle, art.fire].forEach(f => { f.w0 = f.w; }); art.idle = Object.assign({}, art.idle, { w: Math.round(art.idle.w * sc), h: Math.round(art.idle.h * sc) }); art.fire = Object.assign({}, art.fire, { w: Math.round(art.fire.w * sc), h: Math.round(art.fire.h * sc) }); }
+    const spriteCanvasX = f => (f.painted ? cv(f) : spriteCanvas(f));
+    out.sprites.push([pre + 'A0', pngGrab(dec(spriteCanvasX(art.idle)), Math.round(art.idle.w / 2 - 159), Math.round(art.idle.h - 168))]);
+    out.sprites.push([pre + 'B0', pngGrab(dec(spriteCanvasX(art.fire)), Math.round(art.fire.w / 2 - 159), Math.round(art.fire.h - 168))]);
     out.sprites.push([pk + 'A0', pngGrab(dec(spriteCanvas(art.pick)), art.pick.w >> 1, art.pick.h)]);
     const shot = d.kind === 'melee' ? `A_CustomPunch(random(${d.dmg[0]}, ${d.dmg[1]}), 1, 0, "BulletPuff", ${d.range || 72})` : d.kind === 'proj' ? `A_FireCustomMissile("${PJ[d.proj] || 'Rocket'}")` : `A_FireBullets(${(d.spread * 57.3).toFixed(1)}, ${(d.spread * 28.6).toFixed(1)}, ${d.pellets > 1 ? d.pellets : -1}, ${Math.max(1, Math.round((d.dmg[0] + d.dmg[1]) / 6))}, "BulletPuff")`;
     const cls = 'EOD_W_' + d.name.replace(/[^A-Za-z0-9]/g, '') + '_' + id;

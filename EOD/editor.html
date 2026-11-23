@@ -136,6 +136,10 @@ a.brand{color:var(--text);text-decoration:none}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#000;color:#fff;border:1px solid #444;padding:9px 14px;border-radius:10px;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
 
+/* EOD Classic: no EOD-only tools */
+.classic #mkGlass { display: none !important; }
+#fmtBtn { margin-left: 8px; }
+
 </style>
 </head>
 <body>
@@ -197,14 +201,15 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.27', VC = 47;
+const VERSION = '0.8.28', VC = 48;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
+const LS_PRE = k => (window.EOD_CLASSIC && /^(autosave|backup|prefabs)$/.test(k) ? 'eodc.' : 'eod.') + k; // EOD Classic keeps its own maps
 const LS = {
-  get(k, d) { try { const v = localStorage.getItem('eod.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('eod.' + k, JSON.stringify(v)); } catch (e) { } }
+  get(k, d) { try { const v = localStorage.getItem(LS_PRE(k)); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(LS_PRE(k), JSON.stringify(v)); } catch (e) { } }
 };
 
 /* ---------- crash / support log ---------- */
@@ -938,7 +943,10 @@ function buildWad() {
   const V = mk(M.v.length, 4); M.v.forEach((v, i) => { V.dv.setInt16(i * 4, v.x, true); V.dv.setInt16(i * 4 + 2, v.y, true); });
   const Se = mk(M.sec.length, 26); M.sec.forEach((s, i) => { const o = i * 26; Se.dv.setInt16(o, s.fh, true); Se.dv.setInt16(o + 2, s.ch, true); wrName(Se.u8, o + 4, s.ft); wrName(Se.u8, o + 12, s.ct); Se.dv.setInt16(o + 20, s.li, true); Se.dv.setInt16(o + 22, s.sp, true); Se.dv.setInt16(o + 24, s.tag, true); });
   const E = new Uint8Array(0);
-  const lumps = [[M.name || 'MAP01', E], ['THINGS', T.u8], ['LINEDEFS', Ld.u8], ['SIDEDEFS', Sd.u8], ['VERTEXES', V.u8], ['SEGS', E], ['SSECTORS', E], ['NODES', E], ['SECTORS', Se.u8], ['REJECT', E], ['BLOCKMAP', E]];
+  // real BSP + blockmap so the WAD loads in vanilla / Chocolate / Boom / MBF ports too (GZDoom rebuilds them anyway)
+  const NB = buildNodes({ v: M.v, l: lines, sd: M.sd, sec: M.sec }), BM = buildBlockmap({ l: lines }, NB.V), RJ = buildReject(M.sec.length);
+  M._lastNodes = Object.assign({ blockmapWords: BM.words }, NB.counts);
+  const lumps = [[M.name || 'MAP01', E], ['THINGS', T.u8], ['LINEDEFS', Ld.u8], ['SIDEDEFS', Sd.u8], ['VERTEXES', NB.vertexes], ['SEGS', NB.segs], ['SSECTORS', NB.ssectors], ['NODES', NB.nodes], ['SECTORS', Se.u8], ['REJECT', RJ], ['BLOCKMAP', BM.lump]];
   if (M.res) { const tx = []; const dec = src => { const b64 = src.split(',')[1] || '', bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
     Object.entries(M.res.tex || {}).forEach(([n, v]) => tx.push([n, dec(v.src)])); const fl = Object.entries(M.res.flat || {}).filter(([n]) => !(M.res.tex || {})[n]).map(([n, v]) => [n, dec(v.src)]);
     tx.push(...GX_.lumps);
@@ -2293,7 +2301,7 @@ function initGame(mode, start) {
   const skillBit = S.skill === 1 ? 1 : S.skill === 3 ? 4 : 2;
   let id = 0;
   M.t.forEach((t, ti) => {
-    const d = THINGS[t.type]; if (!d || d.cat === 'player') return;
+    const d = THINGS[t.type]; if (!d || d.cat === 'player' || d.noplay) return; // noplay: real Doom things EOD's own engine can't show yet
     if (mode === 'play' && (!(t.f & skillBit) || (t.f & 16))) return;
     const e = { id: id++, ti, x: t.x, y: t.y, z: 0, a: t.a * Math.PI / 180, d, type: t.type, r: d.r, h: d.h, alive: true, hp: d.hp || 0, state: 'idle', ambush: !!(t.f & 8), flip: false, cool: 30, pain: 0, atk: 0, dirT: 0, burst: 0, anim: 0 };
     e.sec = sectorAt(e.x, e.y); e.z = e.sec >= 0 ? secs[e.sec].fh : 0; if (d.float) e.z += 24;
@@ -4453,8 +4461,12 @@ function weaponExportLumps() {
   let txt = '\n// EOD custom weapons\n';
   list.forEach(([id, d], i) => {
     const pre = 'PW' + (i + 1).toString(36).toUpperCase().padStart(2, '0'), pk = 'PP' + (i + 1).toString(36).toUpperCase().padStart(2, '0'), art = weaponArt(id, d);
-    out.sprites.push([pre + 'A0', pngGrab(dec(spriteCanvas(art.idle)), Math.round(art.idle.w / 2 - 159), Math.round(art.idle.h - 168))]);
-    out.sprites.push([pre + 'B0', pngGrab(dec(spriteCanvas(art.fire)), Math.round(art.fire.w / 2 - 159), Math.round(art.fire.h - 168))]);
+    // painted frames (full-color pictures) are drawn straight onto a canvas; scaled from their 640-wide basis to Doom's 320
+    const cv = f => { if (!f.painted) return spriteCanvas(f); const k = 320 / (art.basis || 320), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(f.w * k)); c.height = Math.max(1, Math.round(f.h * k)); c.getContext('2d').drawImage(f.im, 0, 0, c.width, c.height); return c; };
+    if (art.painted) { const sc = 320 / (art.basis || 320); [art.idle, art.fire].forEach(f => { f.w0 = f.w; }); art.idle = Object.assign({}, art.idle, { w: Math.round(art.idle.w * sc), h: Math.round(art.idle.h * sc) }); art.fire = Object.assign({}, art.fire, { w: Math.round(art.fire.w * sc), h: Math.round(art.fire.h * sc) }); }
+    const spriteCanvasX = f => (f.painted ? cv(f) : spriteCanvas(f));
+    out.sprites.push([pre + 'A0', pngGrab(dec(spriteCanvasX(art.idle)), Math.round(art.idle.w / 2 - 159), Math.round(art.idle.h - 168))]);
+    out.sprites.push([pre + 'B0', pngGrab(dec(spriteCanvasX(art.fire)), Math.round(art.fire.w / 2 - 159), Math.round(art.fire.h - 168))]);
     out.sprites.push([pk + 'A0', pngGrab(dec(spriteCanvas(art.pick)), art.pick.w >> 1, art.pick.h)]);
     const shot = d.kind === 'melee' ? `A_CustomPunch(random(${d.dmg[0]}, ${d.dmg[1]}), 1, 0, "BulletPuff", ${d.range || 72})` : d.kind === 'proj' ? `A_FireCustomMissile("${PJ[d.proj] || 'Rocket'}")` : `A_FireBullets(${(d.spread * 57.3).toFixed(1)}, ${(d.spread * 28.6).toFixed(1)}, ${d.pellets > 1 ? d.pellets : -1}, ${Math.max(1, Math.round((d.dmg[0] + d.dmg[1]) / 6))}, "BulletPuff")`;
     const cls = 'EOD_W_' + d.name.replace(/[^A-Za-z0-9]/g, '') + '_' + id;
@@ -5159,7 +5171,7 @@ function buildUacMap() {
   // the long east run: demons charge, imps behind
   T(3002, 600, 3264, 180); T(3002, 680, 3240, 180); T(58, 760, 3290, 180, 6); T(3001, 900, 3230, 180); T(3001, 940, 3300, 180); T(2008, 420, 3300); T(2012, 980, 3240);
   // reactor: cacodemons over the sludge, a mancubus on the far side, imps on the edges
-  T(3005, 1300, 3100, 180); T(3005, 1560, 3480, 180); T(67, 1740, 3264, 180, 4); T(3001, 1100, 2880, 0); T(3001, 1100, 3650, 0); T(3001, 1740, 2880, 180); T(3001, 1740, 3650, 180); T(9, 1424, 3060, 270); T(9, 1424, 3480, 90);
+  T(3005, 1300, 3100, 180); T(3005, 1560, 3480, 180); T(69, 1740, 3264, 180, 4); T(3001, 1100, 2880, 0); T(3001, 1100, 3650, 0); T(3001, 1740, 2880, 180); T(3001, 1740, 3650, 180); T(9, 1424, 3060, 270); T(9, 1424, 3480, 90);
   T(2003, 1100, 3264); T(2046, 1120, 3200); T(2046, 1120, 3330); T(2049, 1760, 3000); T(2012, 1760, 3540); T(2019, 1424, 2900); T(2035, 1250, 2880); T(2035, 1600, 3650);
   // exit room: the last stand
   T(3003, 2180, 3264, 180, 4); T(3001, 2000, 3150, 0); T(3001, 2000, 3380, 0); T(2012, 2240, 3140); T(2046, 2240, 3390);
@@ -5589,7 +5601,318 @@ function mtDraw(cam, sprites) {
 }
 function viewCenter() { return MT.ws.length && MT.center ? MT.center : { pk: R.pk[(R.W >> 1) * R.H + (R.H >> 1)], pi: R.pi[(R.W >> 1) * R.H + (R.H >> 1)] }; }
 
-try { boot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }
+/* ================= FORMAT CATALOGS (generated by tools/gen_formats.py from the Boom Standards tables) =================
+   Each level adds to the ones before it: vanilla < boom < mbf < mbf21 < id24. */
+const FMT_CAT = {"vanilla":{"lines":{"1":["S1","Vertical door (Manual)"],"2":["W1","Do door (Door open)"],"3":["W1","Do door (Door close)"],"4":["W1","Do door (Door normal)"],"5":["W1","Do floor (Raise floor)"],"6":["W1","Do ceiling (Fast crush and raise)"],"7":["S1","Build stairs (Build8)"],"8":["W1","Build stairs (Build8)"],"9":["S1","Do donut (Do donut)"],"10":["W1","Do plat (Down wait up stay)"],"11":["S1","Exit normal (Exit normal)"],"12":["W1","Light turn on 0"],"13":["W1","Light turn on 255"],"14":["S1","Do plat (Raise and change32)"],"15":["S1","Do plat (Raise and change24)"],"16":["W1","Do door (Close30 then open)"],"17":["W1","Start light strobe (Start light strobe)"],"18":["S1","Do floor (Raise floor to nearest)"],"19":["W1","Do floor (Lower floor)"],"20":["S1","Do plat (Raise to nearest and change)"],"21":["S1","Do plat (Down wait up stay)"],"22":["W1","Do plat (Raise to nearest and change)"],"23":["S1","Floor (Lower floor to lowest)"],"24":["G1","Do floor (Raise floor)"],"25":["W1","Do ceiling (Crush and raise)"],"26":["S1","Vertical door (Manual blue lock)"],"27":["S1","Vertical door (Manual yellow lock)"],"28":["S1","Vertical door (Manual red lock)"],"29":["S1","Do door (Door normal)"],"30":["W1","Do floor (Raise to texture)"],"31":["SR","Vertical door (Manual open)"],"32":["SR","Vertical door (Manual open blue lock)"],"33":["SR","Vertical door (Manual open red lock)"],"34":["SR","Vertical door (Manual open yellow lock)"],"35":["W1","Light turn on 35"],"36":["W1","Do floor (Turbo lower)"],"37":["W1","Do floor (Lower and change)"],"38":["W1","Do floor (Lower floor to lowest)"],"39":["W1","Teleport"],"40":["W1","Do ceiling (Raise to highest)"],"41":["S1","Do ceiling (Lower to floor)"],"42":["SR","Do door (Door close)"],"43":["SR","Do ceiling (Lower to floor)"],"44":["W1","Do ceiling (Lower and crush)"],"45":["SR","Do floor (Lower to floor)"],"46":["GR","Do door (Door open)"],"47":["G1","Do plat (Raise to nearest and change)"],"48":["Static","Scroller (Left)"],"49":["S1","Do ceiling (Crush and raise)"],"50":["S1","Do door (Door close)"],"51":["S1","Exit secret (Exit secret)"],"52":["W1","Exit normal (Exit normal)"],"53":["W1","Do plat (Perpetual raise)"],"54":["W1","Stop plat (Stop plat)"],"55":["S1","Do floor (Raise floor crush)"],"56":["W1","Do floor (Raise floor crush)"],"57":["W1","Ceiling crush stop (Ceiling crush stop)"],"58":["W1","Do floor (Raise floor24)"],"59":["W1","Do floor (Raise floor24 and change)"],"60":["SR","Do door (Lower floor to lowest)"],"61":["SR","Do door (Door open)"],"62":["SR","Do plat (Down wait up stay)"],"63":["SR","Do door (Door normal)"],"64":["SR","Do floor (Raise floor)"],"65":["SR","Do floor (Raise floor crush)"],"66":["SR","Do plat (Raise and change)"],"67":["SR","Do plat (Raise and change32)"],"68":["SR","Do plat (Raise to nearest and change)"],"69":["SR","Do floor (Raise to nearest and change)"],"70":["SR","Do floor (Turbo lower)"],"71":["S1","Do floor (Turbo lower)"],"72":["WR","Do ceiling (Lower and crush)"],"73":["WR","Do ceiling (Crush and raise)"],"74":["WR","Ceiling crush stop (Ceiling crush stop)"],"75":["WR","Do door (Door close)"],"76":["WR","Do door (Close30 then open)"],"77":["WR","Do ceiling (Fast crush and raise)"],"79":["WR","Light turn on 35"],"80":["WR","Light turn on 0"],"81":["WR","Light turn on 255"],"82":["WR","Do floor (Lower floor to lowest)"],"83":["WR","Do floor (Lower floor)"],"84":["WR","Do floor (Lower and change)"],"86":["WR","Do door (Door open)"],"87":["WR","Do plat (Perpetual raise)"],"88":["WR","Do plat (Down wait up stay)"],"89":["WR","Stop plat (Stop plat)"],"90":["WR","Do door (Door normal)"],"91":["WR","Do floor (Raise floor)"],"92":["WR","Do floor (Raise floor24)"],"93":["WR","Do floor (Raise floor24 and change)"],"94":["WR","Do floor (Raise floor crush)"],"95":["WR","Do plat (Raise to nearest and change)"],"96":["WR","Do floor (Raise to texture)"],"97":["WR","Teleport (Teleport)"],"98":["WR","Do floor (Turbo lower)"],"99":["SR","Do locked door (Blaze open blue)"],"100":["W1","Build stars (Turbo16)"],"101":["S1","Do floor (Raise floor)"],"102":["S1","Do floor (Lower floor)"],"103":["S1","Do door (Open door)"],"104":["W1","Turn tag lights off (Turn tag lights off)"],"105":["WR","Do door (Blaze raise)"],"106":["WR","Do door (Blaze open)"],"107":["WR","Do door (Blaze close)"],"108":["W1","Do door (Blaze raise)"],"109":["W1","Do door (Blaze open)"],"110":["W1","Do door (Blaze close)"],"111":["S1","Do door (Blaze raise)"],"112":["S1","Do door (Blaze open)"],"113":["S1","Do door (Blaze close)"],"114":["SR","Do door (Blaze raise)"],"115":["SR","Do door (Blaze open)"],"116":["SR","Do door (Blaze close)"],"117":["SR","Vertical door (Manual blazing raise)"],"118":["SR","Vertical door (Manual blazing open)"],"119":["W1","Do floor (Raise floor to nearest)"],"120":["WR","Do plat (Blaze down wait up stay)"],"121":["W1","Do plat (Blaze down wait up stay)"],"122":["S1","Do plat (Blaze down wait up stay)"],"123":["SR","Do plat (Blaze down wait up stay)"],"124":["W1","Exit secret (Exit secret)"],"125":["W1","Teleport (Monster only)"],"126":["WR","Teleport (Monster only)"],"127":["S1","Build stairs (Turbo16)"],"128":["WR","Do floor (Raise floor to nearest)"],"129":["WR","Do floor (Raise floor turbo)"],"130":["W1","Do floor (Raise floor turbo)"],"131":["S1","Do floor (Raise floor turbo)"],"132":["SR","Do floor (Raise floor turbo)"],"133":["S1","Do locked door (Blaze open blue)"],"134":["SR","Do locked door (Blaze open red)"],"135":["S1","Do locked door (Blaze open red)"],"136":["SR","Do locked door (Blaze open yellow)"],"137":["S1","Do locked door (Blaze open yellow)"],"138":["SR","Light turn on 255"],"139":["SR","Light turn on 35"],"140":["S1","Do floor (Raise floor512)"],"141":["W1","Do ceiling (Silent crush and raise)"]},"sectors":{"1":"Random blinking light","2":"Light blinks 0.5 seconds","3":"Light blinks 1.0 seconds","4":"Light blinks 0.5 seconds & damages 20% per second","5":"Damages for 10% per second","7":"Damages for 5% per second","8":"Light oscillating","9":"Secret sector","10":"30 seconds after level start, ceiling closes like a door","11":"End","12":"Light blinks 1.0 seconds, synchronized","13":"Light blinks 0.5 seconds, synchronized","14":"300 seconds after level start, ceiling closes like a door","16":"Damages for 20% per second","17":"Light flickers randomly"},"lineFlags":{"1":"Blocks everything","2":"Blocks monsters","4":"Two-Sided","8":"Upper texture is unpegged","16":"Lower texture is unpegged","32":"Secret","64":"Blocks sound","128":"Never drawn on Automap","256":"Always drawn on Automap"},"thingFlags":{"1":"Thing spawns on skills 1 & 2","2":"Thing spawns on skill 3","4":"Thing spawns on skills 4 & 5","8":"Thing is deaf","16":"Thing spawns only multiplayer"},"things":{},"genSector":{}},"boom":{"lines":{"78":["SR","Do change (Num change only)"],"85":["Static","Scroller (Right)"],"142":["W1","Do floor (Raise floor512)"],"143":["W1","Do plat (Raise and change24)"],"144":["W1","Do plat (Raise and change32)"],"145":["W1","Do ceiling (Lower to floor)"],"146":["W1","Do donut"],"147":["WR","Do floor (Raise floor512)"],"148":["WR","Do plat (Raise and change24)"],"149":["WR","Do plat (Raise and change32)"],"150":["WR","Do ceiling (Silent crush and raise)"],"151":["WR","Do ceiling (Raise to highest)"],"152":["WR","Do ceiling (Lower to floor)"],"153":["W1","Do change (Trig change only)"],"154":["WR","Do change (Trig change only)"],"155":["WR","Do donut"],"156":["WR","Start light strobing"],"157":["WR","Turn tag lights off"],"158":["S1","Do floor (Raise to texture)"],"159":["S1","Do floor (Lower and change)"],"160":["S1","Do floor (Raise floor24 and change)"],"161":["S1","Do floor (Raise floor24)"],"162":["S1","Do plat (Perpetual raise)"],"163":["S1","Stop plat"],"164":["S1","Do ceiling (Fast crush and raise)"],"165":["S1","Do ceiling (Silent crush and raise)"],"166":["S1","Do ceiling (Raise to highest)"],"167":["S1","Do ceiling (Lower and crush)"],"168":["S1","Ceiling crush stop"],"169":["S1","Light turn on (Dark, 0)"],"170":["S1","Light turn on (Dim, 32)"],"171":["S1","Light turn on (Bright, 255)"],"172":["S1","Start light strobing"],"173":["S1","Turn tag lights off"],"174":["S1","Teleport"],"175":["S1","Do door (Close30 then open)"],"176":["SR","Do floor (Raise to texture)"],"177":["SR","Do floor (Lower and change)"],"178":["SR","Do floor (Raise floor512)"],"179":["SR","Do floor (Raise floor24 and change)"],"180":["SR","Do floor (Raise floor24)"],"181":["SR","Do plat (Perpetual raise)"],"182":["SR","Stop plat"],"183":["SR","Do ceiling (Fast crush and raise)"],"184":["SR","Do ceiling (Crush and raise)"],"185":["SR","Do ceiling (Silent crush and raise)"],"186":["SR","Do ceiling (Raise to highest)"],"187":["SR","Do ceiling (Lower and crush)"],"188":["SR","Ceiling crush stop"],"189":["S1","Do change (Trig change only)"],"190":["SR","Do change (Trig change only)"],"191":["SR","Do donut"],"192":["SR","Light turn on (Dark, 0)"],"193":["SR","Start light strobing"],"194":["SR","Turn tagged light off"],"195":["SR","Teleport"],"196":["SR","Do door (Close30 then open)"],"197":["G1","Exit normal"],"198":["G1","Exit secret"],"199":["W1","Do ceiling (Lower to lowest)"],"200":["W1","Do ceiling (Lower to max floor)"],"201":["WR","Do ceiling (Lower to lowest)"],"202":["WR","Do ceiling (Lower to max floor)"],"203":["S1","Do ceiling (Lower to lowest)"],"204":["S1","Do ceiling (Lower to max floor)"],"205":["SR","Do ceiling (Lower to lowest)"],"206":["SR","Do ceiling (Lower to max floor)"],"207":["W1","Silent teleport"],"208":["WR","Silent teleport"],"209":["S1","Silent teleport"],"210":["SR","Silent teleport"],"211":["SR","Do plat (Toggle up down)"],"212":["WR","Do plat (Toggle up down)"],"213":["Static","Property transfer (Floor light)"],"214":["Static","Accelerative scroller (Ceiling)"],"215":["Static","Accelerative scroller (Floor)"],"216":["Static","Accelerative scroller (Floor carry no scroll)"],"217":["Static","Accelerative scroller (Floor carry)"],"218":["Static","Accelerative scroller (Linedef)"],"219":["W1","Do floor (Lower floor to nearest)"],"220":["WR","Do floor (Lower floor to nearest)"],"221":["S1","Do floor (Lower floor to nearest)"],"222":["SR","Do floor (Lower floor to nearest)"],"223":["Static","Set friction by length"],"224":["Static","Set pusher (Wind)"],"225":["Static","Set pusher (Current)"],"226":["Static","Set pusher (Push pull)"],"227":["W1","Do elevator (Elevate up)"],"228":["WR","Do elevator (Elevate up)"],"229":["S1","Do elevator (Elevate up)"],"230":["SR","Do elevator (Elevate up)"],"231":["W1","Do elevator (Elevate down)"],"232":["WR","Do elevator (Elevate down)"],"233":["S1","Do elevator (Elevate down)"],"234":["SR","Do elevator (Elevate down)"],"235":["W1","Do elevator (Elevate current)"],"236":["WR","Do elevator (Elevate current)"],"237":["S1","Do elevator (Elevate current)"],"238":["SR","Do elevator (Elevate current)"],"239":["W1","Do change (Num change only)"],"240":["WR","Do change (Num change only)"],"241":["S1","Do change (Num change only)"],"242":["Static","Property transfer (Sector height)"],"243":["W1","Silent line teleport"],"244":["WR","Silent line teleport"],"245":["Static","Displacement scroller (Ceiling)"],"246":["Static","Displacement scroller (Floor)"],"247":["Static","Displacement scroller (Floor carry)"],"248":["Static","Displacement scroller (Floor carry and scroll)"],"249":["Static","Displacement scroller (Linedef)"],"250":["Static","Scroller (Ceiling)"],"251":["Static","Scroller (Floor)"],"252":["Static","Scroller (Floor carry)"],"253":["Static","Scroller (Floor carry and scroll)"],"254":["Static","Scroller (Linedef)"],"255":["Static","Scroller (Sidedef)"],"256":["WR","Build stairs (Build8)"],"257":["WR","Build stairs (Turbo16)"],"258":["SR","Build stairs (Build8)"],"259":["SR","Build stairs (Turbo16)"],"260":["Static","Set translucency (Two sided mid tex)"],"261":["Static","Property transfer (Ceiling light)"],"262":["W1","Silent line teleport (Reversed)"],"263":["WR","Silent line teleport (Reversed)"],"264":["W1","Silent line teleport (Reversed monster only)"],"265":["WR","Silent line teleport (Reversed monster only)"],"266":["W1","Silent line teleport (Monster only)"],"267":["WR","Silent line teleport (Monster only)"],"268":["W1","Silent teleport (Reversed monster only)"],"269":["WR","Silent teleport (Reversed monster only)"]},"sectors":{},"lineFlags":{"512":"Passes the \"uses\" action through"},"thingFlags":{"16":"Thing does not spawn on singleplayer","32":"Thing does not spawn on deathmatch","64":"Thing does not spawn on cooperative"},"things":{"5001":"Pusher","5002":"Puller"},"genSector":{"32":"5% damage per second","64":"10% damage per second","96":"20% damage per second","128":"Secret sector","256":"Enable friction","512":"Enable thrust"}},"mbf":{"lines":{"271":["Static","Transfers the upper texture of the first sidedef to the sky texture of the tagged sectors"],"272":["Static","Transfers the upper texture of the first sidedef to the sky texture of the tagged sectors, horizontally-flipped"]},"sectors":{},"lineFlags":{},"thingFlags":{"128":"Thing is friendly to the player"},"things":{"888":"Helper Dog","2016":"Evil Scepter","2017":"Unholy Bible"},"genSector":{}},"mbf21":{"lines":{"1024":["Static","Front sidedef tagged scroll"],"1025":["Static","Front sidedef tagged scroll, displacement variant"],"1026":["Static","Front sidedef tagged scroll, accelerative variant"]},"sectors":{},"lineFlags":{"1024":"Reserved","2048":"Reserved","4096":"Blocks grounded monsters","8192":"Blocks players"},"thingFlags":{},"things":{},"genSector":{"4096":"Alternate damage mode","8192":"Kill grounded monsters"}},"id24":{"lines":{"2048":["Static","Offset target floor texture by line direction"],"2049":["Static","Offset target ceiling texture by line direction"],"2050":["Static","Offset target floor and ceiling texture by line direction"],"2051":["Static","Rotate target floor texture by line angle"],"2052":["Static","Rotate target ceiling texture by line angle"],"2053":["Static","Rotate target floor and ceiling texture by line angle"],"2054":["Static","Offset then rotate target floor texture by line direction and angle"],"2055":["Static","Offset then rotate target ceiling texture by line direction and angle"],"2056":["Static","Offset then rotate target floor and ceiling texture by line direction and angle"],"2057":["W1","Change music and make it loop only if a track is defined"],"2058":["WR","Change music and make it loop only if a track is defined"],"2059":["S1","Change music and make it loop only if a track is defined"],"2060":["SR","Change music and make it loop only if a track is defined"],"2061":["G1","Change music and make it loop only if a track is defined"],"2062":["GR","Change music and make it loop only if a track is defined"],"2063":["W1","Change music and make it play only once and stop all music after"],"2064":["WR","Change music and make it play only once and stop all music after"],"2065":["S1","Change music and make it play only once and stop all music after"],"2066":["SR","Change music and make it play only once and stop all music after"],"2067":["G1","Change music and make it play only once and stop all music after"],"2068":["GR","Change music and make it play only once and stop all music after"],"2069":["W1","Exit to the next map and reset inventory"],"2070":["S1","Exit to the next map and reset inventory"],"2071":["G1","Exit to the next map and reset inventory"],"2072":["W1","Exit to the secret map and reset inventory"],"2073":["S1","Exit to the secret map and reset inventory"],"2074":["G1","Exit to the secret map and reset inventory"],"2075":["Static","Set the target sector's colormap"],"2076":["W1","Set the target sector's colormap"],"2077":["WR","Set the target sector's colormap"],"2078":["S1","Set the target sector's colormap"],"2079":["SR","Set the target sector's colormap"],"2080":["G1","Set the target sector's colormap"],"2081":["GR","Set the target sector's colormap"],"2082":["Static","Scroll both front and back sidedef's textures according to the line's left direction"],"2083":["Static","Scroll both front and back sidedef's textures according to the line's right direction"],"2084":["Static","Scroll both front and back sidedef's textures according to the target sector's scroll values divided by 8"],"2085":["Static","Scroll both front and back sidedef's textures according to the target sector's movement divided by 8"],"2086":["Static","Scroll both front and back sidedef's textures and accelerate the scroll value by the target sector's movement divided by 8"],"2087":["W1","Change music and make it loop, reset to looping default if no track defined"],"2088":["WR","Change music and make it loop, reset to looping default if no track defined"],"2089":["S1","Change music and make it loop, reset to looping default if no track defined"],"2090":["SR","Change music and make it loop, reset to looping default if no track defined"],"2091":["G1","Change music and make it loop, reset to looping default if no track defined"],"2092":["GR","Change music and make it loop, reset to looping default if no track defined"],"2093":["W1","Change music and make it play only once, reset to looping default if no track defined"],"2094":["WR","Change music and make it play only once, reset to looping default if no track defined"],"2095":["S1","Change music and make it play only once, reset to looping default if no track defined"],"2096":["SR","Change music and make it play only once, reset to looping default if no track defined"],"2097":["G1","Change music and make it play only once, reset to looping default if no track defined"],"2098":["GR","Change music and make it play only once, reset to looping default if no track defined"]},"sectors":{},"lineFlags":{},"thingFlags":{},"things":{"-28672":"Ghoul","-28671":"Banshee","-28670":"Mindweaver","-28669":"Shocktrooper","-28668":"Vassago","-28667":"Tyrant","-28666":"Tyrant (Boss 1)","-28665":"Tyrant (Boss 2)","-28664":"Stalagmite (gray)","-28663":"Large corpse pile","-28662":"Human BBQ 1","-28661":"Human BBQ 2","-28660":"Hanging victim, both legs","-28659":"Hanging victim, both legs (blocking)","-28658":"Hanging victim, crucified","-28657":"Hanging victim, crucified (blocking)","-28656":"Hanging victim, arms bound","-28655":"Hanging victim, arms bound (blocking)","-28654":"Hanging baron of hell","-28653":"Hanging baron of hell (blocking)","-28652":"Hanging victim, chained","-28651":"Hanging victim, chained (blocking)","-28650":"Hanging torso, chained","-28649":"Hanging torso, chained (blocking)","-28648":"Skull pole trio","-28647":"Skull gibs","-28646":"Bush, short","-28645":"Bush, short burned 1","-28644":"Bush, short burned 2","-28643":"Bush, tall","-28642":"Bush, tall burned 1","-28641":"Bush, tall burned 2","-28640":"Cave rock column","-28639":"Cave stalagmite, large","-28638":"Cave stalagmite, medium","-28637":"Cave stalagmite, small","-28636":"Cave stalactite, large","-28635":"Cave stalactite, large (blocking)","-28634":"Cave stalactite, medium","-28633":"Cave stalactite, medium (blocking)","-28632":"Cave stalactite, small","-28631":"Cave stalactite, small (blocking)","-28630":"Office chair","-28629":"Office lamp (breakable)","-28628":"Ceiling lamp","-28627":"Candelabra (short)","-28626":"Ambient Klaxon","-28625":"Ambient Portal Open","-28624":"Ambient Portal Loop","-28623":"Ambient Portal Close","-28622":"Fuel Can","-28621":"Fuel Tank","-28620":"Heatwave Generator","-28619":"Incinerator"},"genSector":{}}};
+
+/* ================= NODE BUILDER (vanilla-loadable SEGS / SSECTORS / NODES / BLOCKMAP / REJECT) =================
+   Original Doom, Chocolate Doom, Boom and MBF ports read the map's BSP tree from the WAD instead of building it,
+   so a map without nodes won't load there. This is a classic recursive builder:
+     - every linedef side becomes a seg facing into its sector,
+     - pick a partition from the segs (fewest splits, best balance, axis-aligned preferred),
+     - split the segs that cross it (new vertices rounded to whole units, as vanilla needs),
+     - stop when a set is convex (every seg sees all the others in front of it): that set is a subsector.
+   Input: plain arrays { v:[{x,y}], l:[{v1,v2,s1,s2,...}], sd:[{sec}], sec:[...] }. Output: Uint8Array lumps plus the
+   new vertex list (originals first). nodesSelfCheck() walks the tree like the game does and confirms that sample
+   points inside each sector land in a subsector of that sector. */
+function buildNodes(map) {
+  const V = map.v.map(p => ({ x: p.x, y: p.y })), nOrig = V.length;
+  const vkey = new Map(); V.forEach((p, i) => vkey.set(p.x + ',' + p.y, i));
+  const addV = (x, y) => { x = Math.round(x); y = Math.round(y); const k = x + ',' + y; let i = vkey.get(k); if (i == null) { i = V.length; V.push({ x, y }); vkey.set(k, i); } return i; };
+  // segs: {a, b (vertex idx), line, side, ox/oy/dx/dy of the source line for partition math, off}
+  const segs = [];
+  map.l.forEach((L, li) => {
+    const A = V[L.v1], B = V[L.v2]; if (!A || !B || (A.x === B.x && A.y === B.y)) return;
+    if (L.s1 >= 0) segs.push({ a: L.v1, b: L.v2, line: li, side: 0, off: 0 });
+    if (L.s2 >= 0) segs.push({ a: L.v2, b: L.v1, line: li, side: 1, off: 0 });
+  });
+  const P = s => [V[s.a], V[s.b]];
+  // which side of partition (px,py,dx,dy) a point is on: <0 front (right), >0 back (left), 0 on the line
+  // points within half a unit of the line count as on it (split points are rounded to whole units)
+  const side = (px, py, dx, dy, x, y) => { const c = (dx * (y - py) - dy * (x - px)) / Math.hypot(dx, dy); return c < -0.5 ? -1 : c > 0.5 ? 1 : 0; };
+  const OUT = { segs: [], ss: [], nodes: [] };
+  const bbox = list => { let t = -1e9, b = 1e9, l = 1e9, r = -1e9; list.forEach(s => { for (const p of P(s)) { t = Math.max(t, p.y); b = Math.min(b, p.y); l = Math.min(l, p.x); r = Math.max(r, p.x); } }); return [t, b, l, r]; };
+  const convex = list => {
+    for (const s of list) { const [A, B] = P(s), dx = B.x - A.x, dy = B.y - A.y;
+      for (const o of list) { if (o === s) continue; const [C, D] = P(o); if (side(A.x, A.y, dx, dy, C.x, C.y) > 0 || side(A.x, A.y, dx, dy, D.x, D.y) > 0) return false; } }
+    return true;
+  };
+  const choose = list => {
+    // try every seg's line as a partition when the set is small, a spread sample when it's big
+    let cands = list; if (list.length > 64) { cands = []; const step = list.length / 64; for (let i = 0; i < 64; i++) cands.push(list[Math.floor(i * step)]); }
+    let best = null, bestScore = Infinity;
+    for (const c of cands) {
+      const [A, B] = P(c), dx = B.x - A.x, dy = B.y - A.y; let f = 0, bk = 0, sp = 0;
+      for (const s of list) { const [C, D] = P(s), s1 = side(A.x, A.y, dx, dy, C.x, C.y), s2 = side(A.x, A.y, dx, dy, D.x, D.y);
+        if (s1 <= 0 && s2 <= 0) { if (s1 === 0 && s2 === 0) { const same = (D.x - C.x) * dx + (D.y - C.y) * dy > 0; same ? f++ : bk++; } else f++; }
+        else if (s1 >= 0 && s2 >= 0) bk++; else sp++; }
+      if (!f || !bk) { if (!sp) continue; }
+      const score = sp * 8 + Math.abs(f - bk) + (dx && dy ? 2 : 0);
+      if (score < bestScore) { bestScore = score; best = c; }
+    }
+    return best;
+  };
+  const split = (s, px, py, dx, dy) => { // returns [frontPart, backPart]
+    const [A, B] = P(s), ex = B.x - A.x, ey = B.y - A.y, den = dx * ey - dy * ex; const t = (dy * (A.x - px) - dx * (A.y - py)) / den;
+    const m = addV(A.x + ex * t, A.y + ey * t); const L = map.l[s.line], S0 = V[s.side ? L.v2 : L.v1], M = V[m];
+    const p1 = { a: s.a, b: m, line: s.line, side: s.side, off: s.off }, p2 = { a: m, b: s.b, line: s.line, side: s.side, off: Math.round(Math.hypot(M.x - S0.x, M.y - S0.y)) };
+    const sa = side(px, py, dx, dy, A.x, A.y); return sa < 0 ? [p1, p2] : [p2, p1];
+  };
+  const build = list => { // returns child index (with 0x8000 for subsector)
+    if (list.length && convex(list)) { const first = OUT.segs.length; OUT.segs.push(...list.filter(s => s.a !== s.b)); OUT.ss.push([OUT.segs.length - first, first]); return 0x8000 | (OUT.ss.length - 1); }
+    let c = choose(list), tries = 0;
+    const tried = new Set();
+    for (;;) { // a partition must put segs on both sides, or the set never shrinks
+      if (!c) break; const [A, B] = P(c), dx = B.x - A.x, dy = B.y - A.y; let f = 0, k = 0;
+      for (const s of list) { const [C, D] = P(s), s1 = side(A.x, A.y, dx, dy, C.x, C.y), s2 = side(A.x, A.y, dx, dy, D.x, D.y);
+        if (s1 === 0 && s2 === 0) { ((D.x - C.x) * dx + (D.y - C.y) * dy > 0) ? f++ : k++; } else if (s1 <= 0 && s2 <= 0) f++; else if (s1 >= 0 && s2 >= 0) k++; else { f++; k++; } }
+      if (f && k) break; tried.add(c); c = list.find(s => !tried.has(s)) || null; if (++tries > list.length) { c = null; break; } }
+    if (!c) { const first = OUT.segs.length; OUT.segs.push(...list); OUT.ss.push([list.length, first]); return 0x8000 | (OUT.ss.length - 1); }
+    const [A, B] = P(c), px = A.x, py = A.y, dx = B.x - A.x, dy = B.y - A.y, F = [], K = [];
+    for (const s of list) { const [C, D] = P(s), s1 = side(px, py, dx, dy, C.x, C.y), s2 = side(px, py, dx, dy, D.x, D.y);
+      if (s1 === 0 && s2 === 0) { ((D.x - C.x) * dx + (D.y - C.y) * dy > 0 ? F : K).push(s); }
+      else if (s1 <= 0 && s2 <= 0) F.push(s); else if (s1 >= 0 && s2 >= 0) K.push(s);
+      else { const [f, b] = split(s, px, py, dx, dy); if (f.a !== f.b) F.push(f); if (b.a !== b.b) K.push(b); } }
+    const bbF = bbox(F), bbK = bbox(K), ni = OUT.nodes.length; OUT.nodes.push(null);
+    const rf = build(F), rk = build(K);
+    OUT.nodes[ni] = { x: px, y: py, dx, dy, bbR: bbF, bbL: bbK, R: rf, L: rk };
+    return ni;
+  };
+  if (segs.length) build(segs);
+  // ---- lumps ----
+  const mk = (n, sz) => { const b = new ArrayBuffer(n * sz); return { dv: new DataView(b), u8: new Uint8Array(b) }; };
+  const SG = mk(OUT.segs.length, 12);
+  OUT.segs.forEach((s, i) => { const [A, B] = P(s), o = i * 12; SG.dv.setUint16(o, s.a, true); SG.dv.setUint16(o + 2, s.b, true);
+    SG.dv.setInt16(o + 4, Math.round(Math.atan2(B.y - A.y, B.x - A.x) / Math.PI * 32768) | 0, true); SG.dv.setUint16(o + 6, s.line, true); SG.dv.setInt16(o + 8, s.side, true); SG.dv.setInt16(o + 10, s.off, true); });
+  const SS = mk(OUT.ss.length, 4); OUT.ss.forEach(([n, f], i) => { SS.dv.setUint16(i * 4, n, true); SS.dv.setUint16(i * 4 + 2, f, true); });
+  // the root must be the LAST node in the lump: renumber in post-order
+  const order = [], seen = new Set(), walk = i => { if (i & 0x8000 || seen.has(i)) return; seen.add(i); const n = OUT.nodes[i]; walk(n.R); walk(n.L); order.push(i); };
+  if (OUT.nodes.length) walk(0);
+  const ren = new Map(order.map((oi, ni) => [oi, ni])), fix = c => c & 0x8000 ? c : ren.get(c);
+  const ND = mk(order.length, 28);
+  order.forEach((oi, i) => { const n = OUT.nodes[oi], o = i * 28, w = (k, v) => ND.dv.setInt16(o + k, Math.round(v), true);
+    w(0, n.x); w(2, n.y); w(4, n.dx); w(6, n.dy); n.bbR.forEach((v, j) => w(8 + j * 2, v)); n.bbL.forEach((v, j) => w(16 + j * 2, v));
+    ND.dv.setUint16(o + 24, fix(n.R), true); ND.dv.setUint16(o + 26, fix(n.L), true); });
+  const VX = mk(V.length, 4); V.forEach((p, i) => { VX.dv.setInt16(i * 4, p.x, true); VX.dv.setInt16(i * 4 + 2, p.y, true); });
+  return { vertexes: VX.u8, segs: SG.u8, ssectors: SS.u8, nodes: ND.u8, V, nOrig, counts: { segs: OUT.segs.length, ssectors: OUT.ss.length, nodes: order.length, vertexes: V.length } };
+}
+/* BLOCKMAP: 128x128 cells, each listing the linedefs that touch it (list starts with 0, ends with -1) */
+function buildBlockmap(map, V) {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; map.l.forEach(L => { for (const p of [V[L.v1], V[L.v2]]) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); } });
+  if (x0 > x1) { x0 = y0 = 0; x1 = y1 = 1; }
+  const ox = Math.floor(x0) - 8, oy = Math.floor(y0) - 8, cols = Math.floor((x1 - ox) / 128) + 1, rows = Math.floor((y1 - oy) / 128) + 1;
+  const cells = Array.from({ length: cols * rows }, () => []);
+  const hits = (ax, ay, bx, by, cx0, cy0, cx1, cy1) => { // segment vs box (Liang-Barsky)
+    let t0 = 0, t1 = 1; const dx = bx - ax, dy = by - ay;
+    for (const [p, q] of [[-dx, ax - cx0], [dx, cx1 - ax], [-dy, ay - cy0], [dy, cy1 - ay]]) { if (p === 0) { if (q < 0) return false; } else { const r = q / p; if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; } } }
+    return true; };
+  map.l.forEach((L, li) => { const A = V[L.v1], B = V[L.v2];
+    const c0 = Math.max(0, Math.floor((Math.min(A.x, B.x) - ox) / 128)), c1 = Math.min(cols - 1, Math.floor((Math.max(A.x, B.x) - ox) / 128));
+    const r0 = Math.max(0, Math.floor((Math.min(A.y, B.y) - oy) / 128)), r1 = Math.min(rows - 1, Math.floor((Math.max(A.y, B.y) - oy) / 128));
+    for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) { const bx = ox + c * 128, by = oy + r * 128; if (hits(A.x, A.y, B.x, B.y, bx, by, bx + 128, by + 128)) cells[r * cols + c].push(li); } });
+  const head = 4 + cols * rows; let words = head; cells.forEach(c => words += c.length + 2);
+  const out = new Uint8Array(words * 2), dv = new DataView(out.buffer); dv.setInt16(0, ox, true); dv.setInt16(2, oy, true); dv.setUint16(4, cols, true); dv.setUint16(6, rows, true);
+  let w = head; cells.forEach((c, i) => { dv.setUint16((4 + i) * 2, w, true); dv.setUint16(w * 2, 0, true); w++; c.forEach(li => { dv.setUint16(w * 2, li, true); w++; }); dv.setUint16(w * 2, 0xFFFF, true); w++; });
+  return { lump: out, words, cols, rows };
+}
+function buildReject(nSec) { return new Uint8Array(Math.ceil(nSec * nSec / 8)); }
+/* Walk the tree like R_PointInSubsector and check that points inside each sector land in that sector's subsectors. */
+function nodesSelfCheck(map, built, samplesPerSector = 12) {
+  const nd = new DataView(built.nodes.buffer), sg = new DataView(built.segs.buffer), ss = new DataView(built.ssectors.buffer), nN = built.nodes.length / 28;
+  const ssSector = i => { const first = ss.getUint16(i * 4 + 2, true), li = sg.getUint16(first * 12 + 6, true), sd = sg.getInt16(first * 12 + 8, true); const L = map.l[li]; return map.sd[sd ? L.s2 : L.s1].sec; };
+  const find = (x, y) => { if (!nN) return 0; let n = nN - 1; for (;;) { const o = n * 28, px = nd.getInt16(o, true), py = nd.getInt16(o + 2, true), dx = nd.getInt16(o + 4, true), dy = nd.getInt16(o + 6, true);
+      const back = ((y - py) * dx) < (dy * (x - px)) ? 0 : 1; // R_PointOnSide: front (0) when right < left
+      const ch = nd.getUint16(o + 24 + back * 2, true); if (ch & 0x8000) return ch & 0x7fff; n = ch; } };
+  let bad = 0, tried = 0; const fails = [];
+  map.sec.forEach((s, si) => { const pts = typeof sampleSector === 'function' ? sampleSector(si, samplesPerSector) : []; for (const p of pts) { tried++; const got = ssSector(find(p.x, p.y)); if (got !== si) { bad++; if (fails.length < 8) fails.push({ sector: si, x: Math.round(p.x), y: Math.round(p.y), got }); } } });
+  return { tried, bad, fails };
+}
+/* random points that really are inside sector si (for the self-check) */
+function sampleSector(si, n) {
+  const ls = sectorLines(si); if (!ls.length) return [];
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; ls.forEach(li => { const L = M.l[li]; for (const v of [M.v[L.v1], M.v[L.v2]]) { x0 = Math.min(x0, v.x); y0 = Math.min(y0, v.y); x1 = Math.max(x1, v.x); y1 = Math.max(y1, v.y); } });
+  const out = []; let tries = 0; while (out.length < n && tries++ < n * 30) { const x = x0 + 1 + Math.random() * (x1 - x0 - 2), y = y0 + 1 + Math.random() * (y1 - y0 - 2); if (sectorAt(x, y) === si) out.push({ x, y }); }
+  return out;
+}
+
+/* ================= EOD CLASSIC: the compatibility editor =================
+   Same drawing tools as EOD, none of EOD's own tricks. Every map has a target format; the format decides which
+   line actions, sector types, flags and things are offered, the map check flags everything the target can't load,
+   and the export writes exactly that format (binary Doom map with real nodes, or UDMF text).
+   Turned on by window.EOD_CLASSIC (classic.html). In plain EOD this file only defines things and does nothing. */
+const CLASSIC = !!window.EOD_CLASSIC, CLASSIC_VERSION = '0.1.0', CLASSIC_VC = 1;
+const FORMATS = {
+  vanilla: { name: 'Vanilla Doom II', lv: ['vanilla'], bin: true, ports: 'Original Doom II (DOS), Chocolate Doom, and every port after them.' },
+  boom: { name: 'Boom', lv: ['vanilla', 'boom'], bin: true, ports: 'PrBoom+, DSDA-Doom (complevel 9), Woof, Nugget, Eternity, GZDoom.' },
+  mbf21: { name: 'MBF21', lv: ['vanilla', 'boom', 'mbf', 'mbf21'], bin: true, ports: 'DSDA-Doom (complevel 21), Woof, Nugget, GZDoom, Doom + Doom II (2024).' },
+  id24: { name: 'ID24', lv: ['vanilla', 'boom', 'mbf', 'mbf21', 'id24'], bin: true, ports: 'Doom + Doom II (2024 release), Woof, Helion. ID24 is still a 0.99 draft.' },
+  udmf: { name: 'UDMF (Doom namespace)', lv: ['vanilla', 'boom'], bin: false, ports: 'GZDoom, Eternity, EDGE-Classic, Helion. Text map; the port builds its own nodes.' }
+};
+/* every thing Doom II itself knows (DoomEdNums); the ones EOD's own engine doesn't draw yet are added for placing only */
+const VANILLA_THINGS = { 64: ['Arch-Vile', 'monster'], 66: ['Revenant', 'monster'], 67: ['Mancubus', 'monster'], 71: ['Pain Elemental', 'monster'], 72: ['Commander Keen', 'monster'], 84: ['Wolfenstein SS', 'monster'],
+  88: ['Boss Brain (Icon of Sin)', 'monster'], 89: ['Boss Shooter (spawns monsters)', 'decor'], 87: ['Spawn Spot (Icon of Sin target)', 'decor'],
+  2022: ['Invulnerability', 'health'], 2023: ['Berserk', 'health'], 2024: ['Partial Invisibility', 'health'], 2025: ['Radiation Suit', 'health'], 2026: ['Computer Map', 'health'], 2045: ['Light Amplification Visor', 'health'],
+  12: ['Bloody mess 2', 'decor'], 15: ['Dead player', 'decor'], 18: ['Dead zombieman', 'decor'], 19: ['Dead shotgun guy', 'decor'], 20: ['Dead imp', 'decor'], 21: ['Dead demon', 'decor'], 22: ['Dead cacodemon', 'decor'], 23: ['Dead lost soul (invisible)', 'decor'],
+  24: ['Pool of blood and flesh', 'decor'], 25: ['Impaled human', 'decor'], 26: ['Twitching impaled human', 'decor'], 27: ['Skull on a pole', 'decor'], 28: ['Five skulls on a pole', 'decor'], 29: ['Pile of skulls and candles', 'decor'],
+  31: ['Short green pillar', 'decor'], 32: ['Tall red pillar', 'decor'], 33: ['Short red pillar', 'decor'], 36: ['Short green pillar with heart', 'decor'], 37: ['Short red pillar with skull', 'decor'], 41: ['Evil eye', 'decor'], 42: ['Floating skull rock', 'decor'], 43: ['Burnt tree', 'decor'], 45: ['Tall green firestick', 'decor'], 47: ['Brown stump', 'decor'],
+  49: ['Hanging victim, twitching', 'decor'], 50: ['Hanging victim, arms out', 'decor'], 51: ['Hanging victim, one-legged', 'decor'], 52: ['Hanging pair of legs', 'decor'], 53: ['Hanging leg', 'decor'], 54: ['Large brown tree', 'decor'], 55: ['Short blue firestick', 'decor'], 56: ['Short green firestick', 'decor'], 57: ['Short red firestick', 'decor'],
+  59: ['Hanging victim, arms out (walk-through)', 'decor'], 60: ['Hanging pair of legs (walk-through)', 'decor'], 61: ['Hanging victim, one-legged (walk-through)', 'decor'], 62: ['Hanging leg (walk-through)', 'decor'], 63: ['Hanging victim, twitching (walk-through)', 'decor'],
+  70: ['Burning barrel', 'decor'], 73: ['Hanging victim, guts removed', 'decor'], 74: ['Hanging victim, guts and brain removed', 'decor'], 75: ['Hanging torso, looking down', 'decor'], 76: ['Hanging torso, open skull', 'decor'], 77: ['Hanging torso, looking up', 'decor'], 78: ['Hanging torso, brain removed', 'decor'],
+  79: ['Pool of blood', 'decor'], 80: ['Pool of blood 2', 'decor'], 81: ['Pool of brains', 'decor'], 85: ['Tall techno floor lamp', 'decor'], 86: ['Short techno floor lamp', 'decor'] };
+Object.entries(VANILLA_THINGS).forEach(([ed, [name, cat]]) => { ed = +ed; if (!THINGS[ed]) defT(ed, name, cat, cat === 'monster' ? 20 : 16, 56, null, { noplay: true }); });
+const CLASSIC_BASE_THINGS = new Set(Object.keys(THINGS).map(Number)); // Doom II's own things (before any EOD extras)
+const BASE_LINE_SPECIALS = LINE_SPECIALS.slice();
+function mapFormat() { return (M && FORMATS[M.format]) ? M.format : 'vanilla'; }
+function fmtLevels(f) { return FORMATS[f || mapFormat()].lv; }
+function fmtHas(level, f) { return fmtLevels(f).includes(level); }
+function lineAllowed(n, f) { if (!n) return true; const lv = fmtLevels(f); if (lv.some(k => FMT_CAT[k].lines[n])) return true; return lv.includes('boom') && n >= 0x2F80 && n < 0x8000; }
+function lineFlagMask(f) { let m = 0x1FF; if (fmtHas('boom', f)) m |= 0x200; if (fmtHas('mbf21', f)) m |= 0x3000; return m; }
+function thingFlagMask(f) { let m = 0x1F; if (fmtHas('boom', f)) m |= 0x60; if (fmtHas('mbf', f)) m |= 0x80; return m; }
+function sectorAllowed(n, f) {
+  if (!n) return true; const low = n & 31, vanillaOk = k => !k || FMT_CAT.vanilla.sectors[k];
+  if (!fmtHas('boom', f)) return n < 32 && vanillaOk(n);
+  let allowed = 0x3FF; if (fmtHas('mbf21', f)) allowed |= 0x3000;
+  return vanillaOk(low) && !(n & ~allowed);
+}
+function thingAllowed(type, f) { if (CLASSIC_BASE_THINGS.has(type) && !(THINGS[type] && (THINGS[type].custom || THINGS[type].cw || THINGS[type].fmtOnly))) return true; return fmtLevels(f).some(k => FMT_CAT[k].things[type]); }
+function texKnown(name, flat) { if (!name || name === '-') return true; name = name.toUpperCase(); return RES.packs.some(p => flat ? (p.flats.has(name) || p.imgFlat.has(name)) : (p.tex.has(name) || p.imgTex.has(name))); }
+// the extra things the newer formats bring (so they can be placed)
+if (CLASSIC) ['boom', 'mbf', 'id24'].forEach(k => Object.entries(FMT_CAT[k].things).forEach(([ed, name]) => { ed = +ed; if (!THINGS[ed]) defT(ed, name + ' (' + k.toUpperCase() + ')', ed === 888 ? 'monster' : 'decor', 20, 56, null, { fmtOnly: k }); }));
+/* rebuild the Action list for the map's format: EOD's plain names where it has them, the spec's names for the rest */
+function classicApplyFormat() {
+  if (!CLASSIC) return;
+  const f = mapFormat(), have = new Set(BASE_LINE_SPECIALS.map(o => o[0])), out = BASE_LINE_SPECIALS.filter(o => lineAllowed(o[0], f));
+  fmtLevels(f).forEach(k => Object.entries(FMT_CAT[k].lines).forEach(([n, [trig, desc]]) => { n = +n; if (!have.has(n)) { have.add(n); out.push([n, (trig === 'Static' ? '' : trig + ' ') + desc + ' [' + k.toUpperCase() + ']']); } }));
+  out.sort((a, b) => a[0] - b[0]); LINE_SPECIALS.length = 0; LINE_SPECIALS.push(...out);
+  const b = $('#fmtBtn'); if (b) b.textContent = FORMATS[f].name;
+  if (window.refreshProps) refreshProps();
+}
+/* ---- the map check for the chosen format ---- */
+function classicCheck() {
+  const f = mapFormat(), F = FORMATS[f], out = [], push = (sev, msg, kind, i) => out.push({ sev, msg, kind, i });
+  const lm = lineFlagMask(f), tm = thingFlagMask(f), crashes = f === 'vanilla' ? ' Vanilla Doom crashes on this.' : '';
+  // EOD-only content has no place in a classic map
+  if (M.mon && Object.keys(M.mon).length) push('error', 'This map has EOD generated monsters. ' + F.name + ' has no way to define new monsters in a map.');
+  if (M.wep && Object.keys(M.wep).length) push('error', 'This map has EOD custom weapons. ' + F.name + ' has no way to define new weapons in a map.');
+  if (M.triggers && M.triggers.length) push('error', 'This map uses EOD triggers (boss events, waves, light changes). Build them with real line actions and tags instead.');
+  if (M.start) push('warn', 'This map has an EOD starting loadout; ' + F.name + ' ignores it (players start with a pistol).');
+  if (M.res && (Object.keys(M.res.tex || {}).length || Object.keys(M.res.flat || {}).length)) push('error', 'This map carries its own picture textures. Classic export can\'t pack those yet; use the game\'s textures.');
+  M.l.forEach((L, i) => {
+    if (L.glass) push('error', 'Linedef ' + i + ' is EOD glass. No classic format has breakable glass.', 'l', i);
+    if (!lineAllowed(L.sp, f)) push('error', 'Linedef ' + i + ' action ' + L.sp + ' doesn\'t exist in ' + F.name + '.', 'l', i);
+    if ((L.f || 0) & ~lm) push('warn', 'Linedef ' + i + ' has flags ' + F.name + ' doesn\'t know (0x' + ((L.f || 0) & ~lm).toString(16) + '); they\'ll be ignored.', 'l', i);
+    if (f === 'vanilla' && (Math.abs(M.v[L.v1].x - M.v[L.v2].x) > 32767 || Math.abs(M.v[L.v1].y - M.v[L.v2].y) > 32767)) push('error', 'Linedef ' + i + ' is longer than 32767 units; vanilla math overflows on it.', 'l', i);
+  });
+  M.sec.forEach((s, i) => {
+    if (!sectorAllowed(s.sp || 0, f)) push('error', 'Sector ' + i + ' type ' + s.sp + ' doesn\'t exist in ' + F.name + '.', 's', i);
+    for (const [k, w] of [['ft', 'floor'], ['ct', 'ceiling']]) if (RES.packs.length && !texKnown(s[k], true)) push('error', 'Sector ' + i + ' ' + w + ' flat "' + s[k] + '" isn\'t in the game files.' + crashes, 's', i);
+  });
+  if (RES.packs.length) { const bad = new Map(); M.sd.forEach((d, i) => { for (const k of ['up', 'lo', 'mid']) if (!texKnown(d[k], false)) bad.set(d[k], (bad.get(d[k]) || 0) + 1); });
+    bad.forEach((n, t) => push('error', 'Wall texture "' + t + '" (' + n + ' side' + (n > 1 ? 's' : '') + ') isn\'t in the game files.' + crashes)); }
+  else push('warn', 'The game files are still loading, so texture names weren\'t checked. Run the check again in a moment.');
+  M.t.forEach((t, i) => {
+    if (!thingAllowed(t.type, f)) push('error', 'Thing ' + i + ' type ' + t.type + ' (' + thingName(t.type) + ') doesn\'t exist in ' + F.name + '.' + (f === 'vanilla' ? ' Vanilla stops with "P_SpawnMapThing: Unknown type".' : ''), 't', i);
+    if ((t.f || 0) & ~tm) push('warn', 'Thing ' + i + ' has flags ' + F.name + ' doesn\'t know; they\'ll be ignored.', 't', i);
+    if (t.wave) push('warn', 'Thing ' + i + ' is an EOD wave monster; in ' + F.name + ' it\'s simply there from the start.', 't', i);
+  });
+  M.v.forEach((v, i) => { if (Math.abs(v.x) > 32767 || Math.abs(v.y) > 32767) push('error', 'Vertex ' + i + ' is outside the ±32767 map limit.'); });
+  if (F.bin) {
+    if (!/^MAP(0[1-9]|[12]\d|3[0-2])$/.test(M.name || '')) push(f === 'vanilla' ? 'error' : 'warn', 'Map slot "' + M.name + '" isn\'t MAP01–MAP32 (Doom II). Pick a slot under Map properties.');
+    try { const lines = M.l.filter(L => L.s1 >= 0), nb = buildNodes({ v: M.v, l: lines, sd: M.sd, sec: M.sec }), bm = buildBlockmap({ l: lines }, nb.V), c = nb.counts;
+      const lim = f === 'vanilla' ? 32767 : 65535;
+      if (c.segs > lim) push('error', c.segs + ' segs; the limit for ' + F.name + ' is ' + lim + '.');
+      if (c.vertexes > lim) push('error', c.vertexes + ' vertices after node building; the limit is ' + lim + '.');
+      if (M.sd.length > lim) push('error', M.sd.length + ' sidedefs; the limit is ' + lim + '.');
+      if (bm.words > 65535) push('error', 'Blockmap too big (' + bm.words + ' entries, the limit is 65535). Make the map smaller or less spread out.');
+      else if (f === 'vanilla' && bm.words > 32767) push('warn', 'Blockmap is past 32767 entries; some vanilla builds misread it.');
+      out.nodeStats = c;
+    } catch (e) { push('error', 'Node building failed: ' + e.message); }
+  }
+  return out;
+}
+/* ---- export ---- */
+function classicExport() {
+  const f = mapFormat(), F = FORMATS[f], errs = analyzeMap().filter(i => i.sev === 'error');
+  const go = () => {
+    if (!F.bin) { download('EODC-' + (M.name || 'MAP01') + '-UDMF.wad', buildUdmfWad(), 'application/octet-stream'); return toast('UDMF map exported.'); }
+    const lines = M.l.filter(L => L.s1 >= 0), nb = buildNodes({ v: M.v, l: lines, sd: M.sd, sec: M.sec }), chk = nodesSelfCheck({ l: lines, sd: M.sd, sec: M.sec }, nb, 10);
+    const w = buildWad(); download('EODC-' + (M.name || 'MAP01') + '-' + f + '.wad', w, 'application/octet-stream');
+    toast(F.name + ' WAD exported: ' + nb.counts.segs + ' segs, ' + nb.counts.ssectors + ' subsectors, ' + nb.counts.nodes + ' nodes.' + (chk.bad ? ' Node check: ' + chk.bad + ' of ' + chk.tried + ' test points landed wrong, tell us.' : ' Node check passed.'), 6000);
+  };
+  if (errs.length) modal(errs.length + ' problem' + (errs.length > 1 ? 's' : '') + ' for ' + F.name, '<ul>' + errs.slice(0, 14).map(i => '<li>' + esc(i.msg) + '</li>').join('') + '</ul><p>' + F.name + ' ports may refuse or crash on this map. Fix them first (File → Check map), or export anyway.</p>', [{ label: 'Check map', fn: () => setTimeout(openAnalysis, 50) }, { label: 'Export anyway', fn: go }, { cancel: 1 }]);
+  else go();
+}
+function buildUdmfWad() {
+  compact();
+  const q = s => '"' + String(s || '-').replace(/["\\]/g, '') + '"', b = (k, v) => v ? '  ' + k + ' = true;\n' : '';
+  let t = '// Written by EOD Classic\nnamespace = "doom";\n\n';
+  M.t.forEach(th => { const f = th.f || 7; t += 'thing\n{\n  x = ' + th.x + '.0;\n  y = ' + th.y + '.0;\n  angle = ' + (th.a || 0) + ';\n  type = ' + th.type + ';\n' + b('skill1', f & 1) + b('skill2', f & 1) + b('skill3', f & 2) + b('skill4', f & 4) + b('skill5', f & 4) + b('ambush', f & 8) + b('single', !(f & 16)) + b('dm', !(f & 32)) + b('coop', !(f & 64)) + b('friend', f & 128) + '}\n\n'; });
+  M.v.forEach(v => { t += 'vertex\n{\n  x = ' + v.x + '.0;\n  y = ' + v.y + '.0;\n}\n\n'; });
+  M.l.forEach(L => { if (L.s1 < 0) return; const f = L.f || 0;
+    t += 'linedef\n{\n  v1 = ' + L.v1 + ';\n  v2 = ' + L.v2 + ';\n  sidefront = ' + L.s1 + ';\n' + (L.s2 >= 0 ? '  sideback = ' + L.s2 + ';\n' : '') + (L.sp ? '  special = ' + L.sp + ';\n' : '') + (L.tag ? '  id = ' + L.tag + ';\n  arg0 = ' + L.tag + ';\n' : '')
+      + b('blocking', f & 1) + b('blockmonsters', f & 2) + b('twosided', f & 4) + b('dontpegtop', f & 8) + b('dontpegbottom', f & 16) + b('secret', f & 32) + b('blocksound', f & 64) + b('dontdraw', f & 128) + b('mapped', f & 256) + b('passuse', f & 512) + '}\n\n'; });
+  M.sd.forEach(d => { t += 'sidedef\n{\n' + (d.xo ? '  offsetx = ' + d.xo + ';\n' : '') + (d.yo ? '  offsety = ' + d.yo + ';\n' : '') + '  texturetop = ' + q(d.up) + ';\n  texturebottom = ' + q(d.lo) + ';\n  texturemiddle = ' + q(d.mid) + ';\n  sector = ' + d.sec + ';\n}\n\n'; });
+  M.sec.forEach(s => { t += 'sector\n{\n  heightfloor = ' + s.fh + ';\n  heightceiling = ' + s.ch + ';\n  texturefloor = ' + q(s.ft) + ';\n  textureceiling = ' + q(s.ct) + ';\n  lightlevel = ' + s.li + ';\n' + (s.sp ? '  special = ' + s.sp + ';\n' : '') + (s.tag ? '  id = ' + s.tag + ';\n' : '') + '}\n\n'; });
+  const E = new Uint8Array(0), lumps = [[M.name || 'MAP01', E], ['TEXTMAP', new TextEncoder().encode(t)], ['ENDMAP', E]];
+  let size = 12; lumps.forEach(l => size += l[1].length);
+  const out = new Uint8Array(size + lumps.length * 16), dv = new DataView(out.buffer); out.set([80, 87, 65, 68], 0); dv.setInt32(4, lumps.length, true); dv.setInt32(8, size, true);
+  let pos = 12; lumps.forEach(([n, d], i) => { out.set(d, pos); const o = size + i * 16; dv.setInt32(o, pos, true); dv.setInt32(o + 4, d.length, true); wrName(out, o + 8, n); pos += d.length; });
+  return out;
+}
+/* ---- screens ---- */
+function openFormatPicker() {
+  const f = mapFormat();
+  modal('Target format', `<p class="hint">What this map has to load in. The action list, the things you can place and the map check all follow it. You can change it any time; the check tells you what no longer fits.</p><div class="list">${Object.entries(FORMATS).map(([k, F]) => `<button data-f="${k}" class="${k === f ? 'on' : ''}"><b>${F.name}</b><br><span class="hint">${F.ports}</span></button>`).join('')}</div>`, [{ cancel: 1 }], b => {
+    b.querySelectorAll('button[data-f]').forEach(x => x.onclick = () => { closeModal(); pushUndo(); M.format = x.dataset.f; mapChanged(); classicApplyFormat(); const n = classicCheck().filter(i => i.sev === 'error').length; toast('Target: ' + FORMATS[M.format].name + (n ? '. ' + n + ' thing' + (n > 1 ? 's' : '') + ' in the map don\'t fit; File → Check map.' : '. Everything in the map fits.'), 5000); });
+  });
+}
+function classicFileMenu() {
+  const F = FORMATS[mapFormat()];
+  modal('File', `<div class="list">
+  <button id="cAbout">About EOD Classic · version ${CLASSIC_VERSION}</button>
+  <button id="cUpd">Check for updates</button>
+  <button id="cFmt">Target format: <b>${F.name}</b></button>
+  <button id="cChk">Check map for ${F.name}</button>
+  <button id="cExp" class="demo">Export ${F.name} WAD</button>
+  <button id="cNew">New blank map</button>
+  <button id="cOpen">Open a map (.wad, .zip from /idgames, .pk3, or project)</button>
+  <button id="cSave">Save project (.json)</button>
+  <button id="cEod">Open the full EOD editor (with EOD's own extras)</button>
+  </div><p class="hint">Your work autosaves on this device after every change (kept apart from the full EOD editor's maps).</p>`, [{ cancel: 1 }], b => {
+    b.querySelector('#cAbout').onclick = () => { closeModal(); openAbout(); };
+    b.querySelector('#cUpd').onclick = () => { closeModal(); checkUpdates(); };
+    b.querySelector('#cFmt').onclick = () => { closeModal(); openFormatPicker(); };
+    b.querySelector('#cChk').onclick = () => { closeModal(); openAnalysis(); };
+    b.querySelector('#cExp').onclick = () => { closeModal(); classicExport(); };
+    b.querySelector('#cNew').onclick = () => { closeModal(); modal('Start a new blank map?', '<p>Your current map stays in Undo, so one Undo brings it back.</p>', [{ ok: 1, fn: () => { pushUndo(); const fmt = mapFormat(); M = emptyMap(); M.format = fmt; clearSel(); mapChanged(); zoomFit(); } }, { cancel: 1 }]); };
+    b.querySelector('#cOpen').onclick = () => { closeModal(); openFile(); };
+    b.querySelector('#cSave').onclick = () => { closeModal(); saveProject(); };
+    b.querySelector('#cEod').onclick = () => { location.href = 'editor.html'; };
+  });
+}
+function classicThingBrowser(cb) {
+  const f = mapFormat(), cats = {};
+  Object.values(THINGS).forEach(t => { if (!thingAllowed(t.type, f)) return; (cats[t.cat] = cats[t.cat] || []).push(t); });
+  const h = Object.entries(cats).map(([c, list]) => `<div class="h">${esc(CAT_NAME[c] || c)}</div><div class="list">${list.map(t => `<button data-t="${t.type}">${t.type} · ${esc(t.name)}</button>`).join('')}</div>`).join('');
+  modal('Things for ' + FORMATS[f].name, h, [{ cancel: 1 }], b => b.querySelectorAll('button[data-t]').forEach(x => x.onclick = () => { closeModal(); cb(+x.dataset.t); }));
+}
+function classicBoot() {
+  if (!CLASSIC) return;
+  document.title = 'EOD Classic · the compatibility editor';
+  document.body.classList.add('classic');
+  const sub = $('#top .brand .sub'); if (sub) sub.textContent = 'CLASSIC';
+  const ver = $('#ver'); if (ver) { ver.textContent = 'v' + CLASSIC_VERSION; new MutationObserver(() => { if (ver.textContent !== 'v' + CLASSIC_VERSION) ver.textContent = 'v' + CLASSIC_VERSION; }).observe(ver, { childList: true }); }
+  const g = $('#top .grow'); if (g && !$('#fmtBtn')) g.insertAdjacentHTML('beforebegin', '<button id="fmtBtn" class="tb" title="Target format">Vanilla Doom II</button>');
+  $('#fmtBtn').onclick = openFormatPicker;
+  $('#btnFile').onclick = classicFileMenu;
+  openThingBrowser = classicThingBrowser;
+  const an = analyzeMap; analyzeMap = () => an().concat(classicCheck());
+  openAbout = () => modal('About EOD Classic', `<p><b>Version ${CLASSIC_VERSION}</b> (vc${CLASSIC_VC})</p><p>The compatibility editor: maps that load in Vanilla Doom II, Boom, MBF21, ID24 and UDMF ports, with nothing EOD-only in them. Real node builder for the binary formats. A Pulse Labs Studio project, part of EOD.</p><p class="hint">Format tables from the Boom Standards feature-set specs; UDMF per the UDMF 1.1 spec.</p>`, [{ cancel: 1 }]);
+  if (!M.format) M.format = 'vanilla';
+  classicApplyFormat();
+}
+
+try { boot(); classicBoot(); } catch (e) { logCrash('boot: ' + e.stack); document.body.insertAdjacentHTML('beforeend', '<pre style="color:#f55;position:fixed;inset:0;z-index:99;background:#000;padding:20px;white-space:pre-wrap">EOD failed to start:\n' + esc(e.stack) + '</pre>'); }
 
 </script>
 </body>

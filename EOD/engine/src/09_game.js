@@ -39,7 +39,7 @@ function initGame(mode, start) {
   const skillBit = S.skill === 1 ? 1 : S.skill === 3 ? 4 : 2;
   let id = 0;
   M.t.forEach((t, ti) => {
-    const d = THINGS[t.type]; if (!d || d.cat === 'player') return;
+    const d = THINGS[t.type]; if (!d || d.cat === 'player' || d.noplay) return; // noplay: real Doom things EOD's own engine can't show yet
     if (mode === 'play' && (!(t.f & skillBit) || (t.f & 16))) return;
     const e = { id: id++, ti, x: t.x, y: t.y, z: 0, a: t.a * Math.PI / 180, d, type: t.type, r: d.r, h: d.h, alive: true, hp: d.hp || 0, state: 'idle', ambush: !!(t.f & 8), flip: false, cool: 30, pain: 0, atk: 0, dirT: 0, burst: 0, anim: 0 };
     e.sec = sectorAt(e.x, e.y); e.z = e.sec >= 0 ? secs[e.sec].fh : 0; if (d.float) e.z += 24;

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.48 — 2026-11-22
+- EOD 0.8.28 + EOD Classic 0.1.0: the compatibility editor at /EOD/classic.html (Vanilla, Boom, MBF21, ID24, UDMF) with a real node builder; hub link added.
+
 ## v0.7.47 — 2026-11-22
 - EOD 0.8.27: UAC Sawed-Off moved to the floor.
 

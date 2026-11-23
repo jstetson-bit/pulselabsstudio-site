@@ -84,7 +84,10 @@ function buildWad() {
   const V = mk(M.v.length, 4); M.v.forEach((v, i) => { V.dv.setInt16(i * 4, v.x, true); V.dv.setInt16(i * 4 + 2, v.y, true); });
   const Se = mk(M.sec.length, 26); M.sec.forEach((s, i) => { const o = i * 26; Se.dv.setInt16(o, s.fh, true); Se.dv.setInt16(o + 2, s.ch, true); wrName(Se.u8, o + 4, s.ft); wrName(Se.u8, o + 12, s.ct); Se.dv.setInt16(o + 20, s.li, true); Se.dv.setInt16(o + 22, s.sp, true); Se.dv.setInt16(o + 24, s.tag, true); });
   const E = new Uint8Array(0);
-  const lumps = [[M.name || 'MAP01', E], ['THINGS', T.u8], ['LINEDEFS', Ld.u8], ['SIDEDEFS', Sd.u8], ['VERTEXES', V.u8], ['SEGS', E], ['SSECTORS', E], ['NODES', E], ['SECTORS', Se.u8], ['REJECT', E], ['BLOCKMAP', E]];
+  // real BSP + blockmap so the WAD loads in vanilla / Chocolate / Boom / MBF ports too (GZDoom rebuilds them anyway)
+  const NB = buildNodes({ v: M.v, l: lines, sd: M.sd, sec: M.sec }), BM = buildBlockmap({ l: lines }, NB.V), RJ = buildReject(M.sec.length);
+  M._lastNodes = Object.assign({ blockmapWords: BM.words }, NB.counts);
+  const lumps = [[M.name || 'MAP01', E], ['THINGS', T.u8], ['LINEDEFS', Ld.u8], ['SIDEDEFS', Sd.u8], ['VERTEXES', NB.vertexes], ['SEGS', NB.segs], ['SSECTORS', NB.ssectors], ['NODES', NB.nodes], ['SECTORS', Se.u8], ['REJECT', RJ], ['BLOCKMAP', BM.lump]];
   if (M.res) { const tx = []; const dec = src => { const b64 = src.split(',')[1] || '', bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
     Object.entries(M.res.tex || {}).forEach(([n, v]) => tx.push([n, dec(v.src)])); const fl = Object.entries(M.res.flat || {}).filter(([n]) => !(M.res.tex || {})[n]).map(([n, v]) => [n, dec(v.src)]);
     tx.push(...GX_.lumps);

@@ -10,6 +10,13 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.28 (vc48) — 2026-11-22 — EOD Classic v0.1.0 starts; real nodes in every WAD export
+- **New: EOD Classic** (`classic.html`, linked from the hub): the compatibility editor. Same drawing tools, none of EOD's tricks; every map has a target format (Vanilla Doom II, Boom, MBF21, ID24, UDMF). See `EOD/docs/CLASSIC.md`.
+- **Real node builder** (`26_nodes.js`): WAD exports now carry SEGS, SSECTORS, NODES, BLOCKMAP and REJECT instead of empty lumps, so exported maps load in Chocolate Doom, vanilla Doom II, PrBoom+ and DSDA-Doom, not only GZDoom. Tested: Freedoom MAP01, MAP07, MAP15 (5,397 lines), MAP29 rebuilt with it run in Chocolate Doom and DSDA-Doom (complevel 2); a self-check walks the tree like the game and found 0 wrong points in 8,000+ samples.
+- Fixed: exporting a map with painted weapons (Sawed-Off / Carbine art) crashed the WAD export.
+- EOD's own engine now skips the Doom II things it can't draw yet (Arch-Vile, Revenant, Mancubus, Pain Elemental, Icon of Sin parts, power-ups, most decorations) instead of half-spawning them; UAC Corridor's mancubus is a Hell Knight.
+- Why: James: "we need to go back to the drawing board. We need to build a pure vanilla doom compatibility editor. still all online and everything else, but no new tricks, just inventive ways to achieve the same goals with those tools. I want to be able to build maps that are compatible with vanilla, boom, UDMF, MDF21. ID24. I want to leave the site as is, but I want another link on the page for this project."
+
 ## v0.8.27 (vc47) — 2026-11-22 — Sawed-Off on the floor
 - The Sawed-Off in the UAC control room now sits on the floor in front of the desk, not on top of it. James: "i still cant reach this... just set it on the ground". (His screenshot showed 24 kills total, the pre-0.8.26 level, so the page was likely a cached copy; the floor spot works either way.)
 

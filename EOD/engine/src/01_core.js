@@ -1,13 +1,14 @@
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.27', VC = 47;
+const VERSION = '0.8.28', VC = 48;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
+const LS_PRE = k => (window.EOD_CLASSIC && /^(autosave|backup|prefabs)$/.test(k) ? 'eodc.' : 'eod.') + k; // EOD Classic keeps its own maps
 const LS = {
-  get(k, d) { try { const v = localStorage.getItem('eod.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('eod.' + k, JSON.stringify(v)); } catch (e) { } }
+  get(k, d) { try { const v = localStorage.getItem(LS_PRE(k)); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(LS_PRE(k), JSON.stringify(v)); } catch (e) { } }
 };
 
 /* ---------- crash / support log ---------- */
