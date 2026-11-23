@@ -1561,7 +1561,8 @@
    "frames": [
     "w_coach_1.png",
     "w_coach_2.png",
-    "w_coach_3.png"
+    "w_coach_3.png",
+    "w_coach_4.png"
    ],
    "pick": "w_coach_1.png",
    "place": [
@@ -1575,6 +1576,10 @@
     },
     {
      "dx": -2,
+     "dy": 1
+    },
+    {
+     "dx": 104,
      "dy": 1
     }
    ],
@@ -1597,7 +1602,10 @@
     ]
    ],
    "boreR": 0.035,
-   "painted": true
+   "painted": true,
+   "flash": "fx_muzzle_star.png",
+   "flashW": 120,
+   "fireFrame": 3
   },
   {
    "id": "carbine",
@@ -1622,7 +1630,9 @@
     0.45,
     0.4
    ],
-   "painted": true
+   "painted": true,
+   "flash": "fx_muzzle_star.png",
+   "flashW": 70
   }
  ]
 }

@@ -180,20 +180,26 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
   }
   const kick = p.fireT > 0 ? (p.fireT / (p.fireT0 || 6)) : 0;
-  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; }
+  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.4 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame]; }
   const dw = f.w * sp, dh = f.h * sp, cx = W / 2 + f.place.dx * sp + bx, yb = H - hh + by - f.place.dy * sp - lift * sp;
   g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   g.translate(cx, yb); g.rotate(rot); g.drawImage(f.im, -dw / 2, -dh, dw, dh);
   // muzzle flash on the ready frame
-  if (kick > 0.45 && f === art.frames[0] && A.muzzle) {
+  if (kick > 0.45 && f === art.frames[0] && A.muzzle && A.fireFrame == null) {
     const mx = -dw / 2 + A.muzzle[0] * dw, my = -dh + A.muzzle[1] * dh, r = (A.id === 'coach' ? 70 : 46) * sp * (0.7 + 0.5 * Math.random());
+    const fi = A.flash && ARTL.img.get(A.flash);
+    if (fi) { // the painted star burst, a little different every shot
+      if (p.flashSeed == null) p.flashSeed = Math.random(); const fw = (A.flashW || 90) * sp * (0.85 + 0.3 * p.flashSeed), fh = fw * fi.height / fi.width;
+      g.save(); g.translate(mx, my); g.rotate((p.flashSeed - 0.5) * 0.6); g.imageSmoothingEnabled = false; g.drawImage(fi, -fw / 2, -fh / 2, fw, fh); g.restore();
+    } else {
     const gr = g.createRadialGradient(mx, my, 0, mx, my, r); gr.addColorStop(0, 'rgba(255,255,230,1)'); gr.addColorStop(0.25, 'rgba(255,214,90,.95)'); gr.addColorStop(0.6, 'rgba(255,120,20,.55)'); gr.addColorStop(1, 'rgba(255,60,0,0)');
     g.globalCompositeOperation = 'lighter'; g.fillStyle = gr; g.beginPath();
     for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2, rr = r * (i % 2 ? 0.45 : 1) * (0.8 + Math.random() * 0.4); g.lineTo(mx + Math.cos(a) * rr, my + Math.sin(a) * rr); }
     g.closePath(); g.fill(); g.globalCompositeOperation = 'source-over';
+    }
     if (A.eject && !p.casingOut) { p.casingOut = true; const ex = cx + (-dw / 2 + A.eject[0] * dw), ey = yb - dh + A.eject[1] * dh; (G.shells = G.shells || []).push({ x: ex, y: ey, vx: (6 + Math.random() * 3) * s, vy: -(7 + Math.random() * 3) * s, rot: 0, vr: 0.4, len: 9 * s, t: 0, brass: 1 }); }
   }
-  if (!kick) p.casingOut = false;
+  if (!kick) { p.casingOut = false; p.flashSeed = null; }
   g.restore();
   // break open: kick the two spent shells out of the chambers on the painted open frame
   if (reloading && A.bores && k >= 0.2 && !p.ejected) {

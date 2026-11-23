@@ -10,6 +10,11 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.16 (vc36) — 2026-11-22 — painted firing frame and muzzle star
+- **Coach Gun firing frame:** the painted frame with a short star burst at both barrels now shows for the moment the gun goes off (a painted `fireFrame`). The first try (long flames) was left out; James: "i said it was too flamey".
+- **Painted muzzle star** (the pixel star burst James got from the image tool) is now the Carbine's muzzle flash, a little different in size and angle every shot.
+- Checked: both guns firing (screenshots), all demo maps and the Freedoom loader pass.
+
 ## v0.8.15 (vc35) — 2026-11-22 — James's painted guns are in: the Coach Gun art and the Carbine
 - **The Sawed-Off now wears the painted art** James got from the image tool: right hand on the stock, left hand on the barrels. Firing throws a big two-barrel muzzle flash and kicks the gun up. The reload plays the painted frames: the gun tips, the break-open frame (the game's own spent shells fly out left and right, with a puff of smoke), the loading frame with two fresh shells going in, then the gun snaps back up.
 - **New gun: the Carbine** (painted black rifle). 30-round magazine, fast (about 9 shots a second held down), accurate, long reach, uses bullets; brass casings fly out to the right; when the magazine runs dry it dips down for a reload ("Reloading") and comes back with 30. In UAC Corridor (start room) and Chaingun Carnage (in your loadout).
