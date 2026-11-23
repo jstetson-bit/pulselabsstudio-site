@@ -10,6 +10,10 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.23 (vc43) — 2026-11-22 — the Carbine's new shouldered firing pose
+- **New firing pose art:** the shouldered Carbine is now the same rifle as the carry pose (carry handle, ribbed handguard, both hands on it), centered, with the painted flash and a casing; the earlier centered painting was a different-looking gun. The aiming frame (no flash) keeps the front sight and carry handle this time.
+- Why: James sent GPT's redo of the firing pose: "this is better".
+
 ## v0.8.22 (vc42) — 2026-11-22 — UAC Corridor: you can reach the exit
 - **Fixed: the raised back half of the hall was a dead end.** It was 32 units up in one go; the player can only step up 24. There's now a deep step halfway (16, then 32), so you can walk up to the exit switch.
 - Swept the other demo maps with a reachability check (walk the sectors from the start using the same step and headroom rules, doors and tagged lifts counted open): every exit is reachable.
