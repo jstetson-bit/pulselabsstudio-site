@@ -1639,7 +1639,8 @@
    ],
    "painted": true,
    "flash": "fx_muzzle_star.png",
-   "flashW": 70
+   "flashW": 70,
+   "flashAlt": "fx_muzzle_star2.png"
   }
  ]
 }

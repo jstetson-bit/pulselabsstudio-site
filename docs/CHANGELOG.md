@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.38 — 2026-11-22
+- EOD 0.8.18: final Coach Gun firing frame; Carbine flash alternates two painted stars.
+
 ## v0.7.37 — 2026-11-22
 - EOD 0.8.17: Coach Gun recoil frame and rising gun smoke.
 

@@ -191,7 +191,8 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
   // muzzle flash on the ready frame
   if (kick > 0.45 && f === art.frames[0] && A.muzzle && A.fireFrame == null) {
     const mx = -dw / 2 + A.muzzle[0] * dw, my = -dh + A.muzzle[1] * dh, r = (A.id === 'coach' ? 70 : 46) * sp * (0.7 + 0.5 * Math.random());
-    const fi = A.flash && ARTL.img.get(A.flash);
+    if (p.flashSeed == null) p.flashSeed = Math.random();
+    const fi = (A.flashAlt && p.flashSeed > 0.5 && ARTL.img.get(A.flashAlt)) || (A.flash && ARTL.img.get(A.flash));
     if (fi) { // the painted star burst, a little different every shot
       if (p.flashSeed == null) p.flashSeed = Math.random(); const fw = (A.flashW || 90) * sp * (0.85 + 0.3 * p.flashSeed), fh = fw * fi.height / fi.width;
       g.save(); g.translate(mx, my); g.rotate((p.flashSeed - 0.5) * 0.6); g.imageSmoothingEnabled = false; g.drawImage(fi, -fw / 2, -fh / 2, fw, fh); g.restore();

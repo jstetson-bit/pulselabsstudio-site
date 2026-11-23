@@ -48,7 +48,7 @@ function artFilesFor(map) {
   return [...new Set(f)];
 }
 function monFiles(id) { const a = artMon(id); if (a && a.rots) { const o = []; for (let i = 1; i <= a.rots; i++) o.push('m_' + id + '_r' + i + '.png'); for (let i = 1; i <= (a.death || 0); i++) o.push('m_' + id + '_d' + i + '.png'); return o; } return ['m_' + id + '.png']; }
-function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj, a.flash, a.smoke].filter(Boolean); }
+function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj, a.flash, a.flashAlt, a.smoke].filter(Boolean); }
 function artPreload() {
   // maps that use Forge art carry their own copy (art + its description) so other players see it
   for (const d of [...Object.values(M.mon || {}), ...Object.values(M.wep || {})]) { const id = d.look && d.look.art; if (!id || !ARTL.forgeIds.has(id)) continue; const meta = artMon(id) || artWep(id); if (!meta) continue; M.artMeta = M.artMeta || {}; if (!M.artMeta[id]) M.artMeta[id] = Object.assign({}, meta, { kind: d.hp != null ? 'monster' : 'weapon' }); M.artData = M.artData || {}; for (const f of (meta.kind === 'weapon' || d.hp == null ? wepFiles(id) : monFiles(id))) if (ARTL.forge[f] && !M.artData[f]) M.artData[f] = ARTL.forge[f]; }
@@ -129,7 +129,7 @@ function artWepFrames(d, id) {
   if (fr.some(x => !x) || !pk || (a.proj && !pj)) return null;
   if (a.painted) { // full-color hand-painted frames (cut by tools/cut_weapon.py): drawn as they are, placed where the artist put them
     const frames = fr.map((im, i) => ({ painted: true, im, w: im.width, h: im.height, place: (a.place || [])[i] || { dx: 0, dy: 0 } }));
-    if (a.flash) artImg(a.flash); if (a.smoke) artImg(a.smoke); // start loading the muzzle flash picture
+    if (a.flash) artImg(a.flash); if (a.smoke) artImg(a.smoke); if (a.flashAlt) artImg(a.flashAlt); // start loading the muzzle flash picture
     const pp = artPixels(pk, L, Math.min(1, 72 / pk.width), false);
     return { painted: true, meta: a, basis: a.basis || 320, frames, idle: frames[0], fire: frames[0], pick: clayToSprite(pp, pp.w >> 1, pp.h, { dither: 2, rim: false, contrast: 1.0 }) };
   }

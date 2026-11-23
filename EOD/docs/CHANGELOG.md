@@ -10,6 +10,10 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.18 (vc38) — 2026-11-22 — the Coach Gun's final firing frame
+- **New firing frame:** the big spiky white-yellow star burst at both barrels ("ok he landed it") replaces the smaller burst.
+- **Carbine flash:** alternates between the two painted star bursts shot to shot.
+
 ## v0.8.17 (vc37) — 2026-11-22 — Coach Gun recoil frame and gun smoke
 - **Recoil frame:** after the flash, the painted recoil frame (barrels kicked up) shows while the gun settles.
 - **Gun smoke:** the painted smoke wisp curls up from the barrels after each shot and fades; the puffs from the open breech on reload are smaller.
