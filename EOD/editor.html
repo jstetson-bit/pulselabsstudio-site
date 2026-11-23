@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.11', VC = 31;
+const VERSION = '0.8.12', VC = 32;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2766,6 +2766,7 @@ function gameFrame(now) {
     if (!$('#modal').hidden || G.paused) G.acc = 0; // paused while a menu is open
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
     const t0 = performance.now(); if (!drawGame()) autoRes(performance.now() - t0);
+    if (!(G.tic % 70)) { try { localStorage.setItem('eodAlive', JSON.stringify({ t: Date.now(), v: VERSION, res: S.res, th: S.threads, mt: typeof MT !== 'undefined' ? MT.ws.length : 0, map: M && M.name })); } catch (e) { } }
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }
   requestAnimationFrame(gameFrame);
 }
@@ -2837,6 +2838,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  try { localStorage.removeItem('eodAlive'); } catch (e) { }
   if (typeof mtStop === "function") mtStop();
   if (window.__firstRunLater) { window.__firstRunLater = 0; setTimeout(firstRun, 300); }
   LIM.on = false;
@@ -3273,6 +3275,7 @@ function endTutorial() { if (!TUT) return; clearInterval(TUT.timer); TUT = null;
 /* ---------- boot ---------- */
 function boot() {
   $('#ver').textContent = 'v' + VERSION;
+  crashGuard();
   applySettings();
   initSprites();
   // datalists for texture typing
@@ -3318,6 +3321,18 @@ function boot() {
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) { if (/go=play/.test(location.search)) window.__firstRunLater = 1; else firstRun(); } // straight-to-play links ask after the game
   pullAccountBinds(); applyArtSetting(); artManifest().then(artPreload); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
+}
+/* crash guard: the game writes a heartbeat while playing and clears it on a normal exit.
+   If the browser tab died mid-game (Chrome "Aw, Snap"), the heartbeat is still there on the next load:
+   log it, and play this session in safe mode (one core, detail no higher than 1280) so it doesn't happen twice. */
+function crashGuard() {
+  let hb = null; try { hb = JSON.parse(localStorage.getItem('eodAlive') || 'null'); localStorage.removeItem('eodAlive'); } catch (e) { }
+  window.addEventListener('pagehide', () => { try { localStorage.removeItem('eodAlive'); } catch (e) { } });
+  if (!hb || Date.now() - hb.t > 6 * 3600e3) return;
+  logCrash('browser tab closed unexpectedly during play (v' + hb.v + ', map ' + hb.map + ', detail ' + hb.res + ', cores ' + hb.mt + ')');
+  window.__safeMode = 1; if (typeof MT !== 'undefined') MT.failed = true;
+  if (S.res === 'native' || (typeof S.res === 'number' && S.res > 1280)) { window.__safeRes = S.res; S.res = 1280; }
+  setTimeout(() => toast('The game closed unexpectedly last time. Playing in safe mode this session (one core, detail up to 1280). Saved to the crash log.', 7000), 1200);
 }
 
 /* ================= INPUT: keyboard, mouse (pointer lock), controller (Gamepad API), remapping ================= */
@@ -4392,7 +4407,7 @@ function hexRGB(h) { let x = (h || '#9fd8ff').replace('#', ''); if (x.length ===
 function glassInit(L) {
   const g = glassOf(L); if (!g || L.s2 < 0) return null;
   const [r, gg, b] = hexRGB(g.col); g._r = g.tint ? r : 200; g._g = g.tint ? gg : 215; g._b = g.tint ? b : 225;
-  g.hpMax = g.hp; g.broken = false; g.cm = null; return g;
+  g.hpMax = g.hp; g.broken = false; g.cm = null; g.cmv = (g.cmv || 0) + 1; return g;
 }
 function glassLive(l) { return l && l.gl && !l.gl.broken ? l.gl : null; }
 
@@ -4493,7 +4508,7 @@ function glassComposite(cam, sc, hz, proj, flats, sky) {
 /* ---------- game side ---------- */
 function glassOpening(l) { const o = opening(l); return o; }
 function glassCrackAt(l, px, py, pz, power) {
-  const g = l.gl; if (!g.crack) return;
+  const g = l.gl; if (!g.crack) return; g.cmv = (g.cmv || 0) + 1;
   const o = glassOpening(l);
   if (!g.cm) { g.cw = Math.max(1, Math.ceil(l.len)); g.cz0 = o.bot; g.chh = Math.max(1, Math.ceil(o.top - o.bot)); g.cm = new Uint8Array(g.cw * g.chh); }
   const u = clamp(((px - l.ax) * l.ex + (py - l.ay) * l.ey) / l.len, 0, l.len), cx = u, cy = pz - g.cz0;
@@ -5305,7 +5320,7 @@ function getSky() { return GRAY; }
 function getTex() { return GRAY; }
 function rTranspose() { }
 ${fns.map(f => f.toString()).join('\n')}
-let L = [], SC = { lines: L, secs: [] }, OC = null, OX = null, OIMG = null;
+let L = [], SC = { lines: L, secs: [] }, OC = null, OX = null, OIMG = null; const CMS = new Map();
 const tx = id => id < 0 ? null : (TX.get(id) || GRAY);
 function side(s) { return s ? { sec: s[0], xo: s[1], yo: s[2], upT: tx(s[3]), midT: tx(s[4]), loT: tx(s[5]) } : null; }
 onmessage = e => {
@@ -5315,7 +5330,7 @@ onmessage = e => {
   for (const [i, s1, s2] of m.sides || []) { const l = L[i]; if (l) { l.s1 = side(s1); l.s2 = side(s2); } }
   if (!m.frame) return;
   const f = m.frame, W = f.W, H = f.H, sw = f.x1 - f.x0;
-  for (const l of L) l.gl = null; for (const [i, g] of f.glass) if (L[i]) L[i].gl = g;
+  for (const l of L) l.gl = null; if (m.scene) CMS.clear(); for (const [i, g] of f.glass) { if (g.keepCm) g.cm = CMS.get(i) || null; else CMS.set(i, g.cm); if (L[i]) L[i].gl = g; }
   if (!R.buf || R.buf.length !== sw * H) { R.buf = new Uint32Array(sw * H); R.dep = new Float32Array(sw * H); R.pk = new Uint8Array(sw * H); R.pi = new Int32Array(sw * H); }
   R.W = W; R.H = H; R.x0 = f.x0; R.x1 = f.x1;
   const secs = f.secs; G = { secs }; SC.secs = secs;
@@ -5363,7 +5378,9 @@ function mtPost(cam, sprites) {
   const secs = sc.secs.map(s => ({ fh: s.fh, ch: s.ch, li: s.li, ft: s.ft, ct: s.ct, sx: s.sx || 0, sy: s.sy || 0 }));
   const sky = mtTex(getSky(), tex);
   const spr = sprites.map(s => ({ x: s.x, y: s.y, z: s.z, img: mtTex(s.img, tex), flip: s.flip, bright: s.bright, fuzz: s.fuzz, scale: s.scale, light: s.light, id: s.id }));
-  const glass = []; sc.lines.forEach((l, i) => { if (l.gl) glass.push([i, l.gl]); });
+  // glass: the crack picture only travels when it changed (it can be tens of KB per pane)
+  if (msg.scene) MT.glv = {};
+  const glass = []; sc.lines.forEach((l, i) => { const g = l.gl; if (!g) return; const o = Object.assign({}, g); if (MT.glv[i] === g.cmv) { o.cm = undefined; o.keepCm = 1; } else MT.glv[i] = g.cmv; glass.push([i, o]); });
   const W = R.W, H = R.H, n = MT.ws.length, gen = ++MT.gen;
   MT.pending = n; MT.busy = true; MT.t0 = performance.now(); MT.strips = []; MT.center = MT.center || null;
   for (let i = 0; i < n; i++) {

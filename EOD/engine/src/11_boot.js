@@ -115,6 +115,7 @@ function endTutorial() { if (!TUT) return; clearInterval(TUT.timer); TUT = null;
 /* ---------- boot ---------- */
 function boot() {
   $('#ver').textContent = 'v' + VERSION;
+  crashGuard();
   applySettings();
   initSprites();
   // datalists for texture typing
@@ -160,4 +161,16 @@ function boot() {
   buildBars(); edResize(); zoomFit(); refreshProps();
   if (S.theme == null) { if (/go=play/.test(location.search)) window.__firstRunLater = 1; else firstRun(); } // straight-to-play links ask after the game
   pullAccountBinds(); applyArtSetting(); artManifest().then(artPreload); syncCustomTex(true); syncMonsters(); syncWeapons(); eodBoot();
+}
+/* crash guard: the game writes a heartbeat while playing and clears it on a normal exit.
+   If the browser tab died mid-game (Chrome "Aw, Snap"), the heartbeat is still there on the next load:
+   log it, and play this session in safe mode (one core, detail no higher than 1280) so it doesn't happen twice. */
+function crashGuard() {
+  let hb = null; try { hb = JSON.parse(localStorage.getItem('eodAlive') || 'null'); localStorage.removeItem('eodAlive'); } catch (e) { }
+  window.addEventListener('pagehide', () => { try { localStorage.removeItem('eodAlive'); } catch (e) { } });
+  if (!hb || Date.now() - hb.t > 6 * 3600e3) return;
+  logCrash('browser tab closed unexpectedly during play (v' + hb.v + ', map ' + hb.map + ', detail ' + hb.res + ', cores ' + hb.mt + ')');
+  window.__safeMode = 1; if (typeof MT !== 'undefined') MT.failed = true;
+  if (S.res === 'native' || (typeof S.res === 'number' && S.res > 1280)) { window.__safeRes = S.res; S.res = 1280; }
+  setTimeout(() => toast('The game closed unexpectedly last time. Playing in safe mode this session (one core, detail up to 1280). Saved to the crash log.', 7000), 1200);
 }

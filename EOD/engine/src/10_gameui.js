@@ -65,6 +65,7 @@ function showGame() {
   layoutGame();
 }
 function exitGame() {
+  try { localStorage.removeItem('eodAlive'); } catch (e) { }
   if (typeof mtStop === "function") mtStop();
   if (window.__firstRunLater) { window.__firstRunLater = 0; setTimeout(firstRun, 300); }
   LIM.on = false;

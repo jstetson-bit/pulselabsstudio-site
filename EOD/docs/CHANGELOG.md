@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.12 (vc32) — 2026-11-22 — crash guard ("Aw, Snap") and lighter glass traffic
+- **Crash guard.** While you play, the game writes a small heartbeat every two seconds and clears it when you leave normally. If Chrome kills the tab mid-game ("Aw, Snap", STATUS_BREAKPOINT), the heartbeat is still there on the next load. The game then writes it to the crash log (version, map, detail, cores) and plays that session in safe mode: one core, detail no higher than 1280. A message says so. The next normal session goes back to your settings.
+- **Glass cracks travel to the render cores only when they change.** Every cracked pane keeps a picture of its cracks (tens of KB each), and it was being copied to every core 35+ times a second. Now it's copied once per new crack. Less memory churn on big machines with many cores, which is the likeliest cause of the tab dying.
+- Why: James got Chrome's "Aw, Snap! STATUS_BREAKPOINT" on the editor page during play. A one-hour soak here showed no leak in the game's own memory, so the fix is the biggest waste we found plus a safety net that records the next one.
+- Checked: cracked glass still draws across the core strips; a faked tab death on reload turns on safe mode, shows the message and logs it. All demo maps and the Freedoom loader pass.
+
 ## v0.8.11 (vc31) — 2026-11-22 — gunfire lights the room; the lights trap explains itself
 - **Gunfire, fireballs and explosions light up the room for a moment.** Your muzzle flash, a monster's shot, a fireball flying past and every blast brighten the area around them, then fade back. In a dark room the fight itself lights the place up. On by default; Menu → Detail → "Gunfire and fireballs light up the room for a moment" turns it off.
 - **Kev's Water Plant: the lights trap now says so.** Dropping into the hall still kills the lights on purpose (it's a trap). Now the message line says "The lights die! Free The Clog from the pipe and kill him to bring them back." Killing him brings the lights back, as before.

@@ -512,6 +512,7 @@ function gameFrame(now) {
     if (!$('#modal').hidden || G.paused) G.acc = 0; // paused while a menu is open
     while (G.acc >= 1000 / 35) { G.acc -= 1000 / 35; gameTic(); }
     const t0 = performance.now(); if (!drawGame()) autoRes(performance.now() - t0);
+    if (!(G.tic % 70)) { try { localStorage.setItem('eodAlive', JSON.stringify({ t: Date.now(), v: VERSION, res: S.res, th: S.threads, mt: typeof MT !== 'undefined' ? MT.ws.length : 0, map: M && M.name })); } catch (e) { } }
   } catch (e) { logCrash('game: ' + e.stack); toast('Demo hit an error (saved to crash log): ' + e.message, 5000); exitGame(); return; }
   requestAnimationFrame(gameFrame);
 }

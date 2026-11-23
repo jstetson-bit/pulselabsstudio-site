@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.32 — 2026-11-22
+- EOD 0.8.12: crash guard (safe mode after a tab crash) and glass cracks sent to render cores only when they change.
+
 ## v0.7.31 — 2026-11-22
 - EOD 0.8.11: gunfire/fireball/blast lighting; the water plant lights trap shows a message.
 

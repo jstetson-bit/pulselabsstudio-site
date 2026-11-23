@@ -30,7 +30,7 @@ function getSky() { return GRAY; }
 function getTex() { return GRAY; }
 function rTranspose() { }
 ${fns.map(f => f.toString()).join('\n')}
-let L = [], SC = { lines: L, secs: [] }, OC = null, OX = null, OIMG = null;
+let L = [], SC = { lines: L, secs: [] }, OC = null, OX = null, OIMG = null; const CMS = new Map();
 const tx = id => id < 0 ? null : (TX.get(id) || GRAY);
 function side(s) { return s ? { sec: s[0], xo: s[1], yo: s[2], upT: tx(s[3]), midT: tx(s[4]), loT: tx(s[5]) } : null; }
 onmessage = e => {
@@ -40,7 +40,7 @@ onmessage = e => {
   for (const [i, s1, s2] of m.sides || []) { const l = L[i]; if (l) { l.s1 = side(s1); l.s2 = side(s2); } }
   if (!m.frame) return;
   const f = m.frame, W = f.W, H = f.H, sw = f.x1 - f.x0;
-  for (const l of L) l.gl = null; for (const [i, g] of f.glass) if (L[i]) L[i].gl = g;
+  for (const l of L) l.gl = null; if (m.scene) CMS.clear(); for (const [i, g] of f.glass) { if (g.keepCm) g.cm = CMS.get(i) || null; else CMS.set(i, g.cm); if (L[i]) L[i].gl = g; }
   if (!R.buf || R.buf.length !== sw * H) { R.buf = new Uint32Array(sw * H); R.dep = new Float32Array(sw * H); R.pk = new Uint8Array(sw * H); R.pi = new Int32Array(sw * H); }
   R.W = W; R.H = H; R.x0 = f.x0; R.x1 = f.x1;
   const secs = f.secs; G = { secs }; SC.secs = secs;
@@ -88,7 +88,9 @@ function mtPost(cam, sprites) {
   const secs = sc.secs.map(s => ({ fh: s.fh, ch: s.ch, li: s.li, ft: s.ft, ct: s.ct, sx: s.sx || 0, sy: s.sy || 0 }));
   const sky = mtTex(getSky(), tex);
   const spr = sprites.map(s => ({ x: s.x, y: s.y, z: s.z, img: mtTex(s.img, tex), flip: s.flip, bright: s.bright, fuzz: s.fuzz, scale: s.scale, light: s.light, id: s.id }));
-  const glass = []; sc.lines.forEach((l, i) => { if (l.gl) glass.push([i, l.gl]); });
+  // glass: the crack picture only travels when it changed (it can be tens of KB per pane)
+  if (msg.scene) MT.glv = {};
+  const glass = []; sc.lines.forEach((l, i) => { const g = l.gl; if (!g) return; const o = Object.assign({}, g); if (MT.glv[i] === g.cmv) { o.cm = undefined; o.keepCm = 1; } else MT.glv[i] = g.cmv; glass.push([i, o]); });
   const W = R.W, H = R.H, n = MT.ws.length, gen = ++MT.gen;
   MT.pending = n; MT.busy = true; MT.t0 = performance.now(); MT.strips = []; MT.center = MT.center || null;
   for (let i = 0; i < n; i++) {

@@ -24,7 +24,7 @@ function hexRGB(h) { let x = (h || '#9fd8ff').replace('#', ''); if (x.length ===
 function glassInit(L) {
   const g = glassOf(L); if (!g || L.s2 < 0) return null;
   const [r, gg, b] = hexRGB(g.col); g._r = g.tint ? r : 200; g._g = g.tint ? gg : 215; g._b = g.tint ? b : 225;
-  g.hpMax = g.hp; g.broken = false; g.cm = null; return g;
+  g.hpMax = g.hp; g.broken = false; g.cm = null; g.cmv = (g.cmv || 0) + 1; return g;
 }
 function glassLive(l) { return l && l.gl && !l.gl.broken ? l.gl : null; }
 
@@ -125,7 +125,7 @@ function glassComposite(cam, sc, hz, proj, flats, sky) {
 /* ---------- game side ---------- */
 function glassOpening(l) { const o = opening(l); return o; }
 function glassCrackAt(l, px, py, pz, power) {
-  const g = l.gl; if (!g.crack) return;
+  const g = l.gl; if (!g.crack) return; g.cmv = (g.cmv || 0) + 1;
   const o = glassOpening(l);
   if (!g.cm) { g.cw = Math.max(1, Math.ceil(l.len)); g.cz0 = o.bot; g.chh = Math.max(1, Math.ceil(o.top - o.bot)); g.cm = new Uint8Array(g.cw * g.chh); }
   const u = clamp(((px - l.ax) * l.ex + (py - l.ay) * l.ey) / l.len, 0, l.len), cx = u, cy = pz - g.cz0;
