@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.31 — 2026-11-22
+- EOD 0.8.11: gunfire/fireball/blast lighting; the water plant lights trap shows a message.
+
 ## v0.7.30 — 2026-11-22
 - EOD 0.8.10: monster infighting; floor junk under the camera no longer flickers across the screen.
 

@@ -25,6 +25,7 @@ function openDetail() {
   <p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
   <div style="display:grid;gap:6px;margin:8px 0">${opts.map(([k, n]) => `<button data-rs="${k}" class="${String(S.res) === String(k) ? 'on' : ''}">${n}</button>`).join('')}</div>
   <label class="chk"><input type="checkbox" id="rsSm" ${S.smooth ? 'checked' : ''}>Smooth the pixels when stretching (softer, less blocky)</label>
+  <label class="chk"><input type="checkbox" id="rsFl" ${S.flashLight !== false ? 'checked' : ''}>Gunfire and fireballs light up the room for a moment</label>
   <p class="hint">Use all CPU cores (draws the view on ${mtThreads()} cores at once, for high detail and 4K):</p>
   <div class="row">${[['auto', 'Auto'], ['on', 'Always'], ['off', 'Off (one core)']].map(([k, n]) => `<button data-th="${k}" class="${(S.threads || 'auto') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <p class="hint" id="rsNow">${now()}</p>`, [{ cancel: 1, title: 'Close' }]);
@@ -33,6 +34,7 @@ function openDetail() {
     document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const m = b.dataset.look; S.hudStyle = m; S.res = m === 'classic' ? 320 : 'auto'; S.smooth = false; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-look]').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x.dataset.rs === String(S.res))); $('#rsSm').checked = false; $('#rsNow').textContent = now(); });
     document.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { S.threads = b.dataset.th; MT.failed = false; saveSettings(); document.querySelectorAll('[data-th]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
     $('#rsSm').onchange = e => { S.smooth = e.target.checked; saveSettings(); layoutGame(); };
+    $('#rsFl').onchange = e => { S.flashLight = e.target.checked; saveSettings(); };
   }, 0);
 }
 function layoutGame() {

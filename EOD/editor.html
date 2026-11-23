@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.10', VC = 30;
+const VERSION = '0.8.11', VC = 31;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2449,8 +2449,12 @@ function tickMovers() {
       case 8: s.li = lo + (b - lo) * (0.5 + 0.5 * Math.sin(t / 12)); break;
       case 17: s.li = Math.random() < 0.15 ? lo + 16 : b; break;
     }
+    // muzzle flashes, fireballs and blasts light up the room for a moment
+    if (s.glow > 0) { if (!s.sp || ![1, 2, 4, 13, 3, 12, 8, 17].includes(s.sp)) s.li = b; s.li = Math.min(255, s.li + s.glow); s.glow = s.glow > 10 ? s.glow - 10 : 0; if (!s.glow && (!s.sp || ![1, 2, 4, 13, 3, 12, 8, 17].includes(s.sp))) s.li = b; }
   });
 }
+/* light the sector at x,y (and a bit of its neighbors) for a few tics */
+function glowAt(x, y, amt) { if (!G.secs || S.flashLight === false) return; const si = gSectorAt(x, y); if (si < 0) return; const s = G.secs[si]; s.glow = Math.max(s.glow || 0, amt); (G.nbr[si] || []).forEach(n => { const t = G.secs[n]; t.glow = Math.max(t.glow || 0, amt >> 1); }); }
 function tagged(tag) { const out = []; if (!tag) return out; G.secs.forEach((s, i) => { if (s.tag === tag) out.push(i); }); return out; }
 function activate(l, how, fromFront) {
   const sp = l.sp; if (!sp) return false;
@@ -2473,7 +2477,7 @@ function activate(l, how, fromFront) {
   else if ([5, 101].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, lowestAdjCeil(s)));
   else if ([19, 102].includes(sp)) tagged(l.tag).forEach(s => startFloor(s, highestAdjFloor(s)));
   else if ([97, 39].includes(sp)) { const secs = new Set(tagged(l.tag)); const dst = M.t.find(t => t.type === 14 && secs.has(sectorAt(t.x, t.y))); if (dst) { const who = G.actor || G.p; who.x = dst.x; who.y = dst.y; who.a = dst.a * Math.PI / 180; who.vx = who.vy = 0; if (!G.actor) { G.flash = 8; sfx('tele'); } else who.sec = gSectorAt(who.x, who.y); } else did = false; }
-  else if (sp === 35) { const v = (M.l[l.idx] && M.l[l.idx].lightTo) || 35; tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = v); }
+  else if (sp === 35) { const v = (M.l[l.idx] && M.l[l.idx].lightTo) || 35; tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = v); if (M.l[l.idx] && M.l[l.idx].msg) msg(M.l[l.idx].msg); }
   else if (sp === 13) tagged(l.tag).forEach(s => G.secs[s].li = G.secs[s].base = 255);
   else if ([11, 52, 51, 124].includes(sp)) { endLevel([51, 124].includes(sp)); }
   else did = false;
@@ -2525,7 +2529,7 @@ function damagePlayer(dmg, src) {
   if (p.hp <= 0) { p.hp = 0; p.dead = true; G.over = { k: 'dead' }; showOver(); }
 }
 function explode(x, y, z, radius, maxd, src) {
-  G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, t0: 14, k: 'explode', bright: 1 }); sfx('explode');
+  G.fx.push({ x, y, z: z - 24, img: SPR.explode, t: 14, t0: 14, k: 'explode', bright: 1 }); sfx('explode'); glowAt(x, y, 96);
   glassExplode(x, y, z, radius, maxd, src && src.d ? 'mon' : src);
   for (const e of G.ents) { if (!e.alive || !(e.hp > 0)) continue; const d = Math.hypot(e.x - x, e.y - y) - e.r; if (d < radius && sight(x, y, z, e.x, e.y, e.z + e.h / 2) && !glassBetween(x, y, z, e.x, e.y, e.z + e.h / 2)) damageMonster(e, Math.max(1, Math.round(maxd * (1 - Math.max(0, d) / radius))), src); }
   if (G.p) { const d = Math.hypot(G.p.x - x, G.p.y - y) - G.p.r; if (d < radius && sight(x, y, z, G.p.x, G.p.y, G.p.z + 32) && !glassBetween(x, y, z, G.p.x, G.p.y, G.p.z + 32)) damagePlayer(Math.round(maxd * (1 - Math.max(0, d) / radius) * (src === 'player' ? 0.5 : 1))); }
@@ -2565,7 +2569,7 @@ function fireWeapon() {
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   const cu = w.custom || {};
   p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; p.ejected = false; }
-  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
+  p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; if (!w.melee) glowAt(p.x, p.y, 40); sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
   const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
@@ -2581,7 +2585,7 @@ function spawnProj(owner, kind, x, y, z, a, vzz, by) {
 }
 function tickProjs() {
   for (const pr of G.projs) {
-    if (pr.dead) continue; pr.t++;
+    if (pr.dead) continue; pr.t++; if (pr.t % 2 === 0) glowAt(pr.x, pr.y, 20);
     const P = PROJ[pr.kind], steps = 3;
     for (let s = 0; s < steps && !pr.dead; s++) {
       const nx = pr.x + pr.vx / steps, ny = pr.y + pr.vy / steps, nz = pr.z + pr.vz / steps;
@@ -2673,7 +2677,7 @@ function monsterAttack(e, dist) {
   if (d.melee && dist < e.r + T.r + 30) { hurtTgt(T, rnd(...d.melee), e); sfx('oof', .6); return; }
   if (d.atk === 'melee') return;
   if (!sight(e.x, e.y, e.z + 41, T.x, T.y, T.vz)) return;
-  e.flash = 4;
+  e.flash = 4; glowAt(e.x, e.y, d.atk === 'hit' ? 36 : 24);
   const gb = d.atk === 'hit' ? glassBetween(e.x, e.y, e.z + 41, T.x, T.y, T.vz) : null;
   if (gb) { sfx('pistol', .5, 'mon'); for (let i = 0; i < d.pellets; i++) damageGlass(gb.l, rnd(...d.dmg), gb.x, gb.y, gb.z, 'mon'); }
   else if (d.atk === 'hit') {
@@ -2793,6 +2797,7 @@ function openDetail() {
   <p class="hint">EOD draws every pixel itself, like the original Doom. More pixels = sharper and less grainy, but slower on weaker machines. Auto starts at 960 and steps up while your machine keeps up.</p>
   <div style="display:grid;gap:6px;margin:8px 0">${opts.map(([k, n]) => `<button data-rs="${k}" class="${String(S.res) === String(k) ? 'on' : ''}">${n}</button>`).join('')}</div>
   <label class="chk"><input type="checkbox" id="rsSm" ${S.smooth ? 'checked' : ''}>Smooth the pixels when stretching (softer, less blocky)</label>
+  <label class="chk"><input type="checkbox" id="rsFl" ${S.flashLight !== false ? 'checked' : ''}>Gunfire and fireballs light up the room for a moment</label>
   <p class="hint">Use all CPU cores (draws the view on ${mtThreads()} cores at once, for high detail and 4K):</p>
   <div class="row">${[['auto', 'Auto'], ['on', 'Always'], ['off', 'Off (one core)']].map(([k, n]) => `<button data-th="${k}" class="${(S.threads || 'auto') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
   <p class="hint" id="rsNow">${now()}</p>`, [{ cancel: 1, title: 'Close' }]);
@@ -2801,6 +2806,7 @@ function openDetail() {
     document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const m = b.dataset.look; S.hudStyle = m; S.res = m === 'classic' ? 320 : 'auto'; S.smooth = false; GL.auto = null; saveSettings(); layoutGame(); document.querySelectorAll('[data-look]').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('[data-rs]').forEach(x => x.classList.toggle('on', x.dataset.rs === String(S.res))); $('#rsSm').checked = false; $('#rsNow').textContent = now(); });
     document.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { S.threads = b.dataset.th; MT.failed = false; saveSettings(); document.querySelectorAll('[data-th]').forEach(x => x.classList.toggle('on', x === b)); $('#rsNow').textContent = now(); });
     $('#rsSm').onchange = e => { S.smooth = e.target.checked; saveSettings(); layoutGame(); };
+    $('#rsFl').onchange = e => { S.flashLight = e.target.checked; saveSettings(); };
   }, 0);
 }
 function layoutGame() {
@@ -5069,7 +5075,7 @@ function buildWaterMap() {
   // the clogged pipe: green glass all round, the demon stuck inside
   sectorLines(Pipe).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) L.glass = Object.assign({}, GLASS_PRESETS['Clear window'], { col: '#4a9a2a', op: 55, rs: 20, hp: 120, monBrk: false, nearOnly: 320 }); });
   // traps: drop into the hall and the lights die; step into the pump room and the closets open
-  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; }
+  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; M.l[tl].msg = 'The lights die! Free The Clog from the pipe and kill him to bring them back.'; }
   const tp = demoLine(704, 2320, 832, 2320); if (tp >= 0) { M.l[tp].sp = 2; M.l[tp].tag = 20; }
   const k = demoLine(704, 3344, 832, 3344); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // things

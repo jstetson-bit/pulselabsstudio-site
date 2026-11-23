@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.11 (vc31) — 2026-11-22 — gunfire lights the room; the lights trap explains itself
+- **Gunfire, fireballs and explosions light up the room for a moment.** Your muzzle flash, a monster's shot, a fireball flying past and every blast brighten the area around them, then fade back. In a dark room the fight itself lights the place up. On by default; Menu → Detail → "Gunfire and fireballs light up the room for a moment" turns it off.
+- **Kev's Water Plant: the lights trap now says so.** Dropping into the hall still kills the lights on purpose (it's a trap). Now the message line says "The lights die! Free The Clog from the pipe and kill him to bring them back." Killing him brings the lights back, as before.
+- Why: James: "the lightning gets low and dies sometimes.. the creatures lighting it?" It wasn't the creatures: it was the trap with no word about it.
+- Checked: the hall drops to the trap light when you cross into it and the message shows; one pistol shot brightens the hall and it fades back within about a third of a second. All demo maps and the Freedoom loader pass.
+
 ## v0.8.10 (vc30) — 2026-11-22 — monster infighting; no more giant corpse under your feet
 - **Monster infighting, like the original Doom.** Monsters' shots now hit whatever is in the way, including other monsters. A monster hurt by another monster turns on it and fights it until one of them dies, then comes back for you. So you can bait them: stand so a zombie's line of fire runs through an imp, or so an imp's fireball lands on a demon, and let them tear into each other.
   - Doom rules kept: a fireball doesn't hurt a monster of the same kind (imps don't hurt imps with fireballs), but bullets do (zombies will shoot each other). Rocket and barrel blasts count too.

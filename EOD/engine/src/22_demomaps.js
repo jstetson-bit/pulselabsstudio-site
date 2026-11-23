@@ -211,7 +211,7 @@ function buildWaterMap() {
   // the clogged pipe: green glass all round, the demon stuck inside
   sectorLines(Pipe).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) L.glass = Object.assign({}, GLASS_PRESETS['Clear window'], { col: '#4a9a2a', op: 55, rs: 20, hp: 120, monBrk: false, nearOnly: 320 }); });
   // traps: drop into the hall and the lights die; step into the pump room and the closets open
-  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; }
+  const tl = demoLine(896, 1616, 1024, 1616); if (tl >= 0) { M.l[tl].sp = 35; M.l[tl].tag = 40; M.l[tl].lightTo = 104; M.l[tl].msg = 'The lights die! Free The Clog from the pipe and kill him to bring them back.'; }
   const tp = demoLine(704, 2320, 832, 2320); if (tp >= 0) { M.l[tp].sp = 2; M.l[tp].tag = 20; }
   const k = demoLine(704, 3344, 832, 3344); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   // things
