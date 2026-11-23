@@ -172,10 +172,9 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
   const reloading = p.reloadT > 0 && !p.reloadDelay && p.reloadW === p.w && p.reload0;
   if (reloading) {
     k = 1 - p.reloadT / p.reload0; const R = A.reload || [];
-    if (R.length >= 2) {
-      if (k < 0.12) { rot = -0.10 * ease(k / 0.12); lift = -10 * ease(k / 0.12); }
-      else if (k < 0.5) f = art.frames[R[0]] || f;
-      else if (k < 0.86) f = art.frames[R[1]] || f;
+    if (R.length >= 2) { // painted reload frames spread over the middle of the reload (weights in reloadW)
+      if (k < 0.1) { rot = -0.10 * ease(k / 0.1); lift = -10 * ease(k / 0.1); }
+      else if (k < 0.86) { const Wt = A.reloadW || R.map(() => 1), tot = Wt.reduce((a, b) => a + b, 0); let acc = 0, u = (k - 0.1) / 0.76 * tot, i = 0; while (i < R.length - 1 && u >= acc + Wt[i]) acc += Wt[i++]; f = art.frames[R[i]] || f; p.reloadSeg = i; }
       else { const t = ease((k - 0.86) / 0.14); rot = -0.22 * (1 - t); lift = -14 * (1 - t); }
     } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
   }
@@ -205,8 +204,14 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     if (A.eject && !p.casingOut) { p.casingOut = true; const ex = cx + (-dw / 2 + A.eject[0] * dw), ey = yb - dh + A.eject[1] * dh; (G.shells = G.shells || []).push({ x: ex, y: ey, vx: (6 + Math.random() * 3) * s, vy: -(7 + Math.random() * 3) * s, rot: 0, vr: 0.4, len: 9 * s, t: 0, brass: 1 }); }
   }
   if (!kick) { p.casingOut = false; p.flashSeed = null; }
+  if (!reloading) p.reloadSeg = -1;
   g.restore();
   // break open: kick the two spent shells out of the chambers on the painted open frame
+  // painted shells: when the last painted shell frame ends, our shells carry on from where the painting left them and fall away
+  if (reloading && A.shellsOut && !p.ejected && p.reloadSeg >= (A.reload || []).length - 1) {
+    p.ejected = true; const fo = art.frames[(A.reload || [])[(A.reload || []).length - 2]] || f, odw = fo.w * sp, odh = fo.h * sp, ocx = W / 2 + fo.place.dx * sp + bx, oy = H - hh + by - fo.place.dy * sp - odh;
+    A.shellsOut.forEach(([sx, sy, dir]) => (G.shells = G.shells || []).push({ x: ocx - odw / 2 + sx * odw, y: oy + sy * odh, vx: dir * (4 + Math.random() * 2) * s, vy: -(2 + Math.random() * 2) * s, rot: dir * 0.6, vr: dir * (0.2 + Math.random() * 0.15), len: 0.09 * odw, t: 0 }));
+  }
   if (reloading && A.bores && k >= 0.2 && !p.ejected) {
     p.ejected = true; const fo = art.frames[(A.reload || [1])[0]] || f, odw = fo.w * sp, odh = fo.h * sp, ocx = W / 2 + fo.place.dx * sp + bx, oy = H - hh + by - fo.place.dy * sp - odh;
     A.bores.forEach(([bx2, by2], i) => { const x = ocx - odw / 2 + bx2 * odw, y = oy + by2 * odh, dir = i ? 1 : -1, r = (A.boreR || 0.035) * odw;

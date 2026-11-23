@@ -38,7 +38,7 @@ def key_out(im, tol=60, soft=40):
     return np.dstack([rgb.astype(np.uint8), (alpha * 255).astype(np.uint8)])
 
 
-def plate_out(im, plate, tol=22, soft=30):
+def plate_out(im, plate, tol=28, soft=30, keep_floating=False):
     from scipy import ndimage as nd
     a = np.asarray(im.convert('RGB')).astype(np.int32); b = np.asarray(plate.convert('RGB').resize(im.size)).astype(np.int32)
     d = np.abs(a - b).max(2)
@@ -47,7 +47,9 @@ def plate_out(im, plate, tol=22, soft=30):
     m = nd.binary_opening(m, iterations=2)
     # the gun and arms come up from the bottom of the screen: keep only what touches the bottom edge
     # (drops background flicker, stray grate bits and loose flying shells, which the game animates itself)
-    lab, n = nd.label(m); bottom = set(np.unique(lab[-3:])) - {0}; m = np.isin(lab, list(bottom))
+    lab, n = nd.label(m)
+    if keep_floating: sz = nd.sum(m, lab, range(1, n + 1)); m = np.isin(lab, 1 + np.where(sz > 800)[0])
+    else: bottom = set(np.unique(lab[-3:])) - {0}; m = np.isin(lab, list(bottom))
     m = nd.binary_fill_holes(m)
     alpha = np.where(m, np.clip((d - tol) / soft + 0.6, 0, 1), 0)
     alpha = np.where(nd.binary_erosion(m, iterations=1), 1.0, alpha)
@@ -61,6 +63,7 @@ def main():
     ap.add_argument('--bar', action='store_true', help='painting includes a status bar at the bottom: cut it off')
     ap.add_argument('--out', default=str(Path(__file__).resolve().parents[1] / 'res' / 'art'))
     ap.add_argument('--name', default=None)
+    ap.add_argument('--floating', action='store_true', help='plate mode: keep loose parts too (flying shells)')
     ap.add_argument('--cls', default='repeater', help='weapon class for the editor (shotgun, repeater, launcher...)')
     ap.add_argument('--plate', default=None, help='the same scene with no gun or hands in it')
     ap.add_argument('--tol', type=int, default=28, help='plate mode: how different a pixel must be to count as gun (lower keeps dark-on-dark parts, higher drops shadows)')
@@ -75,7 +78,7 @@ def main():
         if o.bar:
             im = im.crop((0, 0, W, int(H * 0.84))); H = im.size[1]
             if plate: plate = plate.resize((W, round(plate.size[1] * W / plate.size[0]))).crop((0, 0, W, H))
-        rgba = plate_out(im, plate, o.tol) if plate else key_out(im)
+        rgba = plate_out(im, plate, tol=o.tol, keep_floating=o.floating) if plate else key_out(im)
         ys, xs = np.where(rgba[..., 3] > 16)
         x0, x1, y0, y1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
         s = basis / W

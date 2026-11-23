@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.39 — 2026-11-22
+- EOD 0.8.19: the Coach Gun's full painted reload (open, shells out, load, close).
+
 ## v0.7.38 — 2026-11-22
 - EOD 0.8.18: final Coach Gun firing frame; Carbine flash alternates two painted stars.
 

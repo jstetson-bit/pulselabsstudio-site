@@ -1563,7 +1563,9 @@
     "w_coach_2.png",
     "w_coach_3.png",
     "w_coach_4.png",
-    "w_coach_5.png"
+    "w_coach_5.png",
+    "w_coach_6.png",
+    "w_coach_7.png"
    ],
    "pick": "w_coach_1.png",
    "place": [
@@ -1572,7 +1574,7 @@
      "dy": 1
     },
     {
-     "dx": 41,
+     "dx": 39,
      "dy": 1
     },
     {
@@ -1586,25 +1588,25 @@
     {
      "dx": 103,
      "dy": 1
+    },
+    {
+     "dx": 39,
+     "dy": 1
+    },
+    {
+     "dx": 39,
+     "dy": 1
     }
    ],
    "reload": [
     1,
+    5,
+    6,
     2
    ],
    "muzzle": [
     0.23,
     0.04
-   ],
-   "bores": [
-    [
-     0.43,
-     0.1
-    ],
-    [
-     0.5,
-     0.09
-    ]
    ],
    "boreR": 0.035,
    "painted": true,
@@ -1612,7 +1614,25 @@
    "flashW": 120,
    "fireFrame": 3,
    "recoilFrame": 4,
-   "smoke": "fx_smoke_wisp.png"
+   "smoke": "fx_smoke_wisp.png",
+   "reloadW": [
+    1,
+    1,
+    1,
+    4
+   ],
+   "shellsOut": [
+    [
+     0.23,
+     0.13,
+     -1
+    ],
+    [
+     0.62,
+     0.06,
+     1
+    ]
+   ]
   },
   {
    "id": "carbine",

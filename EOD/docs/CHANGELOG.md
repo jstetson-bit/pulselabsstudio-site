@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.19 (vc39) — 2026-11-22 — the Coach Gun's full painted reload
+- **The whole reload is painted now:** break open (clean frame), the two spent shells kicking out (two painted frames), then our shells carry on from exactly where the painting left them and tumble away, then the loading frame, then the snap shut. Sequence: fire → recoil + smoke → open → shells → shells → load → close.
+- Reload frames can be weighted (`reloadW`) and painted shells hand off to the game's falling shells (`shellsOut`).
+- Cutter tool: `--floating` keeps loose parts (flying shells) when cutting against the plate.
+- Checked: the full reload captured frame by frame; all demo maps and the Freedoom loader pass.
+
 ## v0.8.18 (vc38) — 2026-11-22 — the Coach Gun's final firing frame
 - **New firing frame:** the big spiky white-yellow star burst at both barrels ("ok he landed it") replaces the smaller burst.
 - **Carbine flash:** alternates between the two painted star bursts shot to shot.
