@@ -10,6 +10,17 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.26 (vc46) — 2026-11-22 — UAC Corridor more than doubled; items on ledges can be grabbed
+- **Pickups work like Doom now:** you grab an item when your body touches it and it sits anywhere between your feet and your head. Before, it had to be within 24 units of your floor height, so the Sawed-Off on the control-room desk (40 up) couldn't be taken. Applies to every map.
+- **UAC Corridor, part 2:** the old exit is now a big door north out of the hall, into:
+  - a second lit corridor (imps, demons, a spectre),
+  - a storage room off its left side with crates, two chaingunners and the **blue key**,
+  - a long run east (demons charging, imps behind) to a **blue door**,
+  - the **reactor**: a big room with a green sludge pit that hurts, a bridge across it and a glowing core, two cacodemons over the sludge, a mancubus, imps on the corners, a rocket launcher and rockets,
+  - stairs up to the exit room, held by a Baron, with the exit switch on the far wall.
+- Checked: reachability sweep (every exit on every demo map reachable; the only unreachable spots are decoration: wall light slots, the desk top, crates, the core), the desk pickup, screenshots of every new area; all demo maps and the Freedoom loader pass.
+- Why: James: "i cant reach this" (the gun on the desk) and "make the level alot longer".
+
 ## v0.8.25 (vc45) — 2026-11-22 — the clean sprite pack
 - **All weapon frames swapped for the clean, pre-cut sprites** from James's Weapon-Sprites pack (transparent PNGs, same paintings): Coach Gun 01 Ready … 07 Close and AR-15 08 Ready … 11 Magazine Out. No more corridor bits around the edges from cutting.
 - **Coach Gun reload:** open (shells kicking out) → eject → load → close.

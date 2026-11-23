@@ -121,3 +121,4 @@ The story of how EOD came to be, in the owner's words where possible.
 - James sent a redone centered firing frame for the Carbine (same rifle as the carry pose): *"this is better"* → 0.8.23.
 - James sent the Carbine's second firing frame (smaller flash) → 0.8.24.
 - James sent Weapon-Sprites.zip: every frame as a clean transparent PNG (Coach Gun 01–07, AR-15 08–11 incl. Magazine Out) → 0.8.25.
+- James, on the Sawed-Off sitting on the control-room desk: *"i cant reach this"* and *"make the level alot longer"* → 0.8.26: Doom-style pickup reach, and UAC Corridor gets a second half (north corridor, storage room + blue key, blue door, reactor with sludge pit and bridge, exit room).

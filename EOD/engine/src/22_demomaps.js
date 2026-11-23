@@ -119,7 +119,7 @@ function buildChaingunMap() {
 /* UAC Corridor: the tech hallway from James's new gun paintings, made playable */
 function buildUacMap() {
   M = emptyMap(); M.name = 'MAP08'; M.mon = {}; M.wep = {};
-  M.hint = 'UAC Corridor. Grab the carbine and the shotgun, work up the hallway, clear the control room on the right (the Sawed-Off is in there), then open the big door at the end. Exit is on the far wall of the hall.';
+  M.hint = 'UAC Corridor. Work up the hallway, clear the control room (Sawed-Off on the desk), take the hall, then go north: the blue key is in the storage room off the left of the next corridor, and it opens the reactor. Cross the bridge over the sludge and climb the stairs to the exit.';
   const W = 'STARTAN3', TECH = 'STARTAN3';
   const St = demoRect(0, 0, 384, 256, { fh: 0, ch: 128, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
   const C = demoRect(64, 256, 320, 1792, { fh: 0, ch: 128, li: 136, ft: 'FCGRATE1', ct: 'CEIL5_1' });
@@ -137,16 +137,38 @@ function buildUacMap() {
   const H = demoRect(-160, 1808, 544, 2400, { fh: 0, ch: 224, li: 168, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
   const Hstep = demoRect(-160, 2144, 544, 2192, { fh: 16, ch: 224, li: 172, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
   const Hup = demoRect(-160, 2192, 544, 2400, { fh: 32, ch: 224, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
-  const Ex = demoRect(128, 2400, 256, 2416, { fh: 32, ch: 136, li: 200 });
-  makeDoor(D2); makeDoor(D3);
-  const wall = { [St]: W, [C]: TECH, [R]: 'COMPTALL', [H]: W, [Hstep]: W, [Hup]: W, [Ex]: W, [Rdesk]: 'COMPSTA1' };
+  const D4 = demoRect(128, 2400, 256, 2416, { fh: 32, ch: 136, li: 176, ft: 'FLAT20', ct: 'FLAT20' });
+  // ---- part 2: the north corridor, a storage room with the blue key, a long east run, the reactor, the exit ----
+  const C2 = demoRect(96, 2416, 288, 3328, { fh: 32, ch: 160, li: 128, ft: 'FCGRATE1', ct: 'CEIL5_1' });
+  for (let y = 2496; y < 3200; y += 224) lights.push(demoRect(160, y, 224, y + 64, { fh: 32, ch: 172, li: 224, ft: 'FCGRATE1', ct: 'TLITE6_6' }));
+  const D5 = demoRect(80, 2800, 96, 2896, { fh: 32, ch: 32, li: 128, ft: 'FLAT20', ct: 'FLAT20' });
+  const St2 = demoRect(-416, 2640, 80, 3056, { fh: 32, ch: 176, li: 120, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const crates = [[-380, 2680], [-380, 2760], [-300, 2680], [-200, 2960], [-120, 2960], [-60, 2700]].map(([x, y]) => demoRect(x, y, x + 64, y + 64, { fh: 96, ch: 176, li: 120, ft: 'CRATOP1', ct: 'CEIL3_5' }));
+  const C3 = demoRect(288, 3200, 1024, 3328, { fh: 32, ch: 144, li: 136, ft: 'FCGRATE1', ct: 'CEIL5_1' });
+  for (let x = 360; x < 1000; x += 192) lights.push(demoRect(x, 3232, x + 64, 3296, { fh: 32, ch: 156, li: 224, ft: 'FCGRATE1', ct: 'TLITE6_6' }));
+  const D6 = demoRect(1024, 3200, 1040, 3328, { fh: 32, ch: 32, li: 136, ft: 'FLAT20', ct: 'FLAT20' });
+  const R2 = demoRect(1040, 2816, 1808, 3712, { fh: 32, ch: 288, li: 160, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const Pit = demoRect(1168, 2944, 1680, 3584, { fh: 16, ch: 288, li: 192, ft: 'NUKAGE1', ct: 'CEIL3_5', sp: 7 });
+  const Br = demoRect(1392, 2944, 1456, 3584, { fh: 32, ch: 288, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const Core = demoRect(1520, 3200, 1584, 3328, { fh: 160, ch: 288, li: 255, ft: 'FLAT20', ct: 'CEIL3_5' });
+  const S1 = demoRect(1808, 3200, 1856, 3328, { fh: 48, ch: 224, li: 168, ft: 'STEP1', ct: 'CEIL3_5' });
+  const S2 = demoRect(1856, 3200, 1904, 3328, { fh: 64, ch: 224, li: 168, ft: 'STEP1', ct: 'CEIL3_5' });
+  const S3 = demoRect(1904, 3200, 1952, 3328, { fh: 80, ch: 224, li: 168, ft: 'STEP1', ct: 'CEIL3_5' });
+  const XR = demoRect(1952, 3104, 2272, 3424, { fh: 80, ch: 240, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const Ex = demoRect(2272, 3200, 2288, 3328, { fh: 80, ch: 184, li: 200 });
+  makeDoor(D2); makeDoor(D3); makeDoor(D4); makeDoor(D5); makeDoor(D6);
+  sectorLines(D6).forEach(li => { const L = M.l[li]; if (L.s2 >= 0) L.sp = 26; }); // blue key door
+  const wall = { [St]: W, [C]: TECH, [R]: 'COMPTALL', [H]: W, [Hstep]: W, [Hup]: W, [Ex]: W, [Rdesk]: 'COMPSTA1', [C2]: TECH, [St2]: 'STARGR1', [C3]: TECH, [R2]: 'METAL2', [Core]: 'COMPTALL', [XR]: W, [S1]: W, [S2]: W, [S3]: W };
+  crates.forEach(c => wall[c] = 'CRATE1');
   bays.forEach(b => wall[b] = 'COMPSTA1'); slots.forEach(b => wall[b] = 'LITEYEL1');
   demoWalls(wall);
-  const skin = { [Rdesk]: 'COMPSTA2', [Hup]: 'STEP1', [Hstep]: 'STEP1' }; bays.forEach(b => skin[b] = 'SHAWN2'); slots.forEach(b => skin[b] = TECH);
+  const skin = { [Rdesk]: 'COMPSTA2', [Hup]: 'STEP1', [Hstep]: 'STEP1', [Pit]: 'METAL2', [Br]: 'METAL2', [Core]: 'COMPTALL', [S1]: 'STEP1', [S2]: 'STEP1', [S3]: 'STEP1', [XR]: 'STEP1' }; crates.forEach(c => skin[c] = 'CRATE1'); bays.forEach(b => skin[b] = 'SHAWN2'); slots.forEach(b => skin[b] = TECH);
   demoSkin(skin, 'SUPPORT3');
   // the big door's faces
+  [D4].forEach(d => sectorLines(d).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0 && M.sd[sd].up !== '-') M.sd[sd].up = 'BIGDOOR1'; }));
+  sectorLines(D6).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0 && M.sd[sd].up !== '-') M.sd[sd].up = 'DOORBLU'; });
   sectorLines(D3).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0 && M.sd[sd].up !== '-') M.sd[sd].up = 'BIGDOOR2'; });
-  const k = demoLine(128, 2416, 256, 2416); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
+  const k = demoLine(2288, 3200, 2288, 3328); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
   const SO = demoSawedOff(73), CB = demoCarbine(74);
   const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
   // start
@@ -157,11 +179,23 @@ function buildUacMap() {
   T(2008, 100, 900); T(2012, 280, 1080); T(2048, 120, 1400);
   // control room
   T(65, 760, 1120, 180); T(65, 760, 1420, 180); T(3001, 480, 1110, 180); T(3001, 480, 1430, 180); T(3004, 640, 1340, 180); T(9, 650, 1140, 180);
-  T(SO, 640, 1232); T(2049, 420, 1240); T(2002, 780, 1260); T(2048, 780, 1310); T(2012, 420, 1300); T(2019, 800, 1080); T(2035, 380, 1100); T(2035, 380, 1410);
+  T(SO, 640, 1206); T(2049, 420, 1240); T(2002, 780, 1260); T(2048, 780, 1310); T(2012, 420, 1300); T(2019, 800, 1080); T(2035, 380, 1100); T(2035, 380, 1410);
   // the hall: a welcoming party
   T(3001, -60, 1960, 0); T(3001, 440, 1960, 180); T(9, 80, 2240, 270); T(9, 300, 2240, 270); T(3002, 190, 2000, 270); T(3002, 250, 2060, 270);
   T(3005, 190, 2300, 270, 6); T(65, -100, 2300, 270); T(65, 480, 2300, 270); T(69, 190, 2340, 270, 4);
   T(2046, -120, 1860); T(2049, 500, 1860); T(2012, 190, 2200); T(2013, -120, 2360, 90, 6);
+  // north corridor
+  T(3001, 150, 2560, 270); T(3001, 240, 2640, 270); T(9, 190, 2760, 270); T(3002, 150, 3000, 270); T(3002, 240, 3060, 270); T(58, 190, 3150, 270, 6); T(2007, 260, 2500); T(2011, 120, 2950);
+  // storage room: blue key, guarded
+  T(5, -330, 2850); T(65, -250, 2850, 0); T(65, -330, 2980, 0); T(3004, -60, 2860, 180); T(3004, -150, 2800, 180); T(9, -250, 2700, 0); T(3001, 0, 3000, 180);
+  T(2049, -380, 3000); T(2048, -30, 2780); T(2012, -360, 2880); T(2035, -200, 2860); T(2035, -60, 2980);
+  // the long east run: demons charge, imps behind
+  T(3002, 600, 3264, 180); T(3002, 680, 3240, 180); T(58, 760, 3290, 180, 6); T(3001, 900, 3230, 180); T(3001, 940, 3300, 180); T(2008, 420, 3300); T(2012, 980, 3240);
+  // reactor: cacodemons over the sludge, a mancubus on the far side, imps on the edges
+  T(3005, 1300, 3100, 180); T(3005, 1560, 3480, 180); T(67, 1740, 3264, 180, 4); T(3001, 1100, 2880, 0); T(3001, 1100, 3650, 0); T(3001, 1740, 2880, 180); T(3001, 1740, 3650, 180); T(9, 1424, 3060, 270); T(9, 1424, 3480, 90);
+  T(2003, 1100, 3264); T(2046, 1120, 3200); T(2046, 1120, 3330); T(2049, 1760, 3000); T(2012, 1760, 3540); T(2019, 1424, 2900); T(2035, 1250, 2880); T(2035, 1600, 3650);
+  // exit room: the last stand
+  T(3003, 2180, 3264, 180, 4); T(3001, 2000, 3150, 0); T(3001, 2000, 3380, 0); T(2012, 2240, 3140); T(2046, 2240, 3390);
   compact();
 }
 /* give two-sided lines their upper/lower textures (steps, ledges, pools) from a per-sector table */

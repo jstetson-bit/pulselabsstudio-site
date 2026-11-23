@@ -443,7 +443,8 @@ function tickPickups(actor) {
   const p = G.p, q = actor || G.p;
   for (const e of G.ents) {
     if (!e.alive || !e.d.give && e.d.cat !== 'key') continue;
-    if (Math.hypot(e.x - q.x, e.y - q.y) > 32 || Math.abs(e.z - q.z) > 24) continue;
+    // Doom-style touch: bodies overlap sideways, and the item sits somewhere between your feet and your head (so a gun on a desk can be grabbed)
+    if (Math.hypot(e.x - q.x, e.y - q.y) > 20 + (q.r || 16) || e.z > q.z + (q.h || 56) - 8 || e.z + 16 < q.z) continue;
     const g = e.d.give || {}; let took = false;
     if (e.d.cat === 'key') { p.keys.add(e.d.key); took = true; }
     if (g.hp) { if (p.hp < g.max) { p.hp = Math.min(g.max, p.hp + g.hp); took = true; } }
