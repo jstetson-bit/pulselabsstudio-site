@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLS Faceplate — a better home screen for Android car stereos · Pulse Labs Studio</title>
+<meta name="description" content="PLS Faceplate replaces the stock home screen on vertical Android car stereos: speed in mph, nothing cut off, every panel movable and sizable, and an OBD link that actually talks to older GM trucks.">
+<link rel="stylesheet" href="../assets/pls.css">
+<script src="../store-config.js"></script>
+<script src="../assets/pls-store.js"></script>
+<script src="../assets/proofs.js"></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="../index.html"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><polyline points="2,24 14,24 19,10 26,38 31,24 46,24" fill="none" stroke="#e63329" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Pulse Labs Studio</span></a>
+  <nav>
+    <a class="nav on" href="../products.html">Products</a>
+    <a class="nav" href="../cart.html">Cart<span class="badge-n" id="cartN" style="display:none">0</span></a>
+    <a class="nav" href="../account.html" id="acctLink">Sign in</a>
+    <button class="iconbtn" id="infoBtn" title="How this page works" aria-label="Information">👻</button>
+    <button class="iconbtn" id="invBtn" title="Invert colors" aria-label="Invert colors">◐</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <h1 style="margin-bottom:4px;color:#e63329">PLS Faceplate</h1>
+  <div class="sys"><span class="badge">Android car stereo</span></div>
+  <p class="sub" style="margin-top:12px"><b>A better home screen for your Android car stereo.</b> Those big vertical stereos come with a
+  flashy stock theme that shows km/h, cuts off its own labels and can't be rearranged. PLS Faceplate takes over the home screen
+  and fixes all of it, and it stays light so the stereo stays fast.</p>
+  <div class="soon" style="margin:14px 0">In development. First built for the 9.7-inch Hummer H2 stereo (7862 chip).</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Your units, your layout</h2>
+      <p style="margin:0">Speed in mph or km/h. Move and size every panel: speed, weather, music, compass, gauges. Your layout comes back after every key-off.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Reads your truck</h2>
+      <p style="margin:0">Connects to a Bluetooth OBD adapter for real speed, RPM, temperatures, volts and trouble codes, including older GM trucks that use J1850 VPW. If an adapter can't talk to your truck, it says so in plain words.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">Keeps what works</h2>
+      <p style="margin:0">One tap opens the stereo's own radio, Bluetooth phone, 360 camera and CarPlay / Android Auto. The stock home screen stays one tap away.</p>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:20px">No strings</h2>
+      <p style="margin:0">No ads, no account, no tracking. Internet only for the weather and checking for updates.</p>
+    </div>
+  </div>
+  <div id="pf"></div>
+</div>
+
+<div id="manual" role="dialog" aria-modal="true"><div class="box">
+  <button class="ok-x" id="manualOk" aria-label="Close">✔</button>
+  <h2 style="margin-top:0">About this page</h2>
+  <p>This is PLS Faceplate's page. It's still being built; proofs will show here as features land.</p>
+  <p>Back to every product: <a href="../products.html">Products</a>.</p>
+  <p>◐ flips the colors.</p>
+</div></div>
+<footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="../privacy.html">Privacy Policy</a></footer>
+<script>PLS.header(); PLSProofs.render();</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+ "name": "PLS Faceplate",
+ "systems": [
+  "Android car stereo"
+ ],
+ "tagline": "A better home screen for your Android car stereo.",
+ "overview": "PLS Faceplate replaces the stock home screen on vertical Android car stereos with a light, fully adjustable Pulse home screen and its own OBD link. It's in development, so proofs will come from the app once it exists.",
+ "capabilities": [
+  {
+   "id": "mph",
+   "title": "Speed in mph",
+   "text": "GPS speed in mph (or km/h), from OBD when an adapter is connected.",
+   "proofs": []
+  },
+  {
+   "id": "move-resize",
+   "title": "Move and size every panel",
+   "text": "Every panel moves and resizes with one control; the layout survives key-off.",
+   "proofs": []
+  },
+  {
+   "id": "no-clipping",
+   "title": "Nothing cut off",
+   "text": "Labels and status text sized for the screen, never clipped or stacked.",
+   "proofs": []
+  },
+  {
+   "id": "obd-vpw",
+   "title": "OBD that talks to older GM trucks",
+   "text": "ELM327-type adapters over Bluetooth, J1850 VPW included; plain-words message when an adapter can't connect.",
+   "proofs": []
+  },
+  {
+   "id": "trouble-codes",
+   "title": "Read and clear trouble codes",
+   "text": "Check-engine codes in plain words.",
+   "proofs": []
+  },
+  {
+   "id": "factory-apps",
+   "title": "Opens the stereo's own apps",
+   "text": "Radio, Bluetooth phone, 360 camera, CarPlay / Android Auto in one tap.",
+   "proofs": []
+  },
+  {
+   "id": "light",
+   "title": "Light on the stereo",
+   "text": "Small and quick; tested on our in-house bench.",
+   "proofs": []
+  },
+  {
+   "id": "no-strings",
+   "title": "No strings",
+   "text": "No ads, no account, no tracking.",
+   "proofs": []
+  }
+ ],
+ "demo": null,
+ "note": "The app isn't built yet, so nothing is shown here. Proofs come from the app once it exists."
+}
