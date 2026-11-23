@@ -120,3 +120,4 @@ The story of how EOD came to be, in the owner's words where possible.
 - James, at the end of UAC Corridor with every monster dead: *"i cant advance any further and wtf is that skull thing in a baloon doing?"* → 0.8.22: the 32-unit ledge got a step; the skull in a bubble is Freedoom's Soulsphere.
 - James sent a redone centered firing frame for the Carbine (same rifle as the carry pose): *"this is better"* → 0.8.23.
 - James sent the Carbine's second firing frame (smaller flash) → 0.8.24.
+- James sent Weapon-Sprites.zip: every frame as a clean transparent PNG (Coach Gun 01–07, AR-15 08–11 incl. Magazine Out) → 0.8.25.

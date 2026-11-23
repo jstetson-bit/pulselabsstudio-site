@@ -10,6 +10,13 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.25 (vc45) — 2026-11-22 — the clean sprite pack
+- **All weapon frames swapped for the clean, pre-cut sprites** from James's Weapon-Sprites pack (transparent PNGs, same paintings): Coach Gun 01 Ready … 07 Close and AR-15 08 Ready … 11 Magazine Out. No more corridor bits around the edges from cutting.
+- **Coach Gun reload:** open (shells kicking out) → eject → load → close.
+- **Carbine magazine reload:** after 30 shots the painted magazine-out frame plays (magazine in the left hand), then back up to fire.
+- Cutter tool: frames that are already transparent are used as they are.
+- Source pack kept in `EOD/docs/art/source/zip-2026-11-22/`.
+
 ## v0.8.24 (vc44) — 2026-11-22 — Carbine second firing frame
 - **Full-auto flicker is all painted now:** the Carbine alternates the two painted firing frames (big flash / smaller flash) shot to shot, with the aiming frame between shots; brass still flies out to the right.
 

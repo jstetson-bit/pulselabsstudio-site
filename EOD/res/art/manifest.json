@@ -1565,48 +1565,42 @@
     "w_coach_4.png",
     "w_coach_5.png",
     "w_coach_6.png",
-    "w_coach_7.png",
-    "w_coach_8.png"
+    "w_coach_7.png"
    ],
    "pick": "w_coach_1.png",
    "place": [
     {
-     "dx": 104,
-     "dy": 1
+     "dx": 102,
+     "dy": 0
     },
     {
-     "dx": 39,
-     "dy": 1
+     "dx": 41,
+     "dy": 0
     },
     {
-     "dx": -2,
-     "dy": 1
-    },
-    {
-     "dx": 104,
-     "dy": 1
-    },
-    {
-     "dx": 103,
-     "dy": 1
-    },
-    {
-     "dx": 39,
-     "dy": 1
-    },
-    {
-     "dx": 39,
-     "dy": 1
+     "dx": 0,
+     "dy": 0
     },
     {
      "dx": 102,
-     "dy": 1
+     "dy": 0
+    },
+    {
+     "dx": 102,
+     "dy": 0
+    },
+    {
+     "dx": 41,
+     "dy": 0
+    },
+    {
+     "dx": 101,
+     "dy": 0
     }
    ],
    "reload": [
     1,
     5,
-    6,
     2
    ],
    "muzzle": [
@@ -1623,22 +1617,21 @@
    "reloadW": [
     1,
     1,
-    1,
-    4
+    3
    ],
    "shellsOut": [
     [
-     0.23,
-     0.13,
+     0.244,
+     0.143,
      -1
     ],
     [
-     0.62,
-     0.06,
+     0.664,
+     0.087,
      1
     ]
    ],
-   "closeFrame": 7
+   "closeFrame": 6
   },
   {
    "id": "carbine",
@@ -1649,25 +1642,30 @@
     "w_carbine_1.png",
     "w_carbine_2.png",
     "w_carbine_3.png",
-    "w_carbine_4.png"
+    "w_carbine_4.png",
+    "w_carbine_5.png"
    ],
    "pick": "w_carbine_1.png",
    "place": [
     {
      "dx": 124,
-     "dy": 1
+     "dy": 0
+    },
+    {
+     "dx": -2,
+     "dy": 0
+    },
+    {
+     "dx": 3,
+     "dy": 0
+    },
+    {
+     "dx": 154,
+     "dy": 0
     },
     {
      "dx": -1,
-     "dy": 1
-    },
-    {
-     "dx": -1,
-     "dy": 1
-    },
-    {
-     "dx": -1,
-     "dy": 1
+     "dy": 0
     }
    ],
    "muzzle": [
@@ -1682,7 +1680,7 @@
    "flash": "fx_muzzle_star.png",
    "flashW": 70,
    "flashAlt": "fx_muzzle_star2.png",
-   "aimFrame": 2,
+   "aimFrame": 4,
    "aimFireFrame": 1,
    "aimHold": 650,
    "muzzleAim": [
@@ -1693,7 +1691,15 @@
     0.74,
     0.33
    ],
-   "aimFireFrameB": 3
+   "aimFireFrameB": 2,
+   "reload": [
+    3,
+    3
+   ],
+   "reloadW": [
+    1,
+    1
+   ]
   }
  ]
 }

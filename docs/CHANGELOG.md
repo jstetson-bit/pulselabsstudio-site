@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.45 — 2026-11-22
+- EOD 0.8.25: weapon frames from the clean sprite pack; Carbine magazine reload frame.
+
 ## v0.7.44 — 2026-11-22
 - EOD 0.8.24: Carbine alternates two painted firing frames.
 

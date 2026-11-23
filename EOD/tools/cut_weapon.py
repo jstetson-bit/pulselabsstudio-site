@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Cut a painted first-person weapon frame out of a flat background and size it for the game.
 
-Two ways in:
+Three ways in:
+  * frames that are already transparent PNGs (full-screen size): their own alpha is used as-is.
   * --plate corridor.png: the frames are painted over a scene, and the plate is the same scene with
     nothing in it. Every pixel that differs from the plate is the gun/hands. Exact cut, keeps the art.
   * no plate: the gun and hands sit on one flat color (magenta #FF00FF is best, white works).
@@ -78,7 +79,10 @@ def main():
         if o.bar:
             im = im.crop((0, 0, W, int(H * 0.84))); H = im.size[1]
             if plate: plate = plate.resize((W, round(plate.size[1] * W / plate.size[0]))).crop((0, 0, W, H))
-        rgba = plate_out(im, plate, tol=o.tol, keep_floating=o.floating) if plate else key_out(im)
+        if im.mode == 'RGBA' and np.asarray(im)[..., 3].min() < 10:  # already cut out: use its own transparency
+            rgba = np.asarray(im).copy()
+        else:
+            rgba = plate_out(im, plate, tol=o.tol, keep_floating=o.floating) if plate else key_out(im)
         ys, xs = np.where(rgba[..., 3] > 16)
         x0, x1, y0, y1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
         s = basis / W
