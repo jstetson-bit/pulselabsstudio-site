@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.13 (vc33) — 2026-11-22 — shots go through the crosshair when you look up or down
+- **Bullets now leave the gun exactly through the crosshair.** When no monster is auto-aimed, a shot's climb came from a rough guess (look × 0.9) that didn't match the 3D view, so looking up sent bullets at a different angle than the crosshair showed. It now uses the same math as the view itself. Rockets, plasma and other projectiles too.
+- **Bullet puffs show where the bullet really hit.** The puff was always drawn at eye height on the wall it hit, no matter how high or low the bullet went. Looking up at a catwalk, the puffs showed low on the wall under it, like the shots were hitting the ground. Now they appear at the real impact point. Glass hit by a bullet cracks at the real height too.
+- Why: James, shooting up at the west catwalk in Kev's Water Plant: "i look up with it and there still hitting the ground,. the ones to the right i can hit".
+- Checked: from three spots in the hall, auto-aim locks onto every catwalk monster on both sides and 10/10 shots land. All demo maps and the Freedoom loader pass.
+
 ## v0.8.12 (vc32) — 2026-11-22 — crash guard ("Aw, Snap") and lighter glass traffic
 - **Crash guard.** While you play, the game writes a small heartbeat every two seconds and clears it when you leave normally. If Chrome kills the tab mid-game ("Aw, Snap", STATUS_BREAKPOINT), the heartbeat is still there on the next load. The game then writes it to the crash log (version, map, detail, cores) and plays that session in safe mode: one core, detail no higher than 1280. A message says so. The next normal session goes back to your settings.
 - **Glass cracks travel to the render cores only when they change.** Every cracked pane keeps a picture of its cracks (tens of KB each), and it was being copied to every core 35+ times a second. Now it's copied once per new crack. Less memory churn on big machines with many cores, which is the likeliest cause of the tab dying.

@@ -282,10 +282,12 @@ function explode(x, y, z, radius, maxd, src) {
 }
 /* the first height on a monster you can actually see (body, head, then legs), or null */
 function aimPoint(x, y, z, e) { for (const f of [0.5, 0.82, 0.22]) { const tz = e.z + e.h * f; if (sight(x, y, z, e.x, e.y, tz)) return tz; } return null; }
+/* how steeply a shot leaves the gun when you look up or down: exactly through the crosshair (same math as the 3D view) */
+function lookSlope() { const p = G.p, H = R.H || 200, W = R.W || 320, proj = Math.max(W * 0.5, H * 0.42); return ((p.look || 0) * H * 0.42) / proj; }
 function hitscan(a, dmg, range = 2048, close = 0) {
   const p = G.p, z = p.viewz - 8, t = G.aimT;
   // vertical aim: straight at the auto-aimed monster (up onto a catwalk, down off a cliff), otherwise where you're looking
-  let slope = (p.look || 0) * 0.9;
+  let slope = lookSlope();
   if (t && t.alive) { const d = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)), tz = G.aimZ != null ? G.aimZ : t.z + t.h / 2; slope = (tz - z) / d; }
   const w = wallDistAlong(p.x, p.y, z, a, range, slope);
   const c = Math.cos(a), s = Math.sin(a); let best = null, bd = w.d;
@@ -299,8 +301,8 @@ function hitscan(a, dmg, range = 2048, close = 0) {
   // short barrels: brutal up close, weak at range (x2.2 point blank, x1 at ~300, x0.4 far away)
   if (best && close) dmg = Math.round(dmg * clamp(2.2 - bd / 250, 0.4, 2.2));
   if (best) { damageMonster(best, dmg, 'player'); return true; }
-  if (glassLive(w.l)) damageGlass(w.l, dmg, p.x + c * w.d, p.y + s * w.d, z, 'player');
-  G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
+  if (glassLive(w.l)) damageGlass(w.l, dmg, p.x + c * w.d, p.y + s * w.d, z + slope * w.d, 'player');
+  G.fx.push({ x: p.x + c * (w.d - 4), y: p.y + s * (w.d - 4), z: z + slope * (w.d - 4) - 4, img: SPR.puff, t: 8, t0: 8, k: 'puff', bright: 1 });
   return false;
 }
 function autoAim(a, range = 2000) {
@@ -318,7 +320,7 @@ function fireWeapon() {
   p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; if (!w.melee) glowAt(p.x, p.y, 40); sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
-  const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return (p.look || 0) * 0.9 * spd; };
+  const aimVz = spd => { const t = G.aimT; if (t) { const dz = (G.aimZ != null ? G.aimZ : t.z + t.h / 2) - (p.viewz - 12), dd = Math.max(1, Math.hypot(t.x - p.x, t.y - p.y)); return dz / dd * spd; } return lookSlope() * spd; };
   if (w.melee) { const rg = w.range || 72, ww = wallDistAlong(p.x, p.y, p.viewz - 8, a, rg); for (const e of G.ents) if (e.alive && e.hp > 0 && Math.hypot(e.x - p.x, e.y - p.y) < rg + e.r && Math.hypot(e.x - p.x, e.y - p.y) < ww.d + e.r) { damageMonster(e, rnd(...w.dmg), 'player'); ww.hitMon = 1; break; } if (!ww.hitMon && glassLive(ww.l)) damageGlass(ww.l, rnd(...w.dmg), p.x + Math.cos(a) * ww.d, p.y + Math.sin(a) * ww.d, p.viewz - 8, 'player'); }
   else if (w.proj) { spawnProj('player', w.proj, p.x, p.y, p.viewz - 12, a, aimVz((PROJ[w.proj] || PROJ.rocket).spd)); }
   else for (let i = 0; i < w.pellets; i++) hitscan(a + (Math.random() - 0.5) * 2 * w.spread * (w.pellets > 1 || p.w === 5 || p.refire ? 1 : 0), rnd(...w.dmg), longR || 2048, cu.close || 0);
