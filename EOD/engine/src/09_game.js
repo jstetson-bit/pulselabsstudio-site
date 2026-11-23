@@ -317,6 +317,10 @@ function fireWeapon() {
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   const cu = w.custom || {};
   p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; p.ejected = false; }
+  if (cu.mag) { // magazine guns: shots come out at full rate until the mag is empty, then one reload
+    p.mag = p.mag || {}; let left = (p.mag[p.w] != null ? p.mag[p.w] : cu.mag) - 1;
+    if (left <= 0) { left = cu.mag; const rl = cu.magReload || 50; p.cool = w.rate + rl; p.reloadT = rl; p.reload0 = rl; p.reloadDelay = w.rate; p.reloadW = p.w; p.ejected = false; msg('Reloading'); }
+    p.mag[p.w] = left; }
   p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; if (!w.melee) glowAt(p.x, p.y, 40); sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking

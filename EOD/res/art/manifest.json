@@ -1552,6 +1552,77 @@
    ],
    "pick": "xp_flame_disc.png",
    "hide": true
+  },
+  {
+   "id": "coach",
+   "name": "Coach Gun",
+   "cls": "shotgun",
+   "basis": 640,
+   "frames": [
+    "w_coach_1.png",
+    "w_coach_2.png",
+    "w_coach_3.png"
+   ],
+   "pick": "w_coach_1.png",
+   "place": [
+    {
+     "dx": 104,
+     "dy": 1
+    },
+    {
+     "dx": 41,
+     "dy": 1
+    },
+    {
+     "dx": -2,
+     "dy": 1
+    }
+   ],
+   "reload": [
+    1,
+    2
+   ],
+   "muzzle": [
+    0.23,
+    0.04
+   ],
+   "bores": [
+    [
+     0.43,
+     0.1
+    ],
+    [
+     0.5,
+     0.09
+    ]
+   ],
+   "boreR": 0.035,
+   "painted": true
+  },
+  {
+   "id": "carbine",
+   "name": "Carbine",
+   "cls": "repeater",
+   "basis": 640,
+   "frames": [
+    "w_carbine_1.png"
+   ],
+   "pick": "w_carbine_1.png",
+   "place": [
+    {
+     "dx": 124,
+     "dy": 1
+    }
+   ],
+   "muzzle": [
+    0.155,
+    0.21
+   ],
+   "eject": [
+    0.45,
+    0.4
+   ],
+   "painted": true
   }
  ]
 }

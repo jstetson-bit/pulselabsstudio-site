@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.14', VC = 34;
+const VERSION = '0.8.15', VC = 35;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -2571,6 +2571,10 @@ function fireWeapon() {
   if (w.ammo) p.ammo[w.ammo] -= w.use;
   const cu = w.custom || {};
   p.cool = w.rate + (cu.reload || 0); if (cu.reload) { p.reloadT = cu.reload; p.reload0 = cu.reload; p.reloadDelay = w.rate; p.reloadW = p.w; p.ejected = false; }
+  if (cu.mag) { // magazine guns: shots come out at full rate until the mag is empty, then one reload
+    p.mag = p.mag || {}; let left = (p.mag[p.w] != null ? p.mag[p.w] : cu.mag) - 1;
+    if (left <= 0) { left = cu.mag; const rl = cu.magReload || 50; p.cool = w.rate + rl; p.reloadT = rl; p.reload0 = rl; p.reloadDelay = w.rate; p.reloadW = p.w; p.ejected = false; msg('Reloading'); }
+    p.mag[p.w] = left; }
   p.fireT = w.custom && w.custom.look && w.custom.look.art ? clamp(w.rate, 6, 20) : 6; p.fireT0 = p.fireT; if (!w.melee) glowAt(p.x, p.y, 40); sfx(w.snd, 1, 'weap'); if (w.recoil) G.kick = (G.kick || 0) + w.recoil;
   const longR = w.custom && w.custom.longRange || 0, a = autoAim(p.a, longR || 2000);
   // vertical aim for projectiles: at the auto-aimed monster, otherwise where you are looking
@@ -4181,8 +4185,49 @@ function weaponArt(id, d) {
   a.pick.ox = a.pick.w >> 1; a.pick.oy = a.pick.h; WEPF.set(key, a); return a;
 }
 function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
+/* hand-painted weapon frames (Coach Gun, Carbine): placed where the artist painted them, a procedural muzzle flash,
+   and a reload that plays the painted frames (break open, load) with our flying shells on top */
+function drawPaintedWeapon(g, W, H, art, d, bx, by) {
+  const p = G.p, A = art.meta, hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, sp = s * 320 / art.basis;
+  let f = art.frames[0], rot = 0, lift = 0, k = -1;
+  const reloading = p.reloadT > 0 && !p.reloadDelay && p.reloadW === p.w && p.reload0;
+  if (reloading) {
+    k = 1 - p.reloadT / p.reload0; const R = A.reload || [];
+    if (R.length >= 2) {
+      if (k < 0.12) { rot = -0.10 * ease(k / 0.12); lift = -10 * ease(k / 0.12); }
+      else if (k < 0.5) f = art.frames[R[0]] || f;
+      else if (k < 0.86) f = art.frames[R[1]] || f;
+      else { const t = ease((k - 0.86) / 0.14); rot = -0.22 * (1 - t); lift = -14 * (1 - t); }
+    } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
+  }
+  const kick = p.fireT > 0 ? (p.fireT / (p.fireT0 || 6)) : 0;
+  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; }
+  const dw = f.w * sp, dh = f.h * sp, cx = W / 2 + f.place.dx * sp + bx, yb = H - hh + by - f.place.dy * sp - lift * sp;
+  g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.translate(cx, yb); g.rotate(rot); g.drawImage(f.im, -dw / 2, -dh, dw, dh);
+  // muzzle flash on the ready frame
+  if (kick > 0.45 && f === art.frames[0] && A.muzzle) {
+    const mx = -dw / 2 + A.muzzle[0] * dw, my = -dh + A.muzzle[1] * dh, r = (A.id === 'coach' ? 70 : 46) * sp * (0.7 + 0.5 * Math.random());
+    const gr = g.createRadialGradient(mx, my, 0, mx, my, r); gr.addColorStop(0, 'rgba(255,255,230,1)'); gr.addColorStop(0.25, 'rgba(255,214,90,.95)'); gr.addColorStop(0.6, 'rgba(255,120,20,.55)'); gr.addColorStop(1, 'rgba(255,60,0,0)');
+    g.globalCompositeOperation = 'lighter'; g.fillStyle = gr; g.beginPath();
+    for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2, rr = r * (i % 2 ? 0.45 : 1) * (0.8 + Math.random() * 0.4); g.lineTo(mx + Math.cos(a) * rr, my + Math.sin(a) * rr); }
+    g.closePath(); g.fill(); g.globalCompositeOperation = 'source-over';
+    if (A.eject && !p.casingOut) { p.casingOut = true; const ex = cx + (-dw / 2 + A.eject[0] * dw), ey = yb - dh + A.eject[1] * dh; (G.shells = G.shells || []).push({ x: ex, y: ey, vx: (6 + Math.random() * 3) * s, vy: -(7 + Math.random() * 3) * s, rot: 0, vr: 0.4, len: 9 * s, t: 0, brass: 1 }); }
+  }
+  if (!kick) p.casingOut = false;
+  g.restore();
+  // break open: kick the two spent shells out of the chambers on the painted open frame
+  if (reloading && A.bores && k >= 0.2 && !p.ejected) {
+    p.ejected = true; const fo = art.frames[(A.reload || [1])[0]] || f, odw = fo.w * sp, odh = fo.h * sp, ocx = W / 2 + fo.place.dx * sp + bx, oy = H - hh + by - fo.place.dy * sp - odh;
+    A.bores.forEach(([bx2, by2], i) => { const x = ocx - odw / 2 + bx2 * odw, y = oy + by2 * odh, dir = i ? 1 : -1, r = (A.boreR || 0.035) * odw;
+      (G.shells = G.shells || []).push({ x, y, vx: dir * (5 + Math.random() * 3) * s, vy: -(10 + Math.random() * 4) * s, rot: 0, vr: dir * (0.25 + Math.random() * 0.2), len: r * 2.8, t: 0 });
+      (G.smoke = G.smoke || []).push({ x, y, r: r * 0.5, t: 0 }); });
+  }
+  g.imageSmoothingEnabled = false; shellFx(g, W, H, s);
+}
 function drawCustomWeapon(g, W, H, u, bx, by) {
-  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
+  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); if (art.painted) return drawPaintedWeapon(g, W, H, art, d, bx, by);
+  let img = p.fireT > 2 ? art.fire : art.idle;
   if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
   const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, modern = typeof hudModern === 'function' && hudModern();
   const c = modern ? hqCanvas(img) : spriteCanvas(img); g.imageSmoothingEnabled = modern; if (modern) g.imageSmoothingQuality = 'high';
@@ -4204,8 +4249,9 @@ function boresOf(img) {
   return img.bores = [{ x: a.x, y: a.y, r }, { x: b.x, y: b.y, r }];
 }
 const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
-function drawShell(g, x, y, len, rot, spent, endOn) {
+function drawShell(g, x, y, len, rot, spent, endOn, brass) {
   g.save(); g.translate(x, y); g.rotate(rot);
+  if (brass) { const w = len * 0.36, gb = g.createLinearGradient(0, -w / 2, 0, w / 2); gb.addColorStop(0, '#f3d77a'); gb.addColorStop(1, '#8a6a1a'); g.fillStyle = gb; g.fillRect(-len / 2, -w / 2, len, w); g.fillStyle = '#5a4416'; g.fillRect(len / 2 - len * 0.12, -w / 2, len * 0.12, w); g.restore(); return; }
   if (endOn) { // seen from the back: brass rim with a primer dot
     const r = len * 0.32; g.fillStyle = spent ? '#7a5c18' : '#c9a227'; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
     g.fillStyle = spent ? '#4a3a12' : '#e8c95a'; g.beginPath(); g.arc(0, 0, r * 0.72, 0, 7); g.fill(); g.fillStyle = '#5a4416'; g.beginPath(); g.arc(0, 0, r * 0.22, 0, 7); g.fill();
@@ -4246,7 +4292,7 @@ function shellFx(g, W, H, s) {
   if (G.smoke) { G.smoke = G.smoke.filter(m => (m.t += dt) < 22); G.smoke.forEach(m => { g.fillStyle = `rgba(200,200,200,${0.35 * (1 - m.t / 22)})`; g.beginPath(); g.arc(m.x, m.y - m.t * 2 * s, m.r * (1 + m.t / 8), 0, 7); g.fill(); }); }
   if (!G.shells || !G.shells.length) return;
   G.shells = G.shells.filter(q => q.y < H + 80 && (q.t += dt) < 120);
-  G.shells.forEach(q => { q.vy += 0.9 * s * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt; drawShell(g, q.x, q.y, q.len, q.rot, true, false); });
+  G.shells.forEach(q => { q.vy += 0.9 * s * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt; drawShell(g, q.x, q.y, q.len, q.rot, true, false, q.brass); });
 }
 /* ---------- registry ---------- */
 let WEP_SIG = '';
@@ -4795,6 +4841,11 @@ function artWepFrames(d, id) {
   const L = d.look, a = artWep(L.art); if (!a) return null;
   const fr = (a.frames || []).map(f => artImg(f)), pk = artImg(a.pick), pj = a.proj ? artImg(a.proj) : null;
   if (fr.some(x => !x) || !pk || (a.proj && !pj)) return null;
+  if (a.painted) { // full-color hand-painted frames (cut by tools/cut_weapon.py): drawn as they are, placed where the artist put them
+    const frames = fr.map((im, i) => ({ painted: true, im, w: im.width, h: im.height, place: (a.place || [])[i] || { dx: 0, dy: 0 } }));
+    const pp = artPixels(pk, L, Math.min(1, 72 / pk.width), false);
+    return { painted: true, meta: a, basis: a.basis || 320, frames, idle: frames[0], fire: frames[0], pick: clayToSprite(pp, pp.w >> 1, pp.h, { dither: 2, rim: false, contrast: 1.0 }) };
+  }
   const sc0 = (L.size || 1) * 0.66, L0 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk0 = (im, s) => { const p = artPixels(im, L0, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
   const out = { idle: mk0(fr[0], sc0), seq: (a.fire || [1]).map(i => mk0(fr[i] || fr[0], sc0)), pick: mk0(pk, 1) };
   out.fire = out.seq[0];
@@ -4974,8 +5025,8 @@ function buildArenaMap() {
 function buildChaingunMap() {
   M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
   M.hint = 'Hold FIRE. Six waves are coming. Tap the numbers on the bar to switch guns: 2 = chainsaw (again = pistol), 4 = double barrel, 5 = chaingun, 6 = rockets.';
-  const SO = demoSawedOff(71);
-  M.start = { weapons: [1, 4, 5, 6, SO], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  const SO = demoSawedOff(71), CB = demoCarbine(72);
+  M.start = { weapons: [1, 4, 5, 6, SO, CB], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
   // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
   const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
   const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
@@ -5000,7 +5051,7 @@ function buildChaingunMap() {
 /* UAC Corridor: the tech hallway from James's new gun paintings, made playable */
 function buildUacMap() {
   M = emptyMap(); M.name = 'MAP08'; M.mon = {}; M.wep = {};
-  M.hint = 'UAC Corridor. Grab the shotgun, work up the hallway, clear the control room on the right (the Sawed-Off is in there), then open the big door at the end. Exit is on the far wall of the hall.';
+  M.hint = 'UAC Corridor. Grab the carbine and the shotgun, work up the hallway, clear the control room on the right (the Sawed-Off is in there), then open the big door at the end. Exit is on the far wall of the hall.';
   const W = 'STARTAN3', TECH = 'STARTAN3';
   const St = demoRect(0, 0, 384, 256, { fh: 0, ch: 128, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
   const C = demoRect(64, 256, 320, 1792, { fh: 0, ch: 128, li: 136, ft: 'FCGRATE1', ct: 'CEIL5_1' });
@@ -5027,10 +5078,10 @@ function buildUacMap() {
   // the big door's faces
   sectorLines(D3).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0 && M.sd[sd].up !== '-') M.sd[sd].up = 'BIGDOOR2'; });
   const k = demoLine(128, 2416, 256, 2416); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
-  const SO = demoSawedOff(73);
+  const SO = demoSawedOff(73), CB = demoCarbine(74);
   const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
   // start
-  T(1, 192, 96, 90); T(2001, 96, 190); T(2008, 290, 190); T(2018, 192, 210);
+  T(1, 192, 96, 90); T(2001, 96, 190); T(CB, 192, 170); T(2048, 300, 120); T(2008, 290, 190); T(2018, 192, 210);
   // hallway
   T(3004, 150, 620, 270); T(3004, 250, 760, 270); T(3004, 190, 980, 270); T(9, 140, 1160, 270); T(9, 260, 1330, 270);
   T(3001, 190, 1560, 270); T(3001, 120, 1700, 270); T(3002, 240, 1640, 270); T(58, 150, 1460, 270, 6);
@@ -5048,8 +5099,14 @@ function buildUacMap() {
 function demoSkin(tex, def) { M.l.forEach(L => { if (L.s1 < 0 || L.s2 < 0) return; for (const sd of [L.s1, L.s2]) { const d = M.sd[sd], t = tex[d.sec] || def; if (d.lo === '-') d.lo = t; if (d.up === '-') d.up = t; } }); }
 /* Sawed-Off: short double barrel, both barrels in one pull, huge up close, break-open reload after every blast */
 function demoSawedOff(seed) {
-  const id = demoWeapon('dbl1', seed), d = M.wep[id];
+  const id = demoWeapon(artWep('coach') ? 'coach' : 'dbl1', seed), d = M.wep[id];
   Object.assign(d, { name: 'Sawed-Off', kind: 'hit', ammo: 'shells', use: 2, rate: 10, reload: 56, reloadAnim: 'break', pellets: 24, spread: 0.16, dmg: [6, 16], close: 1, recoil: 9, give: 16, snd: 'dshtgn', proj: null, splash: 0, range: 0 });
+  return id;
+}
+/* Carbine: hand-painted black rifle, 30-round magazine, quick and accurate */
+function demoCarbine(seed) {
+  const id = demoWeapon(artWep('carbine') ? 'carbine' : 'pulse_rifle', seed), d = M.wep[id];
+  Object.assign(d, { name: 'Carbine', kind: 'hit', ammo: 'bullets', use: 1, rate: 4, pellets: 1, spread: 0.025, dmg: [12, 22], recoil: 2, give: 30, mag: 30, magReload: 48, snd: 'pistol', proj: null, splash: 0, range: 0, longRange: 3000 });
   return id;
 }
 /* a long-range painted rifle for the summit (Doom never had one) */

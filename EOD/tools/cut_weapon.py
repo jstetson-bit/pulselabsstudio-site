@@ -38,13 +38,17 @@ def key_out(im, tol=60, soft=40):
     return np.dstack([rgb.astype(np.uint8), (alpha * 255).astype(np.uint8)])
 
 
-def plate_out(im, plate, tol=26, soft=30):
+def plate_out(im, plate, tol=22, soft=30):
     from scipy import ndimage as nd
     a = np.asarray(im.convert('RGB')).astype(np.int32); b = np.asarray(plate.convert('RGB').resize(im.size)).astype(np.int32)
     d = np.abs(a - b).max(2)
     m = d > tol
     m = nd.binary_opening(nd.binary_fill_holes(nd.binary_closing(m, iterations=2)), iterations=1)
-    lab, n = nd.label(m); s = nd.sum(m, lab, range(1, n + 1)); m = np.isin(lab, 1 + np.where(s > 400)[0])
+    m = nd.binary_opening(m, iterations=2)
+    # the gun and arms come up from the bottom of the screen: keep only what touches the bottom edge
+    # (drops background flicker, stray grate bits and loose flying shells, which the game animates itself)
+    lab, n = nd.label(m); bottom = set(np.unique(lab[-3:])) - {0}; m = np.isin(lab, list(bottom))
+    m = nd.binary_fill_holes(m)
     alpha = np.where(m, np.clip((d - tol) / soft + 0.6, 0, 1), 0)
     alpha = np.where(nd.binary_erosion(m, iterations=1), 1.0, alpha)
     return np.dstack([a.astype(np.uint8), (alpha * 255).astype(np.uint8)])
@@ -57,7 +61,9 @@ def main():
     ap.add_argument('--bar', action='store_true', help='painting includes a status bar at the bottom: cut it off')
     ap.add_argument('--out', default=str(Path(__file__).resolve().parents[1] / 'res' / 'art'))
     ap.add_argument('--name', default=None)
+    ap.add_argument('--cls', default='repeater', help='weapon class for the editor (shotgun, repeater, launcher...)')
     ap.add_argument('--plate', default=None, help='the same scene with no gun or hands in it')
+    ap.add_argument('--tol', type=int, default=28, help='plate mode: how different a pixel must be to count as gun (lower keeps dark-on-dark parts, higher drops shadows)')
     ap.add_argument('--manifest', action='store_true', help='add/replace the entry in manifest.json')
     o = ap.parse_args()
     basis = 640 if o.hd else 320
@@ -69,7 +75,7 @@ def main():
         if o.bar:
             im = im.crop((0, 0, W, int(H * 0.84))); H = im.size[1]
             if plate: plate = plate.resize((W, round(plate.size[1] * W / plate.size[0]))).crop((0, 0, W, H))
-        rgba = plate_out(im, plate) if plate else key_out(im)
+        rgba = plate_out(im, plate, o.tol) if plate else key_out(im)
         ys, xs = np.where(rgba[..., 3] > 16)
         x0, x1, y0, y1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
         s = basis / W
@@ -79,7 +85,7 @@ def main():
         # offset of the sprite's bottom-center from the screen's bottom-center, in basis pixels
         meta.append({'dx': round(((x0 + x1) / 2 - W / 2) * s), 'dy': round((H - y1) * s), 'w': crop.width, 'h': crop.height})
         print(f, '->', name, crop.size, meta[-1])
-    entry = {'id': o.id, 'name': o.name or o.id, 'cls': 'painted', 'frames': files, 'fire': [1] if len(files) > 1 else [],
+    entry = {'id': o.id, 'name': o.name or o.id, 'cls': o.cls, 'painted': True, 'frames': files, 'fire': [1] if len(files) > 1 else [],
              'pick': files[0], 'basis': basis, 'place': meta}
     if o.manifest:
         mp = out / 'manifest.json'; m = json.loads(mp.read_text())

@@ -164,8 +164,49 @@ function weaponArt(id, d) {
   a.pick.ox = a.pick.w >> 1; a.pick.oy = a.pick.h; WEPF.set(key, a); return a;
 }
 function weaponPickupImg(type, d) { return weaponArt(type, d).pick; }
+/* hand-painted weapon frames (Coach Gun, Carbine): placed where the artist painted them, a procedural muzzle flash,
+   and a reload that plays the painted frames (break open, load) with our flying shells on top */
+function drawPaintedWeapon(g, W, H, art, d, bx, by) {
+  const p = G.p, A = art.meta, hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, sp = s * 320 / art.basis;
+  let f = art.frames[0], rot = 0, lift = 0, k = -1;
+  const reloading = p.reloadT > 0 && !p.reloadDelay && p.reloadW === p.w && p.reload0;
+  if (reloading) {
+    k = 1 - p.reloadT / p.reload0; const R = A.reload || [];
+    if (R.length >= 2) {
+      if (k < 0.12) { rot = -0.10 * ease(k / 0.12); lift = -10 * ease(k / 0.12); }
+      else if (k < 0.5) f = art.frames[R[0]] || f;
+      else if (k < 0.86) f = art.frames[R[1]] || f;
+      else { const t = ease((k - 0.86) / 0.14); rot = -0.22 * (1 - t); lift = -14 * (1 - t); }
+    } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
+  }
+  const kick = p.fireT > 0 ? (p.fireT / (p.fireT0 || 6)) : 0;
+  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; }
+  const dw = f.w * sp, dh = f.h * sp, cx = W / 2 + f.place.dx * sp + bx, yb = H - hh + by - f.place.dy * sp - lift * sp;
+  g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.translate(cx, yb); g.rotate(rot); g.drawImage(f.im, -dw / 2, -dh, dw, dh);
+  // muzzle flash on the ready frame
+  if (kick > 0.45 && f === art.frames[0] && A.muzzle) {
+    const mx = -dw / 2 + A.muzzle[0] * dw, my = -dh + A.muzzle[1] * dh, r = (A.id === 'coach' ? 70 : 46) * sp * (0.7 + 0.5 * Math.random());
+    const gr = g.createRadialGradient(mx, my, 0, mx, my, r); gr.addColorStop(0, 'rgba(255,255,230,1)'); gr.addColorStop(0.25, 'rgba(255,214,90,.95)'); gr.addColorStop(0.6, 'rgba(255,120,20,.55)'); gr.addColorStop(1, 'rgba(255,60,0,0)');
+    g.globalCompositeOperation = 'lighter'; g.fillStyle = gr; g.beginPath();
+    for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2, rr = r * (i % 2 ? 0.45 : 1) * (0.8 + Math.random() * 0.4); g.lineTo(mx + Math.cos(a) * rr, my + Math.sin(a) * rr); }
+    g.closePath(); g.fill(); g.globalCompositeOperation = 'source-over';
+    if (A.eject && !p.casingOut) { p.casingOut = true; const ex = cx + (-dw / 2 + A.eject[0] * dw), ey = yb - dh + A.eject[1] * dh; (G.shells = G.shells || []).push({ x: ex, y: ey, vx: (6 + Math.random() * 3) * s, vy: -(7 + Math.random() * 3) * s, rot: 0, vr: 0.4, len: 9 * s, t: 0, brass: 1 }); }
+  }
+  if (!kick) p.casingOut = false;
+  g.restore();
+  // break open: kick the two spent shells out of the chambers on the painted open frame
+  if (reloading && A.bores && k >= 0.2 && !p.ejected) {
+    p.ejected = true; const fo = art.frames[(A.reload || [1])[0]] || f, odw = fo.w * sp, odh = fo.h * sp, ocx = W / 2 + fo.place.dx * sp + bx, oy = H - hh + by - fo.place.dy * sp - odh;
+    A.bores.forEach(([bx2, by2], i) => { const x = ocx - odw / 2 + bx2 * odw, y = oy + by2 * odh, dir = i ? 1 : -1, r = (A.boreR || 0.035) * odw;
+      (G.shells = G.shells || []).push({ x, y, vx: dir * (5 + Math.random() * 3) * s, vy: -(10 + Math.random() * 4) * s, rot: 0, vr: dir * (0.25 + Math.random() * 0.2), len: r * 2.8, t: 0 });
+      (G.smoke = G.smoke || []).push({ x, y, r: r * 0.5, t: 0 }); });
+  }
+  g.imageSmoothingEnabled = false; shellFx(g, W, H, s);
+}
 function drawCustomWeapon(g, W, H, u, bx, by) {
-  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); let img = p.fireT > 2 ? art.fire : art.idle;
+  const p = G.p, d = WEAPONS[p.w].custom, art = weaponArt(p.w, d); if (art.painted) return drawPaintedWeapon(g, W, H, art, d, bx, by);
+  let img = p.fireT > 2 ? art.fire : art.idle;
   if (art.seq && p.fireT > 0) { const t0 = p.fireT0 || 6, k = Math.min(art.seq.length - 1, Math.floor((t0 - p.fireT) / t0 * art.seq.length)); img = art.seq[k]; }
   const hh = hudHeight(W, H), s = Math.min(W / 320, (H - hh) / 168) * 0.95, modern = typeof hudModern === 'function' && hudModern();
   const c = modern ? hqCanvas(img) : spriteCanvas(img); g.imageSmoothingEnabled = modern; if (modern) g.imageSmoothingQuality = 'high';
@@ -187,8 +228,9 @@ function boresOf(img) {
   return img.bores = [{ x: a.x, y: a.y, r }, { x: b.x, y: b.y, r }];
 }
 const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
-function drawShell(g, x, y, len, rot, spent, endOn) {
+function drawShell(g, x, y, len, rot, spent, endOn, brass) {
   g.save(); g.translate(x, y); g.rotate(rot);
+  if (brass) { const w = len * 0.36, gb = g.createLinearGradient(0, -w / 2, 0, w / 2); gb.addColorStop(0, '#f3d77a'); gb.addColorStop(1, '#8a6a1a'); g.fillStyle = gb; g.fillRect(-len / 2, -w / 2, len, w); g.fillStyle = '#5a4416'; g.fillRect(len / 2 - len * 0.12, -w / 2, len * 0.12, w); g.restore(); return; }
   if (endOn) { // seen from the back: brass rim with a primer dot
     const r = len * 0.32; g.fillStyle = spent ? '#7a5c18' : '#c9a227'; g.beginPath(); g.arc(0, 0, r, 0, 7); g.fill();
     g.fillStyle = spent ? '#4a3a12' : '#e8c95a'; g.beginPath(); g.arc(0, 0, r * 0.72, 0, 7); g.fill(); g.fillStyle = '#5a4416'; g.beginPath(); g.arc(0, 0, r * 0.22, 0, 7); g.fill();
@@ -229,7 +271,7 @@ function shellFx(g, W, H, s) {
   if (G.smoke) { G.smoke = G.smoke.filter(m => (m.t += dt) < 22); G.smoke.forEach(m => { g.fillStyle = `rgba(200,200,200,${0.35 * (1 - m.t / 22)})`; g.beginPath(); g.arc(m.x, m.y - m.t * 2 * s, m.r * (1 + m.t / 8), 0, 7); g.fill(); }); }
   if (!G.shells || !G.shells.length) return;
   G.shells = G.shells.filter(q => q.y < H + 80 && (q.t += dt) < 120);
-  G.shells.forEach(q => { q.vy += 0.9 * s * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt; drawShell(g, q.x, q.y, q.len, q.rot, true, false); });
+  G.shells.forEach(q => { q.vy += 0.9 * s * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt; drawShell(g, q.x, q.y, q.len, q.rot, true, false, q.brass); });
 }
 /* ---------- registry ---------- */
 let WEP_SIG = '';

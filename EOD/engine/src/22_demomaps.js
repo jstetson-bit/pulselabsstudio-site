@@ -93,8 +93,8 @@ function buildArenaMap() {
 function buildChaingunMap() {
   M = emptyMap(); M.name = 'MAP05'; M.mon = {}; M.wep = {};
   M.hint = 'Hold FIRE. Six waves are coming. Tap the numbers on the bar to switch guns: 2 = chainsaw (again = pistol), 4 = double barrel, 5 = chaingun, 6 = rockets.';
-  const SO = demoSawedOff(71);
-  M.start = { weapons: [1, 4, 5, 6, SO], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
+  const SO = demoSawedOff(71), CB = demoCarbine(72);
+  M.start = { weapons: [1, 4, 5, 6, SO, CB], ammo: { bullets: 999, shells: 100, rockets: 60 }, max: { bullets: 999, shells: 200, rockets: 150 }, w: 5, hp: 200, armor: 200, at: 2, waveAt: 14, waveGap: 16, hurt: 0.2, power: 2.5 };
   // you: a firing deck at the south end; them: a long open canyon, then a staging yard where the waves pour in
   const Deck = demoRect(0, 0, 1024, 256, { fh: 24, ch: 320, li: 208, ft: 'FLAT20', ct: 'F_SKY1' });
   const Can = demoRect(0, 256, 1024, 2304, { fh: 0, ch: 320, li: 176, ft: 'RROCK19', ct: 'F_SKY1' });
@@ -119,7 +119,7 @@ function buildChaingunMap() {
 /* UAC Corridor: the tech hallway from James's new gun paintings, made playable */
 function buildUacMap() {
   M = emptyMap(); M.name = 'MAP08'; M.mon = {}; M.wep = {};
-  M.hint = 'UAC Corridor. Grab the shotgun, work up the hallway, clear the control room on the right (the Sawed-Off is in there), then open the big door at the end. Exit is on the far wall of the hall.';
+  M.hint = 'UAC Corridor. Grab the carbine and the shotgun, work up the hallway, clear the control room on the right (the Sawed-Off is in there), then open the big door at the end. Exit is on the far wall of the hall.';
   const W = 'STARTAN3', TECH = 'STARTAN3';
   const St = demoRect(0, 0, 384, 256, { fh: 0, ch: 128, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
   const C = demoRect(64, 256, 320, 1792, { fh: 0, ch: 128, li: 136, ft: 'FCGRATE1', ct: 'CEIL5_1' });
@@ -146,10 +146,10 @@ function buildUacMap() {
   // the big door's faces
   sectorLines(D3).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0 && M.sd[sd].up !== '-') M.sd[sd].up = 'BIGDOOR2'; });
   const k = demoLine(128, 2416, 256, 2416); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
-  const SO = demoSawedOff(73);
+  const SO = demoSawedOff(73), CB = demoCarbine(74);
   const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
   // start
-  T(1, 192, 96, 90); T(2001, 96, 190); T(2008, 290, 190); T(2018, 192, 210);
+  T(1, 192, 96, 90); T(2001, 96, 190); T(CB, 192, 170); T(2048, 300, 120); T(2008, 290, 190); T(2018, 192, 210);
   // hallway
   T(3004, 150, 620, 270); T(3004, 250, 760, 270); T(3004, 190, 980, 270); T(9, 140, 1160, 270); T(9, 260, 1330, 270);
   T(3001, 190, 1560, 270); T(3001, 120, 1700, 270); T(3002, 240, 1640, 270); T(58, 150, 1460, 270, 6);
@@ -167,8 +167,14 @@ function buildUacMap() {
 function demoSkin(tex, def) { M.l.forEach(L => { if (L.s1 < 0 || L.s2 < 0) return; for (const sd of [L.s1, L.s2]) { const d = M.sd[sd], t = tex[d.sec] || def; if (d.lo === '-') d.lo = t; if (d.up === '-') d.up = t; } }); }
 /* Sawed-Off: short double barrel, both barrels in one pull, huge up close, break-open reload after every blast */
 function demoSawedOff(seed) {
-  const id = demoWeapon('dbl1', seed), d = M.wep[id];
+  const id = demoWeapon(artWep('coach') ? 'coach' : 'dbl1', seed), d = M.wep[id];
   Object.assign(d, { name: 'Sawed-Off', kind: 'hit', ammo: 'shells', use: 2, rate: 10, reload: 56, reloadAnim: 'break', pellets: 24, spread: 0.16, dmg: [6, 16], close: 1, recoil: 9, give: 16, snd: 'dshtgn', proj: null, splash: 0, range: 0 });
+  return id;
+}
+/* Carbine: hand-painted black rifle, 30-round magazine, quick and accurate */
+function demoCarbine(seed) {
+  const id = demoWeapon(artWep('carbine') ? 'carbine' : 'pulse_rifle', seed), d = M.wep[id];
+  Object.assign(d, { name: 'Carbine', kind: 'hit', ammo: 'bullets', use: 1, rate: 4, pellets: 1, spread: 0.025, dmg: [12, 22], recoil: 2, give: 30, mag: 30, magReload: 48, snd: 'pistol', proj: null, splash: 0, range: 0, longRange: 3000 });
   return id;
 }
 /* a long-range painted rifle for the summit (Doom never had one) */

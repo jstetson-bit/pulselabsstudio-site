@@ -10,6 +10,15 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.15 (vc35) — 2026-11-22 — James's painted guns are in: the Coach Gun art and the Carbine
+- **The Sawed-Off now wears the painted art** James got from the image tool: right hand on the stock, left hand on the barrels. Firing throws a big two-barrel muzzle flash and kicks the gun up. The reload plays the painted frames: the gun tips, the break-open frame (the game's own spent shells fly out left and right, with a puff of smoke), the loading frame with two fresh shells going in, then the gun snaps back up.
+- **New gun: the Carbine** (painted black rifle). 30-round magazine, fast (about 9 shots a second held down), accurate, long reach, uses bullets; brass casings fly out to the right; when the magazine runs dry it dips down for a reload ("Reloading") and comes back with 30. In UAC Corridor (start room) and Chaingun Carnage (in your loadout).
+- **Magazines** are a new weapon setting (`mag`, `magReload`): full fire rate until the magazine is empty, then one reload.
+- **Painted weapons** are a new kind of art: full-color frames drawn as painted (no pixel-art conversion), placed on screen where the artist put them. Cut with `EOD/tools/cut_weapon.py --plate` from the paintings and the empty-corridor plate James got. Source paintings kept in `EOD/docs/art/source/`.
+- Still to come from the art: the fire and closing frames for the Coach Gun, and the fire/reload frames for the Carbine (the prompt in the frequent-requests list asks for them). The one-handed flip-shut frame he sent was a chat screenshot; it needs the saved picture.
+- Why: James sent the empty corridor (frame 0), which made exact cut-outs possible.
+- Checked: both guns drawn, firing, flash, casings, break-open reload with flying shells and loading frame (screenshots); all demo maps and the Freedoom loader pass.
+
 ## v0.8.14 (vc34) — 2026-11-22 — new level: UAC Corridor; weapon cutter tool
 - **New demo level, UAC Corridor (MAP08).** The hallway from the new gun paintings, made playable: a long grated-floor tech corridor with recessed orange ceiling lights, amber light slots low in the left wall and computer bays in the right. A control room off the right side (chaingunners, imps, the Sawed-Off, a chaingun, barrels to set off), then a big door into a hall with a raised back half, a cacodemon, chaingunners and a Hell Knight, and the exit switch on the far wall. Shotgun and armor at the start. On the hub page and at `?demo=uac`.
 - **Weapon cutter tool** `EOD/tools/cut_weapon.py`: takes painted first-person gun frames and cuts them out either against a flat color or against an empty copy of the same scene (a "plate"), sizes them for the game and records where each sat on screen. Ready for the double-barrel and carbine frames once the empty corridor comes back.

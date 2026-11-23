@@ -127,6 +127,11 @@ function artWepFrames(d, id) {
   const L = d.look, a = artWep(L.art); if (!a) return null;
   const fr = (a.frames || []).map(f => artImg(f)), pk = artImg(a.pick), pj = a.proj ? artImg(a.proj) : null;
   if (fr.some(x => !x) || !pk || (a.proj && !pj)) return null;
+  if (a.painted) { // full-color hand-painted frames (cut by tools/cut_weapon.py): drawn as they are, placed where the artist put them
+    const frames = fr.map((im, i) => ({ painted: true, im, w: im.width, h: im.height, place: (a.place || [])[i] || { dx: 0, dy: 0 } }));
+    const pp = artPixels(pk, L, Math.min(1, 72 / pk.width), false);
+    return { painted: true, meta: a, basis: a.basis || 320, frames, idle: frames[0], fire: frames[0], pick: clayToSprite(pp, pp.w >> 1, pp.h, { dither: 2, rim: false, contrast: 1.0 }) };
+  }
   const sc0 = (L.size || 1) * 0.66, L0 = Object.assign({ keepSkin: L.keepSkin !== false }, L), mk0 = (im, s) => { const p = artPixels(im, L0, s, L.mirror); return clayToSprite(p, p.w >> 1, p.h, { dither: 4, rim: false, contrast: 1.03 }); };
   const out = { idle: mk0(fr[0], sc0), seq: (a.fire || [1]).map(i => mk0(fr[i] || fr[0], sc0)), pick: mk0(pk, 1) };
   out.fire = out.seq[0];

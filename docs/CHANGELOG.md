@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.35 — 2026-11-22
+- EOD 0.8.15: painted Coach Gun art on the Sawed-Off, new painted Carbine with a 30-round magazine.
+
 ## v0.7.34 — 2026-11-22
 - EOD 0.8.14: new demo level UAC Corridor (MAP08); weapon cutter tool.
 
