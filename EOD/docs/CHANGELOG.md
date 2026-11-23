@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.22 (vc42) — 2026-11-22 — UAC Corridor: you can reach the exit
+- **Fixed: the raised back half of the hall was a dead end.** It was 32 units up in one go; the player can only step up 24. There's now a deep step halfway (16, then 32), so you can walk up to the exit switch.
+- Swept the other demo maps with a reachability check (walk the sectors from the start using the same step and headroom rules, doors and tagged lifts counted open): every exit is reachable.
+- The "skull in a balloon" is the Soulsphere (Freedoom's art for it): +100 health, up to 200%. It sits on the raised platform as the reward.
+- Why: James: "i cant advance any further and wtf is that skull thing in a baloon doing?"
+
 ## v0.8.21 (vc41) — 2026-11-22 — the Carbine comes up to the shoulder to fire
 - **Carry pose vs firing pose:** walking around, the Carbine is carried off to the right (the angled painting). The moment you fire, it comes up into the center, shouldered, sights down the middle (the centered painting), and stays there while you keep shooting. About two-thirds of a second after you stop, it drops back to the carry pose.
 - Full-auto alternates the painted firing frame with the aiming frame plus a painted star flash, so the flash flickers shot to shot; brass flies out to the right on every shot.

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.42 — 2026-11-22
+- EOD 0.8.22: UAC Corridor's raised hall platform gets a step so the exit can be reached.
+
 ## v0.7.41 — 2026-11-22
 - EOD 0.8.21: the Carbine shoulders to the center to fire and drops back to its carry pose.
 
