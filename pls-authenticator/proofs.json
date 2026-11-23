@@ -3,8 +3,8 @@
  "systems": [
   "Android"
  ],
- "tagline": "Your codes and passwords, on this device only.",
- "overview": "PLS Authenticator keeps your two-factor sign-in codes and your passwords in one encrypted vault on your phone. No account, no cloud, no subscription, and no internet permission. Codes are free forever; the password vault is a one-time $10 unlock. You hold the only keys: your master password and a recovery key shown once.",
+ "tagline": "Your sign-in codes, on this device only.",
+ "overview": "PLS Authenticator keeps your two-factor sign-in codes in one encrypted vault on your phone. No account, no cloud, no subscription, no ads and no internet permission. Codes are free forever. You hold the only keys: your master password and a recovery key shown once.",
  "capabilities": [
   {
    "id": "one-vault",
