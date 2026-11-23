@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.20', VC = 40;
+const VERSION = '0.8.21', VC = 41;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4201,7 +4201,14 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
   }
   const kick = p.fireT > 0 ? (p.fireT / (p.fireT0 || 6)) : 0;
-  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.6 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame];
+  // shouldered guns: carried off to the side while you walk, brought up to the center the moment you fire, held there while you keep shooting
+  const aimGun = A.aimFrame != null && art.frames[A.aimFrame], now = performance.now();
+  if (aimGun && !reloading && kick > 0) p.aimUntil = now + (A.aimHold || 600);
+  const aiming = aimGun && !reloading && (kick > 0 || (p.aimUntil && now < p.aimUntil));
+  if (aiming) { f = art.frames[A.aimFrame]; if (p.fireT === p.fireT0) p.shotAlt = !p.shotAlt;
+    if (kick > 0.5 && p.shotAlt && A.aimFireFrame != null && art.frames[A.aimFireFrame]) f = art.frames[A.aimFireFrame];
+    lift -= 4 * kick; }
+  else if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.6 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame];
     else if (A.recoilFrame != null && art.frames[A.recoilFrame]) { f = art.frames[A.recoilFrame]; lift += 6 * kick; rot += 0.03 * kick; } // the painted kick already lifts the gun
     if (A.smoke && kick < 0.6 && !p.wispOut) { p.wispOut = true; const mf = art.frames[0], mdw = mf.w * sp, mdh = mf.h * sp, mcx = W / 2 + mf.place.dx * sp + bx;
       (G.wisps = G.wisps || []).push({ x: mcx - mdw / 2 + A.muzzle[0] * mdw, y: H - hh + by - mdh + A.muzzle[1] * mdh, t: 0, s: sp, flip: Math.random() < 0.5 }); } }
@@ -4210,8 +4217,9 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
   g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   g.translate(cx, yb); g.rotate(rot); g.drawImage(f.im, -dw / 2, -dh, dw, dh);
   // muzzle flash on the ready frame
-  if (kick > 0.45 && f === art.frames[0] && A.muzzle && A.fireFrame == null) {
-    const mx = -dw / 2 + A.muzzle[0] * dw, my = -dh + A.muzzle[1] * dh, r = (A.id === 'coach' ? 70 : 46) * sp * (0.7 + 0.5 * Math.random());
+  const onAim = aimGun && f === art.frames[A.aimFrame], MZ = onAim ? A.muzzleAim : A.muzzle;
+  if (kick > 0.45 && (onAim || f === art.frames[0]) && MZ && A.fireFrame == null) {
+    const mx = -dw / 2 + MZ[0] * dw, my = -dh + MZ[1] * dh, r = (A.id === 'coach' ? 70 : 46) * sp * (0.7 + 0.5 * Math.random());
     if (p.flashSeed == null) p.flashSeed = Math.random();
     const fi = (A.flashAlt && p.flashSeed > 0.5 && ARTL.img.get(A.flashAlt)) || (A.flash && ARTL.img.get(A.flash));
     if (fi) { // the painted star burst, a little different every shot
@@ -4223,8 +4231,10 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2, rr = r * (i % 2 ? 0.45 : 1) * (0.8 + Math.random() * 0.4); g.lineTo(mx + Math.cos(a) * rr, my + Math.sin(a) * rr); }
     g.closePath(); g.fill(); g.globalCompositeOperation = 'source-over';
     }
-    if (A.eject && !p.casingOut) { p.casingOut = true; const ex = cx + (-dw / 2 + A.eject[0] * dw), ey = yb - dh + A.eject[1] * dh; (G.shells = G.shells || []).push({ x: ex, y: ey, vx: (6 + Math.random() * 3) * s, vy: -(7 + Math.random() * 3) * s, rot: 0, vr: 0.4, len: 9 * s, t: 0, brass: 1 }); }
   }
+  // brass flies out to the right on every rifle shot (carried, aimed or the painted firing frame)
+  { const aimAny = aimGun && (f === art.frames[A.aimFrame] || f === art.frames[A.aimFireFrame]), E = aimAny ? A.ejectAim : (f === art.frames[0] ? A.eject : null);
+    if (kick > 0.45 && E && !p.casingOut) { p.casingOut = true; const ex = cx + (-dw / 2 + E[0] * dw), ey = yb - dh + E[1] * dh; (G.shells = G.shells || []).push({ x: ex, y: ey, vx: (6 + Math.random() * 3) * s, vy: -(7 + Math.random() * 3) * s, rot: 0, vr: 0.4, len: 9 * s, t: 0, brass: 1 }); } }
   if (!kick) { p.casingOut = false; p.flashSeed = null; }
   if (!reloading) p.reloadSeg = -1;
   g.restore();

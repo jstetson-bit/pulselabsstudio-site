@@ -10,6 +10,13 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.21 (vc41) — 2026-11-22 — the Carbine comes up to the shoulder to fire
+- **Carry pose vs firing pose:** walking around, the Carbine is carried off to the right (the angled painting). The moment you fire, it comes up into the center, shouldered, sights down the middle (the centered painting), and stays there while you keep shooting. About two-thirds of a second after you stop, it drops back to the carry pose.
+- Full-auto alternates the painted firing frame with the aiming frame plus a painted star flash, so the flash flickers shot to shot; brass flies out to the right on every shot.
+- The aiming frame (no flash) is made from the firing painting for now; a clean painted one would be better (prompt given).
+- Why: James: "no, when he fires it moves into his chest centerd, that anlg eis the walking animation". The centered frame he sent earlier wasn't a mismatch; it was the firing pose.
+- Checked: carry → aim and fire → back to carry, captured; all demo maps and the Freedoom loader pass.
+
 ## v0.8.20 (vc40) — 2026-11-22 — the snap shut
 - **Painted closing frame:** at the end of the reload the gun shows the painted "just snapped shut" frame, then settles back to ready. The Coach Gun's animation is now painted end to end: ready, fire, recoil + smoke, open, shells out (2), load, close.
 

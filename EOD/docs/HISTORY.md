@@ -116,3 +116,4 @@ The story of how EOD came to be, in the owner's words where possible.
 - James, on GPT's firing frame with a big spiky star burst: *"ok he landed it"* → 0.8.18: that's the Coach Gun's firing frame; its star also joins the Carbine's flashes.
 - James sent the break-open frame without shells, two shells-flying frames and the loading frame again, and asked *"would you rather just the weapons in thier stages then the whole hallway?"* (answer: keep the hallway; the empty plate gives exact cuts and keeps placement) → 0.8.19: full painted reload.
 - James sent the closing frame (in the corridor, plus a larger copy on white) → 0.8.20: the Coach Gun is painted end to end.
+- James corrected the Carbine: *"no, when he fires it moves into his chest centerd, that anlg eis the walking animation"* → 0.8.21: carry pose while walking, shouldered center pose while firing.

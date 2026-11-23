@@ -1646,12 +1646,22 @@
    "cls": "repeater",
    "basis": 640,
    "frames": [
-    "w_carbine_1.png"
+    "w_carbine_1.png",
+    "w_carbine_2.png",
+    "w_carbine_3.png"
    ],
    "pick": "w_carbine_1.png",
    "place": [
     {
      "dx": 124,
+     "dy": 1
+    },
+    {
+     "dx": -49,
+     "dy": 1
+    },
+    {
+     "dx": -49,
      "dy": 1
     }
    ],
@@ -1666,7 +1676,18 @@
    "painted": true,
    "flash": "fx_muzzle_star.png",
    "flashW": 70,
-   "flashAlt": "fx_muzzle_star2.png"
+   "flashAlt": "fx_muzzle_star2.png",
+   "aimFrame": 2,
+   "aimFireFrame": 1,
+   "aimHold": 650,
+   "muzzleAim": [
+    0.595,
+    0.13
+   ],
+   "ejectAim": [
+    0.66,
+    0.4
+   ]
   }
  ]
 }
