@@ -10,6 +10,9 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.27 (vc47) — 2026-11-22 — Sawed-Off on the floor
+- The Sawed-Off in the UAC control room now sits on the floor in front of the desk, not on top of it. James: "i still cant reach this... just set it on the ground". (His screenshot showed 24 kills total, the pre-0.8.26 level, so the page was likely a cached copy; the floor spot works either way.)
+
 ## v0.8.26 (vc46) — 2026-11-22 — UAC Corridor more than doubled; items on ledges can be grabbed
 - **Pickups work like Doom now:** you grab an item when your body touches it and it sits anywhere between your feet and your head. Before, it had to be within 24 units of your floor height, so the Sawed-Off on the control-room desk (40 up) couldn't be taken. Applies to every map.
 - **UAC Corridor, part 2:** the old exit is now a big door north out of the hall, into:

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.47 — 2026-11-22
+- EOD 0.8.27: UAC Sawed-Off moved to the floor.
+
 ## v0.7.46 — 2026-11-22
 - EOD 0.8.26: UAC Corridor more than doubled (north corridor, storage room with blue key, blue door, reactor with sludge pit, exit room); items on ledges can be picked up.
 
