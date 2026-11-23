@@ -197,7 +197,7 @@ a.brand{color:var(--text);text-decoration:none}
 <script id="nsde-main">
 'use strict';
 /* EOD · Editor of Doom (engine from No Shit Doom Editor) — Pulse Labs Studio */
-const VERSION = '0.8.16', VC = 36;
+const VERSION = '0.8.17', VC = 37;
 const ORIGINAL_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4201,7 +4201,11 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
   }
   const kick = p.fireT > 0 ? (p.fireT / (p.fireT0 || 6)) : 0;
-  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.4 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame]; }
+  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.6 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame];
+    else if (A.recoilFrame != null && art.frames[A.recoilFrame]) { f = art.frames[A.recoilFrame]; lift += 6 * kick; rot += 0.03 * kick; } // the painted kick already lifts the gun
+    if (A.smoke && kick < 0.6 && !p.wispOut) { p.wispOut = true; const mf = art.frames[0], mdw = mf.w * sp, mdh = mf.h * sp, mcx = W / 2 + mf.place.dx * sp + bx;
+      (G.wisps = G.wisps || []).push({ x: mcx - mdw / 2 + A.muzzle[0] * mdw, y: H - hh + by - mdh + A.muzzle[1] * mdh, t: 0, s: sp, flip: Math.random() < 0.5 }); } }
+  if (!kick) p.wispOut = false;
   const dw = f.w * sp, dh = f.h * sp, cx = W / 2 + f.place.dx * sp + bx, yb = H - hh + by - f.place.dy * sp - lift * sp;
   g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   g.translate(cx, yb); g.rotate(rot); g.drawImage(f.im, -dw / 2, -dh, dw, dh);
@@ -4227,8 +4231,14 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     p.ejected = true; const fo = art.frames[(A.reload || [1])[0]] || f, odw = fo.w * sp, odh = fo.h * sp, ocx = W / 2 + fo.place.dx * sp + bx, oy = H - hh + by - fo.place.dy * sp - odh;
     A.bores.forEach(([bx2, by2], i) => { const x = ocx - odw / 2 + bx2 * odw, y = oy + by2 * odh, dir = i ? 1 : -1, r = (A.boreR || 0.035) * odw;
       (G.shells = G.shells || []).push({ x, y, vx: dir * (5 + Math.random() * 3) * s, vy: -(10 + Math.random() * 4) * s, rot: 0, vr: dir * (0.25 + Math.random() * 0.2), len: r * 2.8, t: 0 });
-      (G.smoke = G.smoke || []).push({ x, y, r: r * 0.5, t: 0 }); });
+      (G.smoke = G.smoke || []).push({ x, y, r: r * 0.3, t: 0 }); });
   }
+  // gun smoke curling up from the barrels after a shot (painted wisp), rising and fading
+  const wi = A.smoke && ARTL.img.get(A.smoke);
+  if (wi && G.wisps && G.wisps.length) { const now = performance.now(), dt = Math.min(3, ((now - (G.wispT || now)) / (1000 / 35)) || 1); G.wispT = now;
+    G.wisps = G.wisps.filter(q => (q.t += dt) < 40);
+    G.wisps.forEach(q => { const k = q.t / 40, ww = 105 * 0.9 * q.s * (0.8 + k * 0.5), wh = ww; g.save(); g.globalAlpha = 0.85 * (1 - k); g.imageSmoothingEnabled = false;
+      g.translate(q.x + (q.flip ? -1 : 1) * k * 10 * q.s, q.y - k * 30 * q.s); if (q.flip) g.scale(-1, 1); g.drawImage(wi, -ww * 0.3, -ww, ww, wh); g.restore(); }); }
   g.imageSmoothingEnabled = false; shellFx(g, W, H, s);
 }
 function drawCustomWeapon(g, W, H, u, bx, by) {
@@ -4768,7 +4778,7 @@ function artFilesFor(map) {
   return [...new Set(f)];
 }
 function monFiles(id) { const a = artMon(id); if (a && a.rots) { const o = []; for (let i = 1; i <= a.rots; i++) o.push('m_' + id + '_r' + i + '.png'); for (let i = 1; i <= (a.death || 0); i++) o.push('m_' + id + '_d' + i + '.png'); return o; } return ['m_' + id + '.png']; }
-function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj, a.flash].filter(Boolean); }
+function wepFiles(id) { const a = artWep(id); if (!a) return []; return [...(a.frames || []), a.pick, a.proj, a.flash, a.smoke].filter(Boolean); }
 function artPreload() {
   // maps that use Forge art carry their own copy (art + its description) so other players see it
   for (const d of [...Object.values(M.mon || {}), ...Object.values(M.wep || {})]) { const id = d.look && d.look.art; if (!id || !ARTL.forgeIds.has(id)) continue; const meta = artMon(id) || artWep(id); if (!meta) continue; M.artMeta = M.artMeta || {}; if (!M.artMeta[id]) M.artMeta[id] = Object.assign({}, meta, { kind: d.hp != null ? 'monster' : 'weapon' }); M.artData = M.artData || {}; for (const f of (meta.kind === 'weapon' || d.hp == null ? wepFiles(id) : monFiles(id))) if (ARTL.forge[f] && !M.artData[f]) M.artData[f] = ARTL.forge[f]; }
@@ -4849,7 +4859,7 @@ function artWepFrames(d, id) {
   if (fr.some(x => !x) || !pk || (a.proj && !pj)) return null;
   if (a.painted) { // full-color hand-painted frames (cut by tools/cut_weapon.py): drawn as they are, placed where the artist put them
     const frames = fr.map((im, i) => ({ painted: true, im, w: im.width, h: im.height, place: (a.place || [])[i] || { dx: 0, dy: 0 } }));
-    if (a.flash) artImg(a.flash); // start loading the muzzle flash picture
+    if (a.flash) artImg(a.flash); if (a.smoke) artImg(a.smoke); // start loading the muzzle flash picture
     const pp = artPixels(pk, L, Math.min(1, 72 / pk.width), false);
     return { painted: true, meta: a, basis: a.basis || 320, frames, idle: frames[0], fire: frames[0], pick: clayToSprite(pp, pp.w >> 1, pp.h, { dither: 2, rim: false, contrast: 1.0 }) };
   }

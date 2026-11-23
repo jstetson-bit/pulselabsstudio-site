@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.17 (vc37) — 2026-11-22 — Coach Gun recoil frame and gun smoke
+- **Recoil frame:** after the flash, the painted recoil frame (barrels kicked up) shows while the gun settles.
+- **Gun smoke:** the painted smoke wisp curls up from the barrels after each shot and fades; the puffs from the open breech on reload are smaller.
+- Not used: the photo-style muzzle flash sheet (it doesn't match the pixel art, and where it came from isn't known; anything bought or downloaded needs its licence before it goes in).
+- Checked: fire, recoil and smoke (screenshots); all demo maps and the Freedoom loader pass.
+
 ## v0.8.16 (vc36) — 2026-11-22 — painted firing frame and muzzle star
 - **Coach Gun firing frame:** the painted frame with a short star burst at both barrels now shows for the moment the gun goes off (a painted `fireFrame`). The first try (long flames) was left out; James: "i said it was too flamey".
 - **Painted muzzle star** (the pixel star burst James got from the image tool) is now the Carbine's muzzle flash, a little different in size and angle every shot.

@@ -1562,7 +1562,8 @@
     "w_coach_1.png",
     "w_coach_2.png",
     "w_coach_3.png",
-    "w_coach_4.png"
+    "w_coach_4.png",
+    "w_coach_5.png"
    ],
    "pick": "w_coach_1.png",
    "place": [
@@ -1580,6 +1581,10 @@
     },
     {
      "dx": 104,
+     "dy": 1
+    },
+    {
+     "dx": 103,
      "dy": 1
     }
    ],
@@ -1605,7 +1610,9 @@
    "painted": true,
    "flash": "fx_muzzle_star.png",
    "flashW": 120,
-   "fireFrame": 3
+   "fireFrame": 3,
+   "recoilFrame": 4,
+   "smoke": "fx_smoke_wisp.png"
   },
   {
    "id": "carbine",

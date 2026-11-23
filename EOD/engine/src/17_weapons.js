@@ -180,7 +180,11 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     } else { const t = Math.sin(Math.min(1, k) * Math.PI); lift = 70 * t; rot = 0.25 * t; } // no painted reload yet: dip down and back
   }
   const kick = p.fireT > 0 ? (p.fireT / (p.fireT0 || 6)) : 0;
-  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.4 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame]; }
+  if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.6 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame];
+    else if (A.recoilFrame != null && art.frames[A.recoilFrame]) { f = art.frames[A.recoilFrame]; lift += 6 * kick; rot += 0.03 * kick; } // the painted kick already lifts the gun
+    if (A.smoke && kick < 0.6 && !p.wispOut) { p.wispOut = true; const mf = art.frames[0], mdw = mf.w * sp, mdh = mf.h * sp, mcx = W / 2 + mf.place.dx * sp + bx;
+      (G.wisps = G.wisps || []).push({ x: mcx - mdw / 2 + A.muzzle[0] * mdw, y: H - hh + by - mdh + A.muzzle[1] * mdh, t: 0, s: sp, flip: Math.random() < 0.5 }); } }
+  if (!kick) p.wispOut = false;
   const dw = f.w * sp, dh = f.h * sp, cx = W / 2 + f.place.dx * sp + bx, yb = H - hh + by - f.place.dy * sp - lift * sp;
   g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   g.translate(cx, yb); g.rotate(rot); g.drawImage(f.im, -dw / 2, -dh, dw, dh);
@@ -206,8 +210,14 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
     p.ejected = true; const fo = art.frames[(A.reload || [1])[0]] || f, odw = fo.w * sp, odh = fo.h * sp, ocx = W / 2 + fo.place.dx * sp + bx, oy = H - hh + by - fo.place.dy * sp - odh;
     A.bores.forEach(([bx2, by2], i) => { const x = ocx - odw / 2 + bx2 * odw, y = oy + by2 * odh, dir = i ? 1 : -1, r = (A.boreR || 0.035) * odw;
       (G.shells = G.shells || []).push({ x, y, vx: dir * (5 + Math.random() * 3) * s, vy: -(10 + Math.random() * 4) * s, rot: 0, vr: dir * (0.25 + Math.random() * 0.2), len: r * 2.8, t: 0 });
-      (G.smoke = G.smoke || []).push({ x, y, r: r * 0.5, t: 0 }); });
+      (G.smoke = G.smoke || []).push({ x, y, r: r * 0.3, t: 0 }); });
   }
+  // gun smoke curling up from the barrels after a shot (painted wisp), rising and fading
+  const wi = A.smoke && ARTL.img.get(A.smoke);
+  if (wi && G.wisps && G.wisps.length) { const now = performance.now(), dt = Math.min(3, ((now - (G.wispT || now)) / (1000 / 35)) || 1); G.wispT = now;
+    G.wisps = G.wisps.filter(q => (q.t += dt) < 40);
+    G.wisps.forEach(q => { const k = q.t / 40, ww = 105 * 0.9 * q.s * (0.8 + k * 0.5), wh = ww; g.save(); g.globalAlpha = 0.85 * (1 - k); g.imageSmoothingEnabled = false;
+      g.translate(q.x + (q.flip ? -1 : 1) * k * 10 * q.s, q.y - k * 30 * q.s); if (q.flip) g.scale(-1, 1); g.drawImage(wi, -ww * 0.3, -ww, ww, wh); g.restore(); }); }
   g.imageSmoothingEnabled = false; shellFx(g, W, H, s);
 }
 function drawCustomWeapon(g, W, H, u, bx, by) {
