@@ -119,3 +119,4 @@ The story of how EOD came to be, in the owner's words where possible.
 - James corrected the Carbine: *"no, when he fires it moves into his chest centerd, that anlg eis the walking animation"* → 0.8.21: carry pose while walking, shouldered center pose while firing.
 - James, at the end of UAC Corridor with every monster dead: *"i cant advance any further and wtf is that skull thing in a baloon doing?"* → 0.8.22: the 32-unit ledge got a step; the skull in a bubble is Freedoom's Soulsphere.
 - James sent a redone centered firing frame for the Carbine (same rifle as the carry pose): *"this is better"* → 0.8.23.
+- James sent the Carbine's second firing frame (smaller flash) → 0.8.24.

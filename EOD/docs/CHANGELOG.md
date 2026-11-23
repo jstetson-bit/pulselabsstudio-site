@@ -10,6 +10,9 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.24 (vc44) — 2026-11-22 — Carbine second firing frame
+- **Full-auto flicker is all painted now:** the Carbine alternates the two painted firing frames (big flash / smaller flash) shot to shot, with the aiming frame between shots; brass still flies out to the right.
+
 ## v0.8.23 (vc43) — 2026-11-22 — the Carbine's new shouldered firing pose
 - **New firing pose art:** the shouldered Carbine is now the same rifle as the carry pose (carry handle, ribbed handguard, both hands on it), centered, with the painted flash and a casing; the earlier centered painting was a different-looking gun. The aiming frame (no flash) keeps the front sight and carry handle this time.
 - Why: James sent GPT's redo of the firing pose: "this is better".

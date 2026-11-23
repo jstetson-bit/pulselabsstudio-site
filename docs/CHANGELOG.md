@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.44 — 2026-11-22
+- EOD 0.8.24: Carbine alternates two painted firing frames.
+
 ## v0.7.43 — 2026-11-22
 - EOD 0.8.23: new shouldered firing pose art for the Carbine.
 

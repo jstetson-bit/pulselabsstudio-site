@@ -185,7 +185,7 @@ function drawPaintedWeapon(g, W, H, art, d, bx, by) {
   if (aimGun && !reloading && kick > 0) p.aimUntil = now + (A.aimHold || 600);
   const aiming = aimGun && !reloading && (kick > 0 || (p.aimUntil && now < p.aimUntil));
   if (aiming) { f = art.frames[A.aimFrame]; if (p.fireT === p.fireT0) p.shotAlt = !p.shotAlt;
-    if (kick > 0.5 && p.shotAlt && A.aimFireFrame != null && art.frames[A.aimFireFrame]) f = art.frames[A.aimFireFrame];
+    if (kick > 0.5 && A.aimFireFrame != null && art.frames[A.aimFireFrame]) { const fb = A.aimFireFrameB != null && art.frames[A.aimFireFrameB]; f = (p.shotAlt || !fb) ? art.frames[A.aimFireFrame] : fb; } // painted flashes A/B alternate shot to shot
     lift -= 4 * kick; }
   else if (!reloading && kick) { lift -= 10 * kick; rot -= 0.05 * kick; if (A.fireFrame != null && kick > 0.6 && art.frames[A.fireFrame]) f = art.frames[A.fireFrame];
     else if (A.recoilFrame != null && art.frames[A.recoilFrame]) { f = art.frames[A.recoilFrame]; lift += 6 * kick; rot += 0.03 * kick; } // the painted kick already lifts the gun
