@@ -1,6 +1,6 @@
 # EOD · Editor of Doom — Project Overview
 
-**Owner:** Pulse Labs Studio · **Version:** 0.8.13 · **Started:** 2026-11-16 · **Repo:** `editor-of-doom` (GitHub Pages)
+**Owner:** Pulse Labs Studio · **Version:** 0.8.14 · **Started:** 2026-11-16 · **Repo:** `editor-of-doom` (GitHub Pages)
 
 ## Goal
 A free, open web home for classic Doom mapping: an editor that feels like Ultimate Doom Builder, one-tap play on any device and input (touch, keyboard+mouse, Xbox/standard controllers), and a community map library + forums. Nothing like this existed when we checked (Nov 2026): DoomScroll plays WADs in a browser but has no editor or accounts; web editors (JZBuilder, WAD.js) are prototypes; SnapMap (Doom 2016) had the share/remix loop but only inside that game.

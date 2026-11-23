@@ -10,6 +10,12 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.14 (vc34) — 2026-11-22 — new level: UAC Corridor; weapon cutter tool
+- **New demo level, UAC Corridor (MAP08).** The hallway from the new gun paintings, made playable: a long grated-floor tech corridor with recessed orange ceiling lights, amber light slots low in the left wall and computer bays in the right. A control room off the right side (chaingunners, imps, the Sawed-Off, a chaingun, barrels to set off), then a big door into a hall with a raised back half, a cacodemon, chaingunners and a Hell Knight, and the exit switch on the far wall. Shotgun and armor at the start. On the hub page and at `?demo=uac`.
+- **Weapon cutter tool** `EOD/tools/cut_weapon.py`: takes painted first-person gun frames and cuts them out either against a flat color or against an empty copy of the same scene (a "plate"), sizes them for the game and records where each sat on screen. Ready for the double-barrel and carbine frames once the empty corridor comes back.
+- Why: James sent the GPT gun paintings (carbine, short double-barrel ready / break open / loading, a firing frame) and said "id be interested to play that level hes in though".
+- Checked: you can walk the corridor from the start to the big door; the control room, hall and exit are reachable; all demo maps and the Freedoom loader pass.
+
 ## v0.8.13 (vc33) — 2026-11-22 — shots go through the crosshair when you look up or down
 - **Bullets now leave the gun exactly through the crosshair.** When no monster is auto-aimed, a shot's climb came from a rough guess (look × 0.9) that didn't match the 3D view, so looking up sent bullets at a different angle than the crosshair showed. It now uses the same math as the view itself. Rockets, plasma and other projectiles too.
 - **Bullet puffs show where the bullet really hit.** The puff was always drawn at eye height on the wall it hit, no matter how high or low the bullet went. Looking up at a catwalk, the puffs showed low on the wall under it, like the shots were hitting the ground. Now they appear at the real impact point. Glass hit by a bullet cracks at the real height too.

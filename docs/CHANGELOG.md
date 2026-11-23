@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.7.34 — 2026-11-22
+- EOD 0.8.14: new demo level UAC Corridor (MAP08); weapon cutter tool.
+
 ## v0.7.33 — 2026-11-22
 - EOD 0.8.13: shots follow the crosshair when looking up/down; puffs at the real impact height.
 

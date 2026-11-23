@@ -6,6 +6,7 @@ const DEMO_MAPS = {
   hill: { name: 'King of Shit Hill', blurb: 'You hold the summit. Snipe, rocket and chaingun the horde in the valley below, thin them out, then fight your way down the ramp to the exit.', build: () => buildHillMap() },
   water: { name: "Kev's Water Plant Concept", blurb: "Kevin's idea, based on the Lake Bloomington water plant. Green sludge flows in. Fight inside, break the demon out of the plumbing and kill him, and the water runs blue again. Then fight your way out.", build: () => buildWaterMap() },
   chaingun: { name: 'Chaingun Carnage', blurb: 'You start at the far end with a chaingun and a mountain of bullets. Over 100 of them come for you. Burn it all down.', build: () => buildChaingunMap() },
+  uac: { name: 'UAC Corridor', blurb: 'The hallway from the new gun art, built to play: grated floor, orange ceiling lights, amber floor lights, computer bays, a control room and a hall at the end.', build: () => buildUacMap() },
   arena: { name: 'Bestiary Arena', blurb: 'An open-sky arena full of painted monsters from the art library, and painted guns to pick up.', build: () => buildArenaMap() }
 };
 function demoRect(x0, y0, x1, y1, props) { const s = drawShape(rectPts(x0, y0, x1, y1), true); if (props) Object.assign(M.sec[s], props); return s; }
@@ -113,6 +114,53 @@ function buildChaingunMap() {
   for (let i = 0; i < 4; i++) { T(2049, 150 + i * 240, 96); T(2046, 270 + i * 240, 96); }
   T(2013, 160, 200); T(2013, 864, 200); T(2012, 360, 60); T(2012, 664, 60); T(2012, 60, 140); T(2012, 964, 140); T(2019, 512, 60); T(8, 940, 220);
   T(1, 512, 140, 90);
+  compact();
+}
+/* UAC Corridor: the tech hallway from James's new gun paintings, made playable */
+function buildUacMap() {
+  M = emptyMap(); M.name = 'MAP08'; M.mon = {}; M.wep = {};
+  M.hint = 'UAC Corridor. Grab the shotgun, work up the hallway, clear the control room on the right (the Sawed-Off is in there), then open the big door at the end. Exit is on the far wall of the hall.';
+  const W = 'STARTAN3', TECH = 'STARTAN3';
+  const St = demoRect(0, 0, 384, 256, { fh: 0, ch: 128, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const C = demoRect(64, 256, 320, 1792, { fh: 0, ch: 128, li: 136, ft: 'FCGRATE1', ct: 'CEIL5_1' });
+  // recessed orange ceiling lights down the middle of the hallway
+  const lights = []; for (let y = 352; y < 1760; y += 256) lights.push(demoRect(160, y, 224, y + 64, { fh: 0, ch: 140, li: 224, ft: 'FCGRATE1', ct: 'TLITE6_6' }));
+  // computer bays in the right wall, amber light slots low in the left wall
+  const bays = [480, 992, 1504].map(y => demoRect(320, y, 344, y + 128, { fh: 24, ch: 104, li: 176, ft: 'FLAT20', ct: 'CEIL5_1' }));
+  const slots = []; for (let y = 416; y < 1760; y += 256) slots.push(demoRect(48, y, 64, y + 96, { fh: 8, ch: 28, li: 255, ft: 'FLAT20', ct: 'FLAT20' }));
+  // control room off the right side
+  const D2 = demoRect(320, 1184, 336, 1280, { fh: 0, ch: 128, li: 136, ft: 'FLAT20', ct: 'FLAT20' });
+  const R = demoRect(336, 1056, 832, 1472, { fh: 0, ch: 160, li: 160, ft: 'FLOOR0_6', ct: 'CEIL3_4' });
+  const Rdesk = demoRect(560, 1200, 720, 1264, { fh: 40, ch: 160, li: 176, ft: 'FLAT14', ct: 'CEIL3_4' });
+  // the big door and the hall
+  const D3 = demoRect(64, 1792, 320, 1808, { fh: 0, ch: 128, li: 136, ft: 'FLAT20', ct: 'FLAT20' });
+  const H = demoRect(-160, 1808, 544, 2400, { fh: 0, ch: 224, li: 168, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const Hup = demoRect(-160, 2144, 544, 2400, { fh: 32, ch: 224, li: 176, ft: 'FLOOR4_8', ct: 'CEIL3_5' });
+  const Ex = demoRect(128, 2400, 256, 2416, { fh: 32, ch: 136, li: 200 });
+  makeDoor(D2); makeDoor(D3);
+  const wall = { [St]: W, [C]: TECH, [R]: 'COMPTALL', [H]: W, [Hup]: W, [Ex]: W, [Rdesk]: 'COMPSTA1' };
+  bays.forEach(b => wall[b] = 'COMPSTA1'); slots.forEach(b => wall[b] = 'LITEYEL1');
+  demoWalls(wall);
+  const skin = { [Rdesk]: 'COMPSTA2', [Hup]: 'STEP1' }; bays.forEach(b => skin[b] = 'SHAWN2'); slots.forEach(b => skin[b] = TECH);
+  demoSkin(skin, 'SUPPORT3');
+  // the big door's faces
+  sectorLines(D3).forEach(li => { const L = M.l[li]; for (const sd of [L.s1, L.s2]) if (sd >= 0 && M.sd[sd].up !== '-') M.sd[sd].up = 'BIGDOOR2'; });
+  const k = demoLine(128, 2416, 256, 2416); if (k >= 0) { M.l[k].sp = 11; M.sd[M.l[k].s1].mid = 'SW1EXIT'; }
+  const SO = demoSawedOff(73);
+  const T = (type, x, y, a = 90, f = 7) => M.t.push({ x, y, a, type, f });
+  // start
+  T(1, 192, 96, 90); T(2001, 96, 190); T(2008, 290, 190); T(2018, 192, 210);
+  // hallway
+  T(3004, 150, 620, 270); T(3004, 250, 760, 270); T(3004, 190, 980, 270); T(9, 140, 1160, 270); T(9, 260, 1330, 270);
+  T(3001, 190, 1560, 270); T(3001, 120, 1700, 270); T(3002, 240, 1640, 270); T(58, 150, 1460, 270, 6);
+  T(2008, 100, 900); T(2012, 280, 1080); T(2048, 120, 1400);
+  // control room
+  T(65, 760, 1120, 180); T(65, 760, 1420, 180); T(3001, 480, 1110, 180); T(3001, 480, 1430, 180); T(3004, 640, 1340, 180); T(9, 650, 1140, 180);
+  T(SO, 640, 1232); T(2049, 420, 1240); T(2002, 780, 1260); T(2048, 780, 1310); T(2012, 420, 1300); T(2019, 800, 1080); T(2035, 380, 1100); T(2035, 380, 1410);
+  // the hall: a welcoming party
+  T(3001, -60, 1960, 0); T(3001, 440, 1960, 180); T(9, 80, 2240, 270); T(9, 300, 2240, 270); T(3002, 190, 2000, 270); T(3002, 250, 2060, 270);
+  T(3005, 190, 2300, 270, 6); T(65, -100, 2300, 270); T(65, 480, 2300, 270); T(69, 190, 2340, 270, 4);
+  T(2046, -120, 1860); T(2049, 500, 1860); T(2012, 190, 2200); T(2013, -120, 2360, 90, 6);
   compact();
 }
 /* give two-sided lines their upper/lower textures (steps, ledges, pools) from a per-sector table */
