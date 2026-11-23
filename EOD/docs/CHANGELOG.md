@@ -10,6 +10,9 @@
 - Built-in node builder so exported WADs also run in Chrome/Chocolate Doom
 - Everything queued for the engine in No Shit Doom Editor (curve/grid drawing, blockmap speed-up, grates)
 
+## v0.8.20 (vc40) — 2026-11-22 — the snap shut
+- **Painted closing frame:** at the end of the reload the gun shows the painted "just snapped shut" frame, then settles back to ready. The Coach Gun's animation is now painted end to end: ready, fire, recoil + smoke, open, shells out (2), load, close.
+
 ## v0.8.19 (vc39) — 2026-11-22 — the Coach Gun's full painted reload
 - **The whole reload is painted now:** break open (clean frame), the two spent shells kicking out (two painted frames), then our shells carry on from exactly where the painting left them and tumble away, then the loading frame, then the snap shut. Sequence: fire → recoil + smoke → open → shells → shells → load → close.
 - Reload frames can be weighted (`reloadW`) and painted shells hand off to the game's falling shells (`shellsOut`).
