@@ -1,0 +1,84 @@
+{
+ "name": "PLS Sound",
+ "systems": [
+  "Windows PC"
+ ],
+ "tagline": "Record what your PC plays, straight to MP3.",
+ "overview": "PLS Sound is the Pulse sound recorder and player. Press Record and it captures whatever your PC plays (a video, a browser tab, a game) exactly as you hear it, with no microphone and no room noise, or records your microphone. It saves a real MP3 at up to 320 kbps using Windows' own encoder. The player joins it next; a phone version comes later.",
+ "capabilities": [
+  {
+   "id": "whats-playing",
+   "title": "Records what's playing",
+   "text": "Anything your PC plays, exactly as you hear it. No microphone, no room noise.",
+   "proofs": [
+    {
+     "file": "proofs/recorder-v0.1.1.png",
+     "kind": "image",
+     "caption": "A 3-second recording of what was playing, saved as MP3 (farm test PC)",
+     "version": "0.1.1",
+     "captured": "Nov 24, 2026"
+    }
+   ]
+  },
+  {
+   "id": "microphone",
+   "title": "Records your microphone",
+   "text": "Pick Microphone and press Record.",
+   "proofs": []
+  },
+  {
+   "id": "mp3",
+   "title": "Straight to MP3, up to 320 kbps",
+   "text": "128, 192, 256 or 320 kbps, made by Windows' own MP3 encoder. Nothing extra to install.",
+   "proofs": [
+    {
+     "file": "proofs/recorder-v0.1.1.png",
+     "kind": "image",
+     "caption": "MP3 quality picked at the top: 320 kbps",
+     "version": "0.1.1",
+     "captured": "Nov 24, 2026"
+    }
+   ]
+  },
+  {
+   "id": "any-card",
+   "title": "Works with any sound card",
+   "text": "High-end cards at 96 or 192 kHz are converted for MP3; surround comes down to stereo.",
+   "proofs": []
+  },
+  {
+   "id": "meters",
+   "title": "Level meters and a clock",
+   "text": "See the sound coming in and how long you've recorded.",
+   "proofs": []
+  },
+  {
+   "id": "recordings",
+   "title": "Your recordings, one click away",
+   "text": "Every recording is listed with its length and size: play it, show it in its folder, or change where they're saved.",
+   "proofs": [
+    {
+     "file": "proofs/recorder-150pct-v0.1.1.png",
+     "kind": "image",
+     "caption": "The recordings list on a 150 % scaled screen",
+     "version": "0.1.1",
+     "captured": "Nov 24, 2026"
+    }
+   ]
+  },
+  {
+   "id": "only-on-record",
+   "title": "Records only when you press Record",
+   "text": "Never in the background. Closing the window while recording saves the recording first.",
+   "proofs": []
+  },
+  {
+   "id": "offline",
+   "title": "Offline, light",
+   "text": "No internet, no account. About 21 MB of memory while recording.",
+   "proofs": []
+  }
+ ],
+ "demo": null,
+ "note": "Proofs come from the farm's Windows test PC. Please record only what you're allowed to: many sites, YouTube included, don't permit copying their sound except for your own personal use."
+}
