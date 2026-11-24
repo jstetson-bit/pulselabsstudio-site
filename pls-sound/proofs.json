@@ -3,14 +3,55 @@
  "systems": [
   "Windows PC"
  ],
- "tagline": "Record what your PC plays, straight to MP3.",
- "overview": "PLS Sound is the Pulse sound recorder and player. Press Record and it captures whatever your PC plays (a video, a browser tab, a game) exactly as you hear it, with no microphone and no room noise, or records your microphone. It saves a real MP3 at up to 320 kbps using Windows' own encoder. The player joins it next; a phone version comes later.",
+ "tagline": "Play anything. Record what your PC plays. Straight to MP3.",
+ "overview": "PLS Sound is the Pulse sound player and recorder for Windows. The player plays your music, recordings and the sound of videos, and turns any of them into an MP3. The recorder captures whatever your PC plays (a video, a browser tab, a game) exactly as you hear it, with no microphone and no room noise, or your microphone, straight to MP3 at up to 320 kbps. A phone version comes later.",
  "capabilities": [
+  {
+   "id": "player",
+   "title": "Plays music and videos' sound",
+   "text": "MP3, WAV, M4A/AAC, WMA and FLAC, and the sound of MP4, MOV, WMV and MKV videos. The video's pictures are never decoded, so it stays light.",
+   "proofs": [
+    {
+     "file": "proofs/player-v0.2.0.png",
+     "kind": "image",
+     "caption": "Playing a 4-second test tone: 0:02 of 0:04, meters live (farm test PC)",
+     "version": "0.2.0",
+     "captured": "Nov 24, 2026"
+    }
+   ]
+  },
+  {
+   "id": "playlist",
+   "title": "A playlist that remembers",
+   "text": "Open files or drag files and whole folders in; the next song starts by itself; Previous and Next; the list is kept for next time.",
+   "proofs": [
+    {
+     "file": "proofs/player-v0.2.0.png",
+     "kind": "image",
+     "caption": "The playing song marked in red in the playlist",
+     "version": "0.2.0",
+     "captured": "Nov 24, 2026"
+    }
+   ]
+  },
+  {
+   "id": "save-mp3",
+   "title": "Save sound as MP3",
+   "text": "Turns songs or videos into MP3s at the quality you pick, with a running percentage. Your original is never touched.",
+   "proofs": []
+  },
   {
    "id": "whats-playing",
    "title": "Records what's playing",
    "text": "Anything your PC plays, exactly as you hear it. No microphone, no room noise.",
    "proofs": [
+    {
+     "file": "proofs/recorder-v0.2.0.png",
+     "kind": "image",
+     "caption": "The recorder: What's playing, MP3 quality 320 kbps, and the new recording in the list",
+     "version": "0.2.0",
+     "captured": "Nov 24, 2026"
+    },
     {
      "file": "proofs/recorder-v0.1.1.png",
      "kind": "image",
