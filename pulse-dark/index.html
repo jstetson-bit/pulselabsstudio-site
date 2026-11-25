@@ -25,9 +25,40 @@
 <div class="wrap">
   <h1 style="margin-bottom:4px;color:#e63329">Pulse Dark</h1>
   <div class="sys"><span class="badge">Chrome extension</span></div>
-  <p class="sub" style="margin-top:12px"><b>Dark mode for every website. Free, unlimited, private.</b> Pages go dark as they load,
-  photos and buttons keep their colors, and nothing about you ever leaves your browser. <a href="privacy.html">Privacy: nothing collected, nothing sent.</a></p>
-  <div class="soon" style="margin:14px 0">Free. Version 1.0.27 is on our <a href="../downloads.html">downloads page</a>; the Chrome Web Store listing is coming.</div>
+  <p class="sub" style="margin-top:12px"><b>Dark mode for every website.</b> Pages go dark as they load,
+  photos and buttons keep their colors, and nothing you browse ever leaves your browser. <a href="privacy.html">Privacy</a></p>
+
+  <div class="grid" style="margin:14px 0 6px">
+    <div class="card">
+      <div class="price">Free <span class="badge">forever</span></div>
+      <ul style="margin:10px 0 0;padding-left:18px">
+        <li>Dark mode on every website, unlimited</li>
+        <li>Smart dark engine, plus "Try another way" when a page needs it</li>
+        <li>On or off per site, brightness and contrast</li>
+        <li>Knows when a site is already dark</li>
+        <li>Readable everything: menus, choices, prices, maps</li>
+        <li>Built-in fixes for about 2,800 sites, plus our own daily fixes</li>
+        <li>Warns you if another dark extension is fighting it</li>
+        <li>The ◐ invert eye</li>
+        <li><b>Report this page</b>: one click sends us a page that doesn't look right</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:#e63329">
+      <div class="price">Pro <span style="color:#e63329">$14.99</span> <span class="badge">one time</span></div>
+      <p class="sub" style="margin:6px 0 0">Tax included. No subscription, ever. Pay once, keep it, updates included.</p>
+      <ul style="margin:10px 0 0;padding-left:18px">
+        <li><b>Pick and recolor</b>: point at any part of a page and choose its color</li>
+        <li><b>Uniform</b> and <b>Flatten</b>: one calm color for a whole site, banners included</li>
+        <li>All themes plus the Theme Creator</li>
+        <li>Loadouts, and schedules (sunset, set times, evening warmth)</li>
+        <li>Screen shader, fonts and text outline</li>
+        <li>Your own CSS per site, backup and restore</li>
+      </ul>
+      <p class="sub" style="margin:10px 0 0">Try every Pro feature free for 14 days. 30-day refund, no questions. <a href="../refund.html">Refund policy</a></p>
+      <div id="pdBuy" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <div class="soon" style="margin:14px 0">Free version on our <a href="../downloads.html">downloads page</a>; the Chrome Web Store listing is coming.</div>
   <div id="pf"></div>
 </div>
 
@@ -40,6 +71,18 @@
   <p>◐ flips the colors.</p>
 </div></div>
 <footer class="wrap" style="padding-top:16px">© 2026 Pulse National LLC · Pulse Labs Studio. Our order process is conducted by our online reseller Paddle.com, the Merchant of Record for all our orders. · <a href="../privacy.html">Privacy Policy</a> · <a href="privacy.html">Pulse Dark privacy</a></footer>
-<script>PLS.header(); PLSProofs.render();</script>
+<script>PLS.header(); PLSProofs.render();
+// Pro buy button: live once the store is open (Paddle + the catalog), "opening soon" until then
+(function () {
+  var box = document.getElementById('pdBuy');
+  if (!PLS.ready) { box.innerHTML = '<span class="badge">Pro opens soon</span>'; return; }
+  PLS.catalog().then(function (list) {
+    var p = (list || []).filter(function (x) { return x.id === 'pulse-dark-pro'; })[0];
+    if (!p) { box.innerHTML = '<span class="badge">Pro opens soon</span>'; return; }
+    box.innerHTML = '<button class="btn" data-add="pulse-dark-pro">Add Pulse Dark Pro to cart</button>';
+    box.querySelector('button').onclick = function () { PLS.add('pulse-dark-pro'); location.href = '../cart.html'; };
+  }).catch(function () { box.innerHTML = '<span class="badge">Pro opens soon</span>'; });
+})();
+</script>
 </body>
 </html>

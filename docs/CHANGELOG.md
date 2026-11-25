@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.8.0 — 2026-11-25
+- Paddle-ready legal pages: **Terms** (terms.html), **Refund policy** (refund.html: 30 days, no questions), and a rewritten
+  **Privacy** page that tells the truth about the store, accounts and reports (EVA Clock / PLS Clock HUD section kept as it was).
+  The private contact email on the old Privacy page and the home page is replaced with support@pulselabsstudio.com.
+- Every page footer links Terms, Refund policy and Privacy.
+- Pulse Dark page: Free vs Pro ($14.99 one time, tax included, 14-day trial, 30-day refund), with the Pro buy button that
+  turns on once the store is open. Pulse Dark privacy page rewritten for 1.1.0 (Report this page, daily fixes list, Pro unlock).
+- Store backend for Pulse Dark: migration 002 (pulse-dark-pro product, admins, page_reports, site_fixes, private
+  report-picture bucket), Edge Functions `page-report` (checks, rate limit, 180-day keep, also writes a farm ticket) and
+  `key-status` (refund check for Pulse keys), and the admin page admin/reports.html (see each report with its screenshot,
+  set its status, write and publish a site fix that every Pulse Dark downloads within a day).
+- pls-store.js exposes `PLS.call` for our own pages.
+
 ## v0.7.48 — 2026-11-22
 - EOD 0.8.28 + EOD Classic 0.1.0: the compatibility editor at /EOD/classic.html (Vanilla, Boom, MBF21, ID24, UDMF) with a real node builder; hub link added.
 

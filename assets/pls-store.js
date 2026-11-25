@@ -33,6 +33,7 @@
         });
       });
   }
+  S.call = call; // for pages of our own (admin)
   S.session = function () { return LS.get('pls.session'); };
   function keep(s) { if (s && s.access_token) { s.expires_at = s.expires_at || Math.floor(Date.now() / 1000) + (s.expires_in || 3600); LS.set('pls.session', s); } return s; }
   S.user = function () { var s = S.session(); return s && s.user; };

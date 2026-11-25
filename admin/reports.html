@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Reports · Pulse Labs admin</title>
+<link rel="stylesheet" href="../assets/pls.css">
+<script src="../store-config.js"></script>
+<script src="../assets/pls-store.js"></script>
+<style>
+  .tabs { display:flex; gap:8px; margin:10px 0 16px; flex-wrap:wrap; }
+  .tabs button { background:var(--panel2); color:#fff; border:1px solid var(--line); border-radius:999px; padding:8px 14px; font:inherit; font-weight:700; cursor:pointer; }
+  .tabs button.on { border-color:var(--red); }
+  .rep { display:grid; grid-template-columns: 1fr 360px; gap:14px; }
+  @media (max-width:820px) { .rep { grid-template-columns:1fr; } }
+  .rep img { width:100%; border-radius:10px; border:1px solid var(--line); cursor:zoom-in; }
+  .kv { font-size:13px; color:#fff; word-break:break-all; }
+  .note { white-space:pre-wrap; background:var(--panel2); border-radius:10px; padding:10px; margin:8px 0; }
+  .st { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .st button { background:transparent; color:#fff; border:1px solid var(--red); border-radius:999px; padding:6px 12px; font:inherit; cursor:pointer; }
+  .st button.on { background:var(--red); }
+  textarea, input.t { width:100%; background:var(--panel2); color:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; font:13px ui-monospace,Consolas,monospace; }
+  textarea { min-height:140px; }
+  #editor { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; overflow:auto; z-index:30; }
+  #editor.open { display:block; }
+  #editor .box { max-width:760px; margin:24px auto; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; }
+  .btns { display:flex; gap:12px; justify-content:flex-end; margin-top:12px; }
+  label { display:block; margin:10px 0 4px; font-weight:700; }
+  #big { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; z-index:40; cursor:zoom-out; }
+  #big img { max-width:100%; max-height:100%; display:block; margin:auto; }
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="../index.html"><span>Pulse Labs · Reports</span></a>
+  <nav><a class="nav" href="../account.html">Account</a></nav>
+</header>
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <button data-v="new" class="on">New</button><button data-v="fixing">Being fixed</button><button data-v="fixed">Fixed</button>
+    <button data-v="all">All reports</button><button data-v="fixes">Published fixes</button>
+  </div>
+  <div id="msg" class="msg"></div>
+  <div id="list"></div>
+</div>
+
+<div id="editor" role="dialog" aria-modal="true"><div class="box">
+  <div class="btns" style="justify-content:space-between;margin:0 0 6px">
+    <h2 style="margin:0">Site fix</h2>
+    <span><button class="round ok" id="fxSave" aria-label="Save the fix">✔</button> <button class="round undo" id="fxCancel" aria-label="Cancel">↶</button></span>
+  </div>
+  <label><input type="checkbox" id="fxPub" checked> Published: every Pulse Dark gets it within a day</label>
+  <label for="fxHosts">Sites (one per line: doordash.com, *.ebay.com)</label>
+  <textarea id="fxHosts" style="min-height:60px"></textarea>
+  <label for="fxCss">Style rules for dark mode on those sites</label>
+  <textarea id="fxCss" placeholder=".cart-pill { background-color: #2a2d33 !important; }"></textarea>
+  <label for="fxInv">Parts to flip (selectors, one per line)</label>
+  <textarea id="fxInv" style="min-height:60px"></textarea>
+  <label for="fxNoInv">Parts never to flip (selectors, one per line)</label>
+  <textarea id="fxNoInv" style="min-height:60px"></textarea>
+  <label for="fxNotes">Notes (report ids, why)</label>
+  <input class="t" id="fxNotes">
+  <div class="msg" id="fxMsg"></div>
+</div></div>
+<div id="big"><img alt=""></div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, esc = PLS.esc, view = 'new', editing = null, fromReport = null;
+  var when = function (iso) { var d = new Date(iso); return d.toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' }) + ' ET'; };
+  function msg(t, bad) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (bad ? ' err' : ''); }
+  if (!PLS.ready) { msg('The store database isn\'t connected yet (store-config.js).', true); return; }
+  if (!PLS.session()) { location.href = '../account.html'; return; }
+
+  function shotUrl(path) {
+    return PLS.call('/storage/v1/object/sign/reports/' + encodeURIComponent(path), { method: 'POST', body: { expiresIn: 3600 } })
+      .then(function (j) { return PLS_STORE.supabaseUrl + '/storage/v1' + j.signedURL; }).catch(function () { return ''; });
+  }
+  function load() {
+    msg('Loading…'); $('list').innerHTML = '';
+    if (view === 'fixes') return loadFixes();
+    var q = '/rest/v1/page_reports?select=*&order=created_at.desc&limit=100' + (view === 'all' ? '' : '&status=eq.' + view);
+    PLS.call(q).then(function (rows) {
+      msg(rows.length ? '' : 'Nothing here.');
+      rows.forEach(function (r) {
+        var d = document.createElement('div'); d.className = 'card'; d.style.marginBottom = '14px';
+        var set = r.settings || {};
+        d.innerHTML = '<div class="rep"><div>' +
+          '<div style="font-weight:800;font-size:18px">' + esc(r.host) + '</div>' +
+          '<div class="kv"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.url) + '</a></div>' +
+          '<div class="kv" style="margin-top:4px">' + esc(when(r.created_at)) + ' · ' + esc(r.id) + ' · v' + esc(r.version) + '</div>' +
+          (r.note ? '<div class="note">' + esc(r.note) + '</div>' : '<div class="note" style="opacity:.7">(no note)</div>') +
+          '<div class="kv">Settings: ' + esc(Object.keys(set).map(function (k) { return k + ': ' + JSON.stringify(set[k]); }).join(' · ')) + '</div>' +
+          '<div class="kv">Browser: ' + esc(r.browser) + '</div>' +
+          '<div class="st">' + ['new', 'fixing', 'fixed', 'wontfix', 'duplicate'].map(function (s) {
+            return '<button data-s="' + s + '" class="' + (r.status === s ? 'on' : '') + '">' + ({ new: 'New', fixing: 'Being fixed', fixed: 'Fixed', wontfix: 'Won\'t fix', duplicate: 'Duplicate' })[s] + '</button>'; }).join('') + '</div>' +
+          '<div class="btns" style="justify-content:flex-start"><button class="btn" data-fix>Write a fix for ' + esc(r.host) + '</button></div>' +
+          '</div><div class="shot">' + (r.shot_path ? 'Loading screenshot…' : '<span class="badge">No screenshot sent</span>') + '</div></div>';
+        $('list').appendChild(d);
+        if (r.shot_path) shotUrl(r.shot_path).then(function (u) {
+          d.querySelector('.shot').innerHTML = u ? '<img alt="Screenshot from the report" src="' + esc(u) + '">' : '<span class="badge">Screenshot unavailable</span>';
+          var im = d.querySelector('.shot img'); if (im) im.onclick = function () { $('big').querySelector('img').src = u; $('big').style.display = 'block'; };
+        });
+        d.querySelectorAll('.st button').forEach(function (b) { b.onclick = function () {
+          PLS.call('/rest/v1/page_reports?id=eq.' + encodeURIComponent(r.id), { method: 'PATCH', body: { status: b.getAttribute('data-s') } })
+            .then(function () { r.status = b.getAttribute('data-s'); d.querySelectorAll('.st button').forEach(function (x) { x.classList.toggle('on', x === b); }); })
+            .catch(function (e) { msg('Couldn\'t change it: ' + e.message, true); });
+        }; });
+        d.querySelector('[data-fix]').onclick = function () { openFix(null, r); };
+      });
+    }).catch(function (e) { msg(e.status === 401 || e.status === 403 ? 'Sign in with the admin account.' : 'Couldn\'t load: ' + e.message, true); });
+  }
+  function loadFixes() {
+    PLS.call('/rest/v1/site_fixes?select=*&order=updated_at.desc').then(function (rows) {
+      msg(rows.length ? '' : 'No fixes yet.');
+      rows.forEach(function (f) {
+        var d = document.createElement('div'); d.className = 'card'; d.style.marginBottom = '12px';
+        d.innerHTML = '<div style="font-weight:800">' + esc(f.hosts.join(', ')) + ' ' + (f.published ? '<span class="badge">published</span>' : '<span class="badge">draft</span>') + '</div>' +
+          '<div class="kv">' + esc(when(f.updated_at)) + (f.notes ? ' · ' + esc(f.notes) : '') + '</div>' +
+          '<pre class="note" style="font-size:12px">' + esc((f.css || '') + (f.invert ? '\nINVERT:\n' + f.invert : '') + (f.no_invert ? '\nNO INVERT:\n' + f.no_invert : '')) + '</pre>' +
+          '<button class="btn ghost" data-e>Edit</button>';
+        d.querySelector('[data-e]').onclick = function () { openFix(f, null); };
+        $('list').appendChild(d);
+      });
+    }).catch(function (e) { msg('Couldn\'t load: ' + e.message, true); });
+  }
+  function openFix(f, r) {
+    editing = f; fromReport = r;
+    $('fxHosts').value = f ? f.hosts.join('\n') : r.host.replace(/^www\./, '');
+    $('fxCss').value = f ? f.css : ''; $('fxInv').value = f ? f.invert : ''; $('fxNoInv').value = f ? f.no_invert : '';
+    $('fxNotes').value = f ? f.notes : r.id; $('fxPub').checked = f ? f.published : true; $('fxMsg').textContent = '';
+    $('editor').classList.add('open');
+  }
+  $('fxCancel').onclick = function () { $('editor').classList.remove('open'); };
+  $('fxSave').onclick = function () {
+    var body = { hosts: $('fxHosts').value.split(/\s*[\n,]\s*/).map(function (s) { return s.trim().toLowerCase(); }).filter(Boolean),
+                 css: $('fxCss').value, invert: $('fxInv').value.trim(), no_invert: $('fxNoInv').value.trim(), notes: $('fxNotes').value.trim(), published: $('fxPub').checked };
+    if (!body.hosts.length) { $('fxMsg').textContent = 'Name at least one site.'; return; }
+    if (/<\s*\/?\s*script|javascript:|expression\(|@import|url\(\s*['"]?\s*https?:/i.test(body.css)) { $('fxMsg').textContent = 'Style rules only: no scripts, imports or outside pictures.'; return; }
+    var p = editing ? PLS.call('/rest/v1/site_fixes?id=eq.' + editing.id, { method: 'PATCH', prefer: 'return=representation', body: body })
+                    : PLS.call('/rest/v1/site_fixes', { method: 'POST', prefer: 'return=representation', body: body });
+    p.then(function (rows) {
+      var id = rows && rows[0] && rows[0].id;
+      if (fromReport) return PLS.call('/rest/v1/page_reports?id=eq.' + encodeURIComponent(fromReport.id), { method: 'PATCH', body: { status: body.published ? 'fixed' : 'fixing', fix_id: id } });
+    }).then(function () { $('editor').classList.remove('open'); PLS.toast(body.published ? 'Fix published: every Pulse Dark gets it within a day' : 'Fix saved as a draft'); load(); })
+      .catch(function (e) { $('fxMsg').textContent = 'Couldn\'t save: ' + e.message; });
+  };
+  $('big').onclick = function () { $('big').style.display = 'none'; };
+  $('tabs').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; view = b.getAttribute('data-v');
+    $('tabs').querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); load(); };
+  load();
+})();
+</script>
+</body>
+</html>
