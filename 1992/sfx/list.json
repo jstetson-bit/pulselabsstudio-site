@@ -1,0 +1,9 @@
+{
+ "engine": "engine-loop.ogg",
+ "burnerLoop": "burner-loop.ogg",
+ "prop": "prop-loop.ogg",
+ "boom": "boom.ogg",
+ "cannon": "cannon.ogg",
+ "flare": "flare.ogg",
+ "launch_motor": "launch-motor.ogg"
+}
