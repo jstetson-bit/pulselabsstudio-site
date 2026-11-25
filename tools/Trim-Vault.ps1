@@ -11,9 +11,9 @@
       powershell -NoProfile -ExecutionPolicy Bypass -File <site>\tools\Trim-Vault.ps1            # trims
       powershell -NoProfile -ExecutionPolicy Bypass -File <site>\tools\Trim-Vault.ps1 -DryRun    # shows only
   Also removes encrypted files on the vault release that nothing on the list points to any more.
-  -Keep N keeps the newest N per shelf (default 1).
+  -Keep N keeps the newest N per shelf (default 3: the newest and 2 before it; owner, 2026-11-24 22:11).
 #>
-param([int]$Keep = 1, [string]$KeyPath, [string]$RepoPath, [string]$Repo = 'jstetson-bit/pulselabsstudio-site', [switch]$DryRun)
+param([int]$Keep = 3, [string]$KeyPath, [string]$RepoPath, [string]$Repo = 'jstetson-bit/pulselabsstudio-site', [switch]$DryRun)
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\PlsVault.ps1"; . "$PSScriptRoot\PlsSite.ps1"
 if (-not $KeyPath) { $KeyPath = Get-PlsDefaultKeyPath }

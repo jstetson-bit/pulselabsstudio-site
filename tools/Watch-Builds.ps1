@@ -95,7 +95,7 @@ try {
 
   # Every build the site doesn't have yet (by its farm Release), newest first. The newest $Keep per shelf are
   # downloaded and stored; older ones become history entries (changelog + link to their farm Release) without a file.
-  $Keep = $(if ($env:PLS_KEEP_PER_SHELF) { [int]$env:PLS_KEEP_PER_SHELF } else { 1 })
+  $Keep = $(if ($env:PLS_KEEP_PER_SHELF) { [int]$env:PLS_KEEP_PER_SHELF } else { 3 })
   $todo = @()
   foreach ($key in @($cands.Keys)) {
     $cur = $have[$key]
