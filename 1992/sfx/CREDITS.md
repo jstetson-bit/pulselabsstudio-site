@@ -11,3 +11,6 @@
 
 Fetched by the farm (RTZERO1, ticket 20261123-223015-any-1992-sounds-2), branch 1992-sfx-inbox-20261123-213107.
 Warning tones, turbine whistle, hum, wind, air brake, roll and the A-10's cannon are made in code.
+
+## 1992 sound pack (v0.0.55)
+51 sounds from the Pulse Labs 1992 audio pack (PLS_1992_Audio_300, V002–V004: original procedural prototypes made for this game), chosen, trimmed of lead/tail silence, peak-normalized to -1 dB, mono 44.1 kHz OGG Vorbis q3. Listed in `pack.json` (key → takes; the game picks a random take each time).
