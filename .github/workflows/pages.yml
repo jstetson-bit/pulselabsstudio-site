@@ -19,11 +19,10 @@ concurrency:
   group: site-deploy-main
   cancel-in-progress: true
 jobs:
-  deploy:
+  # Two jobs, the standard Pages pattern: since 2026-11-24 15:20 ET the one-job version uploaded the site fine, then
+  # deploy-pages ran a second later and found "0 artifacts" (the upload wasn't listed yet), so every publish failed.
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - name: Assemble site
@@ -49,5 +48,12 @@ jobs:
           fi
           du -sh _site
       - uses: actions/upload-pages-artifact@v3
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
       - id: deploy
         uses: actions/deploy-pages@v4

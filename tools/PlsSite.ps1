@@ -52,7 +52,7 @@ function New-PlsBlobName { (((Get-PlsRandom 10) | ForEach-Object { $_.ToString('
 #>
 function Invoke-PlsPublish {
   param([Parameter(Mandatory)]$Updates, [Parameter(Mandatory)][string]$RepoPath, [Parameter(Mandatory)][byte[]]$MK,
-        [string]$Repo = 'jstetson-bit/pulselabsstudio-site', [string]$Message = 'Vault: publish', $Watcher, [int]$Keep = $(if ($env:PLS_KEEP_PER_SHELF) { [int]$env:PLS_KEEP_PER_SHELF } else { 8 }), $Tickets, [switch]$DryRun, [scriptblock]$Log = { param($m) Write-Host "[publish] $m" -ForegroundColor Cyan })
+        [string]$Repo = 'jstetson-bit/pulselabsstudio-site', [string]$Message = 'Vault: publish', $Watcher, [int]$Keep = $(if ($env:PLS_KEEP_PER_SHELF) { [int]$env:PLS_KEEP_PER_SHELF } else { 3 }), $Tickets, [switch]$DryRun, [scriptblock]$Log = { param($m) Write-Host "[publish] $m" -ForegroundColor Cyan })
   $work = Join-Path ([IO.Path]::GetTempPath()) ('pls-seal-' + (New-PlsBlobName).Replace('.bin',''))
   New-Item -ItemType Directory -Force $work | Out-Null
   $upload = New-Object Collections.ArrayList; $retire = New-Object Collections.ArrayList
