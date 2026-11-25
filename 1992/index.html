@@ -173,7 +173,8 @@ body.demo .top{display:none!important} body.demo #dPause{left:auto;right:max(12p
 <div id="dpad" class="hidden"><div class="drow brow"><button id="dRoll" class="sh" data-name="ROLL" aria-label="Barrel roll">LB</button><button id="dBurn" class="sh" data-name="BURN" aria-label="Afterburner">RB</button></div><div id="dia"><button id="dBomb" class="fb fy" data-name="BOMB" aria-label="Drop the bomb">Y</button><button id="dGun" class="fb fx" data-name="GUN" aria-label="Guns: hold to fire">X</button><button id="dMsl" class="fb fbb" data-name="MISSILE" aria-label="Fire a missile">B</button><button id="dWing" class="fb fa" data-name="WING" aria-label="Call a wingman">A</button></div></div>
 
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
-<div id="ver">1992 · concept v0.0.57 · Pulse Labs Studio</div>
+<div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
+<div id="ver">1992 · concept v0.0.58 · Pulse Labs Studio</div>
 
 <div class="sheet" id="start" style="align-items:flex-end;background:transparent;padding:8px"><div class="box" id="rrBox" style="max-width:520px;padding:12px 14px">
   <div class="keep" style="margin-bottom:8px"><button class="pill" id="demoB" style="width:100%;font-size:18px;box-shadow:0 0 14px #e63329">( ▶ PLAY · STAGE 1 )</button></div>
@@ -511,7 +512,7 @@ const AIRCRAFT=[
  {id:'m1',name:'M1A1 Abrams',yr:'Main battle tank · tank missions',role:'Tank missions',ground:1,r:7,warn:'Tank missions (with an artillery-duel nod) come in a later build.'},
  {id:'hmv',name:'Humvee + gunner',yr:'Dropped from the C-5, then you drive',role:'Ground run',ground:1,r:5,warn:'The airdrop-and-drive mission comes in a later build.'}];
 BUILD.av8b=BUILD.f16;BUILD.f117=BUILD.yf22; /* stand-in shapes until the Meshy model loads */
-for(const a of AIRCRAFT){const b=mesh(),t=mesh();BUILD[a.id](b,t);const mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];for(let i=0;i<b.p.length;i+=3)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],b.p[i+k]);mx[k]=Math.max(mx[k],b.p[i+k])}for(let i=0;i<t.p.length;i+=3)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],t.p[i+k]);mx[k]=Math.max(mx[k],t.p[i+k])}a.bmin=mn;a.bsize=mx.map((v,k)=>v-mn[k]);a.body=upload(b);a.tails=t.p.length?upload(t):null}
+for(const a of AIRCRAFT){const b=mesh(),t=mesh();BUILD[a.id](b,t);const mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];for(let i=0;i<b.p.length;i+=3)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],b.p[i+k]);mx[k]=Math.max(mx[k],b.p[i+k])}for(let i=0;i<t.p.length;i+=3)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],t.p[i+k]);mx[k]=Math.max(mx[k],t.p[i+k])}a.bmin=mn;a.bsize=mx.map((v,k)=>v-mn[k]);a.body=upload(b);a.tails=t.p.length?upload(t):null;if(a.glb&&!a.isGlb){a.body.hold=1;if(a.tails)a.tails.hold=1}} /* a plane with a real model never shows its stand-in shape: it waits, then appears finished */
 /* insignia: generated from call sign + squadron, painted on the tails */
 const insC=document.createElement('canvas');insC.width=insC.height=128;
 const tIns=gl.createTexture();
@@ -545,7 +546,7 @@ async function loadHull(a){if(a.glb){loadGlb(a);return}if(!a.hull||a.hullDone)re
  for(let f=0;f<nt*3;f+=3){const A0=ix[f]*3,B0=ix[f+1]*3,C0=ix[f+2]*3,ux=P[B0]-P[A0],uy=P[B0+1]-P[A0+1],uz=P[B0+2]-P[A0+2],vx=P[C0]-P[A0],vy=P[C0+1]-P[A0+1],vz=P[C0+2]-P[A0+2],nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;for(const o of[A0,B0,C0]){N[o]+=nx;N[o+1]+=ny;N[o+2]+=nz}}
  const m=mesh(),col=a.dark?[.17,.17,.19,1]:[.6,.62,.64,1];for(let f=0;f<nt*3;f++){const o=ix[f]*3,l=Math.hypot(N[o],N[o+1],N[o+2])||1;m.p.push(P[o],P[o+1],P[o+2]);m.n.push(N[o]/l,N[o+1]/l,N[o+2]/l);m.c.push(...col);m.t.push(q[o]/65535,q[o+2]/65535)}
  let tp=0;for(let i=0;i<nv;i++)if(P[i*3]>P[tp*3])tp=i;a.tips=[[P[tp*3],P[tp*3+1],P[tp*3+2]],[2*c[0]-P[tp*3],P[tp*3+1],P[tp*3+2]]];
- a.bmin=mn;a.bsize=sz;a.r=.62*Math.max(...sz);a.gear=null;a.body=upload(m);a.tails=null;a.carved=1}catch(e){a.hullDone=0}}
+ a.bmin=mn;a.bsize=sz;a.r=.62*Math.max(...sz);a.gear=null;a.body=upload(m);a.tails=null;a.carved=1;if(a.glb&&!a.isGlb)a.body.hold=1}catch(e){a.hullDone=0}}
 /* real 3D models (GLB from Meshy): read the mesh + its paint texture, size it to the plane, nose forward (+z) */
 async function loadGlb(a){if(!a.glb||a.glbDone)return;a.glbDone=1;try{
  let buf;if(!/claude|anthropic|usercontent/.test(location.host)&&/-glb\.json$/.test(a.glb)){try{const r=await fetch(a.glb.replace(/-glb\.json$/,'.glb'));if(r.ok)buf=await r.arrayBuffer()}catch(e){}} /* the website and the app ship plain .glb: no 8 MB text to hold and convert */  if(buf){}else if(/\.json$/.test(a.glb)){const r=atob((await(await fetch(a.glb)).json()).glb),u=new Uint8Array(r.length);for(let i=0;i<r.length;i++)u[i]=r.charCodeAt(i);buf=u.buffer}else buf=await(await fetch(a.glb)).arrayBuffer(); /* the page host serves JSON, not .glb: models ship base64-wrapped */
@@ -583,7 +584,7 @@ async function loadGlb(a){if(!a.glb||a.glbDone)return;a.glbDone=1;try{
  a.bmin=bmn;a.bsize=bmx.map((v,k)=>v-bmn[k]);const F3=f=>f.map((v,k)=>bmn[k]+v*(bmx[k]-bmn[k]));if(a.nozF)a.noz=a.nozF.map(F3); /* flames come out of the real nozzles */
  if(a.sweep){const[px,pz,fy,x0,z0,x1,z1]=a.sweep,cx=(bmn[0]+bmx[0])/2,P0=F3([px,fy,pz]),A0=F3([x0,fy,z0]),A1=F3([x1,fy,z1]);a.swM=[Math.abs(P0[0]-cx),P0[2],P0[1],Math.abs(A0[0]-cx),A0[2],(A1[2]-A0[2])/Math.max(.01,Math.abs(A1[0]-cx)-Math.abs(A0[0]-cx)),.07*(bmx[1]-bmn[1])]}
  if(a.surf){a.surfM=[];for(const[x0,z0,x1,z1,fy,dp,role]of a.surf)for(const m of[0,1]){const X=v=>m?1-v:v;let A=F3([X(x0),fy,z0]),B=F3([X(x1),fy,z1]);if(B[0]<A[0])[A,B]=[B,A];a.surfM.push({A,B,dep:dp*(bmx[2]-bmn[2]),role,side:m?-1:1})}a.surfT=.07*(bmx[1]-bmn[1])}a.r=.62*Math.max(...a.bsize);a.body=upload(m);a.tails=null;a.art=null;a.gear=null;a.isGlb=1;
- let tp=0;for(let i=0;i<nv;i++)if(m.p[i*3]>m.p[tp*3])tp=i;a.tips=[[m.p[tp*3],m.p[tp*3+1],m.p[tp*3+2]],[-m.p[tp*3],m.p[tp*3+1],m.p[tp*3+2]]]}catch(e){a.glbDone=0;console.error('GLB load failed',e)}}
+ let tp=0;for(let i=0;i<nv;i++)if(m.p[i*3]>m.p[tp*3])tp=i;a.tips=[[m.p[tp*3],m.p[tp*3+1],m.p[tp*3+2]],[-m.p[tp*3],m.p[tp*3+1],m.p[tp*3+2]]]}catch(e){a.glbDone=0;a.glbFail=1;if(a.body)a.body.hold=0;if(a.tails)a.tails.hold=0;console.error('GLB load failed',e)}} /* if the real model can't load, the stand-in is better than nothing */
 loadArt(AIRCRAFT[0]);
 addEventListener('dragover',e=>e.preventDefault());addEventListener('drop',e=>{e.preventDefault();const f=[...e.dataTransfer.files].find(f=>/\.glb$/i.test(f.name));if(!f)return;CUR.glb=URL.createObjectURL(f);CUR.glbDone=0;loadGlb(CUR)});
 
@@ -614,13 +615,13 @@ function gearTex(n){if(GEARTX[n])return GEARTX[n];const t=gl.createTexture();gl.
  const im=new Image();im.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);gl.generateMipmap(gl.TEXTURE_2D);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE)};
  im.src='gear/'+n+'.webp';return GEARTX[n]=t}
-function buildGear(a){if(a.ground||!a.bmin)return;if(a.ownGear){a.floorY=a.bmin[1];a.gear=upload(mesh());return}const m=mesh(),[x0,y0,z0]=a.bmin,[S,H,L]=a.bsize,cxm=x0+S/2,fy=y0-.058*L,top=y0+.045*L,set=GEARSET[a.id]||'generic',G=GEARMETA[set],WHT=[1,1,1,1];
+function buildGear(a){if(a.ground||!a.bmin)return;if(a.ownGear){a.floorY=a.bmin[1];a.gear=upload(mesh());if(a.glb&&!a.isGlb&&!a.glbFail)a.gear.hold=1;return}const m=mesh(),[x0,y0,z0]=a.bmin,[S,H,L]=a.bsize,cxm=x0+S/2,fy=y0-.058*L,top=y0+.045*L,set=GEARSET[a.id]||'generic',G=GEARMETA[set],WHT=[1,1,1,1];
  function spr(c,h,k,ax){const[u0,u1,v0,v1,asp]=G[k],w=h*asp,P=ax==='x'?[[c[0]-w/2,c[1]+h,c[2]],[c[0]+w/2,c[1]+h,c[2]],[c[0]+w/2,c[1],c[2]],[c[0]-w/2,c[1],c[2]]]:[[c[0],c[1]+h,c[2]+w/2],[c[0],c[1]+h,c[2]-w/2],[c[0],c[1],c[2]-w/2],[c[0],c[1],c[2]+w/2]],
    T=[[u0,v0],[u1,v0],[u1,v1],[u0,v1]],nn=ax==='x'?[0,0,1]:[1,0,0];for(const i of[0,1,2,0,2,3]){m.p.push(...P[i]);m.n.push(...nn);m.c.push(...WHT);m.t.push(...T[i])}}
  function leg(x,z,h,nose){spr([x,fy,z],h,nose?0:2,'x');spr([x,fy,z],h,nose?1:3,'z')} /* front view across, side view along */
  const mx=Math.min(.13*L,.36*S),h=(top-fy)*1.3;
  leg(cxm,z0+.79*L,h*.92,1);leg(cxm+mx,z0+.43*L,h,0);leg(cxm-mx,z0+.43*L,h,0);
- a.floorY=fy;a.gear=upload(m);a.gearTex=gearTex(set)}
+ a.floorY=fy;a.gear=upload(m);a.gearTex=gearTex(set);if(a.glb&&!a.isGlb&&!a.glbFail)a.gear.hold=1}
 
 /* ---------- state ---------- */
 let W=0,H=0,RW=0,RH=0;
@@ -814,7 +815,7 @@ function script(){const t=S.t,a=S.alt,once=(k,f)=>{if(!S.said[k]){S.said[k]=1;f(
 
 /* ---------- draw helpers ---------- */
 function bind(o){for(const[k,[b,sz]]of Object.entries(o.b)){const loc=A[k.toUpperCase()];gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,sz,gl.FLOAT,false,0,0)}}
-function draw(o,model,VP,opt={}){bind(o);gl.uniformMatrix4fv(U.uM,false,model);gl.uniformMatrix4fv(U.uMVP,false,M.mul(VP,model));
+function draw(o,model,VP,opt={}){if(!o||o.hold)return;bind(o);gl.uniformMatrix4fv(U.uM,false,model);gl.uniformMatrix4fv(U.uMVP,false,M.mul(VP,model));
  gl.uniform1f(U.uWUV,opt.wuv?1:0);gl.uniform1f(U.uSc,opt.sc||1);gl.uniform2fv(U.uOff,opt.off||[0,0]);gl.uniform1f(U.uLit,opt.lit?1:0);
  gl.uniform1f(U.uUseT,opt.tex?1:0);if(opt.tex){gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,opt.tex)}
  gl.uniform1f(U.uA,opt.a??1);gl.uniform4fv(U.uFlat,opt.flat||[0,0,0,0]);gl.uniform1f(U.uDecal,opt.decal?1:0);gl.uniform1f(U.uSea,opt.sea?1:0);gl.uniform1f(U.uSky,opt.sky?1:0);gl.uniform1f(U.uProj,opt.proj?1:0);gl.uniform1f(U.uPic,opt.pic?1:0);gl.uniform1f(U.uUseN,opt.nrm?1:0);if(opt.nrm){gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,opt.nrm);gl.uniform1i(U.uNrm,3);gl.activeTexture(gl.TEXTURE0)}gl.uniform4fv(U.uFin,opt.fin||[0,0,0,0]);gl.uniform4fv(U.uFin2,opt.fin2||[.06,.21,1,0]);gl.uniform1f(U.uMatte,opt.matte?1:0);gl.uniform4fv(U.uTint,TINTON&&PAINTS[PAINT][1]?PAINTS[PAINT][1]:Z4);gl.drawArrays(opt.mode??gl.TRIANGLES,0,o.n)}
@@ -825,7 +826,7 @@ function drawLine(pts,VP,life=1.6){if(pts.length<2)return;const p=[],n=[],c=[],t
 
 /* ---------- frame ---------- */
 let last=performance.now();
-function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;gpPoll();musTick();if(D.on){demoFrame(D.paused?0:dt,now);requestAnimationFrame(frame);return}
+function frame(now){let dt=Math.min(.05,(now-last)/1000);last=now;{const w=!D.on&&CUR.glb&&!CUR.isGlb&&!CUR.glbFail;if(w!==S.roW){S.roW=w;$('rollOut').style.display=w?'block':'none'}} /* while the real jet loads: an empty pad and ROLLING OUT, never a stand-in */gpPoll();musTick();if(D.on){demoFrame(D.paused?0:dt,now);requestAnimationFrame(frame);return}
  if(S.cine){S.cine.t+=dt;if(S.cine.t>=S.cine.dur)cineEnd();else dt*=S.cine.t<.25||S.cine.t>S.cine.dur-.35?.55:.22}
  if(S.on){S.t+=dt;script();}
  const k=S.keys,dir=(k['arrowright']||k['d']?1:0)-(k['arrowleft']||k['a']?1:0);
@@ -964,7 +965,7 @@ function scl(s){const m=M.id();m[0]=m[10]=s;return m}
 
 /* ================= PLAY DEMO: carrier launch, then a 1942-style overhead stage (1992 style) ================= */
 const D={on:false};
-const DECKY=19,CRY=150;const CVA={glb:'models/cv92-glb.json',dims:[0,0,333],deckY:-7.86};setTimeout(()=>loadGlb(CVA),4000); /* Meshy carrier, loaded in the background */
+const DECKY=19,CRY=150;const CVA={glb:'models/cv92-glb.json',dims:[0,0,333],deckY:-7.86};setTimeout(()=>loadGlb(CVA),4000);setTimeout(()=>{try{for(const k in EMG)loadGlb(EMG[k]);loadGlb(C5A)}catch(e){}},2500); /* the MiGs and the C-5 load in the background while you're in the hangar, so they fly in finished */ /* Meshy carrier, loaded in the background */
 /* --- sprite textures: glow, exhaust flame (dry and afterburner with shock diamonds), wake foam --- */
 const tSalv=tex(64,(x,y)=>{const a=Math.atan2(y-31.5,x-31.5),r=Math.hypot(x-31.5,y-31.5)/31.5,lim=.62+.3*Math.sin(a*3+1.3)*Math.cos(a*5)+.08*Math.sin(a*11),n=hash(x,y,7);if(r>lim)return[0,0,0,0];const edge=r>lim-.1,rivet=Math.hypot(x-24,y-26)<2.5||Math.hypot(x-38,y-36)<2.5,stripe=((x+y)>>3)%5===0;const v=edge?95+n*30:rivet?60:stripe?210:150+n*45;return[stripe&&!edge?v:v,stripe&&!edge?v*.55:v*.98,stripe&&!edge?v*.25:v*.92,255]},false); /* a jagged plate of scrap: steel, rivets, a scrap of hazard paint */
 const tGlow=tex(64,(x,y)=>{const r=Math.hypot(x-31.5,y-31.5)/31.5;return[255,255,255,clamp(Math.exp(-r*r*5)*(1-sst(.85,1,r)),0,1)*255]},false);
@@ -1053,7 +1054,7 @@ function segs(id,f,col){const el=$(id),n=Math.round(clamp(f,0,1)*12);if(el.datas
 function dHud(){$('dSc').textContent=D.score.toLocaleString('en-US');$('dSv').textContent=(D.salv||0).toLocaleString('en-US');$('dSys').textContent=Math.max(0,Math.round(D.hp))+'%'+(D.eng1?' · 1 ENG':'');segs('dHpS',Math.min(100,D.hp)/100,D.hp<35?'#ff3a1a':D.hp<=50?'#ff7a1a':'#e63329');
  const pips=(n,m,c)=>'<i class="pips">'+Array.from({length:m},(_,k)=>`<b style="color:${k<n?c:'#555'}">●</b>`).join('')+'</i>';
  $('dMsl').innerHTML='B';$('dBomb').style.opacity=D.bombs>0?1:.35;$('dBomb').innerHTML='Y';$('dGun').innerHTML='X'+pips(D.gl||1,3,'#ff3a1a');$('dBomb').classList.toggle('rdy',D.bombs>0);$('dBomb').textContent=TOUCH?String(D.bombs||0):'Y';if(TOUCH){$('dWing').textContent=String(D.wcalls||0);$('dWing').dataset.name='WINGMEN'}else{$('dWing').textContent='A';$('dWing').dataset.name='WING'}$('dWing').classList.toggle('has',(D.wcalls||0)>0);$('dWpn').innerHTML='MSL <b>'+D.msl+'</b> BOMB <b>'+(D.bombs||0)+'</b>';$('dMsl').classList.toggle('storm',(D.amL||0)>0)}
-function demoStart(){setTimeout(resize,0);S.view=0;if(CUR.ground){$('acWarn').textContent='That one stays on the ground. Pick an aircraft to play the demo.';return}
+function demoStart(){{const need=[CUR,...Object.values(EMG)].filter(a=>a.glb&&!a.isGlb&&!a.glbFail);if(need.length&&!(demoStart.w>0&&performance.now()-demoStart.w>9000)){if(!demoStart.w)demoStart.w=performance.now();need.forEach(loadGlb);$('rollOut').style.display='block';setTimeout(demoStart,150);return}demoStart.w=0;S.roW=null} /* PLAY waits (up to 9 s) for your jet and the MiGs to finish loading: nothing launches as a stand-in */setTimeout(resize,0);S.view=0;if(CUR.ground){$('acWarn').textContent='That one stays on the ground. Pick an aircraft to play the demo.';return}
  audioInit();if(!CUR.gear&&CUR.bmin)buildGear(CUR);fireStop();S.on=false;S.cs=($('cs').value.trim()||'PULSE').toUpperCase().slice(0,12);
  document.body.classList.add('pre','demo');['start','end','dEnd','manual'].forEach(i=>$(i).classList.add('hidden'));['dpad','dpadL','dhud','dExit','dPause'].forEach(i=>$(i).classList.remove('hidden'));D.paused=false;HBT=performance.now();snd('canopy',.5,.3);
  const fy=CUR.floorY??(CUR.bmin?CUR.bmin[1]:-2);
