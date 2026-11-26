@@ -218,7 +218,7 @@ html.hgOn{background:#07080b url(art/hangar-land.webp) center/cover no-repeat fi
 <div id="padLeg"></div><div id="padPills"><div class="pp py"><i>Y</i><s id="ppY">0</s><u>BOMB</u></div><div class="pp px"><i>X</i><s id="ppX">1</s><u>GUN</u></div><div class="pp pb"><i>B</i><s id="ppB">0</s><u>MISSILE</u></div><div class="pp pa"><i>A</i><s id="ppA">0</s><u>WINGMEN</u></div></div>
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
 <div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
-<div id="ver">1992 · concept v0.1.12 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
+<div id="ver">1992 · concept v0.1.13 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
 <style>
 #title{position:fixed;inset:0;z-index:50;background:#05060a;overflow:hidden;color:#fff;font-family:Arial,sans-serif;transition:opacity .6s}
 #title.off{opacity:0;pointer-events:none}
@@ -271,17 +271,17 @@ body.titleOn #infoBtn,body.titleOn #invBtn{z-index:61}body.titleOn #manual{z-ind
   <div class="hgCard" id="pfP"><div class="pfHead"><button class="ok" id="pfOk" aria-label="Save this paint">✔</button><div class="pfT"><b>PAINT FACTORY</b><small id="pfName"></small></div><button class="pill" id="pfNo" aria-label="Undo changes" style="color:#e63329;font-size:20px">↶</button></div>
    <div class="pfL">PRESETS</div><div class="pfRow" id="pfPre"></div>
    <div class="pfL">BODY</div><div class="pfRow" id="pfBody"></div>
-   <div class="pfL">ACCENTS · NOSE, TAIL AND WING TIPS</div><div class="pfRow" id="pfAcc"></div>
-   <div class="pfL">CANOPY GLASS</div><div class="pfRow" id="pfGlass"></div>
+   <div class="pfL" id="pfAccL">ACCENTS · NOSE, TAIL AND WING TIPS</div><div class="pfRow" id="pfAcc"></div>
+   <div class="pfL" id="pfGlassL">CANOPY GLASS</div><div class="pfRow" id="pfGlass"></div>
    <p class="pfN">Engines, exhausts and landing gear keep their metal. Changes show live on the jet above; the green check saves them.</p></div>
-  <div class="hgCard" id="hgMoreP"><div class="hgRow"><button class="pill" id="styleB">( PLAY STYLE: AUTO )</button><span id="salvH"></span></div><p id="styleN"></p><div class="hgRow"><button class="pill" id="hg3dB" style="display:none">( 3D VIEW )</button><button class="pill" id="drillB">( MISSILE DRILL )</button><button class="pill" id="paintB">( PAINT )</button><button class="pill" id="lookB">( LOOK: PICTURE )</button><button class="pill" id="pilotB">( PILOT FILE )</button><button class="pill" id="boardB" style="display:none">( FLIGHT BOARD )</button><button class="pill" id="hideB" style="display:none">( HIDE ▼ )</button><button class="pill" id="hgOptX" aria-label="Close hangar options" style="color:#e63329">↶</button></div></div>
+  <div class="hgCard" id="hgMoreP"><div class="hgRow"><button class="pill" id="styleB">( PLAY STYLE: AUTO )</button><span id="salvH"></span></div><p id="styleN"></p><p id="hvOut" style="font:700 12px 'Courier New',monospace;color:#ffd21a;margin:4px 0;user-select:text;-webkit-user-select:text"></p><div class="hgRow"><button class="pill" id="hg3dB" style="display:none">( 3D VIEW )</button><button class="pill" id="drillB">( MISSILE DRILL )</button><button class="pill" id="paintB">( PAINT )</button><button class="pill" id="lookB">( LOOK: PICTURE )</button><button class="pill" id="pilotB">( PILOT FILE )</button><button class="pill" id="boardB" style="display:none">( FLIGHT BOARD )</button><button class="pill" id="hideB" style="display:none">( HIDE ▼ )</button><button class="pill" id="hvSet">( SET VIEW )</button><button class="pill" id="hvCp">( COPY VIEW )</button><button class="pill" id="hvRs">( RESET VIEW )</button><button class="pill" id="hgOptX" aria-label="Close hangar options" style="color:#e63329">↶</button></div></div>
   <div id="pilotBox" style="display:none;gap:12px;align-items:flex-end">
    <div style="flex:1"><label for="cs" style="margin:2px 0 4px">Call sign</label><input id="cs" maxlength="12" value="PULSE" autocomplete="off">
    <label for="sq" style="margin:8px 0 4px">Squadron name</label><input id="sq" maxlength="18" value="JOLLY REAPERS" autocomplete="off"></div>
    <div style="text-align:center"><canvas id="insv" width="96" height="96" style="width:96px;height:96px;display:block"></canvas><button class="pill" id="insNew" style="padding:8px 10px;min-height:40px;font-size:13px;margin-top:6px">( NEW INSIGNIA )</button></div></div>
   <div id="acStrip" aria-label="Hangar: swipe or tap a plane"></div>
   <button class="ok" id="go" aria-label="Play stage 1" style="display:none">✔</button>
-  <div id="hgFoot"><i></i><span>PULSE LABS STUDIO</span><em>v0.1.12</em><i></i></div>
+  <div id="hgFoot"><i></i><span>PULSE LABS STUDIO</span><em>v0.1.13</em><i></i></div>
  </div>
 </div>
 
@@ -456,7 +456,7 @@ let HEATM='soft';try{HEATM=localStorage.getItem('1992heat')||'soft'}catch(e){}le
 
 {
 const cv=document.getElementById('gl');
-const gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});let LOOK=0;try{const v=localStorage.getItem('1992look2');if(v!==null)LOOK=+v}catch(e){}let RETRO=LOOK===2;const LOOKS=['PICTURE','SKETCH','RETRO'];
+const gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});if(gl){const bfs=gl.blendFuncSeparate.bind(gl);gl.blendFunc=(a,b)=>bfs(a,b,gl.ONE,gl.ONE_MINUS_SRC_ALPHA)} /* v0.1.13: see-through effects never punch holes in the picture's alpha (the jet looked ghosted over the hangar) */let LOOK=0;try{const v=localStorage.getItem('1992look2');if(v!==null)LOOK=+v}catch(e){}let RETRO=LOOK===2;const LOOKS=['PICTURE','SKETCH','RETRO'];
 const $=id=>document.getElementById(id);
 if(!gl){$('start').querySelector('p').textContent='This device has no WebGL, so the concept can\'t run here.';}
 
@@ -523,7 +523,7 @@ float d=max(dot(n,uSun),0.);float sky=.5+.5*n.y;
    vec4 pc=tx*w.x+ty*w.y+tz*w.z;float bg=step(.94,min(pc.r,min(pc.g,pc.b)));c.rgb=mix(pc.rgb,c.rgb,bg);art=1.-bg;}
   vec3 amb=vec3(.30,.34,.42)*(.55+.65*sky);vec3 H=normalize(uSun+V);float sp=pow(max(dot(n,H),0.),90.)*.75*step(.0,d);
   vec3 rf=reflect(-V,n);vec3 env=mix(uFog*1.05,vec3(.2,.36,.7),clamp(rf.y*1.6,0.,1.));float fr=.04+.32*pow(1.-max(dot(n,V),0.),5.);
-  float gl=step(c.r+c.g+c.b,.75)*step(c.b,c.r+.2)*0.;vec3 pic=uMatte>.5?c.rgb*(vec3(.36,.39,.45)*(.78+.4*sky)+vec3(1.,.96,.9)*d*.8+vec3(.22,.22,.24)*max(-n.y,0.)+vec3(.16)*max(dot(n,V),0.)):c.rgb*(.9+.12*d); /* matte paint: real shading, no gloss */c.rgb=mix(mix(c.rgb*(amb*.9+vec3(1.0,.95,.86)*d*.78),env,fr)+sp*.8,pic,art);if(uHg>.5){float rim=pow(1.-max(dot(n,V),0.),3.);vec3 k2=normalize(vec3(-.35,.9,.5));c.rgb=c.rgb*.98+c.rgb*vec3(.95,.97,1.)*max(dot(n,k2),0.)*.28+vec3(1.,.16,.1)*rim*.5+vec3(1.)*pow(max(dot(n,normalize(k2+V)),0.),70.)*.3;c.rgb=c.rgb/(1.+c.rgb*.18);}} /* art: the picture as drawn, only a hint of sun so the shape reads */
+  float gl=step(c.r+c.g+c.b,.75)*step(c.b,c.r+.2)*0.;vec3 pic=uMatte>.5?c.rgb*(vec3(.36,.39,.45)*(.78+.4*sky)+vec3(1.,.96,.9)*d*.8+vec3(.22,.22,.24)*max(-n.y,0.)+vec3(.16)*max(dot(n,V),0.)):c.rgb*(.9+.12*d); /* matte paint: real shading, no gloss */c.rgb=mix(mix(c.rgb*(amb*.9+vec3(1.0,.95,.86)*d*.78),env,fr)+sp*.8,pic,art);if(uHg>.5){float rim=pow(1.-max(dot(n,V),0.),3.);vec3 k2=normalize(vec3(-.35,.9,.5));c.rgb=c.rgb*.98+c.rgb*vec3(.95,.97,1.)*max(dot(n,k2),0.)*.28+vec3(1.,.16,.1)*rim*.28+vec3(1.)*pow(max(dot(n,normalize(k2+V)),0.),70.)*.3;c.rgb=c.rgb/(1.+c.rgb*.18);}} /* art: the picture as drawn, only a hint of sun so the shape reads */
  if(uSky>.5){vec3 dd=normalize(vWP-uCam);float s=max(dot(dd,uSun),0.);c.rgb+=vec3(1.,.93,.78)*(pow(s,900.)*5.+pow(s,60.)*.35+pow(s,8.)*.12);}
  c.a*=uA;if(c.a<.03)discard;
  if(uOutline>0.){gl_FragColor=vec4(.09,.08,.1,c.a);return;}
@@ -854,12 +854,12 @@ const HC={yaw:0,pitch:0,dist:1,px:0,py:0,touched:-1e9}; /* hangar camera: your s
 function ptrDown(e){if(D.on)return;PTR.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY});if(PTR.size===1){drag={x:e.clientX,y:e.clientY}}if(PTR.size===2){const[a,b]=[...PTR.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),mx:(a.x+b.x)/2,my:(a.y+b.y)/2,dist:HC.dist,fz:S.fz,px:HC.px,py:HC.py}}}
 function ptrMove(e){if(D.on)return;const p=PTR.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;HC.touched=performance.now();
  if(PTR.size>=2&&pinch0){const[a,b]=[...PTR.values()],d=Math.hypot(a.x-b.x,a.y-b.y)||1,k=pinch0.d/d;
-  if(S.on)S.fz=clamp(pinch0.fz*k,.55,2.6);else{HC.dist=clamp(pinch0.dist*k,.3,3);const mx=(a.x+b.x)/2-pinch0.mx,my=(a.y+b.y)/2-pinch0.my;HC.px=pinch0.px-mx/W*CUR.r*2.2*HC.dist;HC.py=pinch0.py+my/H*CUR.r*2.2*HC.dist}return}
- if(S.on){S.steer=clamp((e.clientX-p.x0)/(W*.11),-1,1)}else{HC.yaw-=dx*.009;HC.pitch=clamp(HC.pitch+dy*.007,-1.75,.95)}}
+  if(S.on)S.fz=clamp(pinch0.fz*k,.55,2.6);else if(S.hgEdit){HC.dist=clamp(pinch0.dist*k,.3,3);const mx=(a.x+b.x)/2-pinch0.mx,my=(a.y+b.y)/2-pinch0.my;HC.px=pinch0.px-mx/W*CUR.r*2.2*HC.dist;HC.py=pinch0.py+my/H*CUR.r*2.2*HC.dist}return}
+ if(S.on){S.steer=clamp((e.clientX-p.x0)/(W*.11),-1,1)}else{HC.yaw-=dx*.009;if(S.hgEdit)HC.pitch=clamp(HC.pitch+dy*.007,-1.75,.95)}}
 function ptrUp(e){PTR.delete(e.pointerId);if(PTR.size<2)pinch0=null;if(!PTR.size){drag=null;S.steer=0}}
 cv.addEventListener('pointerdown',ptrDown);$('start').addEventListener('pointerdown',e=>{if(e.target===$('start'))ptrDown(e)});
 addEventListener('pointermove',ptrMove);addEventListener('pointerup',ptrUp);addEventListener('pointercancel',ptrUp);
-addEventListener('wheel',e=>{if(e.target.closest&&e.target.closest('.box'))return;if(S.on)S.fz=clamp(S.fz*(e.deltaY>0?1.1:.91),.55,2.6);else{HC.dist=clamp(HC.dist*(e.deltaY>0?1.1:.91),.3,3);HC.touched=performance.now()}},{passive:true});
+addEventListener('wheel',e=>{if(e.target.closest&&e.target.closest('.box'))return;if(S.on)S.fz=clamp(S.fz*(e.deltaY>0?1.1:.91),.55,2.6);else if(S.hgEdit){HC.dist=clamp(HC.dist*(e.deltaY>0?1.1:.91),.3,3);HC.touched=performance.now()}},{passive:true});
 let lastTap=0;$('start').addEventListener('pointerdown',e=>{if(e.target!==$('start'))return;const t=performance.now();if(t-lastTap<300){Object.assign(HC,{yaw:0,pitch:0,dist:1,px:0,py:0})}lastTap=t}); /* double-tap: reset the view */
 $('start').style.touchAction='none';cv.style.touchAction='none';
 function nextView(){S.view=(S.view+1)%VIEWS.length;$('vname').textContent='VIEW: '+VIEWS[S.view];$('pit').style.display=S.view>=3?'block':'none'}
@@ -996,28 +996,37 @@ function flares(){if(!S.on)return;
  for(const sx of[-1,1,0])S.fl.push({p:[S.x+sx*.8,S.alt/FT-.5,S.z-6],v:[sx*7,-5,-25],age:0,tr:[]});SFX.flare();
  const m=S.missile;if(S.phase==='lock'&&m&&m.tgt==='jet'){const d=S.z-m.p[2];if(d<55){m.tgt='flare';$('flare').classList.remove('on');say(S.cs,'Flares! It bit.')}else say(S.cs,'Too early. It ignored them.')}}
 let acI=0;const strip=$('acStrip');AIRCRAFT.forEach((a,i)=>{const b=document.createElement('button');b.className='pill';b.textContent=a.name.split(' ')[0];b.onclick=()=>pickAc(i);strip.appendChild(b)});
-function pickAc(i){if(i===acI)return;const d=((i-acI+AIRCRAFT.length)%AIRCRAFT.length)<=AIRCRAFT.length/2?1:-1;acI=i;showAc();S.hx=d*CUR.r*3.2} /* new plane rolls in from the side it came from */
+const HV0={pitch:-.36,dist:.76,px:0,py:0}; /* v0.1.13: the locked hangar view, from your framing: low camera, jet filling the table */
+const HV={}; /* per-aircraft tweaks (pitch, dist, px, py) go here, pasted from SET VIEW / COPY VIEW */
+function hvApply(){const v=Object.assign({},HV0,HV[CUR.id]||{});HC.pitch=v.pitch;HC.dist=v.dist;HC.px=v.px;HC.py=v.py}
+function hvCopy(){const r=n=>Math.round(n*1000)/1000,t=`VIEW ${CUR.id} {pitch:${r(HC.pitch)},dist:${r(HC.dist)},px:${r(HC.px)},py:${r(HC.py)}}`;try{navigator.clipboard.writeText(t)}catch(e){}$('hvOut').textContent=t+'  (copied: paste it to Claude)'}
+function pickAc(i){if(i===acI)return;const d=((i-acI+AIRCRAFT.length)%AIRCRAFT.length)<=AIRCRAFT.length/2?1:-1;acI=i;showAc();hvApply();S.hx=d*CUR.r*3.2} /* new plane rolls in from the side it came from */
 /* swipe-to-change removed: dragging the hangar spins the plane; the name strip and arrows change planes */
-const HSTILL=new Set([]); /* v0.1.9: aircraft that have a painted hangar still in art/hangar/<id>.webp: the still shows, ( 3D VIEW ) spins the real model */
-function hgStillShow(){const im=$('hgStill'),has=HSTILL.has(CUR.id);S.still=has&&!S.hg3d;$('hg3dB').style.display=has?'':'none';$('hg3dB').textContent=S.hg3d?'( PHOTO )':'( 3D VIEW )';if(has&&!S.hg3d){const src='art/hangar/'+CUR.id+'.webp';if(!im.src.endsWith(src))im.src=src;im.classList.add('on')}else im.classList.remove('on')}
+const HSTILL=new Set(['f14a1']);const HKEY={f14a1:'art/hangar/f14a1-key.webp'}; /* v0.1.13: key-color stills: green = body, blue = armor plates, recolored live */ /* v0.1.9: aircraft that have a painted hangar still in art/hangar/<id>.webp: the still shows, ( 3D VIEW ) spins the real model */
+const KIMG={};function keyPaint(id,sch){const src=HKEY[id];if(!src)return;let k=KIMG[id];if(!k){k=KIMG[id]={im:new Image(),ok:0};k.im.onload=()=>{k.ok=1;keyPaint(id,sch)};k.im.src=src;return}if(!k.ok)return;
+ const S2=sch||pfLoad(id),body=S2[1]||[.47,.49,.52],arm=S2[2]||[.26,.28,.31],key=JSON.stringify([body,arm]);if(k.key===key&&$('hgStill').dataset.id===id)return;k.key=key;
+ const c=document.createElement('canvas');c.width=k.im.width;c.height=k.im.height;const g=c.getContext('2d');g.drawImage(k.im,0,0);const d=g.getImageData(0,0,c.width,c.height),p=d.data;
+ for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const r=p[i],G=p[i+1],b=p[i+2],mx=Math.max(r,G,b);let col=null,w=0;const dg=G-Math.max(r,b),db=b-Math.max(r,G);if(dg>8){col=body;w=Math.min(1,(dg-8)/22)}else if(db>8){col=arm;w=Math.min(1,(db-8)/22)}if(!col)continue;const v=Math.min(1.35,mx/165);p[i]=r+(Math.min(255,col[0]*v*255)-r)*w;p[i+1]=G+(Math.min(255,col[1]*v*255)-G)*w;p[i+2]=b+(Math.min(255,col[2]*v*255)-b)*w}
+ g.putImageData(d,0,0);const im=$('hgStill');im.src=c.toDataURL('image/webp',.92);im.dataset.id=id} /* every green pixel takes the body color, every blue one the armor color, with the original light and shadow */
+function hgStillShow(){const im=$('hgStill'),has=HSTILL.has(CUR.id);S.still=has&&!S.hg3d;$('hg3dB').style.display=has?'':'none';$('hg3dB').textContent=S.hg3d?'( PHOTO )':'( 3D VIEW )';if(has&&!S.hg3d){if(HKEY[CUR.id])keyPaint(CUR.id);else{const src='art/hangar/'+CUR.id+'.webp';if(!im.src.endsWith(src))im.src=src}im.classList.add('on')}else im.classList.remove('on')}
 const HBP=new Set(['f16','f18','f14','f14a1','a10a1','f18a1','f15','a10','sr71','b2','yf22','av8b','f117','c130','c5','ah64']);
 function hgInfo(){const v=/a1$/.test(CUR.id)?'A1':'STOCK',role=(CUR.role||'').toUpperCase(),cls=((CUR.yr||'').split('·')[0]||'').trim();$('hgSub').textContent=[role,'VARIANT '+v,'OWNED'].filter(Boolean).join('  |  ');$('hgNm2').textContent=CUR.name;$('hgInfoT').innerHTML=`<tr><td>CLASS</td><td>${CUR.role||''}</td></tr><tr><td>ROLE</td><td>${cls}</td></tr><tr><td>VARIANT</td><td>${v}</td></tr><tr><td>STATUS</td><td class="own">OWNED</td></tr>`;$('hgBp').src=HBP.has(CUR.id)?'art/hangar/bp-'+CUR.id+'.webp':''} /* v0.1.9: the info card: a top-view blueprint of the real model, class, role, variant, status */
 let SWPG=0;
 $('swL').onclick=()=>{SWPG=Math.max(0,SWPG-1);hgSw()};$('swR').onclick=()=>{SWPG=Math.min(Math.ceil(PAINTS.length/4)-1,SWPG+1);hgSw()};
-$('hgUpB').onclick=()=>$('boardB').click();$('hgPfB').onclick=pfOpen;$('pfOk').onclick=()=>pfClose(1);$('pfNo').onclick=()=>pfClose(0);$('hgOptB').onclick=()=>$('hgMoreP').classList.toggle('open');$('hgOptX').onclick=()=>$('hgMoreP').classList.remove('open');
+$('hgUpB').onclick=()=>$('boardB').click();$('hgPfB').onclick=pfOpen;$('pfOk').onclick=()=>pfClose(1);$('pfNo').onclick=()=>pfClose(0);$('hgOptB').onclick=()=>$('hgMoreP').classList.toggle('open');$('hgOptX').onclick=()=>$('hgMoreP').classList.remove('open');$('hvSet').onclick=()=>{S.hgEdit=!S.hgEdit;$('hvSet').textContent=S.hgEdit?'( SET VIEW: ON · pinch, drag, tilt )':'( SET VIEW )'};$('hvCp').onclick=hvCopy;$('hvRs').onclick=hvApply;try{hvApply()}catch(e){}
 
 /* v0.1.12: the Paint Factory: on a paint-ready aircraft every part takes its own color, live on the spinning jet */
 const PF={body:[['GUNMETAL',[.47,.49,.52]],['CHARCOAL',[.12,.12,.14]],['ARCTIC',[.88,.9,.93]],['CRIMSON',[.55,.05,.06]],['NAVY',[.13,.19,.33]],['OD GREEN',[.3,.34,.2]],['DESERT',[.72,.6,.42]],['TITANIUM',[.72,.72,.7]],['MIDNIGHT',[.05,.07,.15]],['GOLD',[.72,.55,.2]],['ROYAL PURPLE',[.3,.12,.42]],['GHOST GRAY',[.62,.65,.7]]],
  acc:[['PULSE RED',[.72,.12,.16]],['BLACK',[.05,.05,.06]],['WHITE',[.93,.94,.95]],['GOLD',[.85,.65,.2]],['ELECTRIC BLUE',[.1,.45,1]],['ORANGE',[1,.45,.05]],['TOXIC GREEN',[.15,.8,.25]],['VIOLET',[.5,.2,.9]],['GUNMETAL',[.3,.32,.35]],['YELLOW',[1,.85,.1]]],
  glass:[['AMBER',[.85,.6,.16]],['GOLD',[.95,.78,.25]],['RUBY',[.7,.05,.08]],['ELECTRIC BLUE',[.15,.45,.95]],['SMOKE',[.1,.11,.13]],['EMERALD',[.15,.65,.3]],['CLEAR',[.55,.66,.74]],['VIOLET',[.45,.2,.8]]]};
-const PFPRE=[['FACTORY',null],['BLACK OPS',{1:[.12,.12,.14],3:[.72,.12,.16],4:[.85,.6,.16]}],['ARCTIC GHOST',{1:[.88,.9,.93],3:[.1,.45,1],4:[.15,.45,.95]}],['CRIMSON PHANTOM',{1:[.55,.05,.06],3:[.05,.05,.06],4:[.1,.11,.13]}],['TITANIUM',{1:[.72,.72,.7],3:[.3,.32,.35],4:[.95,.78,.25]}]];
+const PFPRE=[['FACTORY',null],['BLACK OPS',{1:[.12,.12,.14],2:[.05,.05,.06],3:[.72,.12,.16],4:[.85,.6,.16]}],['ARCTIC GHOST',{1:[.88,.9,.93],2:[.62,.65,.7],3:[.1,.45,1],4:[.15,.45,.95]}],['CRIMSON PHANTOM',{1:[.55,.05,.06],2:[.05,.05,.06],3:[.05,.05,.06],4:[.1,.11,.13]}],['TITANIUM',{1:[.72,.72,.7],2:[.47,.49,.52],3:[.3,.32,.35],4:[.95,.78,.25]}]];
 const pfLoad=id=>{try{return JSON.parse(localStorage.getItem('1992pf_'+id)||'{}')}catch(e){return{}}};
-function pfApply(a,sch){if(!a||!a.slots||!a.pfMesh||!a.body)return;const S=sch||pfLoad(a.id),m=a.pfMesh,B=a.slotBase,L=a.slots;for(let i=0;i<L.length;i++){const c=S[L[i]];if(c){m.c[i*4]=c[0];m.c[i*4+1]=c[1];m.c[i*4+2]=c[2]}else{m.c[i*4]=B[i*4];m.c[i*4+1]=B[i*4+1];m.c[i*4+2]=B[i*4+2]}}gl.bindBuffer(gl.ARRAY_BUFFER,a.body.b.c[0]);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(m.c),gl.STATIC_DRAW)}
-let PFE=null;function pfOpen(){if(!CUR.slots){BSEL='pt';$('boardB').click();return}PFE={a:CUR,s:Object.assign({},pfLoad(CUR.id)),old:pfLoad(CUR.id)};$('pfP').classList.add('open');pfDraw()}
+function pfApply(a,sch){if(a&&HKEY[a.id]&&S.still)keyPaint(a.id,sch||pfLoad(a.id));if(!a||!a.slots||!a.pfMesh||!a.body)return;const SC=sch||pfLoad(a.id),m=a.pfMesh,B=a.slotBase,L=a.slots;for(let i=0;i<L.length;i++){const c=SC[L[i]];if(c){m.c[i*4]=c[0];m.c[i*4+1]=c[1];m.c[i*4+2]=c[2]}else{m.c[i*4]=B[i*4];m.c[i*4+1]=B[i*4+1];m.c[i*4+2]=B[i*4+2]}}gl.bindBuffer(gl.ARRAY_BUFFER,a.body.b.c[0]);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(m.c),gl.STATIC_DRAW)}
+let PFE=null;function pfOpen(){if(!CUR.slots&&!HKEY[CUR.id]){BSEL='pt';$('boardB').click();return}PFE={a:CUR,s:Object.assign({},pfLoad(CUR.id)),old:pfLoad(CUR.id)};$('pfP').classList.add('open');pfDraw()}
 function pfClose(save){const P=PFE;if(!P)return;if(save){try{localStorage.setItem('1992pf_'+P.a.id,JSON.stringify(P.s))}catch(e){}}pfApply(P.a,save?P.s:P.old);PFE=null;$('pfP').classList.remove('open')}
 const pfCol=c=>`rgb(${c.map(v=>Math.round(v*255)).join(',')})`,pfEq=(x,y)=>x&&y&&Math.abs(x[0]-y[0])+Math.abs(x[1]-y[1])+Math.abs(x[2]-y[2])<.01;
 function pfDraw(){const P=PFE;if(!P)return;$('pfName').textContent=P.a.name;const row=(slot,list)=>list.map(([n,c])=>`<button class="pfSw ${pfEq(P.s[slot],c)?'on':''}" data-s="${slot}" data-c="${c.join(',')}" style="background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.4),transparent 55%),${pfCol(c)}" aria-label="${n}"><i>${n}</i></button>`).join('');
- $('pfBody').innerHTML=row(1,PF.body);$('pfAcc').innerHTML=row(3,PF.acc);$('pfGlass').innerHTML=row(4,PF.glass);$('pfPre').innerHTML=PFPRE.map(([n],i)=>`<button class="pill" data-p="${i}">( ${n} )</button>`).join('');
+ const ks=!!HKEY[P.a.id]&&!P.a.slots;$('pfBody').innerHTML=row(1,PF.body);$('pfAcc').innerHTML=ks?row(2,PF.body.concat(PF.acc)):row(3,PF.acc);$('pfGlass').innerHTML=ks?'':row(4,PF.glass);$('pfAccL').textContent=ks?'ARMOR PLATES':'ACCENTS · NOSE, TAIL AND WING TIPS';$('pfGlassL').style.display=ks?'none':'';$('pfPre').innerHTML=PFPRE.map(([n],i)=>`<button class="pill" data-p="${i}">( ${n} )</button>`).join('');
  for(const b of $('pfP').querySelectorAll('.pfSw'))b.onclick=()=>{P.s[b.dataset.s]=b.dataset.c.split(',').map(Number);pfApply(P.a,P.s);pfDraw()};
  for(const b of $('pfPre').querySelectorAll('button'))b.onclick=()=>{const p=PFPRE[+b.dataset.p][1];P.s=p?JSON.parse(JSON.stringify(p)):{};pfApply(P.a,P.s);pfDraw()}}
 function hgSw(){const w=$('hgSw');if(!w||typeof PAINTS==='undefined')return;const pg=Math.ceil(PAINTS.length/4);SWPG=Math.min(SWPG,pg-1);w.innerHTML=PAINTS.map((p,i)=>{if(Math.floor(i/4)!==SWPG)return'';const own=OWNP.includes(i),c=p[1]?p[1].slice(0,3).map(v=>Math.round(v*255)):[150,160,170],col=`radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 55%),repeating-linear-gradient(35deg,rgba(255,255,255,.06) 0 3px,rgba(0,0,0,.08) 3px 7px),rgb(${c.join(',')})`;return `<button data-i="${i}" class="${i===PAINT?'on':''} ${own?'':'lk'}" style="background:${col}" aria-label="${p[0]}${own?'':' (locked, '+p[2]+' salvage)'}"></button>`}).join('');{const d=$('hgDots');if(d)d.innerHTML=Array.from({length:pg},(_,k)=>`<i class="${k===SWPG?'on':''}"></i>`).join('')}[...w.children].forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(OWNP.includes(i)){PAINT=i;try{localStorage.setItem('1992paint',PAINT)}catch(e){}$('paintB').textContent='( PAINT: '+PAINTS[PAINT][0]+' )';hgSw()}else{BSEL='pt';$('boardB').click()}})} /* v0.1.8: paint swatches: tap an owned one to wear it, a locked one opens the paint shop */
