@@ -218,7 +218,7 @@ html.hgOn{background:#07080b url(art/hangar-land.webp) center/cover no-repeat fi
 <div id="padLeg"></div><div id="padPills"><div class="pp py"><i>Y</i><s id="ppY">0</s><u>BOMB</u></div><div class="pp px"><i>X</i><s id="ppX">1</s><u>GUN</u></div><div class="pp pb"><i>B</i><s id="ppB">0</s><u>MISSILE</u></div><div class="pp pa"><i>A</i><s id="ppA">0</s><u>WINGMEN</u></div></div>
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
 <div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
-<div id="ver">1992 · concept v0.1.8 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
+<div id="ver">1992 · concept v0.1.9 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
 <style>
 #title{position:fixed;inset:0;z-index:50;background:#05060a;overflow:hidden;color:#fff;font-family:Arial,sans-serif;transition:opacity .6s}
 #title.off{opacity:0;pointer-events:none}
@@ -255,21 +255,27 @@ body.titleOn #infoBtn,body.titleOn #invBtn{z-index:61}body.titleOn #manual{z-ind
  <div id="tAsk" class="hidden">Close 1992?<div class="tRow"><button class="ok" id="tQuitOk" aria-label="Yes, close">✔</button><button id="tQuitNo" aria-label="Stay">↶</button></div></div>
 </div>
 
-<div id="hgBg" aria-hidden="true"></div>
+<div id="hgBg" aria-hidden="true"></div><img id="hgStill" alt="">
 <div class="sheet" id="start">
- <div id="hgTop"><div class="hgLogo">1992<small>HANGAR</small></div><div class="hgTabs"><button class="on" aria-label="Hangar">HANGAR</button><button id="hgTabB">FLIGHT BOARD</button><button id="hgTabP">PILOT FILE</button></div></div>
- <div id="hgHead"><button class="pill" id="toTitle" aria-label="Back to the title screen">↶</button><div class="hgName"><small id="acYr"></small><b id="acName"></b></div><button class="pill" id="demoB">( ▶ LAUNCH MISSION )</button></div>
- <button class="hgArrow" id="prev" aria-label="Previous aircraft">◀</button><button class="hgArrow" id="next" aria-label="Next aircraft">▶</button>
+ <div id="hgTop"><div class="hgLogo">1992</div><div class="hgTabs"><button class="on" aria-label="Hangar"><span></span><b>HANGAR</b></button><button id="hgTabB"><span></span><b><i class="lg">FLIGHT </i>BOARD</b></button><button id="hgTabP"><span></span><b>PILOT<i class="lg"> FILE</i></b></button></div></div>
+ <div id="hgHead">
+  <div class="hgTitleRow"><button class="hgBack" id="toTitle" aria-label="Back to the title screen"><span></span><b>↶</b></button><div class="hgName"><b id="acName"></b><small id="hgSub"></small><small id="acYr"></small></div><i class="hgSlash"></i></div>
+  <button class="hgLaunch" id="demoB"><span></span><b>▶ LAUNCH MISSION</b></button>
+ </div>
+ <button class="hgArrow" id="prev" aria-label="Previous aircraft"><span></span><b>◀</b></button><button class="hgArrow" id="next" aria-label="Next aircraft"><span></span><b>▶</b></button>
  <div class="box" id="rrBox">
-  <div class="hgPanel" id="hgStatsP"><div id="acStats"></div><p id="acWarn"></p></div>
-  <div class="hgPanel" id="hgPaintP"><h3>PAINT / APPEARANCE</h3><div id="hgSw"></div><div class="hgRow"><button class="pill" id="paintB">( PAINT )</button><button class="pill" id="lookB">( LOOK: PICTURE )</button></div></div>
-  <div class="hgPanel keep" id="hgMoreP"><div class="hgRow"><button class="pill" id="styleB">( PLAY STYLE: AUTO )</button><span id="salvH"></span></div><p id="styleN"></p><div class="hgRow"><button class="pill" id="drillB">( MISSILE DRILL )</button><button class="pill" id="boardB">( FLIGHT BOARD )</button><button class="pill" id="pilotB">( PILOT FILE )</button><button class="pill" id="hideB">( HIDE ▼ )</button></div></div>
+  <div class="hgCard" id="hgInfoP"><img id="hgBp" alt=""><div class="hgInfo"><h4 id="hgNm2"></h4><table id="hgInfoT"></table></div></div>
+  <div class="hgCard" id="hgStatsP"><div id="acStats"></div><p id="acWarn"></p></div>
+  <div class="hgCard" id="hgPaintP"><h3>PAINT / APPEARANCE</h3><div class="hgSwRow"><button class="hgPg" id="swL" aria-label="More paints, back">‹</button><div id="hgSw"></div><button class="hgPg" id="swR" aria-label="More paints">›</button></div><div id="hgDots"></div></div>
+  <div id="hgBtns"><button class="hgBig" id="hgUpB"><span></span><b>🔧 UPGRADES</b></button><button class="hgBig" id="hgPfB"><span></span><b>🎨 PAINT FACTORY</b></button><button class="hgBig" id="hgOptB"><span></span><b>⚙ HANGAR OPTIONS</b></button></div>
+  <div class="hgCard" id="hgMoreP"><div class="hgRow"><button class="pill" id="styleB">( PLAY STYLE: AUTO )</button><span id="salvH"></span></div><p id="styleN"></p><div class="hgRow"><button class="pill" id="hg3dB" style="display:none">( 3D VIEW )</button><button class="pill" id="drillB">( MISSILE DRILL )</button><button class="pill" id="paintB">( PAINT )</button><button class="pill" id="lookB">( LOOK: PICTURE )</button><button class="pill" id="pilotB">( PILOT FILE )</button><button class="pill" id="boardB" style="display:none">( FLIGHT BOARD )</button><button class="pill" id="hideB" style="display:none">( HIDE ▼ )</button><button class="pill" id="hgOptX" aria-label="Close hangar options" style="color:#e63329">↶</button></div></div>
   <div id="pilotBox" style="display:none;gap:12px;align-items:flex-end">
    <div style="flex:1"><label for="cs" style="margin:2px 0 4px">Call sign</label><input id="cs" maxlength="12" value="PULSE" autocomplete="off">
    <label for="sq" style="margin:8px 0 4px">Squadron name</label><input id="sq" maxlength="18" value="JOLLY REAPERS" autocomplete="off"></div>
    <div style="text-align:center"><canvas id="insv" width="96" height="96" style="width:96px;height:96px;display:block"></canvas><button class="pill" id="insNew" style="padding:8px 10px;min-height:40px;font-size:13px;margin-top:6px">( NEW INSIGNIA )</button></div></div>
   <div id="acStrip" aria-label="Hangar: swipe or tap a plane"></div>
   <button class="ok" id="go" aria-label="Play stage 1" style="display:none">✔</button>
+  <div id="hgFoot"><i></i><span>PULSE LABS STUDIO</span><em>v0.1.9</em><i></i></div>
  </div>
 </div>
 
@@ -364,7 +370,65 @@ body.titleOn #infoBtn,body.titleOn #invBtn{z-index:61}body.titleOn #manual{z-ind
 </div></div>
 <style>#dEnd.deb .box{background:linear-gradient(rgba(5,6,10,.9),rgba(5,6,10,.94)),url(art/title-deck.webp) center/cover;border:2px solid #e63329;max-width:560px;max-height:96vh;overflow:hidden;display:flex;flex-direction:column;padding:10px 12px}#dEnd.deb h2{order:0;margin:0 0 6px}#dEnd.deb .row{order:1;display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}#dEnd.deb .row .pill{font-size:13px;padding:6px 10px;min-height:38px}#dEnd.deb #dAgain{flex:1 1 100%;font-size:16px;box-shadow:0 0 12px #e63329}#dEnd.deb #dEndP{order:2;margin:0;font-size:11px;line-height:1.3}#dEnd.deb .dbPay{font-size:11px;color:#ccc}#dEnd.deb h2{font:italic 900 18px 'Arial Black',Arial,sans-serif;letter-spacing:2px;color:#fff;border-bottom:2px solid #e63329;padding-bottom:4px}
 .dbG{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 0 6px}.dbG>div{border:1px solid #e63329;padding:6px;text-align:center;background:rgba(0,0,0,.5)}.dbL{font:700 10px Arial,sans-serif;letter-spacing:2px;color:#ccc}.dbN{font:900 clamp(13px,4.2vw,20px) 'Arial Black',Arial,sans-serif;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dbT{display:grid;grid-template-columns:1fr auto 1fr auto;gap:0 8px;font-size:11.5px;margin-bottom:6px}.dbT span{padding:2px 2px;border-bottom:1px solid rgba(230,51,41,.35);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dbT b{color:#fff}.dbX{border-left:4px solid #e63329;padding:4px 8px;background:rgba(230,51,41,.12);margin:4px 0;color:#fff;font-size:12px}</style>
+.dbT{display:grid;grid-template-columns:1fr auto 1fr auto;gap:0 8px;font-size:11.5px;margin-bottom:6px}.dbT span{padding:2px 2px;border-bottom:1px solid rgba(230,51,41,.35);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dbT b{color:#fff}.dbX{border-left:4px solid #e63329;padding:4px 8px;background:rgba(230,51,41,.12);margin:4px 0;color:#fff;font-size:12px}
+/* v0.1.9: tabs drawn like the arrows: a clean red rim and chamfered corners (two layers, so the rim never gets clipped ragged) */
+.hgTabs button{position:relative;background:#e63329!important;border:0!important;padding:0!important;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%)!important;color:#fff;height:34px;min-width:0;flex:0 1 auto}
+.hgTabs button span{position:absolute;inset:2.5px 3px;background:#0c0c10;clip-path:polygon(11px 0,100% 0,calc(100% - 11px) 100%,0 100%)}
+.hgTabs button b{position:relative;display:block;padding:0 clamp(12px,2.2vw,24px);line-height:34px;font:italic 900 clamp(11px,1.7vw,16px)/34px 'Arial Black',Arial,sans-serif;white-space:nowrap;letter-spacing:.5px}
+.hgTabs button.on span{background:linear-gradient(#b3120c,#5a0604)}
+.hgTabs button:not(.on) b{color:#e8e8ea}.hgTabs b i{font-style:inherit}
+@media (max-width:480px){.hgTabs .lg{display:none}.hgTabs button b{padding:0 12px;font-size:11px}.hgTabs{gap:3px;justify-content:flex-start}#hgTop{padding-right:92px}}
+#hgStill{position:fixed;left:50%;transform:translate(-50%,-100%);pointer-events:none;display:none;z-index:0;filter:drop-shadow(0 18px 18px rgba(0,0,0,.6))}
+html.hgOn #hgStill.on{display:block}
+
+/* v0.1.9: hangar rebuilt to your "exactly what I want" mockups. Every frame is two layers (a rim and a face) so the chamfered corners stay crisp */
+.hgArrow{border:0!important;padding:0!important;cursor:pointer;color:#fff;isolation:isolate}.hgTabs button,.hgBack,.hgLaunch,.hgBig{position:relative;border:0!important;padding:0!important;cursor:pointer;color:#fff;isolation:isolate}
+.hgTabs button>span,.hgBack>span,.hgLaunch>span,.hgArrow>span,.hgBig>span{position:absolute;z-index:-1}
+.hgTabs b,.hgBack b,.hgLaunch b,.hgArrow b,.hgBig b{position:relative;display:block}
+#hgTop{height:54px;padding:0 112px 0 10px;background:linear-gradient(#141418,#0a0a0d);border-bottom:2px solid #e63329;box-shadow:0 2px 12px #000}
+.hgLogo{font:italic 900 34px 'Arial Black',Arial,sans-serif;color:#e63329;letter-spacing:0;text-shadow:0 0 10px #e6332966,0 2px 0 #000;padding-right:6px}
+.hgTabs{justify-content:flex-start;gap:4px}
+.hgTabs button{background:#5a5e66!important;clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%)!important;height:40px}
+.hgTabs button span{inset:2px 2.5px;background:linear-gradient(#26282e,#101114);clip-path:polygon(13px 0,100% 0,calc(100% - 13px) 100%,0 100%)}
+.hgTabs button.on{background:#ff5040!important;filter:drop-shadow(0 0 6px #e63329)}.hgTabs button.on span{background:linear-gradient(#d41e16,#7a0905)}
+.hgTabs b{padding:0 clamp(14px,2.4vw,28px);font:italic 900 clamp(12px,1.8vw,19px)/40px 'Arial Black',Arial,sans-serif!important;white-space:nowrap;color:#fff!important}
+#hgHead{top:60px;flex-direction:column;align-items:stretch;gap:8px;padding:6px 12px}
+.hgTitleRow{display:flex;align-items:center;gap:10px}
+.hgBack{width:58px;height:50px;background:#e63329!important;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);flex:0 0 auto}
+.hgBack span{inset:2.5px;background:#0d0d10;clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}.hgBack b{color:#e63329;font:900 26px/50px Arial,sans-serif;text-align:center}
+.hgName b{font:italic 900 clamp(24px,5vw,50px) 'Arial Black',Arial,sans-serif;text-transform:uppercase}
+.hgName small{font:700 clamp(11px,1.6vw,15px) Arial,sans-serif;letter-spacing:3px;color:#e6e6e8;border-top:1px solid #ffffff33;margin-top:3px;padding-top:3px}
+#acYr{display:none!important}
+.hgSlash{width:64px;height:34px;flex:0 0 auto;background:repeating-linear-gradient(-60deg,transparent 0 6px,#e63329 6px 13px,transparent 13px 20px);opacity:.9}
+.hgLaunch{align-self:center;width:min(92%,620px);height:clamp(54px,8vh,72px);background:#ff5a48!important;clip-path:polygon(26px 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,26px 100%,0 50%);filter:drop-shadow(0 0 14px #e63329)}
+.hgLaunch span{inset:3px;background:linear-gradient(#e0261c,#8a0a06 60%,#b3120c);clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 50%,calc(100% - 24px) 100%,24px 100%,0 50%)}
+.hgLaunch b{font:italic 900 clamp(20px,3.6vw,34px)/1 'Arial Black',Arial,sans-serif;letter-spacing:1.5px;text-shadow:0 2px 0 #4a0402}
+#hgHead #demoB{box-shadow:none!important;padding:0!important}
+.hgArrow{width:64px;height:110px;background:#e63329!important;clip-path:polygon(26px 0,100% 0,100% 100%,26px 100%,0 50%)!important;filter:drop-shadow(0 0 8px #e6332988)}
+.hgArrow span{inset:3px;background:linear-gradient(90deg,#1c1d22,#0b0b0e);clip-path:polygon(25px 0,100% 0,100% 100%,25px 100%,0 50%)}
+#next.hgArrow{clip-path:polygon(0 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,0 100%)!important}#next.hgArrow span{clip-path:polygon(0 0,calc(100% - 25px) 0,100% 50%,calc(100% - 25px) 100%,0 100%)}
+.hgArrow b{font-size:34px;line-height:104px;text-align:center}#prev.hgArrow b{padding-left:12px}#next.hgArrow b{padding-right:12px}
+#rrBox{grid-template-columns:1.25fr 1.1fr 1.1fr .8fr!important;gap:10px!important;padding:10px 10px 0!important;background:linear-gradient(rgba(6,6,8,0),rgba(8,8,10,.94) 14%)!important}
+.hgCard{position:relative;isolation:isolate;padding:12px 14px;min-width:0;--c:14px;clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c))}
+.hgCard::before{content:'';position:absolute;inset:0;z-index:-2;background:linear-gradient(#6a6e76,#2e3036)}
+.hgCard::after{content:'';position:absolute;inset:2px;z-index:-1;background:linear-gradient(#1a1b20,#0b0b0e);clip-path:polygon(calc(var(--c) - 1px) 0,100% 0,100% calc(100% - var(--c) + 1px),calc(100% - var(--c) + 1px) 100%,0 100%,0 calc(var(--c) - 1px))}
+.hgPanel{display:none}
+#hgInfoP{display:flex;gap:10px;align-items:center}#hgBp{width:clamp(70px,9vw,120px);height:auto;flex:0 0 auto;filter:drop-shadow(0 0 4px #000)}#hgBp[src=""]{display:none}
+.hgInfo{flex:1;min-width:0}.hgInfo h4{margin:0 0 4px;font:italic 900 clamp(15px,2vw,22px) 'Arial Black',Arial,sans-serif;color:#fff;border-left:4px solid #e63329;padding-left:8px;text-transform:uppercase;line-height:1.05}
+#hgInfoT{width:100%;border-collapse:collapse;font:700 clamp(11px,1.3vw,14px) Arial,sans-serif;color:#ddd}#hgInfoT td{padding:3px 4px;border-bottom:1px solid #ffffff1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}#hgInfoT td:first-child{color:#bbb;letter-spacing:1px}#hgInfoT td.own{font-style:italic;font-weight:900;color:#fff}
+.hgSt{font:700 clamp(12px,1.4vw,15px) Arial,sans-serif!important;margin:6px 0!important;border-bottom:1px solid #ffffff14;padding-bottom:4px}.hgSt span{width:clamp(78px,9vw,110px)!important}.hgSt i{height:12px!important;background:#3a3c42!important;clip-path:none!important}.hgSt i u{background:linear-gradient(90deg,#c3150f,#ff2a1a)!important}.hgSt b{width:34px!important;font-size:clamp(13px,1.5vw,17px)}
+#hgPaintP h3{font:italic 900 clamp(13px,1.6vw,17px) Arial,sans-serif;text-align:left;border-bottom:1px solid #ffffff22;padding-bottom:6px;letter-spacing:1px}
+.hgSwRow{display:flex;align-items:center;gap:6px}.hgPg{background:none;border:0;color:#fff;font:900 30px/1 Arial;cursor:pointer;padding:0 4px}
+#hgSw{flex:1;display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px}#hgSw button{width:auto!important;height:auto!important;aspect-ratio:1;border-radius:2px;border:2px solid #333!important;background-blend-mode:multiply}#hgSw button.on{border-color:#ff3a2a!important;box-shadow:0 0 0 2px #ff3a2a,0 0 10px #ff3a2a}
+#hgDots{display:flex;gap:8px;justify-content:center;margin-top:8px}#hgDots i{width:10px;height:10px;border-radius:50%;background:#555}#hgDots i.on{background:#e63329}
+#hgBtns{display:flex;flex-direction:column;gap:8px;justify-content:center}
+.hgBig{height:48px;background:#7a7e86!important;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}.hgBig span{inset:2px;background:linear-gradient(#2c2e34,#141519);clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+.hgBig b{font:italic 900 clamp(13px,1.6vw,18px)/48px Arial,sans-serif;letter-spacing:.5px;text-align:left;padding-left:16px;white-space:nowrap}
+#hgMoreP{display:none;grid-column:1/-1}#hgMoreP.open{display:block}
+#hgFoot{grid-column:1/-1;display:flex;align-items:center;gap:10px;height:30px;font:italic 900 14px Arial,sans-serif;letter-spacing:1px;color:#fff;margin:0 -10px;padding:0 14px;background:linear-gradient(#101013,#060607);border-top:1px solid #e6332966}#hgFoot i{width:44px;height:16px;background:repeating-linear-gradient(-60deg,transparent 0 4px,#e63329 4px 9px,transparent 9px 13px)}#hgFoot span{flex:1}#hgFoot em{font:700 11px 'Courier New',monospace;color:#aaa;font-style:normal;letter-spacing:1px}html.hgOn #ver{display:none}#hgFoot i:last-child{width:70px}
+#hgHead #demoB{flex:0 0 auto!important}@media (max-aspect-ratio:1/1){#rrBox{grid-template-columns:1.15fr 1fr!important}#hgInfoP,#hgStatsP,#hgPaintP,#hgBtns{grid-column:auto!important}#hgHead{flex-wrap:nowrap}.hgName{order:0;flex-basis:auto}.hgArrow{width:52px;height:90px;top:44%}.hgArrow b{line-height:84px;font-size:28px}}
+@media (max-width:480px){#rrBox{gap:6px!important;padding:6px 6px 0!important}.hgCard{padding:8px 9px;--c:10px}.hgBig{height:38px}.hgBig b{line-height:38px;font-size:12px;padding-left:10px}#hgBp{width:58px}.hgSt span{width:70px!important}.hgSt{font-size:11px!important;margin:3px 0!important}.hgSlash{display:none}.hgBack{width:46px;height:42px}.hgBack b{line-height:42px;font-size:22px}#hgSw{gap:5px}.hgLogo{font-size:24px}.hgTabs b{padding:0 11px;font-size:11px!important}}
+</style>
 <div class="sheet hidden" id="dEnd"><div class="box"><h2 id="dEndH">Stage 1 clear</h2><p id="dEndP"></p><div class="row" style="align-items:center"><button class="pill" id="dAgain">( ▶ FLY AGAIN )</button><button class="pill" id="dBoardE">( FLIGHT BOARD )</button><button class="pill" id="dDrill">( MISSILE DRILL )</button><button class="ib" id="dBack" aria-label="Back to the hangar" style="color:#ff5040">↶</button></div></div></div>
 <div class="sheet hidden" id="end"><div class="box">
   <h2 id="debh">Mission clear</h2>
@@ -918,14 +982,21 @@ function flares(){if(!S.on)return;
 let acI=0;const strip=$('acStrip');AIRCRAFT.forEach((a,i)=>{const b=document.createElement('button');b.className='pill';b.textContent=a.name.split(' ')[0];b.onclick=()=>pickAc(i);strip.appendChild(b)});
 function pickAc(i){if(i===acI)return;const d=((i-acI+AIRCRAFT.length)%AIRCRAFT.length)<=AIRCRAFT.length/2?1:-1;acI=i;showAc();S.hx=d*CUR.r*3.2} /* new plane rolls in from the side it came from */
 /* swipe-to-change removed: dragging the hangar spins the plane; the name strip and arrows change planes */
-function hgSw(){const w=$('hgSw');if(!w||typeof PAINTS==='undefined')return;w.innerHTML=PAINTS.map((p,i)=>{const own=OWNP.includes(i),col=p[1]?`rgb(${p[1].slice(0,3).map(v=>Math.round(v*255)).join(',')})`:'linear-gradient(135deg,#9aa4ae,#5b636b)';return `<button data-i="${i}" class="${i===PAINT?'on':''} ${own?'':'lk'}" style="background:${col}" aria-label="${p[0]}${own?'':' (locked, '+p[2]+' salvage)'}"></button>`}).join('');[...w.children].forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(OWNP.includes(i)){PAINT=i;try{localStorage.setItem('1992paint',PAINT)}catch(e){}$('paintB').textContent='( PAINT: '+PAINTS[PAINT][0]+' )';hgSw()}else{BSEL='pt';$('boardB').click()}})} /* v0.1.8: paint swatches: tap an owned one to wear it, a locked one opens the paint shop */
-$('hgTabB').onclick=()=>$('boardB').click();$('hgTabP').onclick=()=>$('pilotB').click();
+const HSTILL=new Set([]); /* v0.1.9: aircraft that have a painted hangar still in art/hangar/<id>.webp: the still shows, ( 3D VIEW ) spins the real model */
+function hgStillShow(){const im=$('hgStill'),has=HSTILL.has(CUR.id);S.still=has&&!S.hg3d;$('hg3dB').style.display=has?'':'none';$('hg3dB').textContent=S.hg3d?'( PHOTO )':'( 3D VIEW )';if(has&&!S.hg3d){const src='art/hangar/'+CUR.id+'.webp';if(!im.src.endsWith(src))im.src=src;im.classList.add('on')}else im.classList.remove('on')}
+const HBP=new Set(['f16','f18','f14','f14a1','a10a1','f18a1','f15','a10','sr71','b2','yf22','av8b','f117','c130','c5','ah64']);
+function hgInfo(){const v=/a1$/.test(CUR.id)?'A1':'STOCK',role=(CUR.role||'').toUpperCase(),cls=((CUR.yr||'').split('·')[0]||'').trim();$('hgSub').textContent=[role,'VARIANT '+v,'OWNED'].filter(Boolean).join('  |  ');$('hgNm2').textContent=CUR.name;$('hgInfoT').innerHTML=`<tr><td>CLASS</td><td>${CUR.role||''}</td></tr><tr><td>ROLE</td><td>${cls}</td></tr><tr><td>VARIANT</td><td>${v}</td></tr><tr><td>STATUS</td><td class="own">OWNED</td></tr>`;$('hgBp').src=HBP.has(CUR.id)?'art/hangar/bp-'+CUR.id+'.webp':''} /* v0.1.9: the info card: a top-view blueprint of the real model, class, role, variant, status */
+let SWPG=0;
+$('swL').onclick=()=>{SWPG=Math.max(0,SWPG-1);hgSw()};$('swR').onclick=()=>{SWPG=Math.min(Math.ceil(PAINTS.length/4)-1,SWPG+1);hgSw()};
+$('hgUpB').onclick=()=>$('boardB').click();$('hgPfB').onclick=()=>{BSEL='pt';$('boardB').click()};$('hgOptB').onclick=()=>$('hgMoreP').classList.toggle('open');$('hgOptX').onclick=()=>$('hgMoreP').classList.remove('open');
+function hgSw(){const w=$('hgSw');if(!w||typeof PAINTS==='undefined')return;const pg=Math.ceil(PAINTS.length/4);SWPG=Math.min(SWPG,pg-1);w.innerHTML=PAINTS.map((p,i)=>{if(Math.floor(i/4)!==SWPG)return'';const own=OWNP.includes(i),c=p[1]?p[1].slice(0,3).map(v=>Math.round(v*255)):[150,160,170],col=`radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 55%),repeating-linear-gradient(35deg,rgba(255,255,255,.06) 0 3px,rgba(0,0,0,.08) 3px 7px),rgb(${c.join(',')})`;return `<button data-i="${i}" class="${i===PAINT?'on':''} ${own?'':'lk'}" style="background:${col}" aria-label="${p[0]}${own?'':' (locked, '+p[2]+' salvage)'}"></button>`}).join('');{const d=$('hgDots');if(d)d.innerHTML=Array.from({length:pg},(_,k)=>`<i class="${k===SWPG?'on':''}"></i>`).join('')}[...w.children].forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(OWNP.includes(i)){PAINT=i;try{localStorage.setItem('1992paint',PAINT)}catch(e){}$('paintB').textContent='( PAINT: '+PAINTS[PAINT][0]+' )';hgSw()}else{BSEL='pt';$('boardB').click()}})} /* v0.1.8: paint swatches: tap an owned one to wear it, a locked one opens the paint shop */
+$('hgTabB').onclick=()=>$('boardB').click();$('hg3dB').onclick=()=>{S.hg3d=!S.hg3d;hgStillShow()};$('hgTabP').onclick=()=>$('pilotB').click();
 function showAc(){CUR=AIRCRAFT[acI];loadArt(CUR);loadHull(CUR);[...strip.children].forEach((b,i)=>b.classList.toggle('on',i===acI));const ch=strip.children[acI];if(ch)strip.scrollTo({left:ch.offsetLeft-strip.clientWidth/2+ch.offsetWidth/2,behavior:'smooth'});$('acName').textContent=CUR.name;$('acYr').textContent=CUR.yr+' · '+CUR.role;
- $('acStats').innerHTML=CUR.st?['SPEED','TURN','ARMOR','GUNS'].map((l,i)=>`<div class="hgSt"><span>${l}</span><i><u style="width:${CUR.st[i]*10}%"></u></i><b>${CUR.st[i]*10}</b></div>`).join(''):'';hgSw();
- $('acWarn').textContent=CUR.warn||'';}
+ $('acStats').innerHTML=CUR.st?[['SPEED',0],['ARMOR',2],['FIREPOWER',3],['MANEUVER',1]].map(([l,i])=>`<div class="hgSt"><span>${l}</span><i><u style="width:${CUR.st[i]*10}%"></u></i><b>${CUR.st[i]*10}</b></div>`).join(''):'';hgInfo();hgSw();
+ $('acWarn').textContent=CUR.warn||'';hgStillShow()}
 function ins(){drawInsignia($('cs').value.trim().toUpperCase()||'PULSE',$('sq').value.trim().toUpperCase(),S.insSeed);const v=$('insv').getContext('2d');v.clearRect(0,0,96,96);v.drawImage(insC,0,0,96,96)}
-function setMini(m){$('rrBox').classList.toggle('mini',m);$('hideB').textContent=m?'( SHOW ▲ )':'( HIDE ▼ )';try{localStorage.setItem('1992mini',m?'1':'0')}catch(e){}}
-$('hideB').onclick=()=>setMini(!$('rrBox').classList.contains('mini'));try{if(localStorage.getItem('1992mini')==='1')setMini(true)}catch(e){}
+function setMini(m){$('rrBox').classList.toggle('mini',m);$('hideB').textContent=m?'( SHOW ▲ )':'( HIDE ▼ )';try{localStorage.setItem('1992mini2',m?'1':'0')}catch(e){}}
+$('hideB').onclick=()=>setMini(!$('rrBox').classList.contains('mini'));try{if(localStorage.getItem('1992mini2')==='1')setMini(true)}catch(e){}
 $('pilotB').onclick=()=>{const b=$('pilotBox'),o=b.style.display==='none';b.style.display=o?'flex':'none';$('pilotB').textContent=o?'( PILOT FILE ▲ )':'( PILOT FILE )'};
 $('prev').onclick=()=>pickAc((acI+AIRCRAFT.length-1)%AIRCRAFT.length);$('next').onclick=()=>pickAc((acI+1)%AIRCRAFT.length);
 $('insNew').onclick=()=>{S.insSeed++;ins()};$('cs').addEventListener('input',ins);$('sq').addEventListener('input',ins);
@@ -991,7 +1062,7 @@ function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimation
   S.hx=lerp(S.hx||0,0,clamp(dt*4.5,0,1));const idle=performance.now()-HC.touched>4000;S.yaw=((S.yaw||.6)+(idle?dt*Math.PI*2/26:0))%(Math.PI*2);
   model=M.mul(M.trs([S.hx,-fy,0],0,0,1),rotY(S.yaw));
   const bx=$('rrBox').getBoundingClientRect(),hd=$('hgHead').getBoundingClientRect(),t0=$('start').classList.contains('hidden')?0:clamp(hd.bottom/innerHeight,0,.5),fr=clamp((bx.top-8)/innerHeight-t0,.22,1),asp=RW/RH,th=Math.tan(.475),d=Math.max(.95*r/(th*fr),.9*r/(th*asp))*1.06,D=norm([1.95,2.2,3.05]);
-  S.free=fr;S.top0=t0;{const port=innerWidth/innerHeight<1;const bg=document.documentElement;bg.classList.toggle('port',port);const iw=port?1086:1672,ih=port?1448:941,ry=port?.56:.69,sc=Math.max(innerWidth/iw,innerHeight/ih),want=(t0+fr*.64)*innerHeight,oy=clamp(want-ry*ih*sc,innerHeight-ih*sc,0),k=Math.round(oy)+'px';if(S.bgY!==k){S.bgY=k;bg.style.setProperty('background-position','center '+k,'important')}}const thA=Math.atan2(D[0],D[2])+HC.yaw,phA=clamp(Math.asin(D[1])+HC.pitch,-1.45,1.5),dd=d*HC.dist,dir=[Math.sin(thA)*Math.cos(phA),Math.sin(phA),Math.cos(thA)*Math.cos(phA)],rt=norm(cross([0,1,0],dir)),tg=[rt[0]*HC.px,hc+HC.py,rt[2]*HC.px];
+  S.free=fr;S.top0=t0;{const port=innerWidth/innerHeight<1;const bg=document.documentElement;bg.classList.toggle('port',port);const iw=port?1086:1672,ih=port?1448:941,ry=port?.56:.69,sc=Math.max(innerWidth/iw,innerHeight/ih),want=(t0+fr*.64)*innerHeight,oy=clamp(want-ry*ih*sc,innerHeight-ih*sc,0),k=Math.round(oy)+'px';if(S.bgY!==k){S.bgY=k;bg.style.setProperty('background-position','center '+k,'important')}{const im=$('hgStill'),wpx=Math.min(innerWidth*.94,fr*innerHeight*2.1),key=Math.round(want)+'/'+Math.round(wpx);if(S.stK!==key){S.stK=key;im.style.top=Math.round(want+fr*innerHeight*.1)+'px';im.style.width=Math.round(wpx)+'px'}}}const thA=Math.atan2(D[0],D[2])+HC.yaw,phA=clamp(Math.asin(D[1])+HC.pitch,-1.45,1.5),dd=d*HC.dist,dir=[Math.sin(thA)*Math.cos(phA),Math.sin(phA),Math.cos(thA)*Math.cos(phA)],rt=norm(cross([0,1,0],dir)),tg=[rt[0]*HC.px,hc+HC.py,rt[2]*HC.px];
   S.under=phA<.02;S.cam={e:[tg[0]+dir[0]*dd,tg[1]+dir[1]*dd,tg[2]+dir[2]*dd],t:tg,u:[0,1,0]}} /* fit the plane in the open space above the panel, on any screen */
  const cy=S.cam.e[1],inCloud=sst(70,80,cy)*(1-sst(104,114,cy)),above=sst(100,115,cy);
  let fog=L3([.56,.68,.8],[.33,.53,.86],above),fn=lerp(50,160,above),ff=lerp(330,900,above);if(HG){fog=[.035,.035,.04];fn=CUR.r*3.5;ff=CUR.r*9}
@@ -1005,7 +1076,7 @@ function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimation
  if(HG){}else if(!HG){ /* v0.1.8: the hangar floor and turntable are now your painted hangar, behind the canvas */
  gl.depthMask(false);gl.uniform1f(U.uFn,1e5);gl.uniform1f(U.uFf,2e5);draw(mDome,M.trs([cx,S.cam.e[1]-60,cz],0,0,1),VP,{sky:1});gl.uniform1f(U.uFn,fn);gl.uniform1f(U.uFf,ff);gl.depthMask(true);gl.clear(gl.DEPTH_BUFFER_BIT);
  draw(mQuad,M.mul(M.trs([cx,0,cz],0,0,1),scl(1500)),VP,{tex:tSea,wuv:1,sc:1/34,off:[S.t*.02,S.t*.035],sea:!RETRO});}
- if(S.view<3&&!S.cine){if(CUR.fin&&CUR.bmin){gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,tIns);gl.uniform1i(U.uP0,2);gl.uniform3fv(U.uBmin,CUR.bmin);gl.uniform3fv(U.uBsize,CUR.bsize)}if(CUR.art){for(let i=0;i<6;i++){gl.activeTexture(gl.TEXTURE2+i);gl.bindTexture(gl.TEXTURE_2D,CUR.art[i]);gl.uniform1i(U['uP'+i],2+i)}gl.uniform3fv(U.uBmin,CUR.bmin);gl.uniform3fv(U.uBsize,CUR.bsize)}
+ if(S.view<3&&!S.cine&&!(HG&&S.still)){if(CUR.fin&&CUR.bmin){gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,tIns);gl.uniform1i(U.uP0,2);gl.uniform3fv(U.uBmin,CUR.bmin);gl.uniform3fv(U.uBsize,CUR.bsize)}if(CUR.art){for(let i=0;i<6;i++){gl.activeTexture(gl.TEXTURE2+i);gl.bindTexture(gl.TEXTURE_2D,CUR.art[i]);gl.uniform1i(U['uP'+i],2+i)}gl.uniform3fv(U.uBmin,CUR.bmin);gl.uniform3fv(U.uBsize,CUR.bsize)}
   if(LOOK===1){gl.enable(gl.CULL_FACE);gl.cullFace(gl.FRONT);gl.uniform1f(U.uOutline,.05*CUR.r/9+.0016*Math.hypot(...sub(S.cam.e,pos)));draw(CUR.body,model,VP,{});if(CUR.tails)draw(CUR.tails,model,VP,{});gl.uniform1f(U.uOutline,0);gl.disable(gl.CULL_FACE)} /* inked outline: the inverted-hull trick */
   {S.brkA=lerp(S.brkA||0,S.brake>0?1:0,clamp(dt*5,0,1));S.swA=lerp(S.swA||0,S.burn>0?1:0,clamp(dt*1.6,0,1));const cc=now/1000,chk=0; /* hangar shows the model exactly as built: no control check */setSurf(CUR,HG?chk*Math.max(0,Math.sin(cc*.35))*.55:S.brkA,HG?chk*Math.sin(cc*1.9)*.55:clamp(bank*1.1,-1,1),HG?chk*Math.sin(cc*1.3)*.45:(climbingNow?.6:0),HG?0:S.swA)} /* hangar: a slow control check */
   draw(CUR.body,model,VP,CUR.glbTex?{tex:CUR.glbTex,lit:1,matte:!RETRO,fin:CUR.fin,fin2:CUR.fin2,nrm:CUR.glbNrm}:CUR.isGlb?(CUR.glbVC?{tex:tIns,decal:1,lit:1,matte:!RETRO}:{lit:1,matte:!RETRO}):RETRO?{tex:tJet,lit:1}:{lit:1,proj:!!CUR.art});noSurf();if(HG&&CUR.gear)draw(CUR.gear,model,VP,CUR.gearTex?{lit:1,tex:CUR.gearTex}:{lit:1});if(CUR.tails)draw(CUR.tails,model,VP,{tex:tIns,lit:1,decal:1}); /* insignia is a decal over the tail paint, so the tail never goes see-through */
@@ -1015,7 +1086,7 @@ function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimation
  for(const q of S.my||[])draw(mMsl,M.mul(M.trs(q.p,0,0,1),M.mul(rotY(Math.atan2(q.v[0],q.v[2])),scl(.62))),VP,{lit:1});
  const m=S.missile;if(m){const mm=M.trs(m.p,-m.pitch,0,1);if(LOOK===1){gl.enable(gl.CULL_FACE);gl.cullFace(gl.FRONT);gl.uniform1f(U.uOutline,.08);draw(mMsl,mm,VP,{});gl.uniform1f(U.uOutline,0);gl.disable(gl.CULL_FACE)}draw(mMsl,mm,VP,{lit:1})}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);
- if(HG)draw(CUR.body,M.mul(M.trs([S.hx,.05,0],0,0,0),rotY(S.yaw)),VP,{flat:[0,0,0,1],a:.5});else{const sh=clamp(1-y/45,0,1);if(sh>0)draw(CUR.body,M.trs([S.x,.4,S.z],0,bank,0),VP,{flat:[0,.04,.1,1],a:.38*sh})}
+ if(HG&&!S.still)draw(CUR.body,M.mul(M.trs([S.hx,.05,0],0,0,0),rotY(S.yaw)),VP,{flat:[0,0,0,1],a:.5});else{const sh=clamp(1-y/45,0,1);if(sh>0)draw(CUR.body,M.trs([S.x,.4,S.z],0,bank,0),VP,{flat:[0,.04,.1,1],a:.38*sh})}
  // vapor: wingtips while pulling, engines on top
  const pull=S.on&&(climbingNow||Math.abs(S.vx)>14), high=S.alt>11800;
  [...(CUR.tips||[[0,0,0],[0,0,0]]).slice(0,2),...((CUR.noz&&CUR.noz.length)?[CUR.noz[0],CUR.noz[CUR.noz.length-1]]:[[0,0,0],[0,0,0]])].forEach((pt,i)=>{const tr=S.trails[i];tr.forEach(q=>q.age+=dt);
