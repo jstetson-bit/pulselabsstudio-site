@@ -152,6 +152,36 @@ body.padhw #padLeg{display:flex!important}
 #padLeg .pdD span{white-space:nowrap}#padLeg .dy{grid-column:1/3;grid-row:1;justify-self:center}#padLeg .dx{grid-column:1;grid-row:2}#padLeg .db{grid-column:2;grid-row:2}#padLeg .da{grid-column:1/3;grid-row:3;justify-self:center}
 #padLeg .pdD b{border-radius:50%!important;width:15px;min-width:15px;height:15px;padding:0!important;line-height:11px}
 @media (max-width:719px){#padLeg{top:66px!important;right:6px!important;background:rgba(0,0,0,.45);padding:3px 6px;border:1px solid #e6332988;clip-path:polygon(6px 0,100% 0,100% 100%,0 100%,0 6px)}#padLeg .pdL{display:none}body.padhw #radio{right:150px!important}}
+
+/* v0.1.8: the new hangar: your painted hangar behind the real 3D jet, tabs and the launch on top, stats and paint below */
+html.hgOn{background:#07080b url(art/hangar-land.webp) center/cover no-repeat fixed!important}html.hgOn.port{background-image:url(art/hangar-port.webp)!important}html.hgOn body{background:transparent!important}#hgBg{display:none}
+#start{display:block!important;padding:0!important;background:transparent!important;pointer-events:none}#start.hidden{display:none!important}
+#start>*{pointer-events:auto}
+#hgTop{position:absolute;left:0;right:0;top:0;height:50px;display:flex;align-items:center;gap:12px;padding:0 112px 0 12px;background:linear-gradient(#0b0b0e,rgba(11,11,14,.82));border-bottom:2px solid #e63329}
+.hgLogo{font:italic 900 30px 'Arial Black',Arial,sans-serif;color:#e63329;letter-spacing:1px;text-shadow:0 2px 0 #000;display:flex;align-items:baseline;gap:8px}.hgLogo small{font:700 12px 'Courier New',monospace;color:#fff;letter-spacing:2px}
+.hgTabs{display:flex;gap:6px;flex:1;justify-content:center;min-width:0}
+.hgTabs button{font:italic 900 clamp(11px,1.6vw,16px) 'Arial Black',Arial,sans-serif;color:#fff;background:#121216;border:2px solid #3a3a42;padding:6px clamp(8px,2vw,22px);clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);cursor:pointer;white-space:nowrap}
+.hgTabs button.on{background:linear-gradient(#c3150f,#6e0806);border-color:#ff4a3a}
+#hgHead{position:absolute;left:0;right:0;top:56px;display:flex;align-items:center;gap:10px;padding:4px 12px}
+#hgHead #toTitle{color:#e63329;font-size:22px;padding:0 16px;min-height:44px}
+.hgName{flex:1;text-align:center;min-width:0}.hgName small{display:block;font:700 12px 'Courier New',monospace;color:#ddd;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hgName b{display:block;font:italic 900 clamp(22px,4.2vw,44px) 'Arial Black',Arial,sans-serif;color:#fff;letter-spacing:1px;text-shadow:0 3px 0 #000,0 0 18px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hgHead #demoB{font-size:clamp(14px,2vw,20px);padding:10px 18px;box-shadow:0 0 16px #e63329;white-space:nowrap}
+.hgArrow{position:absolute;top:45%;width:56px;height:84px;background:rgba(8,8,10,.8);border:3px solid #e63329;color:#fff;font-size:30px;cursor:pointer;clip-path:polygon(14px 0,100% 0,100% 100%,14px 100%,0 50%)}
+#prev.hgArrow{left:8px}#next.hgArrow{right:8px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%)}
+#rrBox{position:absolute;left:0;right:0;bottom:0;max-width:none!important;width:auto!important;display:grid!important;grid-template-columns:1.2fr 1fr 1.1fr;gap:8px;padding:8px!important;background:linear-gradient(rgba(6,6,8,0),rgba(6,6,8,.9) 18%)!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.hgPanel{background:rgba(10,10,13,.88);border:2px solid #e63329aa;padding:8px 10px;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);min-width:0}
+.hgPanel h3{margin:0 0 6px;font:700 13px 'Courier New',monospace;color:#fff;letter-spacing:2px;text-align:center}
+.hgRow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}.hgRow .pill{padding:5px 10px;min-height:34px;font-size:12px}
+#salvH{font:700 12px 'Courier New',monospace;color:#ffd21a}#styleN{margin:4px 0 0;font-size:11px;line-height:1.3;color:#ddd;max-height:3.9em;overflow:hidden}
+.hgSt{display:flex;gap:8px;align-items:center;font:700 12px 'Courier New',monospace;color:#fff;letter-spacing:1px;margin:3px 0}.hgSt span{width:62px}.hgSt i{flex:1;height:9px;background:#2a2a30;clip-path:polygon(3px 0,100% 0,calc(100% - 3px) 100%,0 100%)}.hgSt i u{display:block;height:100%;background:linear-gradient(90deg,#8e0d08,#ff3a2a)}.hgSt b{width:26px;text-align:right}
+#acWarn{margin:4px 0 0;font-size:12px;color:#ffb3a8;min-height:0}
+#hgSw{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}#hgSw button{width:38px;height:30px;border:2px solid #444;cursor:pointer;position:relative;padding:0}#hgSw button.on{border-color:#ff3a2a;box-shadow:0 0 8px #ff3a2a}#hgSw button.lk{opacity:.45}#hgSw button.lk::after{content:'🔒';position:absolute;inset:0;font-size:12px;line-height:26px}#hgSw button.gpf{outline:3px solid #ffd400}
+#acStrip,#hgTop .hgLogo small{display:none}
+#pilotBox{grid-column:1/-1;background:rgba(10,10,13,.92);border:2px solid #e63329aa;padding:8px}
+#rrBox.mini #hgStatsP,#rrBox.mini #hgPaintP{display:none!important}#rrBox.mini{grid-template-columns:1fr}
+@media (max-aspect-ratio:1/1){#rrBox{grid-template-columns:1fr 1fr}#hgMoreP{grid-column:1/-1}#hgHead{flex-wrap:wrap}.hgName{order:-1;flex-basis:100%}#hgHead #demoB{flex:1}.hgLogo{font-size:22px}.hgArrow{width:44px;height:66px;font-size:24px;top:42%}}
+@media (max-width:480px){.hgTabs button{padding:6px 7px;font-size:10px}#hgTop{padding-right:96px;gap:6px}.hgLogo{font-size:18px}#rrBox{grid-template-columns:1fr}#hgPaintP .hgRow{display:none}#styleN{display:none}}
 </style>
 </head>
 <body class="pre">
@@ -188,7 +218,7 @@ body.padhw #padLeg{display:flex!important}
 <div id="padLeg"></div><div id="padPills"><div class="pp py"><i>Y</i><s id="ppY">0</s><u>BOMB</u></div><div class="pp px"><i>X</i><s id="ppX">1</s><u>GUN</u></div><div class="pp pb"><i>B</i><s id="ppB">0</s><u>MISSILE</u></div><div class="pp pa"><i>A</i><s id="ppA">0</s><u>WINGMEN</u></div></div>
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
 <div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
-<div id="ver">1992 · concept v0.1.7 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
+<div id="ver">1992 · concept v0.1.8 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
 <style>
 #title{position:fixed;inset:0;z-index:50;background:#05060a;overflow:hidden;color:#fff;font-family:Arial,sans-serif;transition:opacity .6s}
 #title.off{opacity:0;pointer-events:none}
@@ -225,22 +255,23 @@ body.titleOn #infoBtn,body.titleOn #invBtn{z-index:61}body.titleOn #manual{z-ind
  <div id="tAsk" class="hidden">Close 1992?<div class="tRow"><button class="ok" id="tQuitOk" aria-label="Yes, close">✔</button><button id="tQuitNo" aria-label="Stay">↶</button></div></div>
 </div>
 
-<div class="sheet" id="start" style="align-items:flex-end;background:transparent;padding:8px"><div class="box" id="rrBox" style="max-width:520px;padding:12px 14px">
-  <div class="keep" style="margin-bottom:8px;display:flex;gap:8px"><button class="pill" id="toTitle" aria-label="Back to the title screen" style="color:#e63329;font-size:22px;padding:0 16px">↶</button><button class="pill" id="demoB" style="flex:1;font-size:18px;box-shadow:0 0 14px #e63329">( ▶ PLAY · STAGE 1 )</button></div>
-  <div class="keep" style="display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;justify-content:flex-start;margin-bottom:8px"><button class="pill" id="styleB" style="padding:6px 12px;min-height:38px;font-size:13px">( PLAY STYLE: AUTO )</button><button class="pill" id="boardB" style="padding:6px 12px;min-height:38px;font-size:13px">( FLIGHT BOARD · UPGRADES )</button><span id="salvH" style="font:700 12px 'Courier New',monospace;color:#ffd21a"></span><p id="styleN" style="flex-basis:100%;margin:0;font-size:12px;line-height:1.35;color:#fff;text-align:left"></p></div>
-  <div style="display:flex;gap:12px;align-items:center"><h1 style="margin:0;font-size:30px">1992</h1><span style="flex:1"></span><button class="pill" id="paintB" style="padding:8px 10px;min-height:40px;font-size:13px">( PAINT )</button><button class="pill" id="lookB" style="padding:8px 10px;min-height:40px;font-size:13px">( LOOK: PICTURE )</button></div>
-  <div id="pilotBox" style="display:none;gap:12px;align-items:flex-end;margin-top:6px">
+<div id="hgBg" aria-hidden="true"></div>
+<div class="sheet" id="start">
+ <div id="hgTop"><div class="hgLogo">1992<small>HANGAR</small></div><div class="hgTabs"><button class="on" aria-label="Hangar">HANGAR</button><button id="hgTabB">FLIGHT BOARD</button><button id="hgTabP">PILOT FILE</button></div></div>
+ <div id="hgHead"><button class="pill" id="toTitle" aria-label="Back to the title screen">↶</button><div class="hgName"><small id="acYr"></small><b id="acName"></b></div><button class="pill" id="demoB">( ▶ LAUNCH MISSION )</button></div>
+ <button class="hgArrow" id="prev" aria-label="Previous aircraft">◀</button><button class="hgArrow" id="next" aria-label="Next aircraft">▶</button>
+ <div class="box" id="rrBox">
+  <div class="hgPanel" id="hgStatsP"><div id="acStats"></div><p id="acWarn"></p></div>
+  <div class="hgPanel" id="hgPaintP"><h3>PAINT / APPEARANCE</h3><div id="hgSw"></div><div class="hgRow"><button class="pill" id="paintB">( PAINT )</button><button class="pill" id="lookB">( LOOK: PICTURE )</button></div></div>
+  <div class="hgPanel keep" id="hgMoreP"><div class="hgRow"><button class="pill" id="styleB">( PLAY STYLE: AUTO )</button><span id="salvH"></span></div><p id="styleN"></p><div class="hgRow"><button class="pill" id="drillB">( MISSILE DRILL )</button><button class="pill" id="boardB">( FLIGHT BOARD )</button><button class="pill" id="pilotB">( PILOT FILE )</button><button class="pill" id="hideB">( HIDE ▼ )</button></div></div>
+  <div id="pilotBox" style="display:none;gap:12px;align-items:flex-end">
    <div style="flex:1"><label for="cs" style="margin:2px 0 4px">Call sign</label><input id="cs" maxlength="12" value="PULSE" autocomplete="off">
    <label for="sq" style="margin:8px 0 4px">Squadron name</label><input id="sq" maxlength="18" value="JOLLY REAPERS" autocomplete="off"></div>
    <div style="text-align:center"><canvas id="insv" width="96" height="96" style="width:96px;height:96px;display:block"></canvas><button class="pill" id="insNew" style="padding:8px 10px;min-height:40px;font-size:13px;margin-top:6px">( NEW INSIGNIA )</button></div></div>
   <div id="acStrip" aria-label="Hangar: swipe or tap a plane"></div>
-  <div class="keep" style="display:flex;align-items:center;gap:8px;margin-top:8px"><button class="pill" id="prev" aria-label="Previous aircraft">( ◀ )</button>
-   <div style="flex:1;text-align:center"><div id="acName" style="font-weight:700;font-size:18px;color:#fff"></div><div id="acYr" style="font-size:12px;color:#ddd"></div></div>
-   <button class="pill" id="next" aria-label="Next aircraft">( ▶ )</button></div>
-  <div id="acStats" style="margin-top:8px;font-size:12px"></div>
-  <p id="acWarn" style="color:#ffb3a8;font-size:13px;min-height:1em"></p>
-  <div class="row keep" style="margin-top:6px;align-items:center"><button class="pill" id="pilotB" style="padding:8px 12px;min-height:40px;font-size:13px">( PILOT FILE )</button><button class="pill" id="hideB" style="padding:8px 12px;min-height:40px;font-size:13px">( HIDE ▼ )</button><button class="pill" id="drillB" style="padding:8px 12px;min-height:40px;font-size:13px;margin-right:auto">( MISSILE DRILL )</button><button class="ok" id="go" aria-label="Play stage 1">✔</button></div>
-</div></div>
+  <button class="ok" id="go" aria-label="Play stage 1" style="display:none">✔</button>
+ </div>
+</div>
 
 <div class="sheet hidden" id="manual"><div class="box">
   <button class="ib x" id="manOk" aria-label="Close">↶</button>
@@ -346,7 +377,7 @@ let HEATM='soft';try{HEATM=localStorage.getItem('1992heat')||'soft'}catch(e){}le
 
 {
 const cv=document.getElementById('gl');
-const gl=cv.getContext('webgl',{antialias:true,alpha:false});let LOOK=0;try{const v=localStorage.getItem('1992look2');if(v!==null)LOOK=+v}catch(e){}let RETRO=LOOK===2;const LOOKS=['PICTURE','SKETCH','RETRO'];
+const gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false});let LOOK=0;try{const v=localStorage.getItem('1992look2');if(v!==null)LOOK=+v}catch(e){}let RETRO=LOOK===2;const LOOKS=['PICTURE','SKETCH','RETRO'];
 const $=id=>document.getElementById(id);
 if(!gl){$('start').querySelector('p').textContent='This device has no WebGL, so the concept can\'t run here.';}
 
@@ -710,13 +741,13 @@ function gearTex(n){if(GEARTX[n])return GEARTX[n];const t=gl.createTexture();gl.
  const im=new Image();im.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);gl.generateMipmap(gl.TEXTURE_2D);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE)};
  im.src='gear/'+n+'.webp';return GEARTX[n]=t}
-function buildGear(a){if(a.ground||!a.bmin)return;if(a.ownGear){a.floorY=a.bmin[1];a.gear=upload(mesh());if(a.glb&&!a.isGlb&&!a.glbFail)a.gear.hold=1;return}const m=mesh(),[x0,y0,z0]=a.bmin,[S,H,L]=a.bsize,cxm=x0+S/2,fy=y0-.058*L;
+function buildGear(a){if(a.ground||!a.bmin)return;if(a.ownGear){a.floorY=a.bmin[1];a.gear=upload(mesh());if(a.glb&&!a.isGlb&&!a.glbFail)a.gear.hold=1;return}const m=mesh(),[x0,y0,z0]=a.bmin,[S,H,L]=a.bsize,cxm=x0+S/2,fy=y0-.036*L; /* v0.1.8: low, squat stance like the real thing (was .058: stilts) */
  const TIRE=[.07,.07,.08,1],HUB=[.62,.63,.66,1],STRUT=[.8,.81,.83,1],CHROME=[.93,.94,.96,1],DOOR=[.26,.28,.3,1],WELL=[.05,.05,.06,1];
  const belly=(x,z,r)=>{const B=a.belly;if(!B)return y0+.02*H;let best=1e9;const cx=(x-x0)/S*B.NX,cz=(z-z0)/L*B.NZ,rx=Math.max(1,r/S*B.NX),rz=Math.max(1,r/L*B.NZ);for(let gz=Math.max(0,Math.floor(cz-rz));gz<=Math.min(B.NZ-1,Math.ceil(cz+rz));gz++)for(let gx=Math.max(0,Math.floor(cx-rx));gx<=Math.min(B.NX-1,Math.ceil(cx+rx));gx++){const v=B.ys[gz*B.NX+gx];if(v<best)best=v}return best<1e8?best:y0+.02*H}; /* lowest skin around that spot */
  function wheel(c,r,w,n=14){const ring=(x)=>Array.from({length:n},(_,i)=>{const t=i/n*Math.PI*2;return[x,c[1]+Math.cos(t)*r,c[2]+Math.sin(t)*r]}),A=ring(c[0]-w/2),Bq=ring(c[0]+w/2);for(let i=0;i<n;i++){const k=(i+1)%n;quad(m,A[i],A[k],Bq[k],Bq[i],TIRE)}for(const[R0,sx]of[[A,-1],[Bq,1]]){const ctr=[c[0]+sx*w/2,c[1],c[2]],hub=ring(c[0]+sx*w*.52).map(p=>[p[0],c[1]+(p[1]-c[1])*.55,c[2]+(p[2]-c[2])*.55]);for(let i=0;i<n;i++){const k=(i+1)%n;if(sx<0){tri(m,ctr,R0[k],R0[i],TIRE);tri(m,[ctr[0]-sx*.001,ctr[1],ctr[2]],hub[k],hub[i],HUB)}else{tri(m,ctr,R0[i],R0[k],TIRE);tri(m,[ctr[0]+.001,ctr[1],ctr[2]],hub[i],hub[k],HUB)}}}}
  function strut(x,z,yb,yt,w,rake){box(m,x-w/2,x+w/2,yb,yt,z-w/2+rake,z+w/2+rake,STRUT);box(m,x-w*.35,x+w*.35,yb,yb+(yt-yb)*.45,z-w*.35,z+w*.35,CHROME);box(m,x-w*.9,x+w*.9,yt-w*.6,yt,z-w*.9,z+w*.9,WELL)}
  function door(x,z,yt,h,len,side){const t=.0025*L;box(m,x+side*(.016*L)-t,x+side*(.018*L)+t,yt-h,yt,z-len/2,z+len/2,DOOR)}
- const mx=Math.min(.12*L,.34*S),mz=z0+.42*L,nz=z0+.8*L,rM=.032*L,wM=.022*L,rN=.02*L,wN=.012*L;
+ const mx=Math.min(.12*L,.34*S),mz=z0+.42*L,nz=z0+.8*L,rM=.027*L,wM=.02*L,rN=.017*L,wN=.011*L;
  for(const sd of[1,-1]){const x=cxm+sd*mx,yt=belly(x,mz,.03*L),wc=fy+rM;strut(x,mz,wc,yt,.011*L,0);wheel([x+sd*wM*.75,wc,mz],rM,wM);door(x,mz,yt,(yt-wc)*.42,.045*L,sd)} /* main gear: strut from the wing root to a big wheel, a door beside it */
  {const yt=belly(cxm,nz,.02*L),wc=fy+rN;strut(cxm,nz,wc,yt,.008*L,.004*L);for(const sd of[1,-1])wheel([cxm+sd*wN*.8,wc,nz+.004*L],rN,wN);for(const sd of[1,-1])door(cxm+sd*.004*L,nz,yt,(yt-wc)*.35,.035*L,sd)} /* nose gear: twin wheels */
  a.floorY=fy;a.gear=upload(m);a.gearTex=null;if(a.glb&&!a.isGlb&&!a.glbFail)a.gear.hold=1}
@@ -887,8 +918,10 @@ function flares(){if(!S.on)return;
 let acI=0;const strip=$('acStrip');AIRCRAFT.forEach((a,i)=>{const b=document.createElement('button');b.className='pill';b.textContent=a.name.split(' ')[0];b.onclick=()=>pickAc(i);strip.appendChild(b)});
 function pickAc(i){if(i===acI)return;const d=((i-acI+AIRCRAFT.length)%AIRCRAFT.length)<=AIRCRAFT.length/2?1:-1;acI=i;showAc();S.hx=d*CUR.r*3.2} /* new plane rolls in from the side it came from */
 /* swipe-to-change removed: dragging the hangar spins the plane; the name strip and arrows change planes */
+function hgSw(){const w=$('hgSw');if(!w||typeof PAINTS==='undefined')return;w.innerHTML=PAINTS.map((p,i)=>{const own=OWNP.includes(i),col=p[1]?`rgb(${p[1].slice(0,3).map(v=>Math.round(v*255)).join(',')})`:'linear-gradient(135deg,#9aa4ae,#5b636b)';return `<button data-i="${i}" class="${i===PAINT?'on':''} ${own?'':'lk'}" style="background:${col}" aria-label="${p[0]}${own?'':' (locked, '+p[2]+' salvage)'}"></button>`}).join('');[...w.children].forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(OWNP.includes(i)){PAINT=i;try{localStorage.setItem('1992paint',PAINT)}catch(e){}$('paintB').textContent='( PAINT: '+PAINTS[PAINT][0]+' )';hgSw()}else{BSEL='pt';$('boardB').click()}})} /* v0.1.8: paint swatches: tap an owned one to wear it, a locked one opens the paint shop */
+$('hgTabB').onclick=()=>$('boardB').click();$('hgTabP').onclick=()=>$('pilotB').click();
 function showAc(){CUR=AIRCRAFT[acI];loadArt(CUR);loadHull(CUR);[...strip.children].forEach((b,i)=>b.classList.toggle('on',i===acI));const ch=strip.children[acI];if(ch)strip.scrollTo({left:ch.offsetLeft-strip.clientWidth/2+ch.offsetWidth/2,behavior:'smooth'});$('acName').textContent=CUR.name;$('acYr').textContent=CUR.yr+' · '+CUR.role;
- $('acStats').innerHTML=CUR.st?['Speed','Turn','Armor','Guns'].map((l,i)=>`<div style="display:flex;gap:8px;align-items:center"><span style="width:52px">${l}</span><span style="flex:1;height:6px;background:#333;border-radius:3px"><span style="display:block;height:6px;width:${CUR.st[i]*10}%;background:#e63329;border-radius:3px"></span></span></div>`).join(''):'';
+ $('acStats').innerHTML=CUR.st?['SPEED','TURN','ARMOR','GUNS'].map((l,i)=>`<div class="hgSt"><span>${l}</span><i><u style="width:${CUR.st[i]*10}%"></u></i><b>${CUR.st[i]*10}</b></div>`).join(''):'';hgSw();
  $('acWarn').textContent=CUR.warn||'';}
 function ins(){drawInsignia($('cs').value.trim().toUpperCase()||'PULSE',$('sq').value.trim().toUpperCase(),S.insSeed);const v=$('insv').getContext('2d');v.clearRect(0,0,96,96);v.drawImage(insC,0,0,96,96)}
 function setMini(m){$('rrBox').classList.toggle('mini',m);$('hideB').textContent=m?'( SHOW ▲ )':'( HIDE ▼ )';try{localStorage.setItem('1992mini',m?'1':'0')}catch(e){}}
@@ -926,7 +959,8 @@ function drawLine(pts,VP,life=1.6){if(pts.length<2)return;const p=[],n=[],c=[],t
 
 /* ---------- frame ---------- */
 let last=performance.now();
-function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimationFrame(frame);return} /* battery saver: 60 frames a second at most (a Fold screen asks for 120), 25 in menus */let dt=Math.min(.05,(now-last)/1000);last=now;{const w=!D.on&&CUR.glb&&!CUR.isGlb&&!CUR.glbFail;if(w!==S.roW){S.roW=w;$('rollOut').style.display=w?'block':'none'}} /* while the real jet loads: an empty pad and ROLLING OUT, never a stand-in */gpPoll();musTick();if(D.on){const ph=D.phase;D.ws=ph==='fight'||ph==='clear'||ph==='dead'?.52:1;demoFrame(D.paused?0:dt*D.ws,now); /* the fight runs at 53% speed (owner: 75% in v0.0.61, then another 30% slower in v0.0.73); the deck and launch stay real-time */requestAnimationFrame(frame);return}
+function opaqueA(){gl.colorMask(false,false,false,true);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.colorMask(true,true,true,true)} /* v0.1.8: outside the hangar the picture is always fully opaque */
+function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimationFrame(frame);return} /* battery saver: 60 frames a second at most (a Fold screen asks for 120), 25 in menus */let dt=Math.min(.05,(now-last)/1000);last=now;{const w=!D.on&&CUR.glb&&!CUR.isGlb&&!CUR.glbFail;if(w!==S.roW){S.roW=w;$('rollOut').style.display=w?'block':'none'}} /* while the real jet loads: an empty pad and ROLLING OUT, never a stand-in */gpPoll();musTick();if(D.on){const ph=D.phase;D.ws=ph==='fight'||ph==='clear'||ph==='dead'?.52:1;demoFrame(D.paused?0:dt*D.ws,now);opaqueA(); /* the fight runs at 53% speed (owner: 75% in v0.0.61, then another 30% slower in v0.0.73); the deck and launch stay real-time */requestAnimationFrame(frame);return}
  if(S.cine){S.cine.t+=dt;if(S.cine.t>=S.cine.dur)cineEnd();else dt*=S.cine.t<.25||S.cine.t>S.cine.dur-.35?.55:.22}
  if(S.on){S.t+=dt;script();}
  const k=S.keys,dir=(k['arrowright']||k['d']?1:0)-(k['arrowleft']||k['a']?1:0);
@@ -956,19 +990,19 @@ function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimation
  if(HG){if(!CUR.gear)buildGear(CUR);const r=CUR.r,fy=CUR.floorY??(CUR.bmin?CUR.bmin[1]:-2),hc=CUR.bmin?CUR.bmin[1]+CUR.bsize[1]*.5-fy:2;
   S.hx=lerp(S.hx||0,0,clamp(dt*4.5,0,1));const idle=performance.now()-HC.touched>4000;S.yaw=((S.yaw||.6)+(idle?dt*Math.PI*2/26:0))%(Math.PI*2);
   model=M.mul(M.trs([S.hx,-fy,0],0,0,1),rotY(S.yaw));
-  const bx=$('rrBox').getBoundingClientRect(),fr=clamp((bx.top-8)/innerHeight,.22,1),asp=RW/RH,th=Math.tan(.475),d=Math.max(.95*r/(th*fr),.9*r/(th*asp))*1.06,D=norm([1.95,2.2,3.05]);
-  S.free=fr;const thA=Math.atan2(D[0],D[2])+HC.yaw,phA=clamp(Math.asin(D[1])+HC.pitch,-1.45,1.5),dd=d*HC.dist,dir=[Math.sin(thA)*Math.cos(phA),Math.sin(phA),Math.cos(thA)*Math.cos(phA)],rt=norm(cross([0,1,0],dir)),tg=[rt[0]*HC.px,hc+HC.py,rt[2]*HC.px];
+  const bx=$('rrBox').getBoundingClientRect(),hd=$('hgHead').getBoundingClientRect(),t0=$('start').classList.contains('hidden')?0:clamp(hd.bottom/innerHeight,0,.5),fr=clamp((bx.top-8)/innerHeight-t0,.22,1),asp=RW/RH,th=Math.tan(.475),d=Math.max(.95*r/(th*fr),.9*r/(th*asp))*1.06,D=norm([1.95,2.2,3.05]);
+  S.free=fr;S.top0=t0;{const port=innerWidth/innerHeight<1;const bg=document.documentElement;bg.classList.toggle('port',port);const iw=port?1086:1672,ih=port?1448:941,ry=port?.56:.69,sc=Math.max(innerWidth/iw,innerHeight/ih),want=(t0+fr*.64)*innerHeight,oy=clamp(want-ry*ih*sc,innerHeight-ih*sc,0),k=Math.round(oy)+'px';if(S.bgY!==k){S.bgY=k;bg.style.setProperty('background-position','center '+k,'important')}}const thA=Math.atan2(D[0],D[2])+HC.yaw,phA=clamp(Math.asin(D[1])+HC.pitch,-1.45,1.5),dd=d*HC.dist,dir=[Math.sin(thA)*Math.cos(phA),Math.sin(phA),Math.cos(thA)*Math.cos(phA)],rt=norm(cross([0,1,0],dir)),tg=[rt[0]*HC.px,hc+HC.py,rt[2]*HC.px];
   S.under=phA<.02;S.cam={e:[tg[0]+dir[0]*dd,tg[1]+dir[1]*dd,tg[2]+dir[2]*dd],t:tg,u:[0,1,0]}} /* fit the plane in the open space above the panel, on any screen */
  const cy=S.cam.e[1],inCloud=sst(70,80,cy)*(1-sst(104,114,cy)),above=sst(100,115,cy);
  let fog=L3([.56,.68,.8],[.33,.53,.86],above),fn=lerp(50,160,above),ff=lerp(330,900,above);if(HG){fog=[.035,.035,.04];fn=CUR.r*3.5;ff=CUR.r*9}
- gl.clearColor(...fog,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ gl.clearColor(...fog,HG?0:1);if(HG!==S.hgW){S.hgW=HG;document.documentElement.classList.toggle('hgOn',HG)}gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.uniform2f(U.uRes,RW,RH);gl.uniform3fv(U.uFog,fog);gl.uniform1f(U.uFn,fn);gl.uniform1f(U.uFf,ff);gl.uniform3fv(U.uSun,norm([.4,.85,.3]));gl.uniform1f(U.uRetro,RETRO?1:0);gl.uniform1f(U.uSketch,LOOK===1?1:0);gl.uniform1f(U.uBoil,Math.floor(now/125));gl.uniform1f(U.uPx,RW/W);gl.uniform1f(U.uOutline,0);gl.uniform1f(U.uTime,now/1000);gl.uniform3fv(U.uCam,S.cam.e);
  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tDit);gl.uniform1i(U.uDit,1);gl.uniform1i(U.uTex,0);
- const LS=M.id();if(HG)LS[13]=1-(S.free||1); /* lens shift: center the plane in the free space */
+ const LS=M.id();if(HG)LS[13]=1-2*(S.top0||0)-(S.free||1); /* lens shift: center the plane in the free space */
  const VP=M.mul(LS,M.mul(M.persp(.95,RW/RH,1,1500),M.look(S.cam.e,S.cam.t,S.cam.u)));
  gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);gl.depthMask(true);
  const cx=S.cam.e[0],cz=S.cam.e[2];
- if(HG&&!S.under){const R2=CUR.r*5;draw(mQuad,scl(R2),VP,{tex:tHangar,wuv:1,sc:1/(2*R2),off:[.5,.5]});draw(mTurn,M.mul(M.trs([S.hx,.02,0],0,0,1),M.mul(rotY(S.yaw),scl(CUR.r*1.2))),VP,{lit:1})}else if(!HG){
+ if(HG){}else if(!HG){ /* v0.1.8: the hangar floor and turntable are now your painted hangar, behind the canvas */
  gl.depthMask(false);gl.uniform1f(U.uFn,1e5);gl.uniform1f(U.uFf,2e5);draw(mDome,M.trs([cx,S.cam.e[1]-60,cz],0,0,1),VP,{sky:1});gl.uniform1f(U.uFn,fn);gl.uniform1f(U.uFf,ff);gl.depthMask(true);gl.clear(gl.DEPTH_BUFFER_BIT);
  draw(mQuad,M.mul(M.trs([cx,0,cz],0,0,1),scl(1500)),VP,{tex:tSea,wuv:1,sc:1/34,off:[S.t*.02,S.t*.035],sea:!RETRO});}
  if(S.view<3&&!S.cine){if(CUR.fin&&CUR.bmin){gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,tIns);gl.uniform1i(U.uP0,2);gl.uniform3fv(U.uBmin,CUR.bmin);gl.uniform3fv(U.uBsize,CUR.bsize)}if(CUR.art){for(let i=0;i<6;i++){gl.activeTexture(gl.TEXTURE2+i);gl.bindTexture(gl.TEXTURE_2D,CUR.art[i]);gl.uniform1i(U['uP'+i],2+i)}gl.uniform3fv(U.uBmin,CUR.bmin);gl.uniform3fv(U.uBsize,CUR.bsize)}
@@ -1007,8 +1041,7 @@ function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimation
  $('msl').textContent=S.missile&&S.missile.tgt==='jet'?(Math.max(0,(S.z-S.missile.p[2]))/50).toFixed(1)+' NM':'--';
  $('clk').textContent=fmt(S.clock);
  const pg=progress();$('fill').style.width=(pg*100)+'%';$('me').style.left=(pg*100)+'%';
- ckDraw(now,drillI({spd:S.brake>0?220:S.burn>0?(CUR.kts||[0,0])[1]:climbingNow?(CUR.kts||[30])[0]-30:(CUR.kts||[0])[0],alt:S.alt,bank,pitch,burn:S.burn>0,climb:climbingNow,fuel:S.fuel,vx:S.vx,dt}),S.cine?'up':(S.on&&S.view>=3)?['fwd','left','right'][S.view-3]:'');
- requestAnimationFrame(frame)}
+ ckDraw(now,drillI({spd:S.brake>0?220:S.burn>0?(CUR.kts||[0,0])[1]:climbingNow?(CUR.kts||[30])[0]-30:(CUR.kts||[0])[0],alt:S.alt,bank,pitch,burn:S.burn>0,climb:climbingNow,fuel:S.fuel,vx:S.vx,dt}),S.cine?'up':(S.on&&S.view>=3)?['fwd','left','right'][S.view-3]:'');if(!HG)opaqueA();requestAnimationFrame(frame)}
 function pts(list,VP,col,size,a){const p=[],n=[],c=[],t=[];for(const q of list){p.push(...q);n.push(0,1,0);c.push(1,1,1,1);t.push(0,0)}
  for(const[k,arr]of[['p',p],['n',n],['c',c],['t',t]]){gl.bindBuffer(gl.ARRAY_BUFFER,lineBuf.b[k][0]);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.DYNAMIC_DRAW)}
  lineBuf.n=list.length;gl.uniform1f(U.uPt,size);draw(lineBuf,M.id(),VP,{mode:gl.POINTS,flat:col,a:Math.max(0,a)});gl.uniform1f(U.uPt,1)}
@@ -1676,7 +1709,7 @@ const PADN='PHYSICAL CONTROLLER · Left stick or D-pad flies. RT or X: guns. B o
 function styleShow(){const hw=padIn();$('modeSel').value=PMODE;$('styleB').textContent=hw?'( PLAY STYLE: PHYSICAL CONTROLLER )':'( PLAY STYLE: '+PMODE.toUpperCase()+' )';$('styleN').textContent=hw?PADN:STYN[PMODE];$('modeN').textContent=hw?PADN:STYN[PMODE];let t=0;try{t=+localStorage.getItem('1992salv')||0}catch(_){}$('salvH').textContent=t?'SALVAGE IN THE HANGAR: '+t.toLocaleString('en-US'):''}
 function styleSet(v){PMODE=v;try{localStorage.setItem('1992mode',PMODE)}catch(_){}modeSync();styleShow()}
 $('modeSel').onchange=e=>styleSet(e.target.value);$('styleB').onclick=()=>styleSet({auto:'touch',touch:'pad',pad:'pilot',pilot:'auto'}[PMODE]);styleShow(); /* the play style, explained where you pick it */$('ctlSel').value=CTL;$('ctlSel').onchange=e=>{CTL=e.target.value;try{localStorage.setItem('1992ctl',CTL)}catch(_){}document.body.classList.toggle('hat',ectl()==='hat')};
- $('volE').oninput=e=>{VOL.e=e.target.value/100;sv()};$('volF').oninput=e=>{VOL.f=e.target.value/100;if(BUS)BUS.fx.gain.value=VOL.f;sv()}}const paintLbl=()=>$('paintB').textContent='( PAINT: '+PAINTS[PAINT][0]+' )';paintLbl();$('paintB').onclick=()=>{do{PAINT=(PAINT+1)%PAINTS.length}while(!OWNP.includes(PAINT));try{localStorage.setItem('1992paint',PAINT)}catch(e){}paintLbl()};$('dExit').onclick=()=>D.on?demoExit():drillExit();$('dAgain').onclick=()=>{$('dFade').style.opacity=0;if(D.cpMode){cpGo();return}$('dEnd').classList.add('hidden');$('dAgain').textContent='( ▶ FLY AGAIN )';ctrShow()};$('dBoardE').onclick=()=>{if(D.cpMode){D.cpMode=0;dPayout('dead')}$('dAgain').textContent='( ▶ FLY AGAIN )';demoExit();$('boardB').click()}; /* spend your salvage between missions */$('dBack').onclick=demoExit;$('dDrill').onclick=()=>{if(D.cpMode){D.cpMode=0;$('dAgain').textContent='( ▶ FLY AGAIN )';$('dDrill').textContent='( MISSILE DRILL )';dPayout('dead');return}demoExit();$('drillB').click()};$('endBack').onclick=drillExit;$('endStage').onclick=()=>{drillExit();demoStart()};
+ $('volE').oninput=e=>{VOL.e=e.target.value/100;sv()};$('volF').oninput=e=>{VOL.f=e.target.value/100;if(BUS)BUS.fx.gain.value=VOL.f;sv()}}const paintLbl=()=>{$('paintB').textContent='( PAINT: '+PAINTS[PAINT][0]+' )';hgSw()};paintLbl();$('paintB').onclick=()=>{do{PAINT=(PAINT+1)%PAINTS.length}while(!OWNP.includes(PAINT));try{localStorage.setItem('1992paint',PAINT)}catch(e){}paintLbl()};$('dExit').onclick=()=>D.on?demoExit():drillExit();$('dAgain').onclick=()=>{$('dFade').style.opacity=0;if(D.cpMode){cpGo();return}$('dEnd').classList.add('hidden');$('dAgain').textContent='( ▶ FLY AGAIN )';ctrShow()};$('dBoardE').onclick=()=>{if(D.cpMode){D.cpMode=0;dPayout('dead')}$('dAgain').textContent='( ▶ FLY AGAIN )';demoExit();$('boardB').click()}; /* spend your salvage between missions */$('dBack').onclick=demoExit;$('dDrill').onclick=()=>{if(D.cpMode){D.cpMode=0;$('dAgain').textContent='( ▶ FLY AGAIN )';$('dDrill').textContent='( MISSILE DRILL )';dPayout('dead');return}demoExit();$('drillB').click()};$('endBack').onclick=drillExit;$('endStage').onclick=()=>{drillExit();demoStart()};
 function drillExit(){S.on=false;fireStop();S.view=0;document.body.classList.add('pre');['end','dExit'].forEach(i=>$(i).classList.add('hidden'));$('radio').style.display='none';$('lockfx').style.opacity=0;ckDraw(0,{},'');$('start').classList.remove('hidden');if(BUS&&AC)BUS.eng.gain.setTargetAtTime(0,AC.currentTime,.15)}
 /* ---------- music: an original 8-bit-style battle loop (E minor, 152 BPM), square lead, triangle bass, noise drums ---------- */
 const MUS={on:0,next:0,step:0,g:null,dl:null};const mtf=n=>440*Math.pow(2,(n-69)/12);
