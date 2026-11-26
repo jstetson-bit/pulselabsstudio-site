@@ -14,3 +14,5 @@ Warning tones, turbine whistle, hum, wind, air brake, roll and the A-10's cannon
 
 ## 1992 sound pack (v0.0.55)
 51 sounds from the Pulse Labs 1992 audio pack (PLS_1992_Audio_300, V002–V004: original procedural prototypes made for this game), chosen, trimmed of lead/tail silence, peak-normalized to -1 dB, mono 44.1 kHz OGG Vorbis q3. Listed in `pack.json` (key → takes; the game picks a random take each time).
+
+- gun-loop.ogg, gun-tail.ogg, gun-shot.ogg: built from The Free Firearm Sound Library (AK-47 single shots, Prepared SFX C_28P), CC0 1.0. https://github.com/buddingmonkey/FreeFirearmsSFXLibrary

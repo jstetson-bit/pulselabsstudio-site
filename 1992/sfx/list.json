@@ -5,5 +5,7 @@
  "boom": "boom.ogg",
  "cannon": "cannon.ogg",
  "flare": "flare.ogg",
- "launch_motor": "launch-motor.ogg"
+ "launch_motor": "launch-motor.ogg",
+ "gunloop": "gun-loop.ogg",
+ "guntail": "gun-tail.ogg"
 }
