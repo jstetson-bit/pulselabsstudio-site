@@ -176,7 +176,7 @@ body.demo .top{display:none!important} body.demo #dPause{left:auto;right:max(12p
 <div id="padLeg"></div><div id="padPills"><div class="pp py"><i>Y</i><s id="ppY">0</s><u>BOMB</u></div><div class="pp px"><i>X</i><s id="ppX">1</s><u>GUN</u></div><div class="pp pb"><i>B</i><s id="ppB">0</s><u>MISSILE</u></div><div class="pp pa"><i>A</i><s id="ppA">0</s><u>WINGMEN</u></div></div>
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
 <div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
-<div id="ver">1992 · concept v0.0.97 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
+<div id="ver">1992 · concept v0.0.98 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
 <style>
 #title{position:fixed;inset:0;z-index:50;background:#05060a;overflow:hidden;color:#fff;font-family:Arial,sans-serif;transition:opacity .6s}
 #title.off{opacity:0;pointer-events:none}
@@ -1607,7 +1607,7 @@ function musTick(){if(MY.el)MY.el.volume=MUTE?0:Math.min(1,VOL.m*2);if(!MUS.on||
 const GP={x:0,y:0,gun:false,prev:[]};
 const GPX=[null,{x:0,y:0,fire:false,prev:[]},{x:0,y:0,fire:false,prev:[]},{x:0,y:0,fire:false,prev:[]}]; /* controllers 2-4 = players 2-4 */
 const NP=()=>1+(D.al||[]).filter(a=>a.p2).length; /* how many people are flying: the fight scales to it */
-const TITLE={on:1,bg:[['art/title-deck.webp','58%'],['art/title-launch.webp','62%'],['art/title-ocean.webp','30%']]};
+const TITLE={on:1,bg:[['art/title-deck.webp','55%'],['art/title-launch.webp','58%'],['art/title-ocean.webp','50%']]};
 (function titleInit(){const t=$('title');if(!t)return;document.body.classList.add('titleOn');let n=0;try{n=(+localStorage.getItem('1992tbg')||0);localStorage.setItem('1992tbg',(n+1)%TITLE.bg.length)}catch(_){}const b=TITLE.bg[n%TITLE.bg.length];$('tBg').style.backgroundImage=`url(${b[0]})`;$('tBlur').style.backgroundImage=`url(${b[0]})`;$('tBg').style.setProperty('--fx',b[1]);
  const v=($('ver').textContent.match(/v[\d.]+/)||[''])[0];$('tVer').textContent=v;$('tAbV').textContent='Version '+v.slice(1);
  if(STAGE>1)$('tPlay').firstChild.textContent='CONTINUE · STAGE '+STAGE; /* your saved stage */
