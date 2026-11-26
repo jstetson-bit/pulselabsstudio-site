@@ -218,7 +218,7 @@ html.hgOn{background:#07080b url(art/hangar-land.webp) center/cover no-repeat fi
 <div id="padLeg"></div><div id="padPills"><div class="pp py"><i>Y</i><s id="ppY">0</s><u>BOMB</u></div><div class="pp px"><i>X</i><s id="ppX">1</s><u>GUN</u></div><div class="pp pb"><i>B</i><s id="ppB">0</s><u>MISSILE</u></div><div class="pp pa"><i>A</i><s id="ppA">0</s><u>WINGMEN</u></div></div>
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
 <div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
-<div id="ver">1992 · concept v0.1.10 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
+<div id="ver">1992 · concept v0.1.11 · Pulse Labs Studio</div><div id="dFade" style="position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:9;transition:opacity .3s"></div>
 <style>
 #title{position:fixed;inset:0;z-index:50;background:#05060a;overflow:hidden;color:#fff;font-family:Arial,sans-serif;transition:opacity .6s}
 #title.off{opacity:0;pointer-events:none}
@@ -275,7 +275,7 @@ body.titleOn #infoBtn,body.titleOn #invBtn{z-index:61}body.titleOn #manual{z-ind
    <div style="text-align:center"><canvas id="insv" width="96" height="96" style="width:96px;height:96px;display:block"></canvas><button class="pill" id="insNew" style="padding:8px 10px;min-height:40px;font-size:13px;margin-top:6px">( NEW INSIGNIA )</button></div></div>
   <div id="acStrip" aria-label="Hangar: swipe or tap a plane"></div>
   <button class="ok" id="go" aria-label="Play stage 1" style="display:none">✔</button>
-  <div id="hgFoot"><i></i><span>PULSE LABS STUDIO</span><em>v0.1.10</em><i></i></div>
+  <div id="hgFoot"><i></i><span>PULSE LABS STUDIO</span><em>v0.1.11</em><i></i></div>
  </div>
 </div>
 
@@ -400,9 +400,9 @@ html.hgOn #hgStill.on{display:block}
 .hgName small{font:700 clamp(11px,1.6vw,15px) Arial,sans-serif;letter-spacing:3px;color:#e6e6e8;border-top:1px solid #ffffff33;margin-top:3px;padding-top:3px}
 #acYr{display:none!important}
 .hgSlash{width:64px;height:34px;flex:0 0 auto;background:repeating-linear-gradient(-60deg,transparent 0 6px,#e63329 6px 13px,transparent 13px 20px);opacity:.9}
-.hgLaunch{align-self:center;width:min(92%,620px);height:clamp(54px,8vh,72px);background:#ff5a48!important;clip-path:polygon(26px 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,26px 100%,0 50%);filter:drop-shadow(0 0 14px #e63329)}
+.hgLaunch{align-self:center;width:min(78%,500px);height:clamp(44px,6vh,58px);background:#ff5a48!important;clip-path:polygon(26px 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,26px 100%,0 50%);filter:drop-shadow(0 0 14px #e63329)}
 .hgLaunch span{inset:3px;background:linear-gradient(#e0261c,#8a0a06 60%,#b3120c);clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 50%,calc(100% - 24px) 100%,24px 100%,0 50%)}
-.hgLaunch b{font:italic 900 clamp(20px,3.6vw,34px)/1 'Arial Black',Arial,sans-serif;letter-spacing:1.5px;text-shadow:0 2px 0 #4a0402}
+.hgLaunch b{font:italic 900 clamp(17px,2.6vw,26px)/1 'Arial Black',Arial,sans-serif;letter-spacing:1.5px;text-shadow:0 2px 0 #4a0402}
 #hgHead #demoB{box-shadow:none!important;padding:0!important}
 .hgArrow{width:64px;height:110px;background:#e63329!important;clip-path:polygon(26px 0,100% 0,100% 100%,26px 100%,0 50%)!important;filter:drop-shadow(0 0 8px #e6332988)}
 .hgArrow span{inset:3px;background:linear-gradient(90deg,#1c1d22,#0b0b0e);clip-path:polygon(25px 0,100% 0,100% 100%,25px 100%,0 50%)}
@@ -481,7 +481,7 @@ void main(){vMP=aP;vMN=aN;vec3 Q=aP,NN=aN;for(int i=0;i<6;i++){if(float(i)>=uSN)
  vec2 uv=uWUV>.5?w.xz*uSc+uOff:aT;vUV=uv;vUw=uv*p.w;vW=p.w;vD=p.w;vN=(uM*vec4(NN,0.)).xyz;vWP=w.xyz;
  vC=aC;gl_Position=p;gl_PointSize=uPt;}`;
 const DERIV=!!gl.getExtension('OES_standard_derivatives');
-const FS=(DERIV?'#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n':'')+`precision highp float;uniform sampler2D uNrm;uniform float uUseN;uniform sampler2D uTex,uDit;uniform vec4 uFin,uFin2;uniform float uPic,uMatte,uUseT,uA,uFn,uFf,uLit,uRetro,uDecal,uSea,uTime,uSky,uProj,uSketch,uBoil,uOutline,uPx;uniform sampler2D uP0,uP1,uP2,uP3,uP4,uP5;uniform vec3 uBmin,uBsize;uniform vec4 uTint;varying vec3 vMP,vMN;uniform vec3 uFog,uSun,uCam;uniform vec4 uFlat;
+const FS=(DERIV?'#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n':'')+`precision highp float;uniform float uHg;uniform sampler2D uNrm;uniform float uUseN;uniform sampler2D uTex,uDit;uniform vec4 uFin,uFin2;uniform float uPic,uMatte,uUseT,uA,uFn,uFf,uLit,uRetro,uDecal,uSea,uTime,uSky,uProj,uSketch,uBoil,uOutline,uPx;uniform sampler2D uP0,uP1,uP2,uP3,uP4,uP5;uniform vec3 uBmin,uBsize;uniform vec4 uTint;varying vec3 vMP,vMN;uniform vec3 uFog,uSun,uCam;uniform vec4 uFlat;
 varying vec4 vC;varying vec2 vUw,vUV;varying float vW,vD;varying vec3 vN,vWP;
 void main(){vec2 uv=uRetro>.5?vUw/vW:vUV;vec4 c=vC;
  if(uUseT>.5){vec4 t=texture2D(uTex,uv);if(uDecal>.5){float inb=step(0.,uv.x)*step(uv.x,1.)*step(0.,uv.y)*step(uv.y,1.);c.rgb=mix(c.rgb,t.rgb,t.a*inb);}else c*=t;}
@@ -508,7 +508,7 @@ float d=max(dot(n,uSun),0.);float sky=.5+.5*n.y;
    vec4 pc=tx*w.x+ty*w.y+tz*w.z;float bg=step(.94,min(pc.r,min(pc.g,pc.b)));c.rgb=mix(pc.rgb,c.rgb,bg);art=1.-bg;}
   vec3 amb=vec3(.30,.34,.42)*(.55+.65*sky);vec3 H=normalize(uSun+V);float sp=pow(max(dot(n,H),0.),90.)*.75*step(.0,d);
   vec3 rf=reflect(-V,n);vec3 env=mix(uFog*1.05,vec3(.2,.36,.7),clamp(rf.y*1.6,0.,1.));float fr=.04+.32*pow(1.-max(dot(n,V),0.),5.);
-  float gl=step(c.r+c.g+c.b,.75)*step(c.b,c.r+.2)*0.;vec3 pic=uMatte>.5?c.rgb*(vec3(.36,.39,.45)*(.78+.4*sky)+vec3(1.,.96,.9)*d*.8+vec3(.22,.22,.24)*max(-n.y,0.)+vec3(.16)*max(dot(n,V),0.)):c.rgb*(.9+.12*d); /* matte paint: real shading, no gloss */c.rgb=mix(mix(c.rgb*(amb*.9+vec3(1.0,.95,.86)*d*.78),env,fr)+sp*.8,pic,art);} /* art: the picture as drawn, only a hint of sun so the shape reads */
+  float gl=step(c.r+c.g+c.b,.75)*step(c.b,c.r+.2)*0.;vec3 pic=uMatte>.5?c.rgb*(vec3(.36,.39,.45)*(.78+.4*sky)+vec3(1.,.96,.9)*d*.8+vec3(.22,.22,.24)*max(-n.y,0.)+vec3(.16)*max(dot(n,V),0.)):c.rgb*(.9+.12*d); /* matte paint: real shading, no gloss */c.rgb=mix(mix(c.rgb*(amb*.9+vec3(1.0,.95,.86)*d*.78),env,fr)+sp*.8,pic,art);if(uHg>.5){float rim=pow(1.-max(dot(n,V),0.),3.);vec3 k2=normalize(vec3(-.35,.9,.5));c.rgb=c.rgb*.98+c.rgb*vec3(.95,.97,1.)*max(dot(n,k2),0.)*.28+vec3(1.,.16,.1)*rim*.5+vec3(1.)*pow(max(dot(n,normalize(k2+V)),0.),70.)*.3;c.rgb=c.rgb/(1.+c.rgb*.18);}} /* art: the picture as drawn, only a hint of sun so the shape reads */
  if(uSky>.5){vec3 dd=normalize(vWP-uCam);float s=max(dot(dd,uSun),0.);c.rgb+=vec3(1.,.93,.78)*(pow(s,900.)*5.+pow(s,60.)*.35+pow(s,8.)*.12);}
  c.a*=uA;if(c.a<.03)discard;
  if(uOutline>0.){gl_FragColor=vec4(.09,.08,.1,c.a);return;}
@@ -527,7 +527,7 @@ float d=max(dot(n,uSun),0.);float sky=.5+.5*n.y;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o}
 const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
 const A={P:gl.getAttribLocation(pr,'aP'),N:gl.getAttribLocation(pr,'aN'),C:gl.getAttribLocation(pr,'aC'),T:gl.getAttribLocation(pr,'aT')};
-const U={};['uNrm','uUseN','uFin','uFin2','uPic','uMatte','uMVP','uM','uRes','uOff','uWUV','uSc','uLit','uSun','uTex','uDit','uUseT','uA','uFn','uFf','uFog','uFlat','uPt','uRetro','uDecal','uSea','uTime','uCam','uSky','uProj','uP0','uP1','uP2','uP3','uP4','uP5','uBmin','uBsize','uSketch','uBoil','uOutline','uPx','uSA','uSB','uSN','uST','uTint','uSW','uSW2'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
+const U={};['uNrm','uUseN','uFin','uFin2','uPic','uMatte','uMVP','uM','uRes','uOff','uWUV','uSc','uLit','uSun','uTex','uDit','uUseT','uA','uFn','uFf','uFog','uFlat','uPt','uRetro','uDecal','uSea','uTime','uCam','uSky','uProj','uP0','uP1','uP2','uP3','uP4','uP5','uBmin','uBsize','uSketch','uBoil','uOutline','uPx','uSA','uSB','uSN','uST','uTint','uSW','uSW2','uHg'].forEach(n=>U[n]=gl.getUniformLocation(pr,n));
 
 /* ---------- procedural textures (tileable, tiny) ---------- */
 const TEXS=[];function setFilter(t){gl.bindTexture(gl.TEXTURE_2D,t);if(RETRO){gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST)}else{gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR)}}
@@ -1030,7 +1030,7 @@ function drawLine(pts,VP,life=1.6){if(pts.length<2)return;const p=[],n=[],c=[],t
 
 /* ---------- frame ---------- */
 let last=performance.now();
-function opaqueA(){gl.colorMask(false,false,false,true);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.colorMask(true,true,true,true)} /* v0.1.8: outside the hangar the picture is always fully opaque */
+function opaqueA(){if(U.uHg)gl.uniform1f(U.uHg,0);gl.colorMask(false,false,false,true);gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT);gl.colorMask(true,true,true,true)} /* v0.1.8: outside the hangar the picture is always fully opaque */
 function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimationFrame(frame);return} /* battery saver: 60 frames a second at most (a Fold screen asks for 120), 25 in menus */let dt=Math.min(.05,(now-last)/1000);last=now;{const w=!D.on&&CUR.glb&&!CUR.isGlb&&!CUR.glbFail;if(w!==S.roW){S.roW=w;$('rollOut').style.display=w?'block':'none'}} /* while the real jet loads: an empty pad and ROLLING OUT, never a stand-in */gpPoll();musTick();if(D.on){const ph=D.phase;D.ws=ph==='fight'||ph==='clear'||ph==='dead'?.52:1;demoFrame(D.paused?0:dt*D.ws,now);opaqueA(); /* the fight runs at 53% speed (owner: 75% in v0.0.61, then another 30% slower in v0.0.73); the deck and launch stay real-time */requestAnimationFrame(frame);return}
  if(S.cine){S.cine.t+=dt;if(S.cine.t>=S.cine.dur)cineEnd();else dt*=S.cine.t<.25||S.cine.t>S.cine.dur-.35?.55:.22}
  if(S.on){S.t+=dt;script();}
@@ -1066,7 +1066,7 @@ function frame(now){if(ECO&&now-last<(D.on&&!D.paused?15.5:40)){requestAnimation
   S.under=phA<.02;S.cam={e:[tg[0]+dir[0]*dd,tg[1]+dir[1]*dd,tg[2]+dir[2]*dd],t:tg,u:[0,1,0]}} /* fit the plane in the open space above the panel, on any screen */
  const cy=S.cam.e[1],inCloud=sst(70,80,cy)*(1-sst(104,114,cy)),above=sst(100,115,cy);
  let fog=L3([.56,.68,.8],[.33,.53,.86],above),fn=lerp(50,160,above),ff=lerp(330,900,above);if(HG){fog=[.035,.035,.04];fn=CUR.r*3.5;ff=CUR.r*9}
- gl.clearColor(...fog,HG?0:1);if(HG!==S.hgW){S.hgW=HG;document.documentElement.classList.toggle('hgOn',HG)}gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ gl.clearColor(...fog,HG?0:1);if(HG!==S.hgW){S.hgW=HG;document.documentElement.classList.toggle('hgOn',HG)}gl.uniform1f(U.uHg,HG?1:0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.uniform2f(U.uRes,RW,RH);gl.uniform3fv(U.uFog,fog);gl.uniform1f(U.uFn,fn);gl.uniform1f(U.uFf,ff);gl.uniform3fv(U.uSun,norm([.4,.85,.3]));gl.uniform1f(U.uRetro,RETRO?1:0);gl.uniform1f(U.uSketch,LOOK===1?1:0);gl.uniform1f(U.uBoil,Math.floor(now/125));gl.uniform1f(U.uPx,RW/W);gl.uniform1f(U.uOutline,0);gl.uniform1f(U.uTime,now/1000);gl.uniform3fv(U.uCam,S.cam.e);
  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,tDit);gl.uniform1i(U.uDit,1);gl.uniform1i(U.uTex,0);
  const LS=M.id();if(HG)LS[13]=1-2*(S.top0||0)-(S.free||1); /* lens shift: center the plane in the free space */
