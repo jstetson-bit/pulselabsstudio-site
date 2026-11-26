@@ -176,7 +176,40 @@ body.demo .top{display:none!important} body.demo #dPause{left:auto;right:max(12p
 <div id="padLeg"></div><div id="padPills"><div class="pp py"><i>Y</i><s id="ppY">0</s><u>BOMB</u></div><div class="pp px"><i>X</i><s id="ppX">1</s><u>GUN</u></div><div class="pp pb"><i>B</i><s id="ppB">0</s><u>MISSILE</u></div><div class="pp pa"><i>A</i><s id="ppA">0</s><u>WINGMEN</u></div></div>
 <div id="lockfx"><b id="lockt">MISSILE LOCK</b></div>
 <div id="rollOut" style="display:none;position:fixed;left:0;right:0;top:24vh;text-align:center;z-index:3;pointer-events:none;font:700 15px 'Courier New',monospace;letter-spacing:4px;color:#ffd21a;text-shadow:0 0 8px #000">ROLLING OUT…</div>
-<div id="ver">1992 · concept v0.0.93 · Pulse Labs Studio</div>
+<div id="ver">1992 · concept v0.0.94 · Pulse Labs Studio</div>
+<style>
+#title{position:fixed;inset:0;z-index:50;background:#05060a;overflow:hidden;color:#fff;font-family:Arial,sans-serif;transition:opacity .6s}
+#title.off{opacity:0;pointer-events:none}
+#tBg{position:absolute;inset:-4%;background-size:cover;background-position:var(--fx,55%) 50%;animation:tKB 36s ease-in-out infinite alternate}
+@keyframes tKB{from{transform:scale(1)}to{transform:scale(1.09) translateX(-1.5%)}}
+#tShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,4,8,.82) 0,rgba(3,4,8,.15) 30%,rgba(3,4,8,.1) 55%,rgba(3,4,8,.88) 100%)}
+#tFlash{position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(200,190,255,.55),rgba(140,120,255,0) 60%);opacity:0;transition:opacity .08s}
+#tTop{position:absolute;left:0;right:0;top:max(28px,env(safe-area-inset-top));text-align:center;pointer-events:none}
+.tSub{font:700 13px Arial,sans-serif;letter-spacing:7px;color:#e8e8ee;text-shadow:0 0 8px #000}
+.tLogo{font:italic 900 min(30vw,168px)/1 'Arial Black',Arial,sans-serif;letter-spacing:-2px;background:linear-gradient(180deg,#ffffff 0,#c9cdd4 38%,#7d838c 52%,#e6e8ec 70%,#9aa0a8 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 #1a1c20) drop-shadow(0 0 18px rgba(0,0,0,.9));margin-top:4px}
+.tBeat{display:block;width:min(84vw,520px);height:34px;margin:-6px auto 0}.tBeat polyline{fill:none;stroke:#e63329;stroke-width:3.5;filter:drop-shadow(0 0 6px #e63329)}
+.tTag{font:700 12px Arial,sans-serif;letter-spacing:6px;color:#ddd;margin-top:2px;text-shadow:0 0 6px #000}
+#tMenu{position:absolute;left:0;right:0;bottom:max(46px,calc(env(safe-area-inset-bottom) + 40px));display:flex;flex-direction:column;align-items:center}
+.tB{position:relative;z-index:0;display:flex;align-items:center;justify-content:space-between;width:min(80vw,360px);height:50px;margin:6px 0;padding:0 22px;border:0;background:#e63329;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);font:900 19px 'Arial Black',Arial,sans-serif;letter-spacing:2px;color:#fff;cursor:pointer;text-transform:uppercase}
+.tB::before{content:'';position:absolute;inset:2px;z-index:-1;background:linear-gradient(180deg,rgba(28,30,36,.94),rgba(6,7,10,.94));clip-path:polygon(13px 0,100% 0,100% calc(100% - 13px),calc(100% - 13px) 100%,0 100%,0 13px)}
+.tB i{font-style:normal;color:#e63329;letter-spacing:-2px}
+.tB.hi::before,.tB:hover::before,.tB.gpf::before{background:linear-gradient(180deg,#c3150f,#5c0806)}.tB.hi i,.tB:hover i,.tB.gpf i{color:#fff}
+.tB.hi,.tB.gpf{filter:drop-shadow(0 0 10px rgba(230,51,41,.8))}
+#tFoot{position:absolute;left:12px;right:12px;bottom:max(10px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;font:700 11px Arial,sans-serif;letter-spacing:4px;color:#ccc;border-top:2px solid #e63329;padding-top:6px}
+#tAsk,#tAbout{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,420px);background:rgba(6,7,10,.95);border:2px solid #e63329;padding:16px;font-size:14px;line-height:1.45;z-index:3}
+#tAsk.hidden,#tAbout.hidden{display:none}
+.tRow{display:flex;gap:12px;justify-content:flex-end;margin-top:12px}
+.tRow button{min-width:64px;height:46px;font-size:24px;background:#000;border:2px solid #e63329;border-radius:8px;color:#e63329;cursor:pointer}.tRow button.ok{color:#3dff6a;border-color:#3dff6a}
+@media (orientation:landscape){#tMenu{left:4vw;right:auto;bottom:auto;top:50%;transform:translateY(-50%);align-items:flex-start}.tB{width:min(34vw,330px);height:min(44px,10vh);font-size:17px;margin:min(4px,.8vh) 0}#tTop{left:auto;right:4vw;width:min(56vw,640px)}.tLogo{font-size:min(15vw,150px)}#tShade{background:linear-gradient(90deg,rgba(3,4,8,.85) 0,rgba(3,4,8,.25) 40%,rgba(3,4,8,0) 70%),linear-gradient(180deg,rgba(3,4,8,.55) 0,rgba(3,4,8,0) 35%,rgba(3,4,8,.6) 100%)}}
+body.titleOn #infoBtn,body.titleOn #invBtn{z-index:61}body.titleOn #manual{z-index:70}
+</style>
+<div id="title"><div id="tBg"></div><div id="tFlash"></div><div id="tShade"></div>
+ <div id="tTop"><div class="tSub">/// PULSE LABS STUDIO ///</div><div class="tLogo">1992</div><svg class="tBeat" viewBox="0 0 400 34"><polyline points="0,20 168,20 180,20 188,4 198,32 208,10 216,20 232,20 400,20"/></svg><div class="tTag">THE GULF · AIR WAR</div></div>
+ <div id="tMenu"><button class="tB hi" id="tPlay">PLAY<i>//</i></button><button class="tB" id="tHangar">HANGAR<i>//</i></button><button class="tB" id="tBoard">FLIGHT BOARD<i>//</i></button><button class="tB" id="tHow">HOW TO PLAY<i>//</i></button><button class="tB" id="tAboutB">ABOUT<i>//</i></button><button class="tB" id="tQuit">QUIT<i>//</i></button></div>
+ <div id="tFoot"><span>PULSE LABS STUDIO</span><span id="tVer"></span></div>
+ <div id="tAbout" class="hidden"><b style="color:#e63329;font-size:18px">1992</b><br><span id="tAbV"></span><br><br>A Pulse Labs Studio game.<br>Game design, code, art direction and models: Pulse Labs Studio.<br>Gun sounds: Free Firearm Sound Library (CC0).<br><br>support@pulselabsstudio.com<div class="tRow"><button id="tAbBack" aria-label="Back">↶</button></div></div>
+ <div id="tAsk" class="hidden">Close 1992?<div class="tRow"><button class="ok" id="tQuitOk" aria-label="Yes, close">✔</button><button id="tQuitNo" aria-label="Stay">↶</button></div></div>
+</div>
 
 <div class="sheet" id="start" style="align-items:flex-end;background:transparent;padding:8px"><div class="box" id="rrBox" style="max-width:520px;padding:12px 14px">
   <div class="keep" style="margin-bottom:8px"><button class="pill" id="demoB" style="width:100%;font-size:18px;box-shadow:0 0 14px #e63329">( ▶ PLAY · STAGE 1 )</button></div>
@@ -1554,11 +1587,24 @@ function musTick(){if(MY.el)MY.el.volume=MUTE?0:Math.min(1,VOL.m*2);if(!MUS.on||
 const GP={x:0,y:0,gun:false,prev:[]};
 const GPX=[null,{x:0,y:0,fire:false,prev:[]},{x:0,y:0,fire:false,prev:[]},{x:0,y:0,fire:false,prev:[]}]; /* controllers 2-4 = players 2-4 */
 const NP=()=>1+(D.al||[]).filter(a=>a.p2).length; /* how many people are flying: the fight scales to it */
+const TITLE={on:1,bg:[['art/title-deck.webp','58%'],['art/title-launch.webp','62%'],['art/title-ocean.webp','30%']]};
+(function titleInit(){const t=$('title');if(!t)return;document.body.classList.add('titleOn');let n=0;try{n=(+localStorage.getItem('1992tbg')||0);localStorage.setItem('1992tbg',(n+1)%TITLE.bg.length)}catch(_){}const b=TITLE.bg[n%TITLE.bg.length];$('tBg').style.backgroundImage=`url(${b[0]})`;$('tBg').style.setProperty('--fx',b[1]);
+ const v=($('ver').textContent.match(/v[\d.]+/)||[''])[0];$('tVer').textContent=v;$('tAbV').textContent='Version '+v.slice(1);
+ if(STAGE>1)$('tPlay').firstChild.textContent='CONTINUE · STAGE '+STAGE; /* your saved stage */
+ const hide=()=>{TITLE.on=0;t.classList.add('off');document.body.classList.remove('titleOn');setTimeout(()=>{t.style.display='none'},650)};
+ $('tPlay').onclick=()=>{hide();$('demoB').click()};$('tHangar').onclick=hide;$('tBoard').onclick=()=>{hide();$('boardB').click()};$('tHow').onclick=()=>$('infoBtn').click();
+ $('tAboutB').onclick=()=>$('tAbout').classList.remove('hidden');$('tAbBack').onclick=()=>$('tAbout').classList.add('hidden');
+ $('tQuit').onclick=()=>$('tAsk').classList.remove('hidden');$('tQuitNo').onclick=()=>$('tAsk').classList.add('hidden');$('tQuitOk').onclick=()=>{if(window.PulseMedia&&PulseMedia.quit){PulseMedia.quit();return}try{window.close()}catch(_){}$('tAsk').firstChild.textContent='Your browser keeps this tab open: close the tab to leave.'};
+ t.querySelectorAll('.tB').forEach(x=>x.addEventListener('pointerenter',()=>t.querySelectorAll('.tB').forEach(y=>y.classList.toggle('hi',y===x))));
+ (function storm(){if(!TITLE.on)return;const f=$('tFlash');f.style.opacity=1;setTimeout(()=>f.style.opacity=0,90);setTimeout(()=>{f.style.opacity=.7;setTimeout(()=>f.style.opacity=0,70)},180);setTimeout(storm,4000+Math.random()*6000)})(); /* lightning in the clouds */
+})(); /* v0.0.94: the title card: your key art, the 1992 logo, and the menu before the hangar */
+function titlePad(gp,E){const t=$('title');const box=!$('tAsk').classList.contains('hidden')?$('tAsk'):!$('tAbout').classList.contains('hidden')?$('tAbout'):$('tMenu');const L=[...box.querySelectorAll('button')].filter(b=>b.offsetParent);const ay=(gp.axes[1]||0)+(gp.buttons[13]&&gp.buttons[13].pressed?1:0)-(gp.buttons[12]&&gp.buttons[12].pressed?1:0),sy=ay>.5?1:ay<-.5?-1:0,step=(sy>0&&GP.sy<=0?1:0)-(sy<0&&GP.sy>=0?1:0);GP.sy=sy;if(L.length){GP.ti=((GP.ti||0)+step+L.length)%L.length;L.forEach((b,i)=>{b.classList.toggle('gpf',i===GP.ti);if(box===$('tMenu'))b.classList.toggle('hi',i===GP.ti)});if(E(0)||E(9)){const b=L[GP.ti];GP.ti=0;b.click()}}if(E(1)){$('tAsk').classList.add('hidden');$('tAbout').classList.add('hidden')}} /* controller on the title: D-pad moves, A picks, B backs out */
 function gpPoll(){const pads=navigator.getGamepads?[...navigator.getGamepads()].filter(g=>g&&g.connected):[],gp=pads[0];
  for(let k=1;k<4;k++){const g2=pads[k],P=GPX[k];if(g2&&D.on){const B=i=>!!(g2.buttons[i]&&g2.buttons[i].pressed),E=i=>B(i)&&!P.prev[i];let ax=(g2.axes[0]||0)+(B(15)?1:0)-(B(14)?1:0),ay=(g2.axes[1]||0)+(B(13)?1:0)-(B(12)?1:0);if(Math.hypot(ax,ay)<.18)ax=ay=0;P.x=clamp(ax,-1,1);P.y=clamp(-ay,-1,1);P.fire=B(2)||B(7);
   if((E(9)||E(0))&&(D.phase==='fight'||D.phase==='clear')&&!D.al.some(a=>a.p2===k))p2Join(k);P.prev=g2.buttons.map(b=>b.pressed)}else{P.x=P.y=0;P.fire=false}}
  {const hw=!!gp;if(document.body.classList.contains('padhw')!==hw){document.body.classList.toggle('padhw',hw);try{styleShow()}catch(_){}}}if(!gp){GP.x=GP.y=0;return} /* a real controller takes every button off the screen */if(TOUCH&&PMODE!=='touch')modeSync(); /* a controller in your hands switches Touch off (Touch mode was turning the X gun off every frame) */
  const B=i=>!!(gp.buttons[i]&&gp.buttons[i].pressed),E=i=>B(i)&&!GP.prev[i];
+ if(!D.on&&TITLE.on&&$('manual').classList.contains('hidden')){titlePad(gp,E);GP.prev=gp.buttons.map(b=>b.pressed);return}
  if(!D.on){if(E(0)||E(9)){const g=$('go');if(g&&g.offsetParent)g.click()}}
  else{let ax=(gp.axes[0]||0)+(B(15)?1:0)-(B(14)?1:0),ay=(gp.axes[1]||0)+(B(13)?1:0)-(B(12)?1:0);if(Math.hypot(ax,ay)<.18)ax=ay=0;GP.x=clamp(ax,-1,1);GP.y=clamp(-ay,-1,1);
   const menu=D.paused?$('pauseM'):!$('dEnd').classList.contains('hidden')?$('dEnd'):null;
