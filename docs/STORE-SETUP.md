@@ -34,3 +34,16 @@ Supabase's built-in email sends only 2 emails an hour from a generic address and
 - Check Google Play's current rules on selling unlock keys outside Play for apps also sold on Play (US rules changed
   after the Epic case). HQ researches this before launch.
 - Play promo codes (500 per quarter per app) cover buyers who want the purchase on their Play account.
+
+## 5. Pulse Dark Pro + "Report this page" (after Supabase exists)
+HQ does all of this once Supabase is up; nothing new for Jason except signing up on the site once.
+1. Run `supabase/migrations/002_pulse_dark.sql`: adds the product `pulse-dark-pro` ($14.99), the admins list,
+   page reports, Pulse Labs' site-fix list and the private `reports` picture bucket.
+2. Jason signs up on pulselabsstudio.com with his email; HQ runs the one line at the bottom of 002 to make that account
+   the admin. The admin page is `pulselabsstudio.com/admin/reports.html` (not linked anywhere, signed-in admins only).
+3. Deploy `page-report` and `key-status` (both `--no-verify-jwt`). Secrets: `REPORT_SALT` (random text) and, so every
+   report also lands as a farm ticket, `GITHUB_TICKETS_TOKEN` (fine-grained token: contents read/write on pls-tickets only).
+4. In Paddle: product "Pulse Dark Pro", one-time price **$14.99, tax-inclusive** (Price → tax mode "Inclusive"), so every
+   buyer pays exactly $14.99. Put its `pri_…` id in `products.paddle_price` for `pulse-dark-pro` and set `active = true`.
+5. Pulse Dark's own settings file (`src/data/store.js` in the extension) gets the same Supabase URL, anon key and the
+   public Pulse key, then a new build. Until then Pro is unlocked in every build (nothing is locked before the store is open).
